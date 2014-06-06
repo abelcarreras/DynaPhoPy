@@ -3,9 +3,8 @@ import matplotlib.pyplot as plt
 import correlation
 import Functions.reading as reading
 import Functions.projection as projection
-import Functions.eigenvectors as eigenvectors
+import Functions.eigenvectors as eigen
 import Functions.peaksearch as peaksearch
-import Functions.dynamical_matrix as dynmat
 
 #DynaPhoPy Python correlation function (... slow)
 def correlation_python (Frequency, vq, Time):
@@ -34,7 +33,7 @@ number_of_dimensions=trajectory.structure.get_number_of_dimensions()
 
 
 #Getting eigenvectors from somewhere
-eigenvectors = eigenvectors.get_eigenvectors_test(trajectory.structure)
+eigenvectors = eigen.get_eigenvectors_test(trajectory.structure)
 
 
 #Projection onto unit cell
@@ -90,16 +89,14 @@ print(eigenvectors)
 
 print('\n')
 
-new_frequencies, new_eigenvectors, dynamical_matrix = dynmat.build_dynamical_matrix(trajectory.structure,frequencies,eigenvectors)
-
+new_frequencies, new_eigenvectors, dynamical_matrix = eigen.build_dynamical_matrix(trajectory.structure,frequencies,eigenvectors)
 
 print('Final Dynamical Matrix')
 print(dynamical_matrix)
 
 print('\n')
 print('EigenVectors & EigenValues')
-eigen_values, eigen_vectors = np.linalg.eig (dynamical_matrix)
-print(np.sqrt(eigen_values))
+print(new_frequencies)
 
 
 exit()

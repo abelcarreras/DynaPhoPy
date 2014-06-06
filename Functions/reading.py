@@ -183,6 +183,7 @@ def read_from_file_test():
         if not row: break
         for i in range(len(row)): row[i] = complex('('+row[i]+')')
         velocity.append(row)
+  #  velocity = velocity[:4000][:]  #Limitate the number of points (just for testing)
 
     time = np.array([velocity[i][0]  for i in range(len(velocity))]).real
     velocity = np.array([[[velocity[i][j*number_of_dimensions+k+1] for k in range( number_of_dimensions ) ] for j in range(number_of_atoms)] for i in range (len(velocity))])

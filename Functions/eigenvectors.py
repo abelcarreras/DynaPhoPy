@@ -44,6 +44,26 @@ def get_eigenvectors_test(estructura):
 
     return arranged_EV
 
+def build_dynamical_matrix(structure, frequencies, eigenvectors):
+
+    number_of_cell_atoms = structure.get_number_of_cell_atoms()
+    number_of_dimensions = structure.get_number_of_dimensions()
 
 
+    dynamical_matrix=np.mat(np.zeros((number_of_dimensions*number_of_cell_atoms,number_of_dimensions*number_of_cell_atoms)))
+
+    for i in range(number_of_cell_atoms):
+        for j in range(number_of_cell_atoms):
+            SubDynamicalMatrix=np.mat(np.zeros((number_of_dimensions,number_of_dimensions)))
+            for f in range(number_of_cell_atoms*number_of_dimensions):
+                SubDynamicalMatrix += frequencies[f]**2 *np.mat(eigenvectors[f,i,:]).T*np.mat(eigenvectors[f,j,:].conj())
+            dynamical_matrix[i*number_of_dimensions:(i+1)*number_of_dimensions,j*number_of_dimensions:(j+1)*number_of_dimensions] = SubDynamicalMatrix
+
+    new_frequencies, new_eigenvectors = np.linalg.eig (dynamical_matrix)
+    new_frequencies = np.sqrt(new_frequencies)
+
+#    new_eigenvectors=np.mat(orthogonalize(new_eigenvectors))
+    new_eigenvectors = np.mat(scitools.numpyutils.Gram_Schmidt(new_eigenvectors,normalize=True))
+
+    return new_frequencies, new_eigenvectors, dynamical_matrix
 
