@@ -6,16 +6,6 @@ import Functions.projection as projection
 import Functions.eigenvectors as eigen
 import Functions.peaksearch as peaksearch
 
-#DynaPhoPy Python correlation function (... slow)
-def correlation_python (Frequency, vq, Time):
-    Correl=0
-    Increment=101
-
-    for i in range(1,vq.shape[0],Increment):
-        for j in range (vq.shape[0]-i-Increment):
-            Correl += vq[j].conj()*vq[j+i]*np.exp(np.complex(0,1)*Frequency*Time[j]) *(Time[j+i]-Time[j])
-
-    return Correl/(vq.shape[0]/Increment)
 
 print("Program start")
 
@@ -81,13 +71,7 @@ print 'Frequencies:',frequencies
 
 
 #Dynamical Matrix section
-print('Matrix section|\n')
-
-print('Arranged Matrix')
-print(eigenvectors)
-
-
-print('\n')
+print('Matrix section\n')
 
 new_frequencies, new_eigenvectors, dynamical_matrix = eigen.build_dynamical_matrix(trajectory.structure,frequencies,eigenvectors)
 
@@ -97,7 +81,6 @@ print(dynamical_matrix)
 print('\n')
 print('EigenVectors & EigenValues')
 print(new_frequencies)
-
 
 exit()
 
