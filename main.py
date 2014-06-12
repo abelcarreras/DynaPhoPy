@@ -42,7 +42,6 @@ plt.show()
 #for i in range(vq.shape[0]):
 #    vq[i,:] += random.uniform(-0.5,0.5)
 
-
 # Correlation section (working on..)
 print ('Correlation')
 
@@ -55,7 +54,7 @@ for i in range (vq.shape[1]):
     for k in range (test_frequencies_range.shape[0]):
         Frequency = test_frequencies_range[k]
 #        correlation_vector[k,i] = correlation.correlation(Frequency,vq[:,i],trajectory.get_time())
-        correlation_vector[k,i] = correlation.correlation2(Frequency,vq[:,i],(trajectory.get_time_step_average()),50)
+        correlation_vector[k,i] = correlation.correlation2(Frequency,vq[:,i],(trajectory.get_time_step_average()),100)
         print (correlation_vector[k,i].real)
 
     print('\n')
@@ -73,9 +72,8 @@ print 'Frequencies:',frequencies
 #Dynamical Matrix section
 print('Matrix section\n')
 
-new_frequencies, new_eigenvectors, dynamical_matrix = eigen.build_dynamical_matrix(trajectory.structure,frequencies,eigenvectors)
-
 print('Final Dynamical Matrix')
+new_frequencies, new_eigenvectors, dynamical_matrix = eigen.build_dynamical_matrix(trajectory.structure,frequencies,eigenvectors)
 print(dynamical_matrix)
 
 print('\n')
