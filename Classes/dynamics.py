@@ -2,6 +2,19 @@ import atomstest
 import numpy as np
 
 
+def obtain_velocity_from_positions(trajectory):
+    velocity = trajectory.copy()
+    for i in range(trajectory.shape[1]):
+        for j in range(trajectory.shape[2]):
+#            print(i,j)
+    #        velocity[:,i,j] = np.gradient(position[:,i,j])
+ #           print(trajectory[:,i,j])
+            velocity [:,i,j] =  np.resize( np.diff(trajectory[:,i,j],n=4), velocity.shape[0])
+#            print(velocity)
+    print('Velocity obtained from trajectory derivative')
+    return velocity
+
+
 class Dynamics:
 
     def __init__(self,
@@ -11,10 +24,17 @@ class Dynamics:
                  time=None):
 
 
-        self.velocity = velocity
         self.time=time
         self.trajectory = trajectory
         self.time_step_average = None
+
+
+        if velocity == None:
+            print('No velocity provided')
+            self.velocity = obtain_velocity_from_positions(trajectory)
+        else:
+            self.velocity = velocity
+
 
         if structure:
             self.structure = structure

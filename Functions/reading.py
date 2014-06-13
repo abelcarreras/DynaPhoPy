@@ -2,6 +2,8 @@ import numpy as np
 import Classes.dynamics as dyn
 import Classes.atomstest as atomtest
 import mmap
+import phonopy.file_IO as file_IO
+
 #import ase.io.vasp
 #import ase.atoms as Atoms
 
@@ -31,11 +33,8 @@ def read_from_file_structure(file_name):
         # memory-map the file
         file_map = mmap.mmap(f.fileno(), 0)
 
-        #Reading dimensions
-        position_number = file_map.find('ion  position')
-        file_map.seek(position_number)
-        file_map.readline()
-        number_of_dimensions = len(file_map.readline().split())-1
+        #Setting number of dimensions
+        number_of_dimensions = 3
 
         #Reading number of atoms
         position_number = file_map.find('NIONS =')
@@ -64,10 +63,10 @@ def read_from_file_structure(file_name):
         position_number = file_map.find('direct lattice vectors')
         file_map.seek(position_number)
         file_map.readline()
-
         direct_cell = []    #Direct Cell
         for i in range (number_of_dimensions):
             direct_cell.append(file_map.readline().split()[0:number_of_dimensions])
+#        print(direct_cell)
         direct_cell = np.array(direct_cell,dtype='double')
 
         file_map.seek(position_number)
@@ -77,9 +76,6 @@ def read_from_file_structure(file_name):
         for i in range (number_of_dimensions):
             reciprocal_cell.append(file_map.readline().split()[number_of_dimensions:number_of_dimensions*2])
         reciprocal_cell = np.array(reciprocal_cell,dtype='double')
-
-        #Normalized cell
-        cell_normalized = direct_cell / np.linalg.norm(direct_cell, axis=-1)[:, np.newaxis]
 
 
         #Reading positions fractional cartesian
@@ -106,13 +102,13 @@ def read_from_file_structure(file_name):
 
     file_map.close()
 
-    return atomtest.Structure(cell= cell_normalized,
+    return atomtest.Structure(cell= direct_cell,
                               positions=positions,
                               forces=None,
                               atomic_types=atomic_types)
 
 
-def read_from_file_trajectory(file_name):
+def read_from_file_trajectory(file_name,structure):
 
     limit_number_structures = 10000
 
@@ -123,6 +119,18 @@ def read_from_file_trajectory(file_name):
         file_map.seek(position_number+7)
         number_of_atoms = int(file_map.readline())
 #        print('Number of atoms:',number_of_atoms)
+#       check number of atoms
+
+#       Read time step
+        position_number=file_map.find('POTIM  =')
+        file_map.seek(position_number+8)
+        time_step = float(file_map.readline().split()[0])
+
+
+        if number_of_atoms != structure.number_of_atoms:
+            print('Warning: Number of atoms not matching, check VASP output files')
+            exit()
+
         trajectory = []
         while True :
             position_number=file_map.find('POSITION')
@@ -133,16 +141,31 @@ def read_from_file_trajectory(file_name):
             supercell = []
             for i in range (number_of_atoms):
 #                print np.array(( file_map.readline().split()[0:3] ),dtype='double')
-                supercell.append(file_map.readline().split()[0:3])
-            trajectory.append(supercell)
+                supercell.append(file_map.readline().split()[0:structure.get_number_of_dimensions()])
+            trajectory.append(np.array(supercell,dtype=float).flatten())
+#            print(np.array(supercell,dtype=float).flatten())
             limit_number_structures -= 1
 
             if limit_number_structures < 0:
                 break
 
         file_map.close()
-        trajectory = np.array(trajectory)
-        return dyn.Dynamics(trajectory= trajectory)
+
+#        print('fi')
+ #       print(number_of_atoms)
+#        trajectory = np.array(trajectory)
+        number_of_dimensions = structure.get_number_of_dimensions()
+ #       print(trajectory[0])
+
+        trajectory = np.array([[[trajectory[i][j*number_of_dimensions+k] for k in range(number_of_dimensions) ] for j in range(number_of_atoms)] for i in range (len(trajectory))])
+#        print (trajectory[0,1,:])
+
+        time = np.array([ i*time_step for i in range(trajectory.shape[0])],dtype=float)
+
+        print('Trajectory file read')
+        return dyn.Dynamics(structure = structure,
+                            trajectory = np.array(trajectory),
+                            time=time)
 
 
 def read_from_file_test():

@@ -6,11 +6,15 @@ def project_onto_unit_cell(trajectory,q_vector):
     number_of_cell_atoms = trajectory.structure.get_number_of_cell_atoms()
     number_of_dimensions = trajectory.structure.get_number_of_dimensions()
     number_of_atoms = trajectory.structure.number_of_atoms
-    atom_type = trajectory.structure.get_atomic_numbers()
+    atom_type = trajectory.structure.get_atom_type_index()
     coordinates = trajectory.structure.get_positions()
     velocity = trajectory.get_velocity_mass_average()
 
     velocity_projected=np.zeros((velocity.shape[0],number_of_cell_atoms,number_of_dimensions),dtype=complex)
+
+    if q_vector.shape[0] != coordinates.shape[1]:
+        print('Warning!! Q-vector and coordinates have not the same dimension')
+        exit()
 
     #Projection in primitive cell
     for i in range(number_of_atoms):

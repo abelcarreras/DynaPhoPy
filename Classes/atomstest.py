@@ -5,9 +5,11 @@ class Structure:
 
     def __init__(self,
                  positions=None,
+                 scaled_positions=None,
                  masses=None,
                  cell=None,
                  forces=None,
+                 force_constants=None,
                  atomic_numbers=None,
                  number_of_atoms=None,
                  atomic_types=None,
@@ -19,7 +21,16 @@ class Structure:
         self.atomic_numbers = np.array(atomic_numbers, dtype='double')
         self.atomic_types = atomic_types
         self.forces = np.array(forces, dtype='double')
+        self.force_constants = np.array(force_constants, dtype='double')
+
         self.number_of_cell_atoms = number_of_cell_atoms
+        self.scaled_positions = scaled_positions
+        self.number_of_atom_types = None
+        self.atom_type_index = None
+
+
+        #Normalized cell
+        self.cell_normalized = cell / np.linalg.norm(cell, axis=-1)[:, np.newaxis]
 
 
         if (number_of_atoms == None):
@@ -30,7 +41,7 @@ class Structure:
         if (atomic_numbers == None):
             self.atomic_numbers =  np.array([ symbol_map[i] for i in self.atomic_types ])
         else:
-            self.atomic_numbers = atomic_numbers
+            self.atomic_numbers = np.array(atomic_numbers)
 
         if (masses == None):
             self.masses = np.array([ atom_data[i][3] for i in self.atomic_numbers ])
@@ -46,11 +57,25 @@ class Structure:
     def set_positions(self, cart_positions):
         self.scaled_positions = np.dot(cart_positions, np.linalg.inv(self.cell))
 
+
     def get_positions(self):
-        return self.positions
+        if self.positions != None:
+            return self.positions
+        else:
+            return np.dot(self.positions, self.cell)
 
     def get_scaled_positions(self):
-        return np.dot(self.positions, self.cell)
+        if self.scaled_positions != None:
+            return self.scaled_positions
+        else:
+            self.scaled_positions = np.dot(self.positions, np.linalg.inv(self.cell))
+            return self.scaled_positions
+
+    def set_force_constants(self, force_constants):
+        self.force_constants = np.array(force_constants)
+
+    def get_force_constants(self):
+        return np.array(self.force_constants)
 
     def set_masses(self, masses):
         self.masses = np.array(masses, dtype='double')
@@ -68,10 +93,34 @@ class Structure:
         return self.atomic_numbers
 
     def get_number_of_cell_atoms(self):
-        return self.number_of_cell_atoms
+        if (self.number_of_cell_atoms):
+            return self.number_of_cell_atoms
+        else:
+            return self.get_number_of_atoms()
 
     def set_number_of_cell_atoms(self,number_of_cell_atoms):
         self.number_of_cell_atoms = number_of_cell_atoms
+
+    def get_number_of_atom_types(self):
+        if self.number_of_atom_types:
+            return self.number_of_atom_types
+        else:
+            self.number_of_atom_types = len(set(self.atomic_numbers))
+            return  self.number_of_atom_types
+
+    def get_atom_type_index(self):
+        if self.atom_type_index:
+            return self.atom_type_index
+        else:
+            self.atom_type_index = self.atomic_numbers.copy()
+            for i in range(self.number_of_atoms):
+                for index in range(self.get_number_of_atom_types()):
+    #                print(i,index,self.atomic_numbers[index])
+                    if self.atomic_numbers[index] == self.atomic_numbers[i]:
+                        self.atom_type_index[i] = index
+
+            return self.atom_type_index
+
 
 
 

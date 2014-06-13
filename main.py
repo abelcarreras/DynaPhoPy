@@ -5,25 +5,35 @@ import Functions.reading as reading
 import Functions.projection as projection
 import Functions.eigenvectors as eigen
 import Functions.peaksearch as peaksearch
-
+import phonopy.file_IO as file_IO
+import Functions.phonopy_interface as pho_interface
 
 print("Program start")
 
 
 #Parameters definition section (one parameter left)
-q_vector = np.array ([1.5,0.5])
+q_vector = np.array ([1.5,0.5,0.5])
 
+
+
+#Reading structure
+structure = reading.read_from_file_structure('/home/abel/VASP/Si-test/OUTCAR')
+
+#Reading force constants from vasprun.xml
+force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-test/vasprun.xml')[0]
+#force_constants = get_force_constants_from_file('/home/abel/VASP/Si-test/FORCE_CONSTANTS')
+structure.set_force_constants(force_constants)
 
 #Reading trajectory from test files
-trajectory = reading.read_from_file_test()
-
+#trajectory = reading.read_from_file_test()
+trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic/OUTCAR',structure)
 
 #Testing manual input (to be deprecated)
 number_of_dimensions=trajectory.structure.get_number_of_dimensions()
 
-
 #Getting eigenvectors from somewhere
-eigenvectors = eigen.get_eigenvectors_test(trajectory.structure)
+#eigenvectors = eigen.get_eigenvectors_test(trajectory.structure)
+eigenvectors,original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(trajectory.structure,q_vector)
 
 
 #Projection onto unit cell
