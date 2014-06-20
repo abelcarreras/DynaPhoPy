@@ -110,7 +110,7 @@ def read_from_file_structure(file_name):
 
 def read_from_file_trajectory(file_name,structure):
 
-    limit_number_structures = 10000
+    limit_number_structures = 100000
 
     with open(file_name, "r+") as f:
     # memory-map the file
@@ -131,18 +131,24 @@ def read_from_file_trajectory(file_name,structure):
             print('Warning: Number of atoms not matching, check VASP output files')
             exit()
 
+#       Read coordinates and energy
         trajectory = []
+        energy = []
         while True :
             position_number=file_map.find('POSITION')
             if position_number < 0 : break
             file_map.seek(position_number)
             file_map.readline()
             file_map.readline()
-            supercell = []
+            read_coordinates = []
             for i in range (number_of_atoms):
 #                print np.array(( file_map.readline().split()[0:3] ),dtype='double')
-                supercell.append(file_map.readline().split()[0:structure.get_number_of_dimensions()])
-            trajectory.append(np.array(supercell,dtype=float).flatten())
+                read_coordinates.append(file_map.readline().split()[0:structure.get_number_of_dimensions()])
+            position_number=file_map.find('energy(')
+            file_map.seek(position_number)
+            read_energy = file_map.readline().split()[2]
+            trajectory.append(np.array(read_coordinates,dtype=float).flatten())
+            energy.append(np.array(read_energy,dtype=float))
 #            print(np.array(supercell,dtype=float).flatten())
             limit_number_structures -= 1
 
@@ -165,6 +171,7 @@ def read_from_file_trajectory(file_name,structure):
         print('Trajectory file read')
         return dyn.Dynamics(structure = structure,
                             trajectory = np.array(trajectory),
+                            energy = np.array(energy),
                             time=time)
 
 

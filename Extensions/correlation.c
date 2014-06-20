@@ -12,8 +12,6 @@
 
 static PyObject* correlation1 (PyObject* self, PyObject *arg)
 {
-//  Importing numpy array types
-    _import_array();
 
 //  Declaring basic variables
     double  Frequency;
@@ -32,6 +30,8 @@ static PyObject* correlation1 (PyObject* self, PyObject *arg)
          Py_XDECREF(Time_array);
          return NULL;
     }
+
+
 
     double _Complex *VQ    = (double _Complex * )PyArray_DATA(VQ_array);
     double *Time    = (double*)PyArray_DATA(Time_array);
@@ -65,8 +65,6 @@ static PyObject* correlation1 (PyObject* self, PyObject *arg)
 
 static PyObject* correlation2 (PyObject* self, PyObject *arg )
 {
-//  Importing numpy array types
-    _import_array();
 
 //  Declaring basic variables
     double  Frequency;
@@ -88,7 +86,6 @@ static PyObject* correlation2 (PyObject* self, PyObject *arg )
     double _Complex *VQ    = (double _Complex * )PyArray_DATA(VQ_array);
     int NumberOfData = (int)PyArray_DIM(VQ_array, 0);
 
-
 //  Starting correlation calculation
 	double _Complex Correl = 0;
 
@@ -97,6 +94,7 @@ static PyObject* correlation2 (PyObject* self, PyObject *arg )
 			Correl += conj(VQ[j])*VQ[j+i]*cexp(_Complex_I*Frequency*(i*DTime));
 		}
 	}
+
     return Py_BuildValue("d", creal(Correl)*DTime/(NumberOfData/Increment));
 
 }
@@ -114,6 +112,8 @@ static PyMethodDef extension_funcs[] = {
 
 void initcorrelation(void)
 {
+//  Importing numpy array types
+    import_array();
     Py_InitModule3("correlation", extension_funcs,
                    "Fast Correlation Functions ");
 }

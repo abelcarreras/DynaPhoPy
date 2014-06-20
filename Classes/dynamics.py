@@ -1,8 +1,22 @@
 import atomstest
 import numpy as np
+import derivative
+import correlation
+import matplotlib.pyplot as plt
 
 
-def obtain_velocity_from_positions(trajectory):
+def obtain_velocity_from_positions(cell,trajectory,time):
+    velocity = trajectory.copy()
+
+    for i in range(trajectory.shape[1]):
+        velocity [:,i,:] = derivative.derivative1(cell,trajectory[:,i,:],time)
+#        plt.plot(velocity[:,i,:])
+#        plt.show()
+    print('Velocity obtained from trajectory derivative')
+    return velocity
+
+
+def obtain_velocity_from_positions2(trajectory):
     velocity = trajectory.copy()
     for i in range(trajectory.shape[1]):
         for j in range(trajectory.shape[2]):
@@ -21,19 +35,14 @@ class Dynamics:
                  structure=atomstest.Structure,
                  trajectory=None,
                  velocity=None,
+                 energy = None,
                  time=None):
 
 
         self.time=time
         self.trajectory = trajectory
+        self.energy = energy
         self.time_step_average = None
-
-
-        if velocity == None:
-            print('No velocity provided')
-            self.velocity = obtain_velocity_from_positions(trajectory)
-        else:
-            self.velocity = velocity
 
 
         if structure:
@@ -41,6 +50,13 @@ class Dynamics:
         else:
             print('Warining: Initalization without structure')
             self.structure = None
+
+        if velocity == None:
+            print('No velocity provided')
+            self.velocity = obtain_velocity_from_positions(self.structure.cell,self.trajectory,self.time)
+        else:
+            self.velocity = velocity
+
 
     def set_trajectory(self, trajectory):
         self.trajectory = trajectory
@@ -53,6 +69,9 @@ class Dynamics:
 
     def get_time(self):
         return self.time
+
+    def get_energy(self):
+        return  self.energy
 
     def get_time_step_average(self):
 
