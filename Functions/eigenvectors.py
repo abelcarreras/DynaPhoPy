@@ -16,7 +16,6 @@ def orthogonalize(V):
     return E
 
 
-
 def get_eigenvectors_test(estructura):
 
     #Manual eigenvectors definition (from Wolfram Mathematica calculations)

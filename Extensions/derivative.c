@@ -214,7 +214,6 @@ static char extension_docs1[] =
 
 static PyMethodDef extension_funcs[] = {
     {"derivative1", (PyCFunction)method1, METH_VARARGS, extension_docs1},
-
     {NULL}
 };
 

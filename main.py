@@ -15,12 +15,12 @@ print("Program start")
 q_vector = np.array ([1.5,0.5])
 
 #Reading structure
-structure = reading.read_from_file_structure('/home/abel/VASP/Si-test/OUTCAR')
+#structure = reading.read_from_file_structure('/home/abel/VASP/Si-test/OUTCAR')
 
 #Reading force constants from vasprun.xml
 #force_constants = get_force_constants_from_file('/home/abel/VASP/Si-test/FORCE_CONSTANTS')
-force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-test/vasprun.xml')[0]
-structure.set_force_constants(force_constants)
+#force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-test/vasprun.xml')[0]
+#structure.set_force_constants(force_constants)
 
 #Reading trajectory from test files
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/OUTCAR',structure)
