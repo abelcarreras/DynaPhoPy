@@ -12,6 +12,7 @@ def obtain_velocity_from_positions(cell,trajectory,time):
         velocity [:,i,:] = derivative.derivative1(cell,trajectory[:,i,:],time)
 #        plt.plot(velocity[:,i,:])
 #        plt.show()
+
     print('Velocity obtained from trajectory derivative')
     return velocity
 

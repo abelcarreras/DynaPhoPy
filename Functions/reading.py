@@ -52,6 +52,7 @@ def read_from_file_structure(file_name):
         position_number = file_map.find('POSCAR =')
         file_map.seek(position_number+8)
         types = file_map.readline().split()
+#        print ("types", types)
 
         #Fromating Atomic types
         atomic_types = []

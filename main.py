@@ -1,19 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import correlation
-import derivative
 import Functions.reading as reading
 import Functions.projection as projection
 import Functions.eigenvectors as eigen
 import Functions.peaksearch as peaksearch
 import phonopy.file_IO as file_IO
 import Functions.phonopy_interface as pho_interface
+import Functions.correlate as correlate
 
 print("Program start")
 
-
 #Parameters definition section (one parameter left)
-q_vector = np.array ([1.5,0.5,0.5])
+q_vector = np.array ([1.5,0.5])
 
 #Reading structure
 structure = reading.read_from_file_structure('/home/abel/VASP/Si-test/OUTCAR')
@@ -24,21 +23,31 @@ force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-te
 structure.set_force_constants(force_constants)
 
 #Reading trajectory from test files
-#trajectory = reading.read_from_file_test()
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic/OUTCAR',structure)
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/OUTCAR',structure)
+
+
+#Test things
+trajectory = reading.read_from_file_test()
+eigenvectors, original_frequencies = eigen.get_eigenvectors_test(trajectory.structure)
+
 
 plt.suptitle('Trajectory')
 plt.plot(trajectory.get_time().real,trajectory.get_trajectory()[:,1].real)
 plt.show()
 
 #Getting eigenvectors from somewhere
-#eigenvectors, original_frequencies = eigen.get_eigenvectors_test(trajectory.structure)
-eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(trajectory.structure,q_vector)
+#eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(trajectory.structure,q_vector)
 
 #Plot energy
 plt.suptitle('Energy')
-plt.plot(trajectory.get_time().real,trajectory.get_energy().real)
-plt.show()
+#plt.plot(trajectory.get_time().real,trajectory.get_energy().real)
+#plt.show()
+
+
+
+#Test things
+trajectory = reading.read_from_file_test()
+eigenvectors, original_frequencies = eigen.get_eigenvectors_test(trajectory.structure)
 
 
 print('Original frequencies')
@@ -62,29 +71,15 @@ plt.show()
 #for i in range(vq.shape[0]):
 #    vq[i,:] += random.uniform(-0.5,0.5)
 
+
 # Correlation section (working on..)
 print ('Correlation')
 
 test_frequencies_range = np.array([0.1*i + 0.1 for i in range (100)])
 
-correlation_vector = np.zeros((test_frequencies_range.shape[0],vq.shape[1]),dtype=complex)
 
-#print('Average: ',trajectory.get_time_step_average())
+correlation_vector =  correlate.get_correlation_spectrum(vq,trajectory,test_frequencies_range)
 
-for i in range (vq.shape[1]):
-    print 'Frequency:',i
-    for k in range (test_frequencies_range.shape[0]):
-        Frequency = test_frequencies_range[k]
-#        correlation_vector[k,i] = correlation.correlation(Frequency,vq[:,i],trajectory.get_time())
-        correlation_vector[k,i] = correlation.correlation2(Frequency,vq[:,i],trajectory.get_time_step_average(),10)
-        print Frequency,correlation_vector[k,i].real
-
-    print('\n')
-    #print(Time)
-
-
-    plt.plot(test_frequencies_range,correlation_vector[:,i].real)
-    plt.show()
 
 #Search for frequencies
 frequencies = peaksearch.get_frequencies_from_correlation(correlation_vector,test_frequencies_range)

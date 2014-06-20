@@ -18,13 +18,13 @@ double **pymatrix_to_c_array(PyArrayObject *array);
 // Derivate calculation (centered differencing)
 static PyObject* method1 (PyObject* self, PyObject *arg) {
 
-//  Declaring basic variables
+//  Declaring basic variables (default)
 	int Order = 1;
 
 //  Interface with python
     PyObject *Cell_obj, *Trajectory_obj, *Time_obj;
 
-    if (!PyArg_ParseTuple(arg, "OOO|i", &Cell_obj,&Trajectory_obj,&Time_obj,&Order))  return NULL;
+    if (!PyArg_ParseTuple(arg, "OOO|i", &Cell_obj, &Trajectory_obj, &Time_obj, &Order))  return NULL;
 
     PyObject *Cell_array = PyArray_FROM_OTF(Cell_obj, NPY_DOUBLE, NPY_IN_ARRAY);
     PyObject *Trajectory_array = PyArray_FROM_OTF(Trajectory_obj, NPY_DOUBLE, NPY_IN_ARRAY);
@@ -150,7 +150,7 @@ double **pymatrix_to_c_array(PyArrayObject *array)  {
       return c;
 }
 
-//	Calculate the matrix inversion of a 3x3 matrix
+//	Calculate the matrix inversion of a 3x3 matrix (has to be improved to multi-dimension)
 double **matrix_inverse_3x3 ( double** a ){
 
 	double** b = malloc(3*sizeof(double*));
