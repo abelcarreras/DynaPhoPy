@@ -7,7 +7,7 @@ from multiprocessing import Process
 def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
 
 #   Parameters to be taken in account
-    correlation_function_step = 3
+    correlation_function_step = 10
 
     correlation_vector = np.zeros((test_frequencies_range.shape[0],vq.shape[1]),dtype=complex)
 
@@ -35,4 +35,6 @@ def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
 #        pool.close()
 #        pool.join()
 
+    plt.plot(test_frequencies_range,correlation_vector.sum(axis=1).real)
+    plt.show()
     return correlation_vector

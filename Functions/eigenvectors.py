@@ -4,8 +4,9 @@ import numpy as np
 
 def orthogonalize(V):
     "Orthogonalization by Gram-Schmidt process (Maybe needed for c implementation)"
-    V = 1.0 * V # to float
+    V = np.array(V)
     U = np.copy(V)
+
     for i in xrange(1, V.shape[1]):
         for j in xrange(i):
             U[:,i] -=U[:,j] * np.dot(U[:,j], V[:,i])/ np.dot(U[:,j],U[:,j])
