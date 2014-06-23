@@ -181,9 +181,9 @@ def read_from_file_test():
     #Condicions del test
     number_of_dimensions = 2
 
-    f_coordinates = open('/Users/abel/Dropbox/PycharmProjects/DynaPhoPy/Data Files/test.out', 'r')
-    f_velocity = open('/Users/abel/Dropbox/PycharmProjects/DynaPhoPy/Data Files/test2.out', 'r')
-    f_trajectory = open('/Users/abel/Dropbox/PycharmProjects/DynaPhoPy/Data Files/test3.out', 'r')
+    f_coordinates = open('Data Files/test.out', 'r')
+    f_velocity = open('Data Files/test2.out', 'r')
+    f_trajectory = open('Data Files/test3.out', 'r')
 
 
     #Coordinates reading
