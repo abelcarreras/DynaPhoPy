@@ -13,10 +13,6 @@ print("Program start")
 #Parameters definition section (one parameter left)
 q_vector = np.array ([0.5,0.5,0.5])
 
-############# Test things #############
-#trajectory = reading.read_from_file_test()
-#eigenvectors, original_frequencies = eigen.get_eigenvectors_test(trajectory.structure)
-#######################################
 
 
 ############# Real thing ##############
@@ -42,6 +38,12 @@ plt.show()
 ########################################
 
 
+############# Test things #############
+#trajectory = reading.read_from_file_test()
+#eigenvectors, original_frequencies = eigen.get_eigenvectors_test(trajectory.structure)
+#######################################
+
+
 plt.suptitle('Trajectory')
 plt.plot(trajectory.get_time().real,trajectory.get_trajectory()[:,1].real)
 plt.show()
@@ -62,6 +64,7 @@ print('\n')
 print('EigenVectors & EigenValues')
 print(new_frequencies)
 
+#exit()
 #############################################################################
 
 
@@ -86,7 +89,7 @@ plt.show()
 
 # Correlation section (working on..)
 print ('Correlation')
-test_frequencies_range = np.array([0.1*i + 0.1 for i in range (100)])
+test_frequencies_range = np.array([0.16*i + 2.0 for i in range (100)])
 
 correlation_vector =  correlate.get_correlation_spectrum(vq,trajectory,test_frequencies_range)
 

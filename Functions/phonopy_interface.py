@@ -5,6 +5,7 @@ from phonopy.structure.atoms import Atoms as PhonopyAtoms
 import eigenvectors as eigen
 import Functions.reading as reading
 import matplotlib.pyplot as plt
+import scitools
 
 
 #Direct force constants read from file 'FORCE_CONSTANTS' (test, but could be useful)
@@ -39,8 +40,8 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
 #    print('Testing Orthogonality (diagonal elements only)')
-#    eigenvectors =np.mat(scitools.numpyutils.Gram_Schmidt(eigenvectors,normalize=True))
-    eigenvectors =np.mat(eigen.orthogonalize(eigenvectors))
+    eigenvectors =np.mat(scitools.numpyutils.Gram_Schmidt(eigenvectors.real,normalize=True))
+#    eigenvectors =np.mat(eigen.orthogonalize(eigenvectors))
 #    print([(eigenvectors.T*eigenvectors.conj())[i,i] for i in range(eigenvectors.shape[0])])
 
     #Arranging eigenvectors by atoms and dimensions

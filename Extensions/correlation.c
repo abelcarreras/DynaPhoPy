@@ -6,7 +6,6 @@
 #include <numpy/arrayobject.h>
 
 
-//#include "/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Python.framework/Versions/2.6/Extras/lib/python/numpy/core/include/numpy/arrayobject.h"
 #undef I
 
 
@@ -60,7 +59,7 @@ static PyObject* correlation1 (PyObject* self, PyObject *arg)
 		}
 	}
     return Py_BuildValue("d", creal(Correl)/NumberOfData);
-}
+};
 
 
 static PyObject* correlation2 (PyObject* self, PyObject *arg )
@@ -97,14 +96,15 @@ static PyObject* correlation2 (PyObject* self, PyObject *arg )
 
     return Py_BuildValue("d", creal(Correl)*DTime/(NumberOfData/Increment));
 
-}
+};
 
 
 static char extension_docs[] =
     "correlation( ): Calculation of the correlation\n";
 
 
-static PyMethodDef extension_funcs[] = {
+static PyMethodDef extension_funcs[] =
+{
     {"correlation", (PyCFunction)correlation1, METH_VARARGS, NULL},
     {"correlation2", (PyCFunction)correlation2,METH_VARARGS, extension_docs},
     {NULL}
@@ -116,4 +116,4 @@ void initcorrelation(void)
     import_array();
     Py_InitModule3("correlation", extension_funcs,
                    "Fast Correlation Functions ");
-}
+};

@@ -8,11 +8,11 @@
 //#include "/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Python.framework/Versions/2.6/Extras/lib/python/numpy/core/include/numpy/arrayobject.h"
 
 // Functions declaration
-double **matrix_inverse_3x3 ( double **a );
-double **matrix_multiplication ( double **a, double **b ,int n, int l, int m);
-double vector_norm (double *vector, int length);
-int TwotoOne(int Row, int Column, int NumColumns);
-double **pymatrix_to_c_array(PyArrayObject *array);
+static double **matrix_inverse_3x3 ( double **a );
+static double **matrix_multiplication ( double **a, double **b ,int n, int l, int m);
+static double vector_norm (double *vector, int length);
+static int TwotoOne(int Row, int Column, int NumColumns);
+static double **pymatrix_to_c_array(PyArrayObject *array);
 
 
 // Derivate calculation (centered differencing)
@@ -127,7 +127,7 @@ static PyObject* method1 (PyObject* self, PyObject *arg) {
 //  Returning python array
     return(PyArray_Return(Derivative_object));
 
-}
+};
 
 //  ---------------   Support functions ----------------  //
 
@@ -136,7 +136,7 @@ static PyObject* method1 (PyObject* self, PyObject *arg) {
      Assumes PyArray is contiguous in memory.
      Memory is allocated!                                    */
 
-double **pymatrix_to_c_array(PyArrayObject *array)  {
+static double **pymatrix_to_c_array(PyArrayObject *array)  {
 
       int n=(*array).dimensions[0];
       int m=(*array).dimensions[1];
@@ -148,10 +148,10 @@ double **pymatrix_to_c_array(PyArrayObject *array)  {
       }
 
       return c;
-}
+};
 
 //	Calculate the matrix inversion of a 3x3 matrix (has to be improved to multi-dimension)
-double **matrix_inverse_3x3 ( double** a ){
+static double **matrix_inverse_3x3 ( double** a ){
 
 	double** b = malloc(3*sizeof(double*));
     for (int i = 0; i < 3; i++) b[i] = (double*) malloc(3*sizeof(double));
@@ -170,10 +170,10 @@ double **matrix_inverse_3x3 ( double** a ){
 
 	return b;
 
-}
+};
 
 //  Calculate the matrix multiplication
-double **matrix_multiplication ( double  **a, double  **b, int n, int l, int m ){
+static double **matrix_multiplication ( double  **a, double  **b, int n, int l, int m ){
 
 	double** c = malloc(n*sizeof(double*));
     for (int i = 0; i < n; i++)
@@ -189,10 +189,10 @@ double **matrix_multiplication ( double  **a, double  **b, int n, int l, int m )
 	}
 
 	return c;
-}
+};
 
 //	Calculate the norm of a 1D vector
-double vector_norm (double *vector, int length){
+static double vector_norm (double *vector, int length){
 	double norm = 0;
 		for (int i=0; i<length; i++) {
 			norm += pow(vector[i],2);
@@ -200,9 +200,9 @@ double vector_norm (double *vector, int length){
 	return sqrt(norm);
 }
 
-int TwotoOne(int Row, int Column, int NumColumns) {
+static int TwotoOne(int Row, int Column, int NumColumns) {
 	return Row*NumColumns + Column;
-}
+};
 
 
 
@@ -213,7 +213,7 @@ static char extension_docs1[] =
 
 
 static PyMethodDef extension_funcs[] = {
-    {"derivative1", (PyCFunction)method1, METH_VARARGS, extension_docs1},
+    {"derivative", (PyCFunction)method1, METH_VARARGS, NULL},
     {NULL}
 };
 
@@ -224,4 +224,4 @@ void initderivative(void)
 
     Py_InitModule3("derivative", extension_funcs,
                    "Calculate the derivative of periodic cell");
-}
+};

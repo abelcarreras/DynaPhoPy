@@ -1,20 +1,32 @@
 
 import numpy as np
-#import scitools.numpyutils
+import scitools.numpyutils
 
 def orthogonalize(V):
     "Orthogonalization by Gram-Schmidt process (Maybe needed for c implementation)"
     V = np.array(V)
     U = np.copy(V)
 
-    for i in xrange(1, V.shape[1]):
+    for i in xrange(0, V.shape[1]):
         for j in xrange(i):
-            U[:,i] -=U[:,j] * np.dot(U[:,j], V[:,i])/ np.dot(U[:,j],U[:,j])
+            U[:,i] -= U[:,j] * np.dot(U[:,j], V[:,i])/ np.dot(U[:,j],U[:,j])
     # normalize column
     den=(U**2).sum(axis=0) **0.5
     E = U/den
     # assert np.allclose(E.T, np.linalg.inv(E))
     return E
+
+#Cal arreglar (i molt!!)
+def GS(A):
+    m,n = A.shape; Q=np.zeros([m,n]); R=np.zeros([n,n]); v=np.zeros(m)
+    for j in range(n):
+        v[:] = A[:,j]
+        for i in range(j):
+            r = np.dot(Q[:,i],A[:,j]); R[i,j] = r
+            v[:] = v[:] - r*Q[:,i]
+            r = np.linalg.norm(v); R[j,j]= r
+            Q[:,j] = v[:]/r
+    return Q
 
 
 def get_eigenvectors_test(estructura):
@@ -64,8 +76,8 @@ def build_dynamical_matrix(structure, frequencies, eigenvectors):
     new_frequencies, new_eigenvectors = np.linalg.eig (dynamical_matrix.real)
     new_frequencies = np.sqrt(new_frequencies)
 
-    new_eigenvectors=np.mat(orthogonalize(new_eigenvectors))
-#    new_eigenvectors = np.mat(scitools.numpyutils.Gram_Schmidt(new_eigenvectors,normalize=True))
+#    new_eigenvectors=np.mat(orthogonalize(new_eigenvectors))
+    new_eigenvectors = np.mat(scitools.numpyutils.Gram_Schmidt(new_eigenvectors,normalize=True))
 
     return new_frequencies, new_eigenvectors, dynamical_matrix
 
