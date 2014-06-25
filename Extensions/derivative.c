@@ -5,17 +5,15 @@
 #include <complex.h>
 #include <numpy/arrayobject.h>
 
-//#include "/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Python.framework/Versions/2.6/Extras/lib/python/numpy/core/include/numpy/arrayobject.h"
 
-// Functions declaration
-static double **matrix_inverse_3x3 ( double **a );
-static double **matrix_multiplication ( double **a, double **b ,int n, int l, int m);
-static double vector_norm (double *vector, int length);
-static int TwotoOne(int Row, int Column, int NumColumns);
-static double **pymatrix_to_c_array(PyArrayObject *array);
+//  Functions declaration
+static double  **matrix_inverse_3x3    (double **a);
+static double  **matrix_multiplication (double **a, double **b, int n, int l, int m);
+static int       TwotoOne              (int Row, int Column, int NumColumns);
+static double  **pymatrix_to_c_array   (PyArrayObject *array);
 
 
-// Derivate calculation (centered differencing)
+//  Derivate calculation (centered differencing)
 static PyObject* method1 (PyObject* self, PyObject *arg) {
 
 //  Declaring basic variables (default)
@@ -90,7 +88,7 @@ static PyObject* method1 (PyObject* self, PyObject *arg) {
 		for (int k = 0; k < NumberOfDimensions; k++) {
 			Point_initial[k]    = Trajectory[TwotoOne(i-Order, k, NumberOfDimensions)];
 			Point_final  [k]    = Trajectory[TwotoOne(i+Order, k, NumberOfDimensions)];
-			Point_diff   [k][0] = (Point_final[k] - Point_initial[k])/0.5;
+			Point_diff   [k][0] = (Point_final[k] - Point_initial[k]) / 0.5;
 		}
 
 //		printf("PointIni: %i %f %f %f\n",i,Point_initial[0],Point_initial[1],Point_initial[2]);
@@ -107,19 +105,20 @@ static PyObject* method1 (PyObject* self, PyObject *arg) {
 		double ** SeparacioProjectada = matrix_multiplication(Cell_c, Separacio, 3, 3, 1);
 //		printf("SepProj: %f %f %f\n",SeparacioProjectada[0][0],SeparacioProjectada[1][0],SeparacioProjectada[2][0]);
 
-		for (int k =0; k < NumberOfDimensions; k++) Point_final[k]= Point_final[k]-SeparacioProjectada[k][0];
+		for (int k = 0; k < NumberOfDimensions; k++) Point_final[k]= Point_final[k]-SeparacioProjectada[k][0];
 //		printf("Proper: %f %f %f\n",Point_final[0],Point_final[1],Point_final[2]);
 
-		for (int j=0; j<NumberOfDimensions; j++) {
+		for (int j = 0; j < NumberOfDimensions; j++) {
 			Derivative[i][j] = (Point_final[j]-Point_initial[j])/ (Time[i+Order]-Time[i-Order]);
 		}
 	}
 
 //  Side limits extrapolation
-	for (int k=Order; k>0; k--) {
-		for (int j=0; j<NumberOfDimensions; j++) {
-			Derivative[0+k-1][j]=((Derivative[2+k-1][j]-Derivative[1+k-1][j])/(Time[2+k-1]-Time[1+k-1]))*(Time[0+k-1]-Time[1+k-1])+Derivative[1+k-1][j];
-			Derivative[NumberOfData-k][j]=((Derivative[NumberOfData-2-k][j]-Derivative[NumberOfData-1-k][j])/(Time[NumberOfData-2-k]-Time[NumberOfData-1-k]))*(Time[NumberOfData-k]-Time[NumberOfData-1-k])+Derivative[NumberOfData-1-k][j];
+	for (int k = Order; k > 0; k--) {
+		for (int j = 0; j < NumberOfDimensions; j++) {
+			Derivative[k-1][j] = ((Derivative[2+k-1][j] - Derivative[1+k-1][j]) / (Time[2+k-1] - Time[1+k-1])) * (Time[0+k-1] - Time[1+k-1]) + Derivative[1+k-1][j];
+			Derivative[NumberOfData-k][j] = ((Derivative[NumberOfData-2-k][j] - Derivative[NumberOfData-1-k][j]) / (Time[NumberOfData-2-k] - Time[NumberOfData-1-k]))
+			*(Time[NumberOfData-k] - Time[NumberOfData-1-k]) + Derivative[NumberOfData-1-k][j];
 		}
 	 }
 
@@ -191,14 +190,6 @@ static double **matrix_multiplication ( double  **a, double  **b, int n, int l, 
 	return c;
 };
 
-//	Calculate the norm of a 1D vector
-static double vector_norm (double *vector, int length){
-	double norm = 0;
-		for (int i=0; i<length; i++) {
-			norm += pow(vector[i],2);
-		}
-	return sqrt(norm);
-}
 
 static int TwotoOne(int Row, int Column, int NumColumns) {
 	return Row*NumColumns + Column;
@@ -208,12 +199,12 @@ static int TwotoOne(int Row, int Column, int NumColumns) {
 
 //  --------------- Interface functions ---------------- //
 
-static char extension_docs1[] =
+static char extension_docs_method1[] =
     "derivative1( ): Calculation of the derivative (centered differencing)\n";
 
 
 static PyMethodDef extension_funcs[] = {
-    {"derivative", (PyCFunction)method1, METH_VARARGS, NULL},
+    {"derivative", (PyCFunction)method1, METH_VARARGS, extension_docs_method1},
     {NULL}
 };
 
