@@ -19,6 +19,7 @@ def project_onto_unit_cell(trajectory,q_vector):
     #Projection in primitive cell
     for i in range(number_of_atoms):
         for k in range(number_of_dimensions):
+            print(atom_type[i])
             velocity_projected[:,atom_type[i],k] += velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector,coordinates[i,:]))
 
     velocity_projected = velocity_projected/(number_of_atoms/number_of_cell_atoms)

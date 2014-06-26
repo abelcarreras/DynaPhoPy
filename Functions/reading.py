@@ -60,6 +60,12 @@ def read_from_file_structure(file_name):
             for j in range(atoms_per_type[i]):
                 atomic_types.append(types[i])
 
+######################################################
+#                 To be reviewed
+        atomic_type_index = [ i for i in range(number_of_atoms)]
+########################################################
+
+
         #Reading cell
         position_number = file_map.find('direct lattice vectors')
         file_map.seek(position_number)
@@ -106,7 +112,9 @@ def read_from_file_structure(file_name):
     return atomtest.Structure(cell= direct_cell,
                               positions=positions,
                               forces=None,
-                              atomic_types=atomic_types)
+                              atomic_types=atomic_types,
+                              atomic_type_index=atomic_type_index,
+                              )
 
 
 def read_from_file_trajectory(file_name,structure):

@@ -13,6 +13,7 @@ class Structure:
                  atomic_numbers=None,
                  number_of_atoms=None,
                  atomic_types=None,
+                 atomic_type_index = None,
                  number_of_cell_atoms=None):
 
         self.cell = np.array(cell, dtype='double')
@@ -22,11 +23,11 @@ class Structure:
         self.atomic_types = atomic_types
         self.forces = np.array(forces, dtype='double')
         self.force_constants = np.array(force_constants, dtype='double')
+        self.atom_type_index = atomic_type_index
 
         self.number_of_cell_atoms = number_of_cell_atoms
         self.scaled_positions = scaled_positions
         self.number_of_atom_types = None
-        self.atom_type_index = None
 
 
         #Normalized cell
@@ -105,11 +106,11 @@ class Structure:
         if self.number_of_atom_types:
             return self.number_of_atom_types
         else:
-            self.number_of_atom_types = len(set(self.atomic_numbers))
+            self.number_of_atom_types = len(set(self.get_atom_type_index()))
             return  self.number_of_atom_types
 
     def get_atom_type_index(self):
-        if self.atom_type_index:
+        if (self.atom_type_index != None):
             return self.atom_type_index
         else:
             self.atom_type_index = self.atomic_numbers.copy()

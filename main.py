@@ -25,7 +25,7 @@ force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-te
 structure.set_force_constants(force_constants)
 
 #Reading trajectory from test files
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/OUTCAR',structure)
+trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300_c/OUTCAR',structure)
 
 #Getting eigenvectors from somewhere
 eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(trajectory.structure,q_vector)
@@ -89,7 +89,7 @@ plt.show()
 
 # Correlation section (working on..)
 print ('Correlation')
-test_frequencies_range = np.array([0.16*i + 2.0 for i in range (100)])
+test_frequencies_range = np.array([0.16*i + 2.0 for i in range (200)])
 
 correlation_vector =  correlate.get_correlation_spectrum(vq,trajectory,test_frequencies_range)
 
