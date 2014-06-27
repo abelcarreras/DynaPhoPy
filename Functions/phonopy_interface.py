@@ -1,11 +1,11 @@
 import numpy as np
-import phonopy.file_IO as file_IO
+#import phonopy.file_IO as file_IO
 from phonopy import Phonopy
 from phonopy.structure.atoms import Atoms as PhonopyAtoms
-import eigenvectors as eigen
-import Functions.reading as reading
-import matplotlib.pyplot as plt
-import scitools
+#import eigenvectors as eigen
+#import Functions.reading as reading
+#import matplotlib.pyplot as plt
+import scitools.numpyutils as numpyutils
 
 
 #Direct force constants read from file 'FORCE_CONSTANTS' (test, but could be useful)
@@ -40,19 +40,19 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
 #    print('Testing Orthogonality (diagonal elements only)')
-    eigenvectors =np.mat(scitools.numpyutils.Gram_Schmidt(eigenvectors.real,normalize=True))
+    eigenvectors =np.mat(numpyutils.Gram_Schmidt(eigenvectors.real,normalize=True))
 #    eigenvectors =np.mat(eigen.orthogonalize(eigenvectors))
 #    print([(eigenvectors.T*eigenvectors.conj())[i,i] for i in range(eigenvectors.shape[0])])
 
     #Arranging eigenvectors by atoms and dimensions
     number_of_dimensions = structure.get_number_of_dimensions()
     number_of_cell_atoms = structure.get_number_of_cell_atoms()
-    arranged_EV = np.array([[[eigenvectors [i,j*number_of_dimensions+k]
+    arranged_ev = np.array([[[eigenvectors [i,j*number_of_dimensions+k]
                                     for k in range(number_of_dimensions)]
                                     for j in range(number_of_cell_atoms)]
                                     for i in range(number_of_cell_atoms*number_of_dimensions)])
 
-    return arranged_EV, frequencies
+    return arranged_ev, frequencies
 
 '''
 #Starting test program

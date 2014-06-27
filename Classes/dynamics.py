@@ -93,8 +93,8 @@ class Dynamics:
 
     def get_velocity_mass_average(self):
         self._velocity_mass_average = np.copy(self._velocity)
-        for i in range(self._structure.number_of_atoms):
-            self._velocity_mass_average[:,i,:] = self._velocity[:,i,:] /np.sqrt(self._structure.masses[i])
+        for i in range(self._structure.get_number_of_atoms()):
+            self._velocity_mass_average[:,i,:] = self._velocity[:,i,:] /np.sqrt(self._structure.get_masses()[i])
         return np.array(self._velocity_mass_average)
 
     @property

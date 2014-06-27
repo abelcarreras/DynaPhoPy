@@ -42,28 +42,27 @@ def read_from_file_structure(file_name):
         number_of_atoms = int(file_map.readline())
 #        print('Number of atoms:',number_of_atoms)
 
-
         #Reading atoms per type
         position_number = file_map.find('ions per type')
         file_map.seek(position_number+15)
         atoms_per_type = np.array(file_map.readline().split(),dtype=int)
 
-        #Reading atom type
-        position_number = file_map.find('POSCAR =')
-        file_map.seek(position_number+8)
-        types = file_map.readline().split()
-#        print ("types", types)
+        atomic_type_index = sum([ [atoms_per_type[j] for i in range(atoms_per_type[j])] for j in range(atoms_per_type.shape[0])],[])
+        atomic_type_index = np.array(atomic_type_index,dtype=int)
+#        print(atomic_type_index)
 
-        #Fromating Atomic types
-        atomic_types = []
+        #Reading atoms  mass
+        position_number = file_map.find('POMASS =')
+#        file_map.seek(position_number)
+        atomic_mass_per_type = []
+#        print('pos:',position_number)
         for i in range(atoms_per_type.shape[0]):
-            for j in range(atoms_per_type[i]):
-                atomic_types.append(types[i])
+            file_map.seek(position_number+9+6*i)
+            atomic_mass_per_type.append(file_map.read(6))
 
-######################################################
-#                 To be reviewed
-        atomic_type_index = [ i for i in range(number_of_atoms)]
-########################################################
+        atomic_mass = sum([ [atomic_mass_per_type[j] for i in range(atoms_per_type[j])] for j in range(atoms_per_type.shape[0])],[])
+        atomic_mass = np.array(atomic_mass,dtype='double')
+
 
 
         #Reading cell
@@ -112,7 +111,7 @@ def read_from_file_structure(file_name):
     return atomtest.Structure(cell= direct_cell,
                               positions=positions,
                               forces=None,
-                              atomic_types=atomic_types,
+                              masses=atomic_mass,
                               atomic_type_index=atomic_type_index,
                               )
 
@@ -212,7 +211,7 @@ def read_from_file_test():
                                    number_of_cell_atoms=2,
                                    masses=[1 for i in range(positions.shape[0])]) #all 1
 
-    number_of_atoms = structure.number_of_atoms
+    number_of_atoms = structure.get_number_of_atoms()
 
 
     #Velocity reading section

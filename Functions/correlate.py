@@ -1,13 +1,13 @@
 import numpy as np
 import correlation
-import multiprocessing
+#import multiprocessing
 import matplotlib.pyplot as plt
-from multiprocessing import Process
+#from multiprocessing import Process
 
 def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
 
 #   Parameters to be taken in account
-    correlation_function_step = 1
+    correlation_function_step = 2
 
     correlation_vector = np.zeros((test_frequencies_range.shape[0],vq.shape[1]),dtype=complex)
 
@@ -22,8 +22,8 @@ def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
         print 'Frequency:',i
         for k in range (test_frequencies_range.shape[0]):
             Frequency = test_frequencies_range[k]
-            correlation_vector[k,i] = correlation.correlation(Frequency,vq[:,i],trajectory.get_time(),correlation_function_step)
-#            correlation_vector[k,i] = correlation.correlation2(Frequency,vq[:,i],trajectory.get_time_step_average(),correlation_function_step)
+#            correlation_vector[k,i] = correlation.correlation(Frequency,vq[:,i],trajectory.get_time(),correlation_function_step)
+            correlation_vector[k,i] = correlation.correlation2(Frequency,vq[:,i],trajectory.get_time_step_average(),correlation_function_step)
             print Frequency,correlation_vector[k,i].real
 
         print('\n')

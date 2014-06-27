@@ -4,73 +4,83 @@ class Structure:
 
 
     def __init__(self,
-                 positions=None,
-                 scaled_positions=None,
-                 masses=None,
-                 cell=None,
-                 forces=None,
-                 force_constants=None,
-                 atomic_numbers=None,
-                 number_of_atoms=None,
-                 atomic_types=None,
+                 positions = None,
+                 scaled_positions = None,
+                 masses = None,
+                 cell = None,
+                 forces = None,
+                 force_constants = None,
+                 atomic_numbers = None,
+                 atomic_types = None,
                  atomic_type_index = None,
-                 number_of_cell_atoms=None):
+                 number_of_cell_atoms = None):
 
-        self.cell = np.array(cell, dtype='double')
-        self.masses = np.array(masses, dtype='double')
-        self.positions = np.array(positions, dtype='double')
-        self.atomic_numbers = np.array(atomic_numbers, dtype='double')
-        self.atomic_types = atomic_types
-        self.forces = np.array(forces, dtype='double')
-        self.force_constants = np.array(force_constants, dtype='double')
-        self.atom_type_index = atomic_type_index
+        """
 
-        self.number_of_cell_atoms = number_of_cell_atoms
-        self.scaled_positions = scaled_positions
-        self.number_of_atom_types = None
+        :param atoms cartesian positions (array Ndim x Natoms):
+        :param atom positions scaled to 1 (array Ndim x Natoms):
+        :param masses of the atoms (vector NAtoms):
+        :param real space cell matrix (array Ndim x Ndim):
+        :param atom forces (array 2D NdimxNatom  x  NdimxNatom):
+        :param force constants:
+        :param atomic numbers vector (1x Natoms):
+        :param number of total atoms in the crystal:
+        :param atomic names of each type of atom (ex: H, Be, Si,..) (vector Natoms):
+        :param index vector that contains the number of different types of atoms in crystal (vector NdiferentAtoms):
+        :param number of atoms in the defined cell:
+        """
+        self._cell = np.array(cell, dtype='double')
+        self._masses = np.array(masses, dtype='double')
+        self._positions = np.array(positions, dtype='double')
+        self._atomic_numbers = np.array(atomic_numbers, dtype='double')
+        self._atomic_types = atomic_types
+        self._forces = np.array(forces, dtype='double')
+        self._force_constants = np.array(force_constants, dtype='double')
+        self._atom_type_index = atomic_type_index
+
+        self._number_of_atoms = None
+        self._number_of_cell_atoms = number_of_cell_atoms
+        self._scaled_positions = scaled_positions
+        self._number_of_atom_types = None
 
 
         #Normalized cell
-        self.cell_normalized = cell / np.linalg.norm(cell, axis=-1)[:, np.newaxis]
+        self._cell_normalized = cell / np.linalg.norm(cell, axis=-1)[:, np.newaxis]
 
 
-        if (number_of_atoms == None):
-            self.number_of_atoms = self.positions.shape[0]
+        if atomic_numbers is None and self._atomic_types != None:
+            self._atomic_numbers =  np.array([ symbol_map[i] for i in self._atomic_types ])
         else:
-            self.number_of_atoms = number_of_atoms
+            self._atomic_numbers = np.array(atomic_numbers)
 
-        if (atomic_numbers == None):
-            self.atomic_numbers =  np.array([ symbol_map[i] for i in self.atomic_types ])
-        else:
-            self.atomic_numbers = np.array(atomic_numbers)
 
-        if (masses == None):
-            self.masses = np.array([ atom_data[i][3] for i in self.atomic_numbers ])
+        if masses is None and self._atomic_numbers != None:
+            self._masses = np.array([ atom_data[i][3] for i in self._atomic_numbers ])
         else:
-            self.masses = masses
+            self._masses = masses
 
     def set_cell(self, cell):
-        self.cell = np.array(cell, dtype='double', order='C')
+        self._cell = np.array(cell, dtype='double', order='C')
 
     def get_cell(self):
-        return self.cell
+        return self._cell
 
     def set_positions(self, cart_positions):
-        self.scaled_positions = np.dot(cart_positions, np.linalg.inv(self.cell))
+        self._scaled_positions = np.dot(cart_positions, np.linalg.inv(self._cell))
 
 
     def get_positions(self):
-        if self.positions != None:
-            return self.positions
+        if self._positions != None:
+            return self._positions
         else:
-            return np.dot(self.positions, self.cell)
+            return np.dot(self._positions, self._cell)
 
     def get_scaled_positions(self):
-        if self.scaled_positions != None:
-            return self.scaled_positions
+        if self._scaled_positions != None:
+            return self._scaled_positions
         else:
-            self.scaled_positions = np.dot(self.positions, np.linalg.inv(self.cell))
-            return self.scaled_positions
+            self._scaled_positions = np.dot(self._positions, np.linalg.inv(self._cell))
+            return self._scaled_positions
 
     def set_force_constants(self, force_constants):
         self.force_constants = np.array(force_constants)
@@ -79,48 +89,48 @@ class Structure:
         return np.array(self.force_constants)
 
     def set_masses(self, masses):
-        self.masses = np.array(masses, dtype='double')
+        self._masses = np.array(masses, dtype='double')
 
     def get_masses(self):
-        return self.masses
+        return self._masses
 
     def get_number_of_atoms(self):
-        return self.number_of_atoms
+
+        if self._number_of_atoms is None:
+            self._number_of_atoms = self._positions.shape[0]
+        return self._number_of_atoms
 
     def get_number_of_dimensions(self):
-        return self.cell.shape[0]
+        return self._cell.shape[0]
 
     def get_atomic_numbers(self):
-        return self.atomic_numbers
+        return self._atomic_numbers
 
     def get_number_of_cell_atoms(self):
-        if (self.number_of_cell_atoms):
-            return self.number_of_cell_atoms
+        if self._number_of_cell_atoms:
+            return self._number_of_cell_atoms
         else:
             return self.get_number_of_atoms()
 
     def set_number_of_cell_atoms(self,number_of_cell_atoms):
-        self.number_of_cell_atoms = number_of_cell_atoms
+        self._number_of_cell_atoms = number_of_cell_atoms
 
     def get_number_of_atom_types(self):
-        if self.number_of_atom_types:
-            return self.number_of_atom_types
-        else:
-            self.number_of_atom_types = len(set(self.get_atom_type_index()))
-            return  self.number_of_atom_types
+        if self._number_of_atom_types is None:
+            self._number_of_atom_types = len(set(self.get_atom_type_index()))
+
+        return  self._number_of_atom_types
 
     def get_atom_type_index(self):
-        if (self.atom_type_index != None):
-            return self.atom_type_index
-        else:
-            self.atom_type_index = self.atomic_numbers.copy()
-            for i in range(self.number_of_atoms):
+        if self._atom_type_index is None:
+            self._atom_type_index = self._atomic_numbers.copy()
+            for i in range(self.get_number_of_atoms()):
                 for index in range(self.get_number_of_atom_types()):
     #                print(i,index,self.atomic_numbers[index])
-                    if self.atomic_numbers[index] == self.atomic_numbers[i]:
-                        self.atom_type_index[i] = index
+                    if self._atomic_numbers[index] == self._atomic_numbers[i]:
+                        self._atom_type_index[i] = index
 
-            return self.atom_type_index
+        return self._atom_type_index
 
 
 

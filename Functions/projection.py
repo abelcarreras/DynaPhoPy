@@ -5,7 +5,7 @@ def project_onto_unit_cell(trajectory,q_vector):
 
     number_of_cell_atoms = trajectory.structure.get_number_of_cell_atoms()
     number_of_dimensions = trajectory.structure.get_number_of_dimensions()
-    number_of_atoms = trajectory.structure.number_of_atoms
+    number_of_atoms = trajectory.structure.get_number_of_atoms()
     atom_type = trajectory.structure.get_atom_type_index()
     coordinates = trajectory.structure.get_positions()
     velocity = trajectory.get_velocity_mass_average()
@@ -19,7 +19,7 @@ def project_onto_unit_cell(trajectory,q_vector):
     #Projection in primitive cell
     for i in range(number_of_atoms):
         for k in range(number_of_dimensions):
-            print(atom_type[i])
+#            print(atom_type[i])
             velocity_projected[:,atom_type[i],k] += velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector,coordinates[i,:]))
 
     velocity_projected = velocity_projected/(number_of_atoms/number_of_cell_atoms)
