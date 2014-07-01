@@ -41,8 +41,8 @@ def get_eigenvectors_test(estructura):
                              [0.6177054982,0.3441510098,0.6177054982,0.3441510098]])
 
 
-    eigenvectors=np.mat(orthogonalize(eigenvectors))
-#    eigenvectors=np.mat(scitools.numpyutils.Gram_Schmidt(eigenvectors,normalize=True))
+#    eigenvectors=np.mat(orthogonalize(eigenvectors))
+    eigenvectors=np.mat(scitools.numpyutils.Gram_Schmidt(eigenvectors.real,normalize=True))
 
     frequencies = [0.690841,0.690841,0.648592,0.648592]
 
@@ -77,7 +77,7 @@ def build_dynamical_matrix(structure, frequencies, eigenvectors):
     new_frequencies = np.sqrt(new_frequencies)
 
 #    new_eigenvectors=np.mat(orthogonalize(new_eigenvectors))
-    new_eigenvectors = np.mat(scitools.numpyutils.Gram_Schmidt(new_eigenvectors,normalize=True))
+    new_eigenvectors = np.mat(scitools.numpyutils.Gram_Schmidt(new_eigenvectors.real,normalize=True))
 
     return new_frequencies, new_eigenvectors, dynamical_matrix
 

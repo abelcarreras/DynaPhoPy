@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
 
 #   Parameters to be taken in account
-    correlation_function_step = 2
+    correlation_function_step = 1
 
     correlation_vector = np.zeros((test_frequencies_range.shape[0],vq.shape[1]),dtype=complex)
 
@@ -29,12 +29,12 @@ def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
         print('\n')
         #print(Time)
 
-        plt.plot(test_frequencies_range,correlation_vector[:,i].real)
+#        plt.plot(test_frequencies_range,correlation_vector[:,i].real)
 #        plt.show()
 
 #        pool.close()
 #        pool.join()
-    plt.show()
+ #   plt.show()
 
 
     plt.plot(test_frequencies_range,correlation_vector.sum(axis=1).real)

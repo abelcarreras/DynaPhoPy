@@ -29,8 +29,9 @@ def get_force_constants_from_file (file_name):
 def obtain_eigenvectors_from_phonopy(structure,q_vector):
 
 
+#    print('atomic',structure.get_atomic_types())
 #   Preparing the bulk type
-    bulk = PhonopyAtoms(symbols=structure.atomic_types,scaled_positions=structure.get_scaled_positions())
+    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),scaled_positions=structure.get_scaled_positions())
     bulk.set_cell(structure.get_cell())
 
 #   Preparing the phonon type

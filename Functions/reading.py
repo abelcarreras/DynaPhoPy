@@ -47,9 +47,13 @@ def read_from_file_structure(file_name):
         file_map.seek(position_number+15)
         atoms_per_type = np.array(file_map.readline().split(),dtype=int)
 
-        atomic_type_index = sum([ [atoms_per_type[j] for i in range(atoms_per_type[j])] for j in range(atoms_per_type.shape[0])],[])
-        atomic_type_index = np.array(atomic_type_index,dtype=int)
-#        print(atomic_type_index)
+
+##################  All atoms different (No equivalences  ######################
+        atom_type_index = sum([ [ i for i in range(atoms_per_type[j])] for j in range(atoms_per_type.shape[0])],[])
+        atom_type_index = np.array(atom_type_index,dtype=int)
+#        print(atom_type_index)
+################################################################################
+
 
         #Reading atoms  mass
         position_number = file_map.find('POMASS =')
@@ -112,13 +116,13 @@ def read_from_file_structure(file_name):
                               positions=positions,
                               forces=None,
                               masses=atomic_mass,
-                              atomic_type_index=atomic_type_index,
+                              atom_type_index=atom_type_index,
                               )
 
 
 def read_from_file_trajectory(file_name,structure):
 
-    limit_number_structures = 1000
+    limit_number_structures = 20000
 
     with open(file_name, "r+") as f:
     # memory-map the file
@@ -135,7 +139,7 @@ def read_from_file_trajectory(file_name,structure):
         time_step = float(file_map.readline().split()[0])
 
 
-        if number_of_atoms != structure.number_of_atoms:
+        if number_of_atoms != structure.get_number_of_atoms():
             print('Warning: Number of atoms not matching, check VASP output files')
             exit()
 

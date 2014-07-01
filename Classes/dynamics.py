@@ -54,7 +54,7 @@ class Dynamics:
 
         if velocity == None:
             print('No velocity provided')
-            self._velocity = obtain_velocity_from_positions(self._structure.cell,self._trajectory,self._time)
+            self._velocity = obtain_velocity_from_positions(self._structure.get_cell(),self._trajectory,self._time)
         else:
             self._velocity = velocity
 
