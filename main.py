@@ -89,7 +89,7 @@ print ('Correlation')
 test_frequencies_range = np.array([0.16*i + 2.0 for i in range (100)])
 #test_frequencies_range = np.array([0.01*i + 0.01 for i in range (200)])
 
-correlation_vector =  correlate.get_correlation_spectrum(vq,trajectory,test_frequencies_range)
+correlation_vector =  correlate.get_correlation_spectrum_par(vq,trajectory,test_frequencies_range)
 
 
 #Search for frequencies
