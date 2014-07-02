@@ -1,42 +1,115 @@
 import numpy as np
 import correlation
 import math
-#import multiprocessing
+import multiprocessing
 import matplotlib.pyplot as plt
-
 from multiprocessing import Process
 from multiprocessing import Queue
 
 
-#Correlation worker definition
-def worker2(nums,a, out_q):
-        """ The worker function, invoked in a process. 'nums' is a
-            list of numbers to factor. The results are placed in
-            a dictionary that's pushed to a queue.
-        """
-        outdict = {}
-        for n in nums:
-            outdict[n] = math.sin(n)+a
-            print(n)
-        out_q.put(outdict)
+def correlation_worker(n_pos,test_frequencies_range, vq, trajectory):
 
-def worker(n_proc,test_frequencies_range, vq, trajectory, correlation_function_step, out_queue):
+    correlation_function_step = 10
 
-    print('entering the process',n_proc)
+    print('starting:',n_pos)
 
-    correlation_vector = np.zeros((test_frequencies_range.shape[0],vq.shape[1]),dtype=complex)
-    test_vector = np.zeros((test_frequencies_range.shape[0],vq.shape[1]),dtype=complex)
-    test_vector = []
+    correlation_range = []
+    for k in range (test_frequencies_range.shape[0]):
+        Frequency = test_frequencies_range[k]
+        #correlation_range.append(correlation.correlation(Frequency,vq,trajectory.get_time(),correlation_function_step))
+        correlation_range.append(correlation.correlation2(Frequency,vq,trajectory.get_time_step_average(),correlation_function_step))
+    print('finishing',n_pos)
+
+    return {n_pos:correlation_range}
+
+
+def get_correlation_spectrum_par(vq,trajectory,test_frequencies_range):
+
+    correlation_full_dict = {}
+
+    def log_result(result):
+        correlation_full_dict.update(result)
+
+    print ('found',multiprocessing.cpu_count(), 'CPU')
+
+    pool = multiprocessing.Pool(processes=3)
+    for i in range(vq.shape[1]):
+        pool.apply_async(correlation_worker,
+                         args = (i,test_frequencies_range,
+                            vq[:,i],
+                            trajectory),
+                         callback = log_result)
+    pool.close()
+    pool.join()
+
+    correlation_vector = np.array([correlation_full_dict[i] for i in correlation_full_dict.keys()]).T
+
+    for i in range(vq.shape[1]):
+        plt.plot(test_frequencies_range,correlation_vector[:,i].real)
+        plt.show()
+
+    plt.plot(test_frequencies_range,correlation_vector.sum(axis=1).real)
+    plt.show()
+
+    return correlation_vector
+
+
+
+def correlation_worker2(n_pos,test_frequencies_range, vq, trajectory, correlation_function_step, out_queue):
+
+    print('startingr:',n_pos)
+
+    correlation_dict = {}
     for i in range (vq.shape[1]):
-
+        correlation_range = []
         for k in range (test_frequencies_range.shape[0]):
             Frequency = test_frequencies_range[k]
-        #            correlation_vector[k,i] = correlation.correlation(Frequency,vq[:,i],trajectory.get_time(),correlation_function_step)
- #           correlation_vector[k,i] = correlation.correlation2(Frequency,vq,trajectory.get_time_step_average(),correlation_function_step)
-#        test_vector[k,i] = i + k
-    print('fi')
-    out_queue.put([[3,3,4],1,2,n_proc])
+            #correlation_range.append(correlation.correlation(Frequency,vq,trajectory.get_time(),correlation_function_step))
+            correlation_range.append(correlation.correlation2(Frequency,vq[:,i],trajectory.get_time_step_average(),correlation_function_step))
 
+        correlation_dict[n_pos+i] = correlation_range
+        print('finishing',n_pos+i)
+
+    out_queue.put(correlation_dict)
+
+
+def get_correlation_spectrum_par2(vq,trajectory,test_frequencies_range):
+
+    #def worker(test_frequencies_range, vq, trajectory, correlation_function_step, out_queue):
+
+    correlation_function_step = 1
+
+    number_or_processes = 3
+    processes = []
+    out_queue = Queue()
+    correlation_full_dict = {}
+
+    phonon_numbers = range(vq.shape[1])
+    chunk_size = int(math.ceil(vq.shape[1] / float(number_or_processes)))
+
+    for i in range(number_or_processes):
+        p = Process(
+            target=correlation_worker2,
+            args=(chunk_size * i,test_frequencies_range,
+                  vq[:,chunk_size * i:chunk_size * (i + 1)],
+                  trajectory,
+                  correlation_function_step,
+                  out_queue))
+
+        processes.append(p)
+        p.start()
+
+
+    for p in processes:
+        correlation_full_dict.update(out_queue.get())
+        p.join()
+
+    correlation_vector = np.array([correlation_full_dict[i] for i in correlation_full_dict.keys()]).T
+
+    plt.plot(test_frequencies_range,correlation_vector.sum(axis=1).real)
+    plt.show()
+
+    return correlation_vector
 
 
 def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
@@ -60,7 +133,7 @@ def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
             Frequency = test_frequencies_range[k]
 #            correlation_vector[k,i] = correlation.correlation(Frequency,vq[:,i],trajectory.get_time(),correlation_function_step)
             correlation_vector[k,i] = correlation.correlation2(Frequency,vq[:,i],trajectory.get_time_step_average(),correlation_function_step)
-            print Frequency,correlation_vector[k,i].real
+#            print Frequency,correlation_vector[k,i].real
 
         print('\n')
         #print(Time)
@@ -77,43 +150,3 @@ def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
     plt.show()
 
     return correlation_vector
-
-
-def get_correlation_spectrum_par(vq,trajectory,test_frequencies_range):
-
-    #def worker(test_frequencies_range, vq, trajectory, correlation_function_step, out_queue):
-
-    correlation_function_step = 1
-
-    nprocs = 5
-    procs = []
-    out_queue = Queue()
-
-    phonon_numbers = range(vq.shape[1])
-    chunksize = int(math.ceil(vq.shape[1] / float(nprocs)))
-
-    for i in range(nprocs):
-        p = Process(
-            target=worker,
-            args=(i,test_frequencies_range,
-                  vq[:,chunksize * i:chunksize * (i + 1)],
-                  trajectory,
-                  correlation_function_step,
-                  out_queue))
-
-        procs.append(p)
-        p.start()
-
-
-    print('final')
-    for p in procs:
-        print(out_queue.get())
-
-    print(p.name)
-#    print('test')
-    for p in procs:
-        p.join()
-
-
-
-    exit()

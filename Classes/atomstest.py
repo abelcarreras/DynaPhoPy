@@ -13,7 +13,8 @@ class Structure:
                  atomic_numbers = None,
                  atomic_types = None,
                  atom_type_index = None,
-                 number_of_cell_atoms = None):
+                 number_of_cell_atoms = None,
+                 super_cell = None):
 
         """
 
@@ -30,12 +31,13 @@ class Structure:
         :param number of atoms in the defined cell:
         """
         self._cell = np.array(cell, dtype='double')
+        self._super_cell = np.array(super_cell, dtype='double')
         self._masses = np.array(masses, dtype='double')
         self._positions = np.array(positions, dtype='double')
         self._atomic_numbers = np.array(atomic_numbers, dtype='double')
-        self._atomic_types = atomic_types
         self._forces = np.array(forces, dtype='double')
         self._force_constants = np.array(force_constants, dtype='double')
+        self._atomic_types = atomic_types
         self._atom_type_index = atom_type_index
 
         self._number_of_atoms = None
@@ -61,16 +63,26 @@ class Structure:
             self._atomic_numbers = np.array(atomic_numbers)
 
 
-        if masses is None and self._atomic_numbers != None:
+        if masses is None and self._atomic_numbers is not None:
             self._masses = np.array([ atom_data[i][3] for i in self._atomic_numbers ])
         else:
             self._masses = masses
 
+        #By default : no super cell!!
+        if super_cell is None:
+             super_cell = np.array(self.get_number_of_dimensions() * [1],dtype= 'double')
+
     def set_cell(self, cell):
-        self._cell = np.array(cell, dtype='double', order='C')
+        self._cell = np.array(cell, dtype='double')
 
     def get_cell(self):
         return self._cell
+
+    def set_super_cell(self, super_cell):
+        self._super_cell = np.array(super_cell, dtype='double')
+
+    def get_super_cell(self):
+        return self._super_cell
 
 
     def get_atomic_types(self):
@@ -88,14 +100,14 @@ class Structure:
             return np.dot(self._positions, self._cell)
 
     def get_scaled_positions(self):
-        if self._scaled_positions != None:
+        if self._scaled_positions is not None:
             return self._scaled_positions
         else:
             self._scaled_positions = np.dot(self._positions, np.linalg.inv(self._cell))
             return self._scaled_positions
 
     def set_force_constants(self, force_constants):
-        self.force_constants = np.array(force_constants)
+        self._force_constants = np.array(force_constants)
 
     def get_force_constants(self):
         return np.array(self.force_constants)

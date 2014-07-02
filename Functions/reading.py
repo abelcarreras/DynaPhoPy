@@ -122,7 +122,8 @@ def read_from_file_structure(file_name):
 
 def read_from_file_trajectory(file_name,structure):
 
-    limit_number_structures = 20000
+#   Maximum number of structures that's gonna be read
+    limit_number_structures = 10000
 
     with open(file_name, "r+") as f:
     # memory-map the file

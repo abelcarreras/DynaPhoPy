@@ -18,7 +18,7 @@ q_vector = np.array ([0.5,0.5,0.5])
 ############# Real thing ##############
 #Reading structure
 structure = reading.read_from_file_structure('/home/abel/VASP/Si-test/OUTCAR')
-
+structure.set_super_cell([2,2,2])
 #Reading force constants from vasprun.xml
 #force_constants = get_force_constants_from_file('/home/abel/VASP/Si-test/FORCE_CONSTANTS')
 
