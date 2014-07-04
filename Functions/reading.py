@@ -114,6 +114,7 @@ def read_from_file_trajectory(file_name,structure):
 
 #   Maximum number of structures that's gonna be read
     limit_number_structures = 10000
+    last_points_taken = 2000
 
     with open(file_name, "r+") as f:
     # memory-map the file
@@ -169,6 +170,9 @@ def read_from_file_trajectory(file_name,structure):
         trajectory = np.array([[[trajectory[i][j*number_of_dimensions+k] for k in range(number_of_dimensions) ] for j in range(number_of_atoms)] for i in range (len(trajectory))])
 #        print (trajectory[0,1,:])
 
+        trajectory = trajectory[-last_points_taken:,:,:]
+
+        print(trajectory.shape[0])
         time = np.array([ i*time_step for i in range(trajectory.shape[0])],dtype=float)
 
         print('Trajectory file read')

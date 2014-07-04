@@ -16,7 +16,7 @@ def project_onto_unit_cell(trajectory,q_vector):
         print("Warning!! Q-vector and coordinates dimension don't match")
         exit()
 #    print(number_of_atoms)
-#    print(atom_type)
+    print(atom_type)
     #Projection in primitive cell
     for i in range(number_of_atoms):
         for k in range(number_of_dimensions):

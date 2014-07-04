@@ -9,7 +9,7 @@ from multiprocessing import Queue
 
 def correlation_worker(n_pos,test_frequencies_range, vq, trajectory):
 
-    correlation_function_step = 20
+    correlation_function_step = 10
 
     print('starting:',n_pos)
 
@@ -46,9 +46,10 @@ def get_correlation_spectrum_par(vq,trajectory,test_frequencies_range):
 
     for i in range(vq.shape[1]):
         plt.plot(test_frequencies_range,correlation_vector[:,i].real)
-        plt.show()
 
-    plt.plot(test_frequencies_range,correlation_vector.sum(axis=1).real)
+    plt.show()
+
+    plt.plot(test_frequencies_range,correlation_vector.sum(axis=1).real,'r-')
     plt.show()
 
     return correlation_vector

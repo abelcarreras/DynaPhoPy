@@ -11,51 +11,49 @@ import Functions.phonopy_interface as pho_interface
 print("Program start")
 
 
-'''
+
 ############# Real thing ##############
-#Parameters definition section (one parameter left)
-q_vector = np.array ([0.5,0.5,0.5])
+if True:
+    #Parameters definition section (one parameter left)
+    q_vector = np.array ([0.5,0.5,0.5])
 
-#Reading structure
-structure = reading.read_from_file_structure('/home/abel/VASP/Si-test/OUTCAR')
-structure.set_super_cell([2,2,2])
-print(structure.get_cell())
-print(structure.get_unit_cell())
+    #Reading structure
+    structure = reading.read_from_file_structure('/home/abel/VASP/Si-test/OUTCAR')
+    structure.set_super_cell([4,4,4])
+    print(structure.get_cell())
+    print(structure.get_unit_cell())
 
-#Reading force constants from vasprun.xml
-#force_constants = get_force_constants_from_file('/home/abel/VASP/Si-test/FORCE_CONSTANTS')
+    #Reading force constants from vasprun.xml
+    #force_constants = get_force_constants_from_file('/home/abel/VASP/Si-test/FORCE_CONSTANTS')
 
-force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-test/vasprun.xml')[0]
-structure.set_force_constants(force_constants)
+    force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-test/vasprun.xml')[0]
+    structure.set_force_constants(force_constants)
 
-#Reading trajectory from test files
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/OUTCAR',structure)
+    #Reading trajectory from test files
+    trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/OUTCAR',structure)
 
-#Getting eigenvectors from somewhere
-eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(trajectory.structure,q_vector)
+    #Getting eigenvectors from somewhere
+    eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(trajectory.structure,q_vector)
 
-#Plot energy
-#plt.suptitle('Energy')
-#plt.plot(trajectory.get_time().real,trajectory.get_energy().real)
-#plt.show()
+    #Plot energy
+    #plt.suptitle('Energy')
+    #plt.plot(trajectory.get_time().real,trajectory.get_energy().real)
+    #plt.show()
 
 ########################################
-'''
+
 
 ############# Test things #############
-q_vector = np.array ([1.5,0.5])
-trajectory = reading.read_from_file_test()
-eigenvectors, original_frequencies = eigen.get_eigenvectors_test(trajectory.structure)
+if False :
+    q_vector = np.array ([1.5,0.5])
+    trajectory = reading.read_from_file_test()
+    eigenvectors, original_frequencies = eigen.get_eigenvectors_test(trajectory.structure)
 #######################################
 
 
 plt.suptitle('Trajectory')
 plt.plot(trajectory.get_time().real,trajectory.get_trajectory()[:,1].real)
 plt.show()
-
-
-print('Original frequencies')
-print(original_frequencies)
 
 
 ##################Test s'ha de mirar que coincideixin #######################
@@ -67,6 +65,9 @@ print(original_frequencies)
 
 #exit()
 #############################################################################
+
+print('Original frequencies')
+print(original_frequencies)
 
 
 #Projection onto unit cell
@@ -90,8 +91,8 @@ plt.show()
 
 # Correlation section (working on..)
 print ('Correlation')
-#test_frequencies_range = np.array([0.16*i + 2.0 for i in range (100)])
-test_frequencies_range = np.array([0.01*i + 0.01 for i in range (200)])
+test_frequencies_range = np.array([0.16*i + 2.0 for i in range (100)])
+#test_frequencies_range = np.array([0.01*i + 0.01 for i in range (200)])
 
 correlation_vector =  correlate.get_correlation_spectrum_par(vq,trajectory,test_frequencies_range)
 
