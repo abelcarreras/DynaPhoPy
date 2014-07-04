@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 class Structure:
 
@@ -46,7 +47,7 @@ class Structure:
         self._number_of_atom_types = None
 
 
-        #Normalized cell
+        #Get normalized cell from cell
         self._cell_normalized = cell / np.linalg.norm(cell, axis=-1)[:, np.newaxis]
 
         if atomic_types is None and masses is not None:
@@ -57,6 +58,7 @@ class Structure:
                         self._atomic_types.append(j[1])
 #            self._atomic_types = np.array(self._atomic_types)
 
+        #Get atomic numbers and masses from available information
         if atomic_numbers is None and self._atomic_types is not None:
             self._atomic_numbers =  np.array([ symbol_map[i] for i in self._atomic_types ])
         else:
@@ -70,19 +72,35 @@ class Structure:
 
         #By default : no super cell!!
         if super_cell is None:
-             super_cell = np.array(self.get_number_of_dimensions() * [1],dtype= 'double')
+             self._super_cell = np.array(self.get_number_of_dimensions() * [1],dtype= 'double')
+        else:
+            self._super_cell = np.array(super_cell,dtype=int)
+
+        self._unit_cell = None
+
 
     def set_cell(self, cell):
         self._cell = np.array(cell, dtype='double')
 
     def get_cell(self):
         return self._cell
+        self._unit_cell = None
 
     def set_super_cell(self, super_cell):
         self._super_cell = np.array(super_cell, dtype='double')
+        self._unit_cell = None
 
     def get_super_cell(self):
         return self._super_cell
+
+    def get_unit_cell(self):
+        if self._unit_cell is None:
+            self._transform = np.zeros_like(self.get_cell())
+            for i in range(self.get_number_of_dimensions()):
+                self._transform[i,i] = float(1/self._super_cell[i])
+            self._unit_cell = np.dot(self._cell,self._transform)
+
+        return self._unit_cell
 
 
     def get_atomic_types(self):
@@ -110,7 +128,7 @@ class Structure:
         self._force_constants = np.array(force_constants)
 
     def get_force_constants(self):
-        return np.array(self.force_constants)
+        return np.array(self._force_constants)
 
     def set_masses(self, masses):
         self._masses = np.array(masses, dtype='double')
@@ -145,7 +163,7 @@ class Structure:
 
         return  self._number_of_atom_types
 
-    def get_atom_type_index(self):
+    def set_atom_type_index_by_element(self):
         if self._atom_type_index is None:
             self._atom_type_index = self._atomic_numbers.copy()
             for i in range(self.get_number_of_atoms()):
@@ -154,8 +172,34 @@ class Structure:
                     if self._atomic_numbers[index] == self._atomic_numbers[i]:
                         self._atom_type_index[i] = index
 
-        return self._atom_type_index
 
+    def get_atom_type_index(self):
+#       Tolerance for accepting equivalent atoms in super cell
+        tolerance = 0.001
+
+        if self._atom_type_index is None:
+            unit_cell_inverse = np.linalg.inv(self.get_unit_cell())
+
+            self._atom_type_index = np.array(self.get_number_of_atoms() * [None])
+            counter = 0
+            for i in range(self.get_number_of_atoms()):
+
+                if self._atom_type_index[i] is None:
+                    self._atom_type_index[i] = counter
+                    counter += 1
+
+                for j in range(i+1, self.get_number_of_atoms()):
+                    coordinates_atom_i = self.get_positions()[i]
+                    coordinates_atom_j = self.get_positions()[j]
+
+                    difference_in_cell_coordinates = np.around((np.dot(unit_cell_inverse,(coordinates_atom_j - coordinates_atom_i))))
+                    projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_unit_cell(), difference_in_cell_coordinates)
+                    separation = pow(np.linalg.norm(projected_coordinates_atom_j - coordinates_atom_i),2)
+
+                    if separation < tolerance:
+                        self._atom_type_index[j] = self._atom_type_index[i]
+
+        return  np.array(self._atom_type_index,dtype=int)
 
 
 

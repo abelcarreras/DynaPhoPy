@@ -9,7 +9,7 @@ from multiprocessing import Queue
 
 def correlation_worker(n_pos,test_frequencies_range, vq, trajectory):
 
-    correlation_function_step = 10
+    correlation_function_step = 20
 
     print('starting:',n_pos)
 
@@ -115,7 +115,7 @@ def get_correlation_spectrum_par2(vq,trajectory,test_frequencies_range):
 def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
 
 #   Parameters to be taken in account
-    correlation_function_step = 1
+    correlation_function_step = 20
 
     correlation_vector = np.zeros((test_frequencies_range.shape[0],vq.shape[1]),dtype=complex)
 
@@ -125,21 +125,21 @@ def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
 #    pool = multiprocessing.Pool()
 
 
-
+    print(vq.shape[1])
     for i in range (vq.shape[1]):
 
         print 'Frequency:',i
         for k in range (test_frequencies_range.shape[0]):
             Frequency = test_frequencies_range[k]
 #            correlation_vector[k,i] = correlation.correlation(Frequency,vq[:,i],trajectory.get_time(),correlation_function_step)
-            correlation_vector[k,i] = correlation.correlation2(Frequency,vq[:,i],trajectory.get_time_step_average(),correlation_function_step)
-#            print Frequency,correlation_vector[k,i].real
+ #           correlation_vector[k,i] = correlation.correlation2(Frequency,vq[:,i],trajectory.get_time_step_average(),correlation_function_step)
+            print Frequency,correlation_vector[k,i].real
 
         print('\n')
         #print(Time)
 
-#        plt.plot(test_frequencies_range,correlation_vector[:,i].real)
-#        plt.show()
+        plt.plot(test_frequencies_range,correlation_vector[:,i].real)
+        plt.show()
 
 #        pool.close()
 #        pool.join()

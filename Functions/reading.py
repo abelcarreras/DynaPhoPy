@@ -48,13 +48,6 @@ def read_from_file_structure(file_name):
         atoms_per_type = np.array(file_map.readline().split(),dtype=int)
 
 
-##################  All atoms different (No equivalences  ######################
-        atom_type_index = sum([ [ i for i in range(atoms_per_type[j])] for j in range(atoms_per_type.shape[0])],[])
-        atom_type_index = np.array(atom_type_index,dtype=int)
-#        print(atom_type_index)
-################################################################################
-
-
         #Reading atoms  mass
         position_number = file_map.find('POMASS =')
 #        file_map.seek(position_number)
@@ -63,10 +56,8 @@ def read_from_file_structure(file_name):
         for i in range(atoms_per_type.shape[0]):
             file_map.seek(position_number+9+6*i)
             atomic_mass_per_type.append(file_map.read(6))
-
         atomic_mass = sum([ [atomic_mass_per_type[j] for i in range(atoms_per_type[j])] for j in range(atoms_per_type.shape[0])],[])
         atomic_mass = np.array(atomic_mass,dtype='double')
-
 
 
         #Reading cell
@@ -116,7 +107,6 @@ def read_from_file_structure(file_name):
                               positions=positions,
                               forces=None,
                               masses=atomic_mass,
-                              atom_type_index=atom_type_index,
                               )
 
 
@@ -212,7 +202,7 @@ def read_from_file_test():
 
     structure = atomtest.Structure(positions=positions,
                                    atomic_numbers=atom_type,
-                                   cell=[[1,0],[0,1]],
+                                   cell=[[2,0],[0,1]],
                                    number_of_cell_atoms=2,
                                    masses=[1 for i in range(positions.shape[0])]) #all 1
 

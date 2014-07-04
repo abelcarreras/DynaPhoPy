@@ -10,15 +10,18 @@ import Functions.phonopy_interface as pho_interface
 
 print("Program start")
 
+
+'''
+############# Real thing ##############
 #Parameters definition section (one parameter left)
 q_vector = np.array ([0.5,0.5,0.5])
 
-
-
-############# Real thing ##############
 #Reading structure
 structure = reading.read_from_file_structure('/home/abel/VASP/Si-test/OUTCAR')
 structure.set_super_cell([2,2,2])
+print(structure.get_cell())
+print(structure.get_unit_cell())
+
 #Reading force constants from vasprun.xml
 #force_constants = get_force_constants_from_file('/home/abel/VASP/Si-test/FORCE_CONSTANTS')
 
@@ -37,11 +40,12 @@ eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phon
 #plt.show()
 
 ########################################
-
+'''
 
 ############# Test things #############
-#trajectory = reading.read_from_file_test()
-#eigenvectors, original_frequencies = eigen.get_eigenvectors_test(trajectory.structure)
+q_vector = np.array ([1.5,0.5])
+trajectory = reading.read_from_file_test()
+eigenvectors, original_frequencies = eigen.get_eigenvectors_test(trajectory.structure)
 #######################################
 
 
@@ -86,8 +90,8 @@ plt.show()
 
 # Correlation section (working on..)
 print ('Correlation')
-test_frequencies_range = np.array([0.16*i + 2.0 for i in range (100)])
-#test_frequencies_range = np.array([0.01*i + 0.01 for i in range (200)])
+#test_frequencies_range = np.array([0.16*i + 2.0 for i in range (100)])
+test_frequencies_range = np.array([0.01*i + 0.01 for i in range (200)])
 
 correlation_vector =  correlate.get_correlation_spectrum_par(vq,trajectory,test_frequencies_range)
 
