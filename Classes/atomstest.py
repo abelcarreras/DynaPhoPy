@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import itertools
 
 class Structure:
 
@@ -9,13 +10,13 @@ class Structure:
                  scaled_positions = None,
                  masses = None,
                  cell = None,
-                 forces = None,
+                 force_set = None,
                  force_constants = None,
                  atomic_numbers = None,
                  atomic_types = None,
                  atom_type_index = None,
-                 number_of_cell_atoms = None,
-                 super_cell = None):
+                 super_cell = None,
+                 primitive_cell = None):
 
         """
 
@@ -23,7 +24,7 @@ class Structure:
         :param atom positions scaled to 1 (array Ndim x Natoms):
         :param masses of the atoms (vector NAtoms):
         :param real space cell matrix (array Ndim x Ndim):
-        :param atom forces (array 2D NdimxNatom  x  NdimxNatom):
+        :param atom force sets
         :param force constants:
         :param atomic numbers vector (1x Natoms):
         :param number of total atoms in the crystal:
@@ -36,16 +37,19 @@ class Structure:
         self._masses = np.array(masses, dtype='double')
         self._positions = np.array(positions, dtype='double')
         self._atomic_numbers = np.array(atomic_numbers, dtype='double')
-        self._forces = np.array(forces, dtype='double')
+        self._force_set = np.array(force_set, dtype='double')
         self._force_constants = np.array(force_constants, dtype='double')
         self._atomic_types = atomic_types
         self._atom_type_index = atom_type_index
 
+        self._primitive_cell = None
+        self._super_cell_matrix = None
+        self._number_of_cell_atoms = None
         self._number_of_atoms = None
-        self._number_of_cell_atoms = number_of_cell_atoms
         self._scaled_positions = scaled_positions
         self._number_of_atom_types = None
-
+        self._primitive_matrix = None
+        self._number_of_primitive_atoms = None
 
         #Get normalized cell from cell
         self._cell_normalized = cell / np.linalg.norm(cell, axis=-1)[:, np.newaxis]
@@ -70,13 +74,16 @@ class Structure:
         else:
             self._masses = masses
 
+
+####################### TO BE DEPRECATED ####################
         #By default : no super cell!!
         if super_cell is None:
-             self._super_cell = np.array(self.get_number_of_dimensions() * [1],dtype= 'double')
+             self._super_cell = np.array(self.get_number_of_dimensions() * [1],dtype= int)
         else:
             self._super_cell = np.array(super_cell,dtype=int)
 
         self._unit_cell = None
+################################################################
 
 
     def set_cell(self, cell):
@@ -84,24 +91,46 @@ class Structure:
 
     def get_cell(self):
         return self._cell
-        self._unit_cell = None
+        self._cell = None
 
+    def get_big_cell(self):
+        self._big_cell = np.dot(self._super_cell_matrix,self._cell)
+        return self._big_cell
+
+
+################### TO BE DEPRECATED #################
     def set_super_cell(self, super_cell):
         self._super_cell = np.array(super_cell, dtype='double')
         self._unit_cell = None
 
     def get_super_cell(self):
         return self._super_cell
+#########################################################
 
-    def get_unit_cell(self):
-        if self._unit_cell is None:
-            self._transform = np.zeros_like(self.get_cell())
-            for i in range(self.get_number_of_dimensions()):
-                self._transform[i,i] = float(1/self._super_cell[i])
-            self._unit_cell = np.dot(self._cell,self._transform)
 
-        return self._unit_cell
 
+
+    def set_super_cell_matrix(self,super_cell_matrix):
+        self._super_cell_matrix = super_cell_matrix
+
+    def get_super_cell_matrix(self):
+        if self._super_cell_matrix is None:
+            self._super_cell_matrix = np.identity(self.get_number_of_dimensions())
+        return self._super_cell_matrix
+
+
+    def get_primitive_cell(self):
+        if self._primitive_cell is None:
+            self._primitive_cell = np.dot(self.get_cell(),self.get_primitive_matrix())
+        return self._primitive_cell
+
+    def set_primitive_matrix(self,primitive_matrix):
+        self._primitive_matrix = primitive_matrix
+
+    def get_primitive_matrix(self):
+        if self._primitive_matrix is None:
+            self._primitive_matrix = np.identity(self.get_number_of_dimensions())
+        return  self._primitive_matrix
 
     def get_atomic_types(self):
         return self._atomic_types
@@ -111,18 +140,31 @@ class Structure:
         self._scaled_positions = np.dot(cart_positions, np.linalg.inv(self._cell))
 
 
-    def get_positions(self):
-        if self._positions != None:
-            return self._positions
-        else:
-            return np.dot(self._positions, self._cell)
+    def get_positions(self,super_cell=None):
+        if super_cell is None:
+            super_cell = self.get_number_of_dimensions() * [1]
+
+        position_super_cell = []
+        for k in range(self._positions.shape[0]):
+            for r in itertools.product(*[range (i) for i in super_cell]):
+#                print(np.array(r[::-1]))
+                position_super_cell.append(self._positions[k,:] + np.dot(np.array(r[::-1]),self.get_cell()))
+        position_super_cell = np.array(position_super_cell)
+
+#        print(position_super_cell)
+
+        return position_super_cell
+
+
+#        if self._positions is None:
+#            return np.dot(self._positions, self._cell)
+#        return self._positions
+
 
     def get_scaled_positions(self):
-        if self._scaled_positions is not None:
-            return self._scaled_positions
-        else:
-            self._scaled_positions = np.dot(self._positions, np.linalg.inv(self._cell))
-            return self._scaled_positions
+        if self._scaled_positions is  None:
+            self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self._cell))
+        return self._scaled_positions
 
     def set_force_constants(self, force_constants):
         self._force_constants = np.array(force_constants)
@@ -130,17 +172,34 @@ class Structure:
     def get_force_constants(self):
         return np.array(self._force_constants)
 
+    def set_force_set(self, force_set):
+        self._force_set = np.array(force_set)
+
+    def get_force_set(self):
+        return np.array(self._force_set)
+
+
     def set_masses(self, masses):
         self._masses = np.array(masses, dtype='double')
 
-    def get_masses(self):
-        return self._masses
+    def get_masses(self,super_cell=None):
+        if super_cell is None:
+            super_cell = self.get_number_of_dimensions() * [1]
 
-    def get_number_of_atoms(self):
+        mass_super_cell = []
+        for j in range(self.get_number_of_cell_atoms()):
+            mass_super_cell += [ self._masses[j] ] * np.prod(super_cell)
 
-        if self._number_of_atoms is None:
-            self._number_of_atoms = self._positions.shape[0]
-        return self._number_of_atoms
+        return mass_super_cell
+
+    def get_number_of_cell_atoms(self):
+#        print(self.get_positions())
+        if self._number_of_cell_atoms is None:
+            self._number_of_cell_atoms = self.get_positions().shape[0]
+#        print(self._number_of_cell_atoms)
+        return self._number_of_cell_atoms
+
+
 
     def get_number_of_dimensions(self):
         return self._cell.shape[0]
@@ -148,14 +207,16 @@ class Structure:
     def get_atomic_numbers(self):
         return self._atomic_numbers
 
-    def get_number_of_cell_atoms(self):
-        if self._number_of_cell_atoms:
-            return self._number_of_cell_atoms
-        else:
-            return self.get_number_of_atoms()
+    def get_number_of_atoms(self):
+        if self._number_of_atoms is None:
+            self._number_of_atoms = self.get_number_of_cell_atoms()
+       # print(self._number_of_atoms)
+        return self._number_of_atoms
 
-    def set_number_of_cell_atoms(self,number_of_cell_atoms):
-        self._number_of_cell_atoms = number_of_cell_atoms
+    def set_number_of_atoms(self,number_of_atoms):
+        self._number_of_atoms = number_of_atoms
+
+
 
     def get_number_of_atom_types(self):
         if self._number_of_atom_types is None:
@@ -166,7 +227,7 @@ class Structure:
     def set_atom_type_index_by_element(self):
         if self._atom_type_index is None:
             self._atom_type_index = self._atomic_numbers.copy()
-            for i in range(self.get_number_of_atoms()):
+            for i in range(self.get_number_of_cell_atoms()):
                 for index in range(self.get_number_of_atom_types()):
     #                print(i,index,self.atomic_numbers[index])
                     if self._atomic_numbers[index] == self._atomic_numbers[i]:
@@ -178,22 +239,24 @@ class Structure:
         tolerance = 0.001
 
         if self._atom_type_index is None:
-            unit_cell_inverse = np.linalg.inv(self.get_unit_cell())
+ #           print(self.get_primitive_cell())
 
-            self._atom_type_index = np.array(self.get_number_of_atoms() * [None])
+            primitive_cell_inverse = np.linalg.inv(self.get_primitive_cell())
+
+            self._atom_type_index = np.array(self.get_number_of_cell_atoms() * [None])
             counter = 0
-            for i in range(self.get_number_of_atoms()):
+            for i in range(self.get_number_of_cell_atoms()):
 
                 if self._atom_type_index[i] is None:
                     self._atom_type_index[i] = counter
                     counter += 1
 
-                for j in range(i+1, self.get_number_of_atoms()):
+                for j in range(i+1, self.get_number_of_cell_atoms()):
                     coordinates_atom_i = self.get_positions()[i]
                     coordinates_atom_j = self.get_positions()[j]
 
-                    difference_in_cell_coordinates = np.around((np.dot(unit_cell_inverse,(coordinates_atom_j - coordinates_atom_i))))
-                    projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_unit_cell(), difference_in_cell_coordinates)
+                    difference_in_cell_coordinates = np.around((np.dot(primitive_cell_inverse,(coordinates_atom_j - coordinates_atom_i))))
+                    projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_primitive_cell(), difference_in_cell_coordinates)
                     separation = pow(np.linalg.norm(projected_coordinates_atom_j - coordinates_atom_i),2)
 
                     if separation < tolerance:
@@ -201,6 +264,13 @@ class Structure:
 
         return  np.array(self._atom_type_index,dtype=int)
 
+    def get_number_of_primitive_atoms(self):
+        if self._number_of_primitive_atoms is None:
+            self._number_of_primitive_atoms =  len(set(self.get_atom_type_index()))
+        return  self._number_of_primitive_atoms
+
+    def set_number_of_primitive_atoms(self,number_of_primitive_atoms):
+        self._number_of_primitive_atoms = number_of_primitive_atoms
 
 
 atom_data = [

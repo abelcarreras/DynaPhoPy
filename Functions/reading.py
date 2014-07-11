@@ -105,7 +105,6 @@ def read_from_file_structure(file_name):
 
     return atomtest.Structure(cell= direct_cell,
                               positions=positions,
-                              forces=None,
                               masses=atomic_mass,
                               )
 
@@ -114,7 +113,7 @@ def read_from_file_trajectory(file_name,structure):
 
 #   Maximum number of structures that's gonna be read
     limit_number_structures = 10000
-    last_points_taken = 2000
+    last_points_taken = 5000
 
     with open(file_name, "r+") as f:
     # memory-map the file
@@ -131,9 +130,13 @@ def read_from_file_trajectory(file_name,structure):
         time_step = float(file_map.readline().split()[0])
 
 
-        if number_of_atoms != structure.get_number_of_atoms():
+
+################Change to check if multiple ############################
+        if number_of_atoms != structure.get_number_of_cell_atoms():
             print('Warning: Number of atoms not matching, check VASP output files')
-            exit()
+        structure.set_number_of_atoms(number_of_atoms)
+######################################################################
+
 
 #       Read coordinates and energy
         trajectory = []
@@ -171,6 +174,7 @@ def read_from_file_trajectory(file_name,structure):
 #        print (trajectory[0,1,:])
 
         trajectory = trajectory[-last_points_taken:,:,:]
+        energy = energy[-last_points_taken:]
 
         print(trajectory.shape[0])
         time = np.array([ i*time_step for i in range(trajectory.shape[0])],dtype=float)
@@ -183,6 +187,8 @@ def read_from_file_trajectory(file_name,structure):
 
 
 def read_from_file_test():
+
+    print('Reading structure from test file')
 
     #Condicions del test
     number_of_dimensions = 2
@@ -207,11 +213,16 @@ def read_from_file_test():
     structure = atomtest.Structure(positions=positions,
                                    atomic_numbers=atom_type,
                                    cell=[[2,0],[0,1]],
-                                   number_of_cell_atoms=2,
                                    masses=[1 for i in range(positions.shape[0])]) #all 1
-
     number_of_atoms = structure.get_number_of_atoms()
 
+    structure.set_number_of_primitive_atoms(2)
+    print('number of atoms in primitive cell')
+    print(structure.get_number_of_primitive_atoms())
+    print('number of total atoms in structure (super cell)')
+    print(number_of_atoms)
+#    structure.set_primitive_matrix([[1.0, 0.0],
+#                                    [0.0, 1.0]])
 
     #Velocity reading section
     velocity = []

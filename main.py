@@ -15,19 +15,28 @@ print("Program start")
 ############# Real thing ##############
 if True:
     #Parameters definition section (one parameter left)
-    q_vector = np.array ([0.5,0.5,0.5])
+    q_vector = np.array ([0.2,0.1,0.4])
 
     #Reading structure
-    structure = reading.read_from_file_structure('/home/abel/VASP/Si-test/OUTCAR')
-    structure.set_super_cell([4,4,4])
+    structure = reading.read_from_file_structure('/home/abel/VASP/Si-test_petit/OUTCAR')
+    structure.set_force_set( file_IO.parse_FORCE_SETS(64,filename='/home/abel/VASP/Si-test_petit/FORCE_SETS'))
+
+    structure.set_primitive_matrix([[0.5, 0.0, 0.0],
+                                    [0.0, 0.5, 0.0],
+                                    [0.0, 0.0, 0.5]])
+    structure.set_super_cell_matrix([[2, 0, 0],
+                                     [0, 2, 0],
+                                     [0, 0, 2]])
+
+
+#    structure.set_super_cell([4,4,4])
     print(structure.get_cell())
-    print(structure.get_unit_cell())
+    print(structure.get_primitive_cell())
 
     #Reading force constants from vasprun.xml
     #force_constants = get_force_constants_from_file('/home/abel/VASP/Si-test/FORCE_CONSTANTS')
-
-    force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-test/vasprun.xml')[0]
-    structure.set_force_constants(force_constants)
+ #   force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-test/vasprun.xml')[0]
+ #   structure.set_force_constants(force_constants)
 
     #Reading trajectory from test files
     trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/OUTCAR',structure)
@@ -35,10 +44,17 @@ if True:
     #Getting eigenvectors from somewhere
     eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(trajectory.structure,q_vector)
 
+    print(structure.get_number_of_cell_atoms())
+    print(structure.get_number_of_primitive_atoms())
+    print(structure.get_number_of_atoms())
+
     #Plot energy
-    #plt.suptitle('Energy')
-    #plt.plot(trajectory.get_time().real,trajectory.get_energy().real)
-    #plt.show()
+    plt.suptitle('Energy')
+    print('time',trajectory.get_time().shape[0])
+    print('trajectory',trajectory.get_energy().shape[0])
+    plt.plot(trajectory.get_time().real,trajectory.get_energy().real)
+    plt.show()
+
 
 ########################################
 
@@ -91,8 +107,9 @@ plt.show()
 
 # Correlation section (working on..)
 print ('Correlation')
-test_frequencies_range = np.array([0.16*i + 2.0 for i in range (100)])
+test_frequencies_range = np.array([0.05*i + 0.01 for i in range (400)])
 #test_frequencies_range = np.array([0.01*i + 0.01 for i in range (200)])
+
 
 correlation_vector =  correlate.get_correlation_spectrum_par(vq,trajectory,test_frequencies_range)
 
@@ -108,7 +125,7 @@ new_frequencies, new_eigenvectors, dynamical_matrix = eigen.build_dynamical_matr
 print(dynamical_matrix.real)
 
 
-print('\n')
+print('')
 print('EigenVectors & EigenValues')
 print(new_eigenvectors)
 print(new_frequencies)

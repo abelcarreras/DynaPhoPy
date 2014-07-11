@@ -6,7 +6,9 @@ from phonopy.structure.atoms import Atoms as PhonopyAtoms
 #import Functions.reading as reading
 #import matplotlib.pyplot as plt
 import scitools.numpyutils as numpyutils
-
+from phonopy.file_IO import parse_FORCE_SETS, parse_BORN
+from phonopy.interface.vasp import read_vasp
+import copy
 
 #Direct force constants read from file 'FORCE_CONSTANTS' (test, but could be useful)
 def get_force_constants_from_file (file_name):
@@ -31,12 +33,20 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
 
 #    print('atomic',structure.get_atomic_types())
 #   Preparing the bulk type
-    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),scaled_positions=structure.get_scaled_positions())
+    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
+                        scaled_positions=structure.get_scaled_positions())
     bulk.set_cell(structure.get_cell())
 
-#   Preparing the phonon type
-    phonon = Phonopy(bulk, [[1,0,0],[0,1,0],[0,0,1]], distance=0.01)
-    phonon.set_force_constants(structure.get_force_constants())
+    phonon = Phonopy(bulk,structure._super_cell_matrix,
+                     primitive_matrix= structure.get_primitive_matrix(),
+                     is_auto_displacements=False)
+
+    phonon.set_displacement_dataset(copy.deepcopy(structure.get_force_set()))
+    phonon.produce_force_constants()
+
+########################################################################
+
+
 
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
@@ -47,11 +57,14 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
 
     #Arranging eigenvectors by atoms and dimensions
     number_of_dimensions = structure.get_number_of_dimensions()
-    number_of_cell_atoms = structure.get_number_of_cell_atoms()
+    number_of_primitive_atoms = structure.get_number_of_primitive_atoms()
+
+#    print(number_of_dimensions,number_of_primitive_atoms)
+
     arranged_ev = np.array([[[eigenvectors [i,j*number_of_dimensions+k]
                                     for k in range(number_of_dimensions)]
-                                    for j in range(number_of_cell_atoms)]
-                                    for i in range(number_of_cell_atoms*number_of_dimensions)])
+                                    for j in range(number_of_primitive_atoms)]
+                                    for i in range(number_of_primitive_atoms*number_of_dimensions)])
 
     return arranged_ev, frequencies
 

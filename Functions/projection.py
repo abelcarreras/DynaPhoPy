@@ -3,27 +3,35 @@ import numpy as np
 
 def project_onto_unit_cell(trajectory,q_vector):
 
-    number_of_cell_atoms = trajectory.structure.get_number_of_cell_atoms()
+
+    number_of_primitive_atoms = trajectory.structure.get_number_of_primitive_atoms()
     number_of_dimensions = trajectory.structure.get_number_of_dimensions()
     number_of_atoms = trajectory.structure.get_number_of_atoms()
     atom_type = trajectory.structure.get_atom_type_index()
-    coordinates = trajectory.structure.get_positions()
     velocity = trajectory.get_velocity_mass_average()
 
-    velocity_projected=np.zeros((velocity.shape[0],number_of_cell_atoms,number_of_dimensions),dtype=complex)
+    super_cell=[trajectory.structure.get_super_cell_matrix()[i][i] for i in range (trajectory.structure.get_number_of_dimensions())]
+    coordinates = trajectory.structure.get_positions(super_cell)
+
+
+#Geting an a super cell version of atom_type
+    atom_type = []
+    for j in range(trajectory.structure.get_number_of_cell_atoms()):
+        atom_type += [ trajectory.structure.get_atom_type_index()[j] ] * int(number_of_atoms / trajectory.structure.get_number_of_cell_atoms())
+
+    velocity_projected=np.zeros((velocity.shape[0],number_of_primitive_atoms,number_of_dimensions),dtype=complex)
+
 
     if q_vector.shape[0] != coordinates.shape[1]:
-        print("Warning!! Q-vector and coordinates dimension don't match")
+        print("Warning!! Q-vector and coordinates dimension do not match")
         exit()
-#    print(number_of_atoms)
-    print(atom_type)
+
     #Projection in primitive cell
     for i in range(number_of_atoms):
         for k in range(number_of_dimensions):
-#            print(atom_type[i])
             velocity_projected[:,atom_type[i],k] += velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector,coordinates[i,:]))
 
-    velocity_projected = velocity_projected/(number_of_atoms/number_of_cell_atoms)
+    velocity_projected = velocity_projected/(number_of_atoms/number_of_primitive_atoms)
 
     return velocity_projected
 

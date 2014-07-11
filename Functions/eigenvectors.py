@@ -32,7 +32,7 @@ def GS(A):
 def get_eigenvectors_test(estructura):
 
     #Manual eigenvectors definition (from Wolfram Mathematica calculations)
-    number_of_cell_atoms = estructura.get_number_of_cell_atoms()
+    number_of_cell_atoms = estructura.get_number_of_primitive_atoms()
     number_of_dimensions = estructura.get_number_of_dimensions()
 
     eigenvectors = np.array([[0.707107,0,-0.707107,0],
@@ -49,27 +49,24 @@ def get_eigenvectors_test(estructura):
     print('Eigenvectors')
     print(eigenvectors)
 
-    print('\n')
-
     print('Testing Orthogonality')
     print(eigenvectors.T*eigenvectors.conj())
 
     arranged_EV = np.array([[[eigenvectors [i,j*number_of_dimensions+k] for k in range(number_of_dimensions)] for j in range(number_of_cell_atoms)] for i in range(number_of_cell_atoms*number_of_dimensions)])
-
     return arranged_EV, frequencies
 
 def build_dynamical_matrix(structure, frequencies, eigenvectors):
 
-    number_of_cell_atoms = structure.get_number_of_cell_atoms()
+    number_of_primitive_atoms = structure.get_number_of_primitive_atoms()
     number_of_dimensions = structure.get_number_of_dimensions()
 
 
-    dynamical_matrix=np.mat(np.zeros((number_of_dimensions*number_of_cell_atoms,number_of_dimensions*number_of_cell_atoms)),dtype=complex)
+    dynamical_matrix=np.mat(np.zeros((number_of_dimensions*number_of_primitive_atoms,number_of_dimensions*number_of_primitive_atoms)),dtype=complex)
 
-    for i in range(number_of_cell_atoms):
-        for j in range(number_of_cell_atoms):
+    for i in range(number_of_primitive_atoms):
+        for j in range(number_of_primitive_atoms):
             SubDynamicalMatrix=np.mat(np.zeros((number_of_dimensions,number_of_dimensions)),dtype=complex)
-            for f in range(number_of_cell_atoms*number_of_dimensions):
+            for f in range(number_of_primitive_atoms*number_of_dimensions):
                 SubDynamicalMatrix += frequencies[f]**2 *np.mat(eigenvectors[f,i,:]).T*np.mat(eigenvectors[f,j,:].conj())
             dynamical_matrix[i*number_of_dimensions:(i+1)*number_of_dimensions,j*number_of_dimensions:(j+1)*number_of_dimensions] = SubDynamicalMatrix
 

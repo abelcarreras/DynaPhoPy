@@ -9,7 +9,7 @@ def obtain_velocity_from_positions(cell,trajectory,time):
     velocity = trajectory.copy()
 
     for i in range(trajectory.shape[1]):
-        velocity [:,i,:] = derivative.derivative(cell,trajectory[:,i,:],time)
+        velocity [:,i,:] = derivative.derivative(cell, trajectory[:,i,:], time)
 #        plt.plot(velocity[:,i,:])
 #        plt.show()
 
@@ -44,7 +44,7 @@ class Dynamics:
         self._trajectory = trajectory
         self._energy = energy
         self._time_step_average = None
-
+        self._velocity_mass_average = None
 
         if structure:
             self._structure = structure
@@ -52,9 +52,9 @@ class Dynamics:
             print('Warining: Initalization without structure')
             self._structure = None
 
-        if velocity == None:
+        if velocity is None:
             print('No velocity provided')
-            self._velocity = obtain_velocity_from_positions(self._structure.get_cell(),self._trajectory,self._time)
+            self._velocity = obtain_velocity_from_positions(self._structure.get_big_cell(),self._trajectory,self._time)
         else:
             self._velocity = velocity
 
@@ -91,10 +91,18 @@ class Dynamics:
     def get_velocity(self):
         return self._velocity
 
-    def get_velocity_mass_average(self):
-        self._velocity_mass_average = np.copy(self._velocity)
-        for i in range(self._structure.get_number_of_atoms()):
-            self._velocity_mass_average[:,i,:] = self._velocity[:,i,:] /np.sqrt(self._structure.get_masses()[i])
+    def get_velocity_mass_average(self,):
+
+        if self._velocity_mass_average is None:
+            self._velocity_mass_average = np.copy(self._velocity)
+
+        ######################## To be improved ######################
+            super_cell=[self.structure.get_super_cell_matrix()[i][i] for i in range (self.structure.get_number_of_dimensions())]
+        ##############################################################
+
+            for i in range(self._structure.get_number_of_atoms()):
+                self._velocity_mass_average[:,i,:] = self._velocity[:,i,:] /np.sqrt(self._structure.get_masses(super_cell=super_cell)[i])
+
         return np.array(self._velocity_mass_average)
 
     @property

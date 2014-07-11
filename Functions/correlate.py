@@ -33,6 +33,7 @@ def get_correlation_spectrum_par(vq,trajectory,test_frequencies_range):
     print ('found',multiprocessing.cpu_count(), 'CPU')
 
     pool = multiprocessing.Pool(processes=3)
+    print('using:', pool._processes)
     for i in range(vq.shape[1]):
         pool.apply_async(correlation_worker,
                          args = (i,test_frequencies_range,
@@ -46,8 +47,7 @@ def get_correlation_spectrum_par(vq,trajectory,test_frequencies_range):
 
     for i in range(vq.shape[1]):
         plt.plot(test_frequencies_range,correlation_vector[:,i].real)
-
-    plt.show()
+        plt.show()
 
     plt.plot(test_frequencies_range,correlation_vector.sum(axis=1).real,'r-')
     plt.show()
