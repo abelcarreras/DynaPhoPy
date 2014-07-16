@@ -13,7 +13,7 @@ print("Program start")
 
 
 ############# Real thing ##############
-if True:
+if False:
     #Parameters definition section (one parameter left)
     q_vector = np.array ([0.2,0.1,0.4])
 
@@ -21,9 +21,12 @@ if True:
     structure = reading.read_from_file_structure('/home/abel/VASP/Si-test_petit/OUTCAR')
     structure.set_force_set( file_IO.parse_FORCE_SETS(64,filename='/home/abel/VASP/Si-test_petit/FORCE_SETS'))
 
+
+
     structure.set_primitive_matrix([[0.5, 0.0, 0.0],
                                     [0.0, 0.5, 0.0],
                                     [0.0, 0.0, 0.5]])
+
     structure.set_super_cell_matrix([[2, 0, 0],
                                      [0, 2, 0],
                                      [0, 0, 2]])
@@ -38,11 +41,12 @@ if True:
  #   force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-test/vasprun.xml')[0]
  #   structure.set_force_constants(force_constants)
 
-    #Reading trajectory from test files
-    trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/OUTCAR',structure)
-
     #Getting eigenvectors from somewhere
-    eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(trajectory.structure,q_vector)
+    eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure,q_vector)
+
+    #Reading trajectory from test files
+#    trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_10/OUTCAR',structure)
+    trajectory = reading.generate_test_trajectory(structure,eigenvectors,original_frequencies,q_vector)
 
     print(structure.get_number_of_cell_atoms())
     print(structure.get_number_of_primitive_atoms())
@@ -55,15 +59,19 @@ if True:
     plt.plot(trajectory.get_time().real,trajectory.get_energy().real)
     plt.show()
 
+    #Frequency range
+    test_frequencies_range = np.array([0.1*i + 0.01 for i in range (200)])
+
 
 ########################################
 
 
 ############# Test things #############
-if False :
+if True :
     q_vector = np.array ([1.5,0.5])
     trajectory = reading.read_from_file_test()
     eigenvectors, original_frequencies = eigen.get_eigenvectors_test(trajectory.structure)
+    test_frequencies_range = np.array([0.01*i + 0.01 for i in range (200)])
 #######################################
 
 
@@ -107,12 +115,12 @@ plt.show()
 
 # Correlation section (working on..)
 print ('Correlation')
-test_frequencies_range = np.array([0.05*i + 0.01 for i in range (400)])
+#test_frequencies_range = np.array([0.1*i + 0.01 for i in range (200)])
 #test_frequencies_range = np.array([0.01*i + 0.01 for i in range (200)])
-
 
 correlation_vector =  correlate.get_correlation_spectrum_par(vq,trajectory,test_frequencies_range)
 
+reading.write_correlation_to_file(test_frequencies_range,correlation_vector,'Data Files/correlation.out')
 
 #Search for frequencies
 frequencies = peaksearch.get_frequencies_from_correlation(correlation_vector,test_frequencies_range)

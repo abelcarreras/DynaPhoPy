@@ -11,7 +11,7 @@ def correlation_worker(n_pos,test_frequencies_range, vq, trajectory):
 
     correlation_function_step = 10
 
-    print('starting:',n_pos)
+    print('starting:',n_pos,'Time step:',trajectory.get_time_step_average(),'Frame skip:',correlation_function_step)
 
     correlation_range = []
     for k in range (test_frequencies_range.shape[0]):
@@ -45,7 +45,7 @@ def get_correlation_spectrum_par(vq,trajectory,test_frequencies_range):
 
     correlation_vector = np.array([correlation_full_dict[i] for i in correlation_full_dict.keys()]).T
 
-    for i in range(vq.shape[1]):
+    for i in range(correlation_vector.shape[1]):
         plt.plot(test_frequencies_range,correlation_vector[:,i].real)
         plt.show()
 

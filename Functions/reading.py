@@ -112,8 +112,8 @@ def read_from_file_structure(file_name):
 def read_from_file_trajectory(file_name,structure):
 
 #   Maximum number of structures that's gonna be read
-    limit_number_structures = 10000
-    last_points_taken = 5000
+    limit_number_structures = 99000
+    last_points_taken = 10000
 
     with open(file_name, "r+") as f:
     # memory-map the file
@@ -186,6 +186,73 @@ def read_from_file_trajectory(file_name,structure):
                             time=time)
 
 
+
+def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector):
+
+    print('Making fake ideal data for testing')
+    super_cell=[structure.get_super_cell_matrix()[i][i] for i in range (structure.get_number_of_dimensions())]
+
+    number_of_atoms = structure.get_number_of_cell_atoms()
+    number_of_frequencies = len(frequencies)
+    total_time = 1
+    time_step = 0.01
+    amplitude = 0.1
+#    print('Freq Num',number_of_frequencies)
+
+    for i in range(structure.get_number_of_dimensions()):
+        number_of_atoms *= super_cell[i]
+#    print('At Num',number_of_atoms)
+
+    atom_type = structure.get_atom_type_index(super_cell=super_cell)
+#    print('At type',atom_type)
+
+    xyz_file = open('Data Files/test.xyz','w')
+
+    trajectory = []
+
+    for time in np.arange(total_time,step=time_step):
+        print(time)
+        xyz_file.write(str(number_of_atoms) + '\n\n')
+        coordinates = []
+        for i_atom in range(number_of_atoms):
+            coordinate = map(complex,structure.get_positions(super_cell=super_cell)[i_atom])
+            for i_freq in range(number_of_frequencies):
+                coordinate += amplitude * eigenvectors[i_freq,atom_type[i_atom]]*\
+                              np.exp(-np.complex(0,-1)*frequencies[i_freq]*time)*\
+                              np.exp(np.complex(0,-1)*np.dot(q_vector,structure.get_positions(super_cell=super_cell)[i_atom]))
+
+#            print('\t'.join([str(item) for item in coordinate]))
+
+            xyz_file.write('Si '+'\t'.join([str(item) for item in coordinate.real])+'\n')
+            coordinates.append(coordinate)
+        trajectory.append(coordinates)
+    xyz_file.close()
+
+
+    trajectory = np.array(trajectory)
+    print(trajectory.shape[0])
+
+
+    time = np.array([ i*time_step for i in range(trajectory.shape[0])],dtype=float)
+    energy = np.array([ 0*i for i in range(trajectory.shape[0])],dtype=float)
+
+
+    return dyn.Dynamics(structure = structure,
+                        trajectory = np.array(trajectory),
+                        energy = np.array(energy),
+                        time=time)
+
+
+
+
+
+
+
+
+
+
+
+
 def read_from_file_test():
 
     print('Reading structure from test file')
@@ -251,16 +318,26 @@ def read_from_file_test():
     print('Trajectory reading complete')
 
 
-    return dyn.Dynamics(trajectory= trajectory,
-                        velocity=velocity,
+    return dyn.Dynamics(trajectory= trajectory.real,
+        #                velocity=velocity.real,
                         time=time,
                         structure=structure)
 
 
 
+def write_correlation_to_file(frequency_range,correlation_vector,file_name):
+    output_file = open(file_name, 'w')
+
+    for i in range(correlation_vector.shape[0]):
+        output_file.write("{0:10.4f}\t".format(frequency_range[i]))
+        for j in correlation_vector[i,:]:
+            output_file.write("{0:.10e}\t".format(j))
+        output_file.write("\n")
+
+    output_file.close()
+    return 0
+
 #print (read_from_file_structure('../Data Files/NaCl/OUTCAR').get_number_of_dimensions())
 #print (read_from_file_structure2('../Data Files/NaCl/OUTCAR'))
 #print (read_from_file_trajectory('/home/abel/Desktop/Bi2O3_md/OUTCAR')[1,79,:])
-
-
 

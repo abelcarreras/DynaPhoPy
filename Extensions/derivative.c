@@ -13,6 +13,11 @@ static int       TwotoOne              (int Row, int Column, int NumColumns);
 static double  **pymatrix_to_c_array   (PyArrayObject *array);
 
 
+static double **matrix_inverse ( double** a ,int n);
+double Determinant(double **a,int n);
+static double ** CoFactor(double **a,int n);
+
+
 //  Derivate calculation (centered differencing)
 static PyObject* method1 (PyObject* self, PyObject *arg) {
 
@@ -59,17 +64,29 @@ static PyObject* method1 (PyObject* self, PyObject *arg) {
 //  Create a pointer array for cell matrix (to be improved)
     double **Cell_c = pymatrix_to_c_array(Cell_array);
 
-//	Matrix inversion
-	double **Cell_i = matrix_inverse_3x3(Cell_c);
-
-/*	printf("\nMatrix Inverse");
-	for(int i = 0 ;i < 3 ; i++){
+/*
+	printf("\nCell Matrix");
+	for(int i = 0 ;i < NumberOfDimensions ; i++){
 		printf("\n");
-		for(int j = 0; j < 3; j++) printf("%f\t",Cell_i[i][j]);
+		for(int j = 0; j < NumberOfDimensions; j++) printf("%f\t",Cell_c[i][j]);
 	}
 
 	printf("\n\n");
+
 */
+
+//	Matrix inversion
+//	double **Cell_i = matrix_inverse_3x3(Cell_c);
+	double **Cell_i = matrix_inverse(Cell_c,NumberOfDimensions);
+
+/*
+	printf("\nMatrix Inverse");
+	for(int i = 0 ;i < NumberOfDimensions ; i++){
+		printf("\n");
+		for(int j = 0; j < NumberOfDimensions; j++) printf("%f\t",Cell_i[i][j]);
+	}
+*/
+
 
 //  Pointers definition
 	double* Point_initial        = malloc(NumberOfDimensions*sizeof(double));
@@ -95,14 +112,14 @@ static PyObject* method1 (PyObject* self, PyObject *arg) {
 //		printf("PointFin: %i %f %f %f\n",i,Point_final[0],Point_final[1],Point_final[2]);
 //		printf("Pointdif: %i %f %f %f\n",i,Point_diff[0][0],Point_diff[1][0],Point_diff[2][0]);
 
-		Separacio = matrix_multiplication(Cell_i, Point_diff, 3, 3, 1);
+		Separacio = matrix_multiplication(Cell_i, Point_diff, NumberOfDimensions, NumberOfDimensions, 1);
 		for (int k = 0; k < NumberOfDimensions; k++) Separacio[k][0] = (double)(int)Separacio[k][0];
 
 
 //		for (int k =0; k < NumberOfDimensions; k++) Separacio[0][k]= (double)(int)(Diferencia[k][0] / NormalizedCellVector[k]);
 //		printf("Sep: %f %f %f\n",Separacio[0][0],Separacio[1][0],Separacio[2][0]);
 
-		double ** SeparacioProjectada = matrix_multiplication(Cell_c, Separacio, 3, 3, 1);
+		double ** SeparacioProjectada = matrix_multiplication(Cell_c, Separacio, NumberOfDimensions, NumberOfDimensions, 1);
 //		printf("SepProj: %f %f %f\n",SeparacioProjectada[0][0],SeparacioProjectada[1][0],SeparacioProjectada[2][0]);
 
 		for (int k = 0; k < NumberOfDimensions; k++) Point_final[k]= Point_final[k]-SeparacioProjectada[k][0];
@@ -112,6 +129,8 @@ static PyObject* method1 (PyObject* self, PyObject *arg) {
 			Derivative[i][j] = (Point_final[j]-Point_initial[j])/ (Time[i+Order]-Time[i-Order]);
 		}
 	}
+
+
 
 //  Side limits extrapolation
 	for (int k = Order; k > 0; k--) {
@@ -152,6 +171,7 @@ static double **pymatrix_to_c_array(PyArrayObject *array)  {
 //	Calculate the matrix inversion of a 3x3 matrix (has to be improved to multi-dimension)
 static double **matrix_inverse_3x3 ( double** a ){
 
+
 	double** b = malloc(3*sizeof(double*));
     for (int i = 0; i < 3; i++) b[i] = (double*) malloc(3*sizeof(double));
 
@@ -170,6 +190,124 @@ static double **matrix_inverse_3x3 ( double** a ){
 	return b;
 
 };
+
+
+
+
+static double **matrix_inverse ( double** a ,int n){
+
+
+	double** b = malloc(n*sizeof(double*));
+    for (int i = 0; i < n; i++) b[i] = (double*) malloc(n*sizeof(double));
+
+//	double** cof = malloc(n*sizeof(double*));
+//    for (int i = 0; i < n; i++) cof[i] = (double*) malloc(n*sizeof(double));
+
+    double **cof = CoFactor(a,n);
+
+	for(int i=0;i<n;i++){
+		for(int j=0;j<n;j++) {
+			b[i][j]=cof[j][i]/Determinant(a,n);
+		}
+	}
+
+	return b;
+
+}
+/*
+   Recursive definition of determinate using expansion by minors.
+*/
+
+
+double Determinant(double **a,int n)
+{
+   int i,j,j1,j2;
+   double det = 0;
+   double **m = NULL;
+
+   if (n < 1) { /* Error */
+
+   } else if (n == 1) { /* Shouldn't get used */
+      det = a[0][0];
+   } else if (n == 2) {
+      det = a[0][0] * a[1][1] - a[1][0] * a[0][1];
+   } else {
+      det = 0;
+      for (j1=0;j1<n;j1++) {
+         m = malloc((n-1)*sizeof(double *));
+         for (i=0;i<n-1;i++)
+            m[i] = malloc((n-1)*sizeof(double));
+         for (i=1;i<n;i++) {
+            j2 = 0;
+            for (j=0;j<n;j++) {
+               if (j == j1)
+                  continue;
+               m[i-1][j2] = a[i][j];
+               j2++;
+            }
+         }
+         det += pow(-1.0,j1+2.0) * a[0][j1] * Determinant(m,n-1);
+         for (i=0;i<n-1;i++)
+            free(m[i]);
+         free(m);
+      }
+   }
+   return(det);
+}
+
+/*
+   Find the cofactor matrix of a square matrix
+*/
+static double** CoFactor(double **a,int n)
+{
+   int i,j,ii,jj,i1,j1;
+   double det;
+   double **c;
+
+   c = malloc((n-1)*sizeof(double *));
+   for (i=0;i<n-1;i++)
+     c[i] = malloc((n-1)*sizeof(double));
+
+	double** b = malloc(n*sizeof(double*));
+    for (int i = 0; i < n; i++) b[i] = (double*) malloc(n*sizeof(double));
+
+
+
+
+   for (j=0;j<n;j++) {
+      for (i=0;i<n;i++) {
+
+         /* Form the adjoint a_ij */
+         i1 = 0;
+         for (ii=0;ii<n;ii++) {
+            if (ii == i)
+               continue;
+            j1 = 0;
+            for (jj=0;jj<n;jj++) {
+               if (jj == j)
+                  continue;
+               c[i1][j1] = a[ii][jj];
+               j1++;
+            }
+            i1++;
+         }
+
+         /* Calculate the determinate */
+         det = Determinant(c,n-1);
+
+         /* Fill in the elements of the cofactor */
+         b[i][j] = pow(-1.0,i+j+2.0) * det;
+      }
+   }
+
+   for (i=0;i<n-1;i++)
+      free(c[i]);
+   free(c);
+   return b;
+
+}
+
+
 
 //  Calculate the matrix multiplication
 static double **matrix_multiplication ( double  **a, double  **b, int n, int l, int m ){

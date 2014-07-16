@@ -1,3 +1,4 @@
+# Lots of stuff I really don't need!!! (just here for testing)
 import numpy as np
 #import phonopy.file_IO as file_IO
 from phonopy import Phonopy
@@ -9,11 +10,12 @@ import scitools.numpyutils as numpyutils
 from phonopy.file_IO import parse_FORCE_SETS, parse_BORN
 from phonopy.interface.vasp import read_vasp
 import copy
-
+import random
 #Direct force constants read from file 'FORCE_CONSTANTS' (test, but could be useful)
 def get_force_constants_from_file (file_name):
 
     f = open(file_name, 'r')
+    # Change according to the system dimensions!!
     force_constants = np.zeros((8,8,3,3))  #needs to be read from somewhere
     f.readline()
     for i in range(8):
@@ -27,9 +29,10 @@ def get_force_constants_from_file (file_name):
 
     return  force_constants
 
-
+# The only actually (very) important function in this module!!
 def obtain_eigenvectors_from_phonopy(structure,q_vector):
 
+#   Needs to be cleaned!!!
 
 #    print('atomic',structure.get_atomic_types())
 #   Preparing the bulk type
@@ -45,8 +48,6 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
     phonon.produce_force_constants()
 
 ########################################################################
-
-
 
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 

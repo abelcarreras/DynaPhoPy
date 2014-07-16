@@ -1,7 +1,7 @@
 
 import numpy as np
 import scitools.numpyutils
-
+import random
 def orthogonalize(V):
     "Orthogonalization by Gram-Schmidt process (Maybe needed for c implementation)"
     V = np.array(V)
@@ -51,7 +51,6 @@ def get_eigenvectors_test(estructura):
 
     print('Testing Orthogonality')
     print(eigenvectors.T*eigenvectors.conj())
-
     arranged_EV = np.array([[[eigenvectors [i,j*number_of_dimensions+k] for k in range(number_of_dimensions)] for j in range(number_of_cell_atoms)] for i in range(number_of_cell_atoms*number_of_dimensions)])
     return arranged_EV, frequencies
 

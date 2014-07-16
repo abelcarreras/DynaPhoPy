@@ -1,5 +1,4 @@
 import numpy as np
-import math
 import itertools
 
 class Structure:
@@ -94,7 +93,8 @@ class Structure:
         self._cell = None
 
     def get_big_cell(self):
-        self._big_cell = np.dot(self._super_cell_matrix,self._cell)
+ #       print(self.get_super_cell_matrix())
+        self._big_cell = np.dot(self.get_super_cell_matrix(),self.get_cell())
         return self._big_cell
 
 
@@ -115,7 +115,7 @@ class Structure:
 
     def get_super_cell_matrix(self):
         if self._super_cell_matrix is None:
-            self._super_cell_matrix = np.identity(self.get_number_of_dimensions())
+            self._super_cell_matrix = np.identity(self.get_number_of_dimensions(),dtype=int)
         return self._super_cell_matrix
 
 
@@ -132,8 +132,16 @@ class Structure:
             self._primitive_matrix = np.identity(self.get_number_of_dimensions())
         return  self._primitive_matrix
 
-    def get_atomic_types(self):
-        return self._atomic_types
+    def get_atomic_types(self,super_cell=None):
+
+        if super_cell is None:
+            super_cell = self.get_number_of_dimensions() * [1]
+
+        atomic_types = []
+        for j in range(self.get_number_of_cell_atoms()):
+            atomic_types += [self._atomic_types[j] ] * np.prod(super_cell)
+
+        return atomic_types
 
 
     def set_positions(self, cart_positions):
@@ -234,7 +242,7 @@ class Structure:
                         self._atom_type_index[i] = index
 
 
-    def get_atom_type_index(self):
+    def get_atom_type_index(self,super_cell=None):
 #       Tolerance for accepting equivalent atoms in super cell
         tolerance = 0.001
 
@@ -261,8 +269,18 @@ class Structure:
 
                     if separation < tolerance:
                         self._atom_type_index[j] = self._atom_type_index[i]
+        self._atom_type_index = np.array(self._atom_type_index,dtype=int)
 
-        return  np.array(self._atom_type_index,dtype=int)
+
+        if super_cell is None:
+            super_cell = self.get_number_of_dimensions() * [1]
+
+        atom_type_index_super_cell = []
+        for j in range(self.get_number_of_cell_atoms()):
+            atom_type_index_super_cell += [self._atom_type_index[j] ] * np.prod(super_cell)
+        return  atom_type_index_super_cell
+
+#        return  np.array(self._atom_type_index,dtype=int)
 
     def get_number_of_primitive_atoms(self):
         if self._number_of_primitive_atoms is None:
