@@ -2,31 +2,13 @@
 import numpy as np
 import scitools.numpyutils
 import random
-def orthogonalize(V):
-    "Orthogonalization by Gram-Schmidt process (Maybe needed for c implementation)"
-    V = np.array(V)
-    U = np.copy(V)
 
-    for i in xrange(0, V.shape[1]):
-        for j in xrange(i):
-            U[:,i] -= U[:,j] * np.dot(U[:,j], V[:,i])/ np.dot(U[:,j],U[:,j])
-    # normalize column
-    den=(U**2).sum(axis=0) **0.5
-    E = U/den
-    # assert np.allclose(E.T, np.linalg.inv(E))
-    return E
+def eigenvectors_normalization(eigenvector):
+    for i in range(eigenvector.shape[0]):
+#        eigenvector[i,:] = eigenvector[i,:]/np.sqrt(np.sum(pow(abs(eigenvector[i,:]),2)))
+        eigenvector[i,:] = eigenvector[i,:]/np.linalg.norm(eigenvector[i,:])
+    return eigenvector
 
-#Cal arreglar (i molt!!)
-def GS(A):
-    m,n = A.shape; Q=np.zeros([m,n]); R=np.zeros([n,n]); v=np.zeros(m)
-    for j in range(n):
-        v[:] = A[:,j]
-        for i in range(j):
-            r = np.dot(Q[:,i],A[:,j]); R[i,j] = r
-            v[:] = v[:] - r*Q[:,i]
-            r = np.linalg.norm(v); R[j,j]= r
-            Q[:,j] = v[:]/r
-    return Q
 
 
 def get_eigenvectors_test(estructura):
@@ -40,17 +22,16 @@ def get_eigenvectors_test(estructura):
                              [-0.3441510098,0.6177054982,-0.3441510098,0.6177054982],
                              [0.6177054982,0.3441510098,0.6177054982,0.3441510098]])
 
-
-#    eigenvectors=np.mat(orthogonalize(eigenvectors))
-    eigenvectors=np.mat(scitools.numpyutils.Gram_Schmidt(eigenvectors.real,normalize=True))
-
+#    eigenvectors=np.mat(scitools.numpyutils.Gram_Schmidt(eigenvectors.real,normalize=True))
+    eigenvectors = eigenvectors_normalization(eigenvectors)
     frequencies = [0.690841,0.690841,0.648592,0.648592]
 
     print('Eigenvectors')
     print(eigenvectors)
 
     print('Testing Orthogonality')
-    print(eigenvectors.T*eigenvectors.conj())
+    print(np.dot(eigenvectors.T,np.ma.conjugate(eigenvectors)))
+
     arranged_EV = np.array([[[eigenvectors [i,j*number_of_dimensions+k] for k in range(number_of_dimensions)] for j in range(number_of_cell_atoms)] for i in range(number_of_cell_atoms*number_of_dimensions)])
     return arranged_EV, frequencies
 
@@ -72,8 +53,6 @@ def build_dynamical_matrix(structure, frequencies, eigenvectors):
     new_frequencies, new_eigenvectors = np.linalg.eig (dynamical_matrix.real)
     new_frequencies = np.sqrt(new_frequencies)
 
-#    new_eigenvectors=np.mat(orthogonalize(new_eigenvectors))
-    new_eigenvectors = np.mat(scitools.numpyutils.Gram_Schmidt(new_eigenvectors.real,normalize=True))
-
+#    new_eigenvectors = np.mat(scitools.numpyutils.Gram_Schmidt(new_eigenvectors.real,normalize=True))
+    new_eigenvectors = eigenvectors_normalization(new_eigenvectors)
     return new_frequencies, new_eigenvectors, dynamical_matrix
-

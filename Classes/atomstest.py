@@ -43,6 +43,7 @@ class Structure:
 
         self._primitive_cell = None
         self._super_cell_matrix = None
+        self._super_cell_phonon = None
         self._number_of_cell_atoms = None
         self._number_of_atoms = None
         self._scaled_positions = scaled_positions
@@ -94,11 +95,11 @@ class Structure:
 
     def get_big_cell(self):
  #       print(self.get_super_cell_matrix())
-        self._big_cell = np.dot(self.get_super_cell_matrix(),self.get_cell())
+        self._big_cell = np.dot(np.diag(self.get_super_cell_matrix()),self.get_cell())
         return self._big_cell
 
 
-################### TO BE DEPRECATED #################
+################### TO BE DEPRECATED (use supercell option in get cell)#################
     def set_super_cell(self, super_cell):
         self._super_cell = np.array(super_cell, dtype='double')
         self._unit_cell = None
@@ -109,14 +110,24 @@ class Structure:
 
 
 
+    def set_super_cell_phonon(self,super_cell_phonon):
+        self._super_cell_phonon = super_cell_phonon
+
+    def get_super_cell_phonon(self):
+        if self._super_cell_phonon is None:
+            self._super_cell_phonon = np.identity(self.get_number_of_dimensions(),dtype=int)
+        return self._super_cell_phonon
+
+
 
     def set_super_cell_matrix(self,super_cell_matrix):
         self._super_cell_matrix = super_cell_matrix
 
     def get_super_cell_matrix(self):
         if self._super_cell_matrix is None:
-            self._super_cell_matrix = np.identity(self.get_number_of_dimensions(),dtype=int)
+            self._super_cell_matrix = np.array(self.get_number_of_dimensions()*[1],dtype=int)
         return self._super_cell_matrix
+
 
 
     def get_primitive_cell(self):

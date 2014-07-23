@@ -12,6 +12,14 @@ from phonopy.interface.vasp import read_vasp
 import copy
 import random
 #Direct force constants read from file 'FORCE_CONSTANTS' (test, but could be useful)
+
+def eigenvectors_normalization(eigenvector):
+    for i in range(eigenvector.shape[0]):
+#        eigenvector[i,:] = eigenvector[i,:]/np.sqrt(np.sum(pow(abs(eigenvector[i,:]),2)))
+        eigenvector[i,:] = eigenvector[i,:]/np.linalg.norm(eigenvector[i,:])
+    return eigenvector
+
+
 def get_force_constants_from_file (file_name):
 
     f = open(file_name, 'r')
@@ -40,7 +48,7 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
                         scaled_positions=structure.get_scaled_positions())
     bulk.set_cell(structure.get_cell())
 
-    phonon = Phonopy(bulk,structure._super_cell_matrix,
+    phonon = Phonopy(bulk,structure.get_super_cell_phonon(),
                      primitive_matrix= structure.get_primitive_matrix(),
                      is_auto_displacements=False)
 
@@ -52,7 +60,13 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
 #    print('Testing Orthogonality (diagonal elements only)')
-    eigenvectors =np.mat(numpyutils.Gram_Schmidt(eigenvectors.real,normalize=True))
+    if True:
+        eigenvectors = eigenvectors_normalization(eigenvectors)
+        print('Testing Orthogonality')
+        np.set_printoptions(precision=3,suppress=True)
+        print(np.dot(eigenvectors.T,np.ma.conjugate(eigenvectors)))
+        np.set_printoptions(suppress=False)
+
 #    eigenvectors =np.mat(eigen.orthogonalize(eigenvectors))
 #    print([(eigenvectors.T*eigenvectors.conj())[i,i] for i in range(eigenvectors.shape[0])])
 

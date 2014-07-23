@@ -176,8 +176,9 @@ def read_from_file_trajectory(file_name,structure):
         trajectory = trajectory[-last_points_taken:,:,:]
         energy = energy[-last_points_taken:]
 
-        print(trajectory.shape[0])
+        print('No Points:',trajectory.shape[0])
         time = np.array([ i*time_step for i in range(trajectory.shape[0])],dtype=float)
+
 
         print('Trajectory file read')
         return dyn.Dynamics(structure = structure,
@@ -187,16 +188,17 @@ def read_from_file_trajectory(file_name,structure):
 
 
 
-def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector):
+def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector_o):
 
     print('Making fake ideal data for testing')
-    super_cell=[structure.get_super_cell_matrix()[i][i] for i in range (structure.get_number_of_dimensions())]
+    super_cell= structure.get_super_cell_matrix()
 
+    q_vector_o = np.array ([0.2,0.1,0.4])
     number_of_atoms = structure.get_number_of_cell_atoms()
     number_of_frequencies = len(frequencies)
-    total_time = 1
+    total_time = 5
     time_step = 0.01
-    amplitude = 0.1
+    amplitude = 0.5/len(np.arange(0,2,0.1))
 #    print('Freq Num',number_of_frequencies)
 
     for i in range(structure.get_number_of_dimensions()):
@@ -206,6 +208,9 @@ def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector):
     atom_type = structure.get_atom_type_index(super_cell=super_cell)
 #    print('At type',atom_type)
 
+
+    print(structure.get_atomic_types(super_cell=super_cell))
+    #Generate an xyz file for checking
     xyz_file = open('Data Files/test.xyz','w')
 
     trajectory = []
@@ -217,13 +222,17 @@ def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector):
         for i_atom in range(number_of_atoms):
             coordinate = map(complex,structure.get_positions(super_cell=super_cell)[i_atom])
             for i_freq in range(number_of_frequencies):
-                coordinate += amplitude * eigenvectors[i_freq,atom_type[i_atom]]*\
-                              np.exp(-np.complex(0,-1)*frequencies[i_freq]*time)*\
-                              np.exp(np.complex(0,-1)*np.dot(q_vector,structure.get_positions(super_cell=super_cell)[i_atom]))
+                for i_long in np.arange(0,2,0.01):
+                    q_vector = np.array(q_vector_o) * i_long
+                    coordinate += 1 / np.sqrt(structure.get_masses(super_cell=super_cell)[i_atom]) *\
+                                  amplitude * eigenvectors[i_freq,atom_type[i_atom]]*\
+                                  np.exp(np.complex(0,-1)*frequencies[i_freq]*time)*\
+                                  np.exp(np.complex(0,1)*np.dot(q_vector,structure.get_positions(super_cell=super_cell)[i_atom]))
 
 #            print('\t'.join([str(item) for item in coordinate]))
 
-            xyz_file.write('Si '+'\t'.join([str(item) for item in coordinate.real])+'\n')
+            xyz_file.write(structure.get_atomic_types(super_cell=super_cell)[i_atom]+'\t'+
+                           '\t'.join([str(item) for item in coordinate.real]) + '\n')
             coordinates.append(coordinate)
         trajectory.append(coordinates)
     xyz_file.close()
@@ -236,19 +245,14 @@ def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector):
     time = np.array([ i*time_step for i in range(trajectory.shape[0])],dtype=float)
     energy = np.array([ 0*i for i in range(trajectory.shape[0])],dtype=float)
 
+###########################CAL CANVIAR EN ALGUN MOMENT#################
+    structure.set_number_of_atoms(number_of_atoms)
+##########################################################################
 
     return dyn.Dynamics(structure = structure,
-                        trajectory = np.array(trajectory),
+                        trajectory = np.array(trajectory,dtype=complex),
                         energy = np.array(energy),
                         time=time)
-
-
-
-
-
-
-
-
 
 
 
@@ -317,9 +321,8 @@ def read_from_file_test():
 
     print('Trajectory reading complete')
 
-
-    return dyn.Dynamics(trajectory= trajectory.real,
-        #                velocity=velocity.real,
+    return dyn.Dynamics(trajectory= trajectory,
+        #                velocity=velocity,
                         time=time,
                         structure=structure)
 

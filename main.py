@@ -13,24 +13,27 @@ print("Program start")
 
 
 ############# Real thing ##############
-if False:
+if True:
     #Parameters definition section (one parameter left)
-    q_vector = np.array ([0.2,0.1,0.4])
+    q_vector = np.array ([0.,0.,0.])
+
+#    directory ='/home/abel/VASP/Bi2O3_phonon/'
+    directory ='/home/abel/VASP/Si-test_petit/'
 
     #Reading structure
-    structure = reading.read_from_file_structure('/home/abel/VASP/Si-test_petit/OUTCAR')
-    structure.set_force_set( file_IO.parse_FORCE_SETS(64,filename='/home/abel/VASP/Si-test_petit/FORCE_SETS'))
-
+    structure = reading.read_from_file_structure(directory+'OUTCAR')
+    structure.set_force_set( file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
 
 
     structure.set_primitive_matrix([[0.5, 0.0, 0.0],
                                     [0.0, 0.5, 0.0],
                                     [0.0, 0.0, 0.5]])
 
-    structure.set_super_cell_matrix([[2, 0, 0],
+    structure.set_super_cell_phonon([[2, 0, 0],
                                      [0, 2, 0],
                                      [0, 0, 2]])
 
+    structure.set_super_cell_matrix([2, 2, 2])
 
 #    structure.set_super_cell([4,4,4])
     print(structure.get_cell())
@@ -45,8 +48,9 @@ if False:
     eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure,q_vector)
 
     #Reading trajectory from test files
-#    trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_10/OUTCAR',structure)
-    trajectory = reading.generate_test_trajectory(structure,eigenvectors,original_frequencies,q_vector)
+ #   trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3_md/OUTCAR',structure)
+    trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_10/OUTCAR',structure)
+ #   trajectory = reading.generate_test_trajectory(structure,eigenvectors,original_frequencies,q_vector)
 
     print(structure.get_number_of_cell_atoms())
     print(structure.get_number_of_primitive_atoms())
@@ -54,8 +58,8 @@ if False:
 
     #Plot energy
     plt.suptitle('Energy')
-    print('time',trajectory.get_time().shape[0])
-    print('trajectory',trajectory.get_energy().shape[0])
+ #   print('time',trajectory.get_time().shape[0])
+ #   print('trajectory',trajectory.get_energy().shape[0])
     plt.plot(trajectory.get_time().real,trajectory.get_energy().real)
     plt.show()
 
@@ -67,7 +71,7 @@ if False:
 
 
 ############# Test things #############
-if True :
+if False :
     q_vector = np.array ([1.5,0.5])
     trajectory = reading.read_from_file_test()
     eigenvectors, original_frequencies = eigen.get_eigenvectors_test(trajectory.structure)

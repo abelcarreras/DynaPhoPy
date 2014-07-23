@@ -32,7 +32,7 @@ static PyObject* correlation1 (PyObject* self, PyObject *arg)
 
 
 
-    double  _Complex *VQ = (double _Complex*)PyArray_DATA(VQ_array);
+    double _Complex  *VQ = (double _Complex*)PyArray_DATA(VQ_array);
     double *Time         = (double*)PyArray_DATA(Time_array);
     int     NumberOfData = (int)PyArray_DIM(VQ_array, 0);
 
