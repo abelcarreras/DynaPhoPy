@@ -10,6 +10,7 @@ def project_onto_unit_cell(trajectory,q_vector):
     number_of_atoms = velocity.shape[1]
     number_of_dimensions = velocity.shape[2]
     super_cell = trajectory.structure.get_super_cell_matrix()
+    number_of_atomic_types = trajectory.structure.get_number_of_atom_types()
 
     coordinates = trajectory.structure.get_positions(super_cell)
     atom_type = trajectory.structure.get_atom_type_index(super_cell=super_cell)
@@ -20,14 +21,20 @@ def project_onto_unit_cell(trajectory,q_vector):
         print("Warning!! Q-vector and coordinates dimension do not match")
         exit()
 
-    print(atom_type)
+#    print(atom_type)
     #Projection in primitive cell
     for i in range(number_of_atoms):
         for k in range(number_of_dimensions):
             velocity_projected[:,atom_type[i],k] += velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector,coordinates[i,:]))
 #            plt.plot((velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector,coordinates[i,:]))).real,label=str(i)+'-'+str(k))
 
-    velocity_projected = velocity_projected/(number_of_atoms/number_of_primitive_atoms)
+    #Normalize velocities
+    for i in range(number_of_atomic_types):
+        print atom_type.count(i),number_of_atoms/number_of_primitive_atoms
+        velocity_projected[:,i,:] /= atom_type.count(i)
+
+#    velocity_projected = velocity_projected/(number_of_atoms/number_of_primitive_atoms)
+
 
     return velocity_projected
 

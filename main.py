@@ -15,7 +15,10 @@ print("Program start")
 ############# Real thing ##############
 if True:
     #Parameters definition section (one parameter left)
-    q_vector = np.array ([0.,0.,0.])
+#    q_vector = np.array ([1.149468,1.149468,1.149468])
+#    q_vector = np.array ([1.149468/2,1.149468/2,1.149468/2])
+    q_vector2 = np.array ([0.0,0.0,0.5])
+
 
 #    directory ='/home/abel/VASP/Bi2O3_phonon/'
     directory ='/home/abel/VASP/Si-test_petit/'
@@ -35,9 +38,14 @@ if True:
 
     structure.set_super_cell_matrix([2, 2, 2])
 
+
 #    structure.set_super_cell([4,4,4])
     print(structure.get_cell())
     print(structure.get_primitive_cell())
+
+#    q_vector = np.array(q_vector2 * 1.149468*2) #For cubic cell
+    q_vector = np.array(q_vector2 * 2*np.pi/structure.get_primitive_cell()[0,0]) #For cubic cell
+
 
     #Reading force constants from vasprun.xml
     #force_constants = get_force_constants_from_file('/home/abel/VASP/Si-test/FORCE_CONSTANTS')
@@ -45,12 +53,12 @@ if True:
  #   structure.set_force_constants(force_constants)
 
     #Getting eigenvectors from somewhere
-    eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure,q_vector)
+    eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure,q_vector2)
 
     #Reading trajectory from test files
  #   trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3_md/OUTCAR',structure)
-    trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_10/OUTCAR',structure)
- #   trajectory = reading.generate_test_trajectory(structure,eigenvectors,original_frequencies,q_vector)
+ #   trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN4C/OUTCAR',structure)
+    trajectory = reading.generate_test_trajectory(structure,eigenvectors,original_frequencies,q_vector)
 
     print(structure.get_number_of_cell_atoms())
     print(structure.get_number_of_primitive_atoms())
@@ -64,7 +72,8 @@ if True:
     plt.show()
 
     #Frequency range
-    test_frequencies_range = np.array([0.1*i + 0.01 for i in range (200)])
+    #test_frequencies_range = np.array([0.000015*i + 15.61 for i in range (200)])
+    test_frequencies_range = np.array([0.1*i*1 + 0.1 for i in range (200)])
 
 
 ########################################
@@ -108,9 +117,10 @@ plt.show()
 #Projection onto phonon coordinates
 vq = projection.project_onto_phonon(vc,eigenvectors)
 plt.suptitle('Projection onto phonon')
-plt.plot(trajectory.get_time().real,vq[:,2:4].real)
+plt.plot(trajectory.get_time().real,vq[:,0:4].real)
 plt.show()
 
+#vq=vc
 
 #Noise generation (for test only)
 #for i in range(vq.shape[0]):

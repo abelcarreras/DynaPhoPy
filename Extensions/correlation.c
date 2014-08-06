@@ -14,7 +14,7 @@ static PyObject* correlation1 (PyObject* self, PyObject *arg)
 
 //  Declaring basic variables
     double  Frequency;
-	int     Increment = 13;
+	int     Increment = 1;
 
 //  Interface with python
     PyObject *VQ_obj, *Time_obj;

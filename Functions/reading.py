@@ -113,7 +113,7 @@ def read_from_file_trajectory(file_name,structure):
 
 #   Maximum number of structures that's gonna be read
     limit_number_structures = 99000
-    last_points_taken = 10000
+    last_points_taken = 20000
 
     with open(file_name, "r+") as f:
     # memory-map the file
@@ -127,7 +127,7 @@ def read_from_file_trajectory(file_name,structure):
 #       Read time step
         position_number=file_map.find('POTIM  =')
         file_map.seek(position_number+8)
-        time_step = float(file_map.readline().split()[0])
+        time_step = float(file_map.readline().split()[0])* 1E-3*2*np.pi#in femtoseconds
 
 
 
@@ -182,7 +182,7 @@ def read_from_file_trajectory(file_name,structure):
 
         print('Trajectory file read')
         return dyn.Dynamics(structure = structure,
-                            trajectory = np.array(trajectory),
+                            trajectory = np.array(trajectory,dtype=complex),
                             energy = np.array(energy),
                             time=time)
 
@@ -193,9 +193,13 @@ def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector_o):
     print('Making fake ideal data for testing')
     super_cell= structure.get_super_cell_matrix()
 
-    q_vector_o = np.array ([0.2,0.1,0.4])
+#    q_vector_o = np.array ([0.2,0.1,0.4])
+
     number_of_atoms = structure.get_number_of_cell_atoms()
+    positions = structure.get_positions(super_cell=super_cell)
+    masses = structure.get_masses(super_cell=super_cell)
     number_of_frequencies = len(frequencies)
+
     total_time = 5
     time_step = 0.01
     amplitude = 0.5/len(np.arange(0,2,0.1))
@@ -220,14 +224,14 @@ def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector_o):
         xyz_file.write(str(number_of_atoms) + '\n\n')
         coordinates = []
         for i_atom in range(number_of_atoms):
-            coordinate = map(complex,structure.get_positions(super_cell=super_cell)[i_atom])
+            coordinate = map(complex,positions[i_atom])
             for i_freq in range(number_of_frequencies):
-                for i_long in np.arange(0,2,0.01):
+                for i_long in range(1,2):#np.arange(0,2,0.01):
                     q_vector = np.array(q_vector_o) * i_long
-                    coordinate += 1 / np.sqrt(structure.get_masses(super_cell=super_cell)[i_atom]) *\
+                    coordinate += 1 / np.sqrt(masses[i_atom]) *\
                                   amplitude * eigenvectors[i_freq,atom_type[i_atom]]*\
                                   np.exp(np.complex(0,-1)*frequencies[i_freq]*time)*\
-                                  np.exp(np.complex(0,1)*np.dot(q_vector,structure.get_positions(super_cell=super_cell)[i_atom]))
+                                  np.exp(np.complex(0,1)*np.dot(q_vector,positions[i_atom]))
 
 #            print('\t'.join([str(item) for item in coordinate]))
 
