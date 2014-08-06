@@ -30,7 +30,6 @@ def project_onto_unit_cell(trajectory,q_vector):
 
     #Normalize velocities
     for i in range(number_of_atomic_types):
-        print atom_type.count(i),number_of_atoms/number_of_primitive_atoms
         velocity_projected[:,i,:] /= atom_type.count(i)
 
 #    velocity_projected = velocity_projected/(number_of_atoms/number_of_primitive_atoms)

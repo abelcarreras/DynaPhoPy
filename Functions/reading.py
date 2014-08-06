@@ -113,7 +113,7 @@ def read_from_file_trajectory(file_name,structure):
 
 #   Maximum number of structures that's gonna be read
     limit_number_structures = 99000
-    last_points_taken = 20000
+    last_points_taken = 30000
 
     with open(file_name, "r+") as f:
     # memory-map the file
@@ -127,7 +127,7 @@ def read_from_file_trajectory(file_name,structure):
 #       Read time step
         position_number=file_map.find('POTIM  =')
         file_map.seek(position_number+8)
-        time_step = float(file_map.readline().split()[0])* 1E-3*2*np.pi#in femtoseconds
+        time_step = float(file_map.readline().split()[0])* 1E-3#in femtoseconds
 
 
 
@@ -200,8 +200,8 @@ def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector_o):
     masses = structure.get_masses(super_cell=super_cell)
     number_of_frequencies = len(frequencies)
 
-    total_time = 5
-    time_step = 0.01
+    total_time = 1
+    time_step = 0.001
     amplitude = 0.5/len(np.arange(0,2,0.1))
 #    print('Freq Num',number_of_frequencies)
 
@@ -230,7 +230,7 @@ def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector_o):
                     q_vector = np.array(q_vector_o) * i_long
                     coordinate += 1 / np.sqrt(masses[i_atom]) *\
                                   amplitude * eigenvectors[i_freq,atom_type[i_atom]]*\
-                                  np.exp(np.complex(0,-1)*frequencies[i_freq]*time)*\
+                                  np.exp(np.complex(0,-1)*frequencies[i_freq]*2.*np.pi*time)*\
                                   np.exp(np.complex(0,1)*np.dot(q_vector,positions[i_atom]))
 
 #            print('\t'.join([str(item) for item in coordinate]))

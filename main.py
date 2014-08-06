@@ -17,7 +17,7 @@ if True:
     #Parameters definition section (one parameter left)
 #    q_vector = np.array ([1.149468,1.149468,1.149468])
 #    q_vector = np.array ([1.149468/2,1.149468/2,1.149468/2])
-    q_vector2 = np.array ([0.0,0.0,0.5])
+    q_vector_norm = np.array ([0.0,0.0,0.5])
 
 
 #    directory ='/home/abel/VASP/Bi2O3_phonon/'
@@ -40,11 +40,13 @@ if True:
 
 
 #    structure.set_super_cell([4,4,4])
+    print('Unit cell')
     print(structure.get_cell())
+    print('primitive cell')
     print(structure.get_primitive_cell())
 
 #    q_vector = np.array(q_vector2 * 1.149468*2) #For cubic cell
-    q_vector = np.array(q_vector2 * 2*np.pi/structure.get_primitive_cell()[0,0]) #For cubic cell
+    q_vector = np.array(q_vector_norm * 2*np.pi/structure.get_primitive_cell()[0,0]) #For cubic cell
 
 
     #Reading force constants from vasprun.xml
@@ -53,11 +55,11 @@ if True:
  #   structure.set_force_constants(force_constants)
 
     #Getting eigenvectors from somewhere
-    eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure,q_vector2)
+    eigenvectors, original_frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure,q_vector_norm)
 
     #Reading trajectory from test files
  #   trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3_md/OUTCAR',structure)
- #   trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN4C/OUTCAR',structure)
+ #   trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN5B/OUTCAR',structure)
     trajectory = reading.generate_test_trajectory(structure,eigenvectors,original_frequencies,q_vector)
 
     print(structure.get_number_of_cell_atoms())
@@ -72,7 +74,7 @@ if True:
     plt.show()
 
     #Frequency range
-    #test_frequencies_range = np.array([0.000015*i + 15.61 for i in range (200)])
+#    test_frequencies_range = np.array([0.01*i + 14.5 for i in range (200)])
     test_frequencies_range = np.array([0.1*i*1 + 0.1 for i in range (200)])
 
 

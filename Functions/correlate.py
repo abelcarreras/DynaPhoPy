@@ -15,11 +15,11 @@ def correlation_worker(n_pos,test_frequencies_range, vq, trajectory):
 
     correlation_range = []
     for k in range (test_frequencies_range.shape[0]):
-        Frequency = test_frequencies_range[k]
-        #correlation_range.append(correlation.correlation(Frequency,vq,trajectory.get_time(),correlation_function_step))
-        correlation_range.append(correlation.correlation2(Frequency,vq,trajectory.get_time_step_average(),correlation_function_step))
+        angular_frequency = test_frequencies_range[k] * 2 * np.pi # Frequency(THz) -> angular frequency (rad/ps)
+        #correlation_range.append(correlation.correlation(angular_frequency,vq,trajectory.get_time(),correlation_function_step))
+        correlation_range.append(correlation.correlation2(angular_frequency,vq,trajectory.get_time_step_average(),correlation_function_step))
     print('finishing',n_pos)
-    correlation_range = correlation_range/np.sum(correlation_range)
+#    correlation_range = correlation_range/np.sum(correlation_range)
     return {n_pos:correlation_range}
 
 
@@ -64,9 +64,9 @@ def correlation_worker2(n_pos,test_frequencies_range, vq, trajectory, correlatio
     for i in range (vq.shape[1]):
         correlation_range = []
         for k in range (test_frequencies_range.shape[0]):
-            Frequency = test_frequencies_range[k]
+            angular_frequency = test_frequencies_range[k] * 2 * np.pi # Frequency(THz) -> angular frequency (rad/ps)
             #correlation_range.append(correlation.correlation(Frequency,vq,trajectory.get_time(),correlation_function_step))
-            correlation_range.append(correlation.correlation2(Frequency,vq[:,i],trajectory.get_time_step_average(),correlation_function_step))
+            correlation_range.append(correlation.correlation2(angular_frequency,vq[:,i],trajectory.get_time_step_average(),correlation_function_step))
 
         correlation_dict[n_pos+i] = correlation_range
         print('finishing',n_pos+i)
@@ -131,10 +131,10 @@ def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
 
         print 'Frequency:',i
         for k in range (test_frequencies_range.shape[0]):
-            Frequency = test_frequencies_range[k]
+            angular_frequency = test_frequencies_range[k] * 2 * np.pi # Frequency(THz) -> angular frequency (rad/ps)
 #            correlation_vector[k,i] = correlation.correlation(Frequency,vq[:,i],trajectory.get_time(),correlation_function_step)
  #           correlation_vector[k,i] = correlation.correlation2(Frequency,vq[:,i],trajectory.get_time_step_average(),correlation_function_step)
-            print Frequency,correlation_vector[k,i].real
+            print angular_frequency,correlation_vector[k,i].real
 
         print('\n')
         #print(Time)
