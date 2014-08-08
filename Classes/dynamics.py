@@ -86,7 +86,7 @@ class Dynamics:
     def set_structure(self, structure):
         self._structure = structure
 
-    def get_velocity_mass_average(self,):
+    def get_velocity_mass_average(self):
 
         if self._velocity_mass_average is None:
             self._velocity_mass_average = np.empty_like(self.velocity)
