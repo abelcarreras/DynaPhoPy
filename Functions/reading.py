@@ -1,11 +1,10 @@
 import numpy as np
 import Classes.dynamics as dyn
-import Classes.atomstest as atomtest
+import Classes.atoms as atomtest
 import mmap
 import phonopy.file_IO as file_IO
-
-#import ase.io.vasp
-#import ase.atoms as Atoms
+import pickle
+import Functions.phonopy_interface as pho_interface
 
 
 """
@@ -112,8 +111,8 @@ def read_from_file_structure(file_name):
 def read_from_file_trajectory(file_name,structure):
 
 #   Maximum number of structures that's gonna be read
-    limit_number_structures = 99000
-    last_points_taken = 20000
+    limit_number_structures = 100000
+    last_points_taken = 5000
 
     with open(file_name, "r+") as f:
     # memory-map the file
@@ -127,15 +126,13 @@ def read_from_file_trajectory(file_name,structure):
 #       Read time step
         position_number=file_map.find('POTIM  =')
         file_map.seek(position_number+8)
-        time_step = float(file_map.readline().split()[0])* 1E-3#in femtoseconds
+        time_step = float(file_map.readline().split()[0])* 1E-3 # in picoseconds
 
 
-
-################Change to check if multiple ############################
-        if number_of_atoms != structure.get_number_of_cell_atoms():
+    # Check if number of atoms is multiple of cell atoms
+        if number_of_atoms % structure.get_number_of_cell_atoms() != 0:
             print('Warning: Number of atoms not matching, check VASP output files')
         structure.set_number_of_atoms(number_of_atoms)
-######################################################################
 
 
 #       Read coordinates and energy
@@ -154,7 +151,7 @@ def read_from_file_trajectory(file_name,structure):
             position_number=file_map.find('energy(')
             file_map.seek(position_number)
             read_energy = file_map.readline().split()[2]
-            trajectory.append(np.array(read_coordinates,dtype=float).flatten())
+            trajectory.append(np.array(read_coordinates,dtype=float).flatten()) #in angstrom
             energy.append(np.array(read_energy,dtype=float))
 #            print(np.array(supercell,dtype=float).flatten())
             limit_number_structures -= 1
@@ -188,21 +185,27 @@ def read_from_file_trajectory(file_name,structure):
 
 
 
-def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector_o):
+def generate_test_trajectory(structure,q_vector_o):
 
     print('Making fake ideal data for testing')
-    super_cell= structure.get_super_cell_matrix()
+    if False:
+        dump_file = open( "trajectory.save", "r" )
+        trajectory = pickle.load(dump_file)
+        return  trajectory
 
-#    q_vector_o = np.array ([0.2,0.1,0.4])
+
+    super_cell= structure.get_super_cell_matrix()
+    print(q_vector_o)
+#    q_vector_o = np.array ([0.25,0.25,0.25])
+#    q_vector_o = np.prod([[0.25,0.25,0.25],2*np.pi/structure.get_primitive_cell().diagonal()],axis=0)
 
     number_of_atoms = structure.get_number_of_cell_atoms()
     positions = structure.get_positions(super_cell=super_cell)
     masses = structure.get_masses(super_cell=super_cell)
-    number_of_frequencies = len(frequencies)
 
-    total_time = 1
+    total_time = 2.0
     time_step = 0.001
-    amplitude = 0.5/len(np.arange(0,2,0.1))
+    amplitude = 1.0
 #    print('Freq Num',number_of_frequencies)
 
     for i in range(structure.get_number_of_dimensions()):
@@ -217,30 +220,45 @@ def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector_o):
     #Generate an xyz file for checking
     xyz_file = open('Data Files/test.xyz','w')
 
-    trajectory = []
+    #Generate random wave vector sample
+    q_vector_r=np.random.rand(0,3)
+    q_vector_r=np.concatenate((q_vector_r,[q_vector_o]),axis=0)
+    print('test wave vectors')
+    print(q_vector_r)
 
+    #Generate frequencies and eigenvectors for the testing wave vector samples
+    eigenvectors_r = []
+    frequencies_r = []
+    for i in range(len(q_vector_r)):
+        eigenvectors, frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure,q_vector_r[i])
+        eigenvectors_r.append(eigenvectors)
+        frequencies_r.append(frequencies)
+    number_of_frequencies = len(frequencies_r[0])
+    print('obtained frequencies')
+    print(frequencies_r)
+
+    #Generating trajectory
+    trajectory = []
     for time in np.arange(total_time,step=time_step):
         print(time)
         xyz_file.write(str(number_of_atoms) + '\n\n')
         coordinates = []
         for i_atom in range(number_of_atoms):
-            coordinate = map(complex,positions[i_atom])
+            coordinate = map(complex,positions[i_atom,:])
             for i_freq in range(number_of_frequencies):
-                for i_long in range(1,2):#np.arange(0,2,0.01):
-                    q_vector = np.array(q_vector_o) * i_long
-                    coordinate += 1 / np.sqrt(masses[i_atom]) *\
-                                  amplitude * eigenvectors[i_freq,atom_type[i_atom]]*\
-                                  np.exp(np.complex(0,-1)*frequencies[i_freq]*2.*np.pi*time)*\
-                                  np.exp(np.complex(0,1)*np.dot(q_vector,positions[i_atom]))
-
-#            print('\t'.join([str(item) for item in coordinate]))
+                for i_long in range(q_vector_r.shape[0]):
+                    q_vector = np.prod([q_vector_r[i_long,:],2*np.pi/structure.get_primitive_cell().diagonal()],axis=0)
+                    # Beware in the testing amplitude!! Made for all phonons have the same!!
+                    coordinate += amplitude / (np.sqrt(masses[i_atom]) *frequencies_r[i_long][i_freq])*\
+                                  eigenvectors_r[i_long][i_freq,atom_type[i_atom]]*\
+                                  np.exp(np.complex(0,-1)*frequencies_r[i_long][i_freq]*2.*np.pi*time)*\
+                                  np.exp(np.complex(0,1)*np.dot(q_vector,positions[i_atom,:]))
 
             xyz_file.write(structure.get_atomic_types(super_cell=super_cell)[i_atom]+'\t'+
                            '\t'.join([str(item) for item in coordinate.real]) + '\n')
             coordinates.append(coordinate)
         trajectory.append(coordinates)
     xyz_file.close()
-
 
     trajectory = np.array(trajectory)
     print(trajectory.shape[0])
@@ -252,6 +270,15 @@ def generate_test_trajectory(structure,eigenvectors,frequencies,q_vector_o):
 ###########################CAL CANVIAR EN ALGUN MOMENT#################
     structure.set_number_of_atoms(number_of_atoms)
 ##########################################################################
+
+    dump_file = open( "trajectory.save", "w" )
+    pickle.dump( dyn.Dynamics(structure = structure,
+                        trajectory = np.array(trajectory,dtype=complex),
+                        energy = np.array(energy),
+                        time=time),
+                 dump_file)
+
+    dump_file.close()
 
     return dyn.Dynamics(structure = structure,
                         trajectory = np.array(trajectory,dtype=complex),

@@ -32,7 +32,7 @@ def get_eigenvectors_test(estructura):
     print('Testing Orthogonality')
     print(np.dot(eigenvectors.T,np.ma.conjugate(eigenvectors)))
 
-    arranged_EV = np.array([[[eigenvectors [i,j*number_of_dimensions+k] for k in range(number_of_dimensions)] for j in range(number_of_cell_atoms)] for i in range(number_of_cell_atoms*number_of_dimensions)])
+    arranged_EV = np.array([[[eigenvectors [j*number_of_dimensions+k,i] for k in range(number_of_dimensions)] for j in range(number_of_cell_atoms)] for i in range(number_of_cell_atoms*number_of_dimensions)])
     return arranged_EV, frequencies
 
 def build_dynamical_matrix(structure, frequencies, eigenvectors):

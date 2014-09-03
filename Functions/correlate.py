@@ -9,7 +9,7 @@ from multiprocessing import Queue
 
 def correlation_worker(n_pos,test_frequencies_range, vq, trajectory):
 
-    correlation_function_step = 5
+    correlation_function_step = 10
 
     print('starting:',n_pos,'Time step:',trajectory.get_time_step_average(),'Frame skip:',correlation_function_step)
 
@@ -114,9 +114,6 @@ def get_correlation_spectrum_par2(vq,trajectory,test_frequencies_range):
 
 
 def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
-
-#   Parameters to be taken in account
-    correlation_function_step = 20
 
     correlation_vector = np.zeros((test_frequencies_range.shape[0],vq.shape[1]),dtype=complex)
 

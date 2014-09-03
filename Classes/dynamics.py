@@ -1,4 +1,4 @@
-import atomstest
+import atoms
 import numpy as np
 import derivative
 import correlation
@@ -7,20 +7,15 @@ import matplotlib.pyplot as plt
 
 def obtain_velocity_from_positions(cell,trajectory,time):
     velocity = np.empty_like(trajectory)
-#    print('trajectory')
-#    print(trajectory[:,0,:])
 
     for i in range(trajectory.shape[1]):
         velocity [:,i,:] = derivative.derivative(cell, trajectory[:,i,:], time)
-#        plt.plot(velocity[:,i,:])
-#        plt.show()
-#    print('velocity')
-#    print(velocity[:,0,:])
+
     print('Velocity obtained from trajectory derivative')
     return velocity
 
 
-def obtain_velocity_from_positions2(trajectory):
+def obtain_velocity_from_positions2(trajectory):  #Using python (Very slow)
     velocity = trajectory.copy()
     for i in range(trajectory.shape[1]):
         for j in range(trajectory.shape[2]):
@@ -36,7 +31,7 @@ def obtain_velocity_from_positions2(trajectory):
 class Dynamics:
 
     def __init__(self,
-                 structure=atomstest.Structure,
+                 structure=atoms.Structure,
                  trajectory=None,
                  velocity=None,
                  energy = None,

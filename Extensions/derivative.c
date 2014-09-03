@@ -7,7 +7,7 @@
 
 
 //  Functions declaration
-static double   **matrix_inverse_3x3    (double  **a);
+//static double   **matrix_inverse_3x3    (double  **a);
 static double   **matrix_multiplication (double  **a, double  **b, int n, int l, int m);
 static int       TwotoOne              (int Row, int Column, int NumColumns);
 static double   **pymatrix_to_c_array_real   (PyArrayObject *array);
@@ -312,7 +312,8 @@ static double  **pymatrix_to_c_array_real(PyArrayObject *array)  {
       return c;
 };
 
-//	Calculate the matrix inversion of a 3x3 matrix (has to be improved to multi-dimension)
+//	Calculate the matrix inversion of a 3x3 matrix
+/*
 static double  **matrix_inverse_3x3 ( double ** a ){
 
 
@@ -336,7 +337,7 @@ static double  **matrix_inverse_3x3 ( double ** a ){
 };
 
 
-
+*/
 
 static double  **matrix_inverse ( double ** a ,int n){
 

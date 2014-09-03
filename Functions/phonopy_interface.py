@@ -11,6 +11,9 @@ from phonopy.file_IO import parse_FORCE_SETS, parse_BORN
 from phonopy.interface.vasp import read_vasp
 import copy
 import random
+
+
+
 #Direct force constants read from file 'FORCE_CONSTANTS' (test, but could be useful)
 
 def eigenvectors_normalization(eigenvector):
@@ -59,16 +62,14 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
 
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
-#    print('Testing Orthogonality (diagonal elements only)')
+#   Making sure for eigenvectors to be orthonormal (can be omitted)
     if True:
         eigenvectors = eigenvectors_normalization(eigenvectors)
-        print('Testing Orthogonality')
+        print('Testing orthonormality')
         np.set_printoptions(precision=3,suppress=True)
         print(np.dot(eigenvectors.T,np.ma.conjugate(eigenvectors)))
         np.set_printoptions(suppress=False)
 
-#    eigenvectors =np.mat(eigen.orthogonalize(eigenvectors))
-#    print([(eigenvectors.T*eigenvectors.conj())[i,i] for i in range(eigenvectors.shape[0])])
 
     #Arranging eigenvectors by atoms and dimensions
     number_of_dimensions = structure.get_number_of_dimensions()
@@ -76,7 +77,7 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
 
 #    print(number_of_dimensions,number_of_primitive_atoms)
 
-    arranged_ev = np.array([[[eigenvectors [i,j*number_of_dimensions+k]
+    arranged_ev = np.array([[[eigenvectors [j*number_of_dimensions+k,i]
                                     for k in range(number_of_dimensions)]
                                     for j in range(number_of_primitive_atoms)]
                                     for i in range(number_of_primitive_atoms*number_of_dimensions)])
