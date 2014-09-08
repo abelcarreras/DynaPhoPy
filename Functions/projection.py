@@ -21,9 +21,7 @@ def project_onto_unit_cell(trajectory,q_vector):
         print("Warning!! Q-vector and coordinates dimension do not match")
         exit()
 
-    #Projection in primitive cell
-    print(atom_type)
-
+    #Projection into wave vector
     for i in range(number_of_atoms):
         for k in range(number_of_dimensions):
             velocity_projected[:,atom_type[i],k] += velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector,coordinates[i,:]))
@@ -32,8 +30,7 @@ def project_onto_unit_cell(trajectory,q_vector):
 #    for i in range(number_of_atomic_types):
 #        velocity_projected[:,i,:] /= atom_type.count(i)
 
-#    velocity_projected = velocity_projected/(number_of_atoms/number_of_primitive_atoms)
-
+    velocity_projected = velocity_projected/(number_of_atoms/number_of_primitive_atoms)
 
     return velocity_projected
 
@@ -65,34 +62,36 @@ def project_onto_phonon(vc,eigenvectors):
         for i in range(number_of_cell_atoms):
             velocity_projected[:,k] += np.dot(vc[:,i,:],eigenvectors[k,i,:].conj())
 
+
     return velocity_projected
 
-'''
 
-number_of_dimensions = 2
-number_of_cell_atoms = 2
+#Just for testing
+if __name__ == '__main__':
+    import Functions.reading as read
 
-eigenvectors = np.array([[0.71067812,0,-0.71067812,0],
-                        [-7.542995783e-13,-0.707107,-6.91441e-16,0.707107],
-                        [-0.3441510098,0.6177054982,-0.3441510098,0.6177054982],
-                        [0.6177054982,0.3441510098,0.6177054982,0.3441510098]])
+    number_of_dimensions = 2
+    number_of_cell_atoms = 2
 
-eigenvectors = np.array([[[eigenvectors [i,j*number_of_dimensions+k] for k in range(number_of_dimensions)] for j in range(number_of_cell_atoms)] for i in range(number_of_cell_atoms*number_of_dimensions)])
+    eigenvectors = np.array([[0.71067812,0,-0.71067812,0],
+                            [-7.542995783e-13,-0.707107,-6.91441e-16,0.707107],
+                            [-0.3441510098,0.6177054982,-0.3441510098,0.6177054982],
+                            [0.6177054982,0.3441510098,0.6177054982,0.3441510098]])
 
-q_vector = np.array ([1.5,0.5])
+    eigenvectors = np.array([[[eigenvectors [i,j*number_of_dimensions+k] for k in range(number_of_dimensions)] for j in range(number_of_cell_atoms)] for i in range(number_of_cell_atoms*number_of_dimensions)])
+
+    q_vector = np.array ([1.5,0.5])
 
 
-trajectory = read.read_from_file_test()
+    trajectory = read.read_from_file_test()
 
-vc = project_onto_unit_cell(trajectory,q_vector)
+    vc = project_onto_unit_cell(trajectory,q_vector)
 
-#print('3:',trajectory.structure.number_of_atoms)
-plt.plot(trajectory.get_time().real,vc[:,0,:].real)
-plt.show()
+    #print('3:',trajectory.structure.number_of_atoms)
+    plt.plot(trajectory.get_time().real,vc[:,0,:].real)
+    plt.show()
 
-vq = project_onto_phonon(vc,eigenvectors)
+    vq = project_onto_phonon(vc,eigenvectors)
 
-plt.plot(trajectory.get_time().real,vq[:,2:4].real)
-plt.show()
-
-'''
+    plt.plot(trajectory.get_time().real,vq[:,2:4].real)
+    plt.show()

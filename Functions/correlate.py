@@ -45,12 +45,12 @@ def get_correlation_spectrum_par(vq,trajectory,test_frequencies_range):
 
     correlation_vector = np.array([correlation_full_dict[i] for i in correlation_full_dict.keys()]).T
 
-    for i in range(correlation_vector.shape[1]):
-        plt.plot(test_frequencies_range,correlation_vector[:,i].real)
-        plt.show()
+ #   for i in range(correlation_vector.shape[1]):
+ #       plt.plot(test_frequencies_range,correlation_vector[:,i].real)
+ #       plt.show()
 
-    plt.plot(test_frequencies_range,correlation_vector.sum(axis=1).real,'r-')
-    plt.show()
+#    plt.plot(test_frequencies_range,correlation_vector.sum(axis=1).real,'r-')
+#    plt.show()
 
     return correlation_vector
 

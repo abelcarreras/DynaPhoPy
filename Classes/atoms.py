@@ -32,6 +32,7 @@ class Structure:
         :param number of atoms in the defined cell:
         """
         self._cell = np.array(cell, dtype='double')
+
         self._super_cell = np.array(super_cell, dtype='double')
         self._masses = np.array(masses, dtype='double')
         self._positions = np.array(positions, dtype='double')
@@ -41,7 +42,6 @@ class Structure:
         self._atomic_types = atomic_types
         self._atom_type_index = atom_type_index
 
-        self._primitive_cell = None
         self._super_cell_matrix = None
         self._super_cell_phonon = None
         self._number_of_cell_atoms = None
@@ -50,6 +50,8 @@ class Structure:
         self._number_of_atom_types = None
         self._primitive_matrix = None
         self._number_of_primitive_atoms = None
+
+        self._primitive_cell = primitive_cell
 
         #Get normalized cell from cell
         self._cell_normalized = cell / np.linalg.norm(cell, axis=-1)[:, np.newaxis]
@@ -140,7 +142,10 @@ class Structure:
 
     def get_primitive_matrix(self):
         if self._primitive_matrix is None:
-            self._primitive_matrix = np.identity(self.get_number_of_dimensions())
+            if self._primitive_cell is None:
+                self._primitive_matrix = np.identity(self.get_number_of_dimensions())
+            else:
+                self._primitive_matrix = np.dot(np.linalg.inv(self.get_cell()),self._primitive_cell)
         return  self._primitive_matrix
 
     def get_atomic_types(self,super_cell=None):

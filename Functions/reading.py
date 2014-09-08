@@ -27,19 +27,39 @@ def read_from_file_structure2(file_name):
 
 def read_from_file_structure(file_name):
     #Read from VASP OUTCAR file
+    print("Reading VASP structure")
 
     with open(file_name, "r+") as f:
         # memory-map the file
         file_map = mmap.mmap(f.fileno(), 0)
 
+
         #Setting number of dimensions
         number_of_dimensions = 3
+
+
+       #Reading primitive cell
+        position_number = file_map.find('PRICEL')
+        file_map.seek(position_number)
+        position_number = file_map.find('A1')
+        file_map.seek(position_number)
+
+        primitive_cell = []    #Primitive Cell
+        for i in range (number_of_dimensions):
+            primitive_cell.append(file_map.readline()
+                                      .replace(",", "")
+                                      .replace(")", "")
+                                      .replace(")","")
+                                      .split()[3:number_of_dimensions+3])
+        primitive_cell = np.array(primitive_cell,dtype="double").T
+
 
         #Reading number of atoms
         position_number = file_map.find('NIONS =')
         file_map.seek(position_number+7)
         number_of_atoms = int(file_map.readline())
 #        print('Number of atoms:',number_of_atoms)
+
 
         #Reading atoms per type
         position_number = file_map.find('ions per type')
@@ -49,9 +69,7 @@ def read_from_file_structure(file_name):
 
         #Reading atoms  mass
         position_number = file_map.find('POMASS =')
-#        file_map.seek(position_number)
         atomic_mass_per_type = []
-#        print('pos:',position_number)
         for i in range(atoms_per_type.shape[0]):
             file_map.seek(position_number+9+6*i)
             atomic_mass_per_type.append(file_map.read(6))
@@ -66,8 +84,7 @@ def read_from_file_structure(file_name):
         direct_cell = []    #Direct Cell
         for i in range (number_of_dimensions):
             direct_cell.append(file_map.readline().split()[0:number_of_dimensions])
-#        print(direct_cell)
-        direct_cell = np.array(direct_cell,dtype='double')
+        direct_cell = np.array(direct_cell,dtype='double').T
 
         file_map.seek(position_number)
         file_map.readline()
@@ -75,7 +92,7 @@ def read_from_file_structure(file_name):
         reciprocal_cell = []    #Reciprocal cell
         for i in range (number_of_dimensions):
             reciprocal_cell.append(file_map.readline().split()[number_of_dimensions:number_of_dimensions*2])
-        reciprocal_cell = np.array(reciprocal_cell,dtype='double')
+        reciprocal_cell = np.array(reciprocal_cell,dtype='double').T
 
 
         #Reading positions fractional cartesian
@@ -105,14 +122,17 @@ def read_from_file_structure(file_name):
     return atomtest.Structure(cell= direct_cell,
                               positions=positions,
                               masses=atomic_mass,
+#                              primitive_cell=primitive_cell
                               )
 
 
 def read_from_file_trajectory(file_name,structure):
 
+    print("Reading VASP trajectory")
+
 #   Maximum number of structures that's gonna be read
-    limit_number_structures = 100000
-    last_points_taken = 5000
+    limit_number_structures = 50000
+    last_points_taken = 15000
 
     with open(file_name, "r+") as f:
     # memory-map the file

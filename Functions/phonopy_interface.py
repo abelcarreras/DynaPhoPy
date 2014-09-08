@@ -55,6 +55,14 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
                      primitive_matrix= structure.get_primitive_matrix(),
                      is_auto_displacements=False)
 
+    #Non Analitical Corrections (NAC) from Phonopy  (just for testing MgO)
+    if True:
+        get_is_symmetry = True  #sfrom phonopy:   settings.get_is_symmetry()
+        primitive = phonon.get_primitive()
+        nac_params = parse_BORN(primitive, get_is_symmetry)
+        phonon.set_nac_params(nac_params=nac_params)
+
+
     phonon.set_displacement_dataset(copy.deepcopy(structure.get_force_set()))
     phonon.produce_force_constants()
 
@@ -67,7 +75,7 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
         eigenvectors = eigenvectors_normalization(eigenvectors)
         print('Testing orthonormality')
         np.set_printoptions(precision=3,suppress=True)
-        print(np.dot(eigenvectors.T,np.ma.conjugate(eigenvectors)))
+        print(np.dot(eigenvectors.T,np.ma.conjugate(eigenvectors)).real)
         np.set_printoptions(suppress=False)
 
 
