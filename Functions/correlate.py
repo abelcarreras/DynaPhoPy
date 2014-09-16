@@ -9,7 +9,7 @@ from multiprocessing import Queue
 
 def correlation_worker(n_pos,test_frequencies_range, vq, trajectory):
 
-    correlation_function_step = 10
+    correlation_function_step = 5
 
     print('starting:',n_pos,'Time step:',trajectory.get_time_step_average(),'Frame skip:',correlation_function_step)
 

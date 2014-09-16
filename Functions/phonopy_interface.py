@@ -41,7 +41,7 @@ def get_force_constants_from_file (file_name):
     return  force_constants
 
 # The only actually (very) important function in this module!!
-def obtain_eigenvectors_from_phonopy(structure,q_vector):
+def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
 
 #   Needs to be cleaned!!!
 
@@ -56,7 +56,8 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
                      is_auto_displacements=False)
 
     #Non Analitical Corrections (NAC) from Phonopy  (just for testing MgO)
-    if True:
+    if NAC:
+        print("Phonopy warning: Using Non Analitical Corrections")
         get_is_symmetry = True  #sfrom phonopy:   settings.get_is_symmetry()
         primitive = phonon.get_primitive()
         nac_params = parse_BORN(primitive, get_is_symmetry)
@@ -73,7 +74,7 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector):
 #   Making sure for eigenvectors to be orthonormal (can be omitted)
     if True:
         eigenvectors = eigenvectors_normalization(eigenvectors)
-        print('Testing orthonormality')
+        print('Testing eigenvectors orthonormality')
         np.set_printoptions(precision=3,suppress=True)
         print(np.dot(eigenvectors.T,np.ma.conjugate(eigenvectors)).real)
         np.set_printoptions(suppress=False)

@@ -18,11 +18,11 @@ print("Program start")
 ############# Real thing ##############
 if True:
     #Reduced Wave vector
-    q_vector_norm = np.array ([0.0, 0.5, 0.0])
+    q_vector_norm = np.array ([0.25, 0.25, 0.25])
 
     #Reading unit cell structure and force sets
     directory ='/home/abel/VASP/MgO-phonon/3x3x3/'
-#    directory ='/home/abel/VASP/Si-phonon/2x2x2/'
+#    directory ='/home/abel/VASP/Si-phonon/3x3x3/'
     structure = reading.read_from_file_structure(directory+'OUTCAR')
     structure.set_force_set( file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
 
@@ -67,7 +67,7 @@ if True:
 
     #Reading trajectory from test files
     trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_300/RUN2/OUTCAR',structure)
- #   trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6B/OUTCAR',structure)
+#    trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
 #    trajectory = reading.generate_test_trajectory(structure,q_vector_norm)
 
 
@@ -103,6 +103,7 @@ if False :
 #######################################
 
 #Transform reduced wave vector to wave vector
+#q_vector = np.prod([q_vector_norm,2*np.pi/structure.get_primitive_cell().diagonal()],axis=0)
 q_vector = np.dot(q_vector_norm , (2*np.pi*np.linalg.inv(structure.get_primitive_cell())).T)
 print'q_vector:',q_vector_norm,q_vector
 
