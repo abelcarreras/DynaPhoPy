@@ -23,7 +23,7 @@ def correlation_worker(n_pos,test_frequencies_range, vq, trajectory):
     return {n_pos:correlation_range}
 
 
-def get_correlation_spectrum_par(vq,trajectory,test_frequencies_range):
+def get_correlation_spectra_par(vq,trajectory,test_frequencies_range):
 
     correlation_full_dict = {}
 
@@ -44,13 +44,6 @@ def get_correlation_spectrum_par(vq,trajectory,test_frequencies_range):
     pool.join()
 
     correlation_vector = np.array([correlation_full_dict[i] for i in correlation_full_dict.keys()]).T
-
- #   for i in range(correlation_vector.shape[1]):
- #       plt.plot(test_frequencies_range,correlation_vector[:,i].real)
- #       plt.show()
-
-#    plt.plot(test_frequencies_range,correlation_vector.sum(axis=1).real,'r-')
-#    plt.show()
 
     return correlation_vector
 

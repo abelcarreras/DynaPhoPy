@@ -10,7 +10,7 @@ def project_onto_unit_cell(trajectory,q_vector):
 
     number_of_atoms = velocity.shape[1]
     number_of_dimensions = velocity.shape[2]
-    super_cell = trajectory.structure.get_super_cell_matrix()
+    super_cell = trajectory.get_super_cell_matrix()
 
     coordinates = trajectory.structure.get_positions(super_cell)
     atom_type = trajectory.structure.get_atom_type_index(super_cell=super_cell)

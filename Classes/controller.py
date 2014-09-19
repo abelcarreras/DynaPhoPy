@@ -115,7 +115,7 @@ class Calculation:
     def get_correlation_phonon(self):
         if self._correlation_phonon is None:
             print("Calculating phonon projection autocorrelation function")
-            self._correlation_phonon =  correlate.get_correlation_spectrum_par(self.get_vq(),self.dynamic,self.get_frequency_range())
+            self._correlation_phonon =  correlate.get_correlation_spectra_par(self.get_vq(),self.dynamic,self.get_frequency_range())
         return self._correlation_phonon
 
 
@@ -124,7 +124,7 @@ class Calculation:
             print("Calculating wave vector projection autocorrelation function")
             self._correlation_wave_vector = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.get_vc().shape[1]):
-                self._correlation_wave_vector += correlate.get_correlation_spectrum_par(self.get_vc()[:,i,:],self._dynamic,self.get_frequency_range())
+                self._correlation_wave_vector += correlate.get_correlation_spectra_par(self.get_vc()[:,i,:],self._dynamic,self.get_frequency_range())
         return np.sum(self._correlation_wave_vector,axis=1)
 
 
@@ -133,7 +133,7 @@ class Calculation:
             print("Calculation direct autocorrelation function")
             self._correlation_direct = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.dynamic.get_velocity_mass_average().shape[1]):
-                self._correlation_direct =+ correlate.get_correlation_spectrum_par(self.dynamic.get_velocity_mass_average()[:,i,:],self._dynamic,self.get_frequency_range())
+                self._correlation_direct =+ correlate.get_correlation_spectra_par(self.dynamic.get_velocity_mass_average()[:,i,:],self._dynamic,self.get_frequency_range())
         return self._correlation_direct
 
 
@@ -165,4 +165,4 @@ class Calculation:
 
     #Molecular dynamics analysis related methods
     def show_bolzmann_distribution(self):
-        enerfunc.bolzmann_distribution(self.dynamic.velocity,self.dynamic.structure)
+        enerfunc.bolzmann_distribution(self.dynamic)

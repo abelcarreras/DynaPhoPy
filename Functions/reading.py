@@ -2,28 +2,8 @@ import numpy as np
 import Classes.dynamics as dyn
 import Classes.atoms as atomtest
 import mmap
-import phonopy.file_IO as file_IO
 import pickle
 import Functions.phonopy_interface as pho_interface
-
-
-"""
-def read_from_file_structure2(file_name):
-    estructura = Atoms.Atoms(ase.io.vasp.read_vasp_out(filename=file_name, index=-1))
- #   print(estructura.get_cell())
- #   print(estructura.get_forces())
- #   print(estructura.get_masses())
- #   print(estructura.get_positions())
- #   print(estructura.get_scaled_positions())
- #   print(estructura.get_atomic_numbers())
- #   print(estructura.get_number_of_atoms())
-    return atomtest.Structure(cell= estructura.get_cell(),
-                                   positions=estructura.get_positions(),
-                                   masses=estructura.get_masses(),
-                                   forces=estructura.get_forces(),
-                                   atomic_numbers=estructura.get_atomic_numbers())
-
-"""
 
 def read_from_file_structure(file_name):
     #Read from VASP OUTCAR file
@@ -38,7 +18,7 @@ def read_from_file_structure(file_name):
         number_of_dimensions = 3
 
 
-       #Reading primitive cell
+       #Reading primitive cell (not sure about this, by default disabled)
         position_number = file_map.find('PRICEL')
         file_map.seek(position_number)
         position_number = file_map.find('A1')
@@ -58,7 +38,6 @@ def read_from_file_structure(file_name):
         position_number = file_map.find('NIONS =')
         file_map.seek(position_number+7)
         number_of_atoms = int(file_map.readline())
-#        print('Number of atoms:',number_of_atoms)
 
 
         #Reading atoms per type
@@ -133,7 +112,7 @@ def read_from_file_trajectory(file_name,structure=None):
     #Dimensionality of VASP calculation
     number_of_dimensions = 3
 
-#   Maximum number of structures that's gonna be read
+    #Maximum number of structures that's gonna be read
     limit_number_structures = 100000
     last_points_taken = 60000
 
@@ -143,10 +122,8 @@ def read_from_file_trajectory(file_name,structure=None):
         position_number=file_map.find('NIONS =')
         file_map.seek(position_number+7)
         number_of_atoms = int(file_map.readline())
-#        print('Number of atoms:',number_of_atoms)
-#       check number of atoms
 
-#       Read time step
+        #Read time step
         position_number=file_map.find('POTIM  =')
         file_map.seek(position_number+8)
         time_step = float(file_map.readline().split()[0])* 1E-3 # in picoseconds
@@ -177,19 +154,19 @@ def read_from_file_trajectory(file_name,structure=None):
         while True :
             position_number=file_map.find('POSITION')
             if position_number < 0 : break
+
             file_map.seek(position_number)
             file_map.readline()
             file_map.readline()
+
             read_coordinates = []
             for i in range (number_of_atoms):
-#                print np.array(( file_map.readline().split()[0:3] ),dtype='double')
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
             position_number=file_map.find('energy(')
             file_map.seek(position_number)
             read_energy = file_map.readline().split()[2]
             trajectory.append(np.array(read_coordinates,dtype=float).flatten()) #in angstrom
             energy.append(np.array(read_energy,dtype=float))
-#            print(np.array(supercell,dtype=float).flatten())
             limit_number_structures -= 1
 
             if limit_number_structures < 0:
@@ -197,14 +174,7 @@ def read_from_file_trajectory(file_name,structure=None):
 
         file_map.close()
 
-#        print('fi')
- #       print(number_of_atoms)
-#        trajectory = np.array(trajectory)
-#        number_of_dimensions = structure.get_number_of_dimensions()
- #       print(trajectory[0])
-
         trajectory = np.array([[[trajectory[i][j*number_of_dimensions+k] for k in range(number_of_dimensions) ] for j in range(number_of_atoms)] for i in range (len(trajectory))])
-#        print (trajectory[0,1,:])
 
         trajectory = trajectory[-last_points_taken:,:,:]
         energy = energy[-last_points_taken:]
@@ -219,7 +189,6 @@ def read_from_file_trajectory(file_name,structure=None):
                             energy = np.array(energy),
                             time=time,
                             super_cell=super_cell)
-
 
 
 def generate_test_trajectory(structure,q_vector_o):

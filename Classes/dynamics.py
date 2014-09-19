@@ -41,6 +41,7 @@ class Dynamics:
 
         self._time_step_average = None
         self._velocity_mass_average = None
+        self._super_cell_matrix = None
 
         if structure:
             self._structure = structure
@@ -93,12 +94,24 @@ class Dynamics:
     def get_velocity_mass_average(self):
         if self._velocity_mass_average is None:
             self._velocity_mass_average = np.empty_like(self.velocity)
-            super_cell= self.structure.get_super_cell_matrix()
+            super_cell= self.get_super_cell_matrix()
 
             for i in range(self._structure.get_number_of_atoms()):
                 self._velocity_mass_average[:,i,:] = self.velocity[:,i,:] /np.sqrt(self.structure.get_masses(super_cell=super_cell)[i])
 
         return np.array(self._velocity_mass_average)
+
+
+    def get_super_cell_matrix(self,tolerance=0.1):
+        if self._super_cell_matrix is None:
+            super_cell_matrix_real = np.diagonal(np.dot(self.get_super_cell(),np.linalg.inv(self.structure.get_cell())))
+            self._super_cell_matrix = np.around(super_cell_matrix_real).astype("int")
+            if abs(sum(self._super_cell_matrix - super_cell_matrix_real)) > tolerance:
+                print('Warning! Structure matrix and trajectory matrix does not fit!')
+                print('Matrix expansion vector is not integer:',super_cell_matrix_real)
+                exit()
+
+        return self._super_cell_matrix
 
 
     #Properties

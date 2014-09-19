@@ -138,7 +138,7 @@ plt.show()
 
 # Calculation of correlation
 print ('Correlation')
-correlation_vector =  correlate.get_correlation_spectrum_par(vq,trajectory,test_frequencies_range)
+correlation_vector =  correlate.get_correlation_spectra_par(vq,trajectory,test_frequencies_range)
 reading.write_correlation_to_file(test_frequencies_range,correlation_vector,'Data Files/correlation.out')
 
 
