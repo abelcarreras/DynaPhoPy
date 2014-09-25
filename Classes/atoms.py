@@ -109,11 +109,16 @@ class Structure:
     #Cell matrix related methods
     def set_primitive_matrix(self,primitive_matrix):
         self._primitive_matrix = primitive_matrix
+        self._number_of_atom_types = None
+        self._number_of_primitive_atoms = None
+        self._atom_type_index = None
+        self._primitive_cell = None
 
 
     def get_primitive_matrix(self):
         if self._primitive_matrix is None:
             if self._primitive_cell is None:
+                print('Warning: No primitive matrix defined! Using unit cell as primitive')
                 self._primitive_matrix = np.identity(self.get_number_of_dimensions())
             else:
                 self._primitive_matrix = np.dot(np.linalg.inv(self.get_cell()),self._primitive_cell)
@@ -132,7 +137,7 @@ class Structure:
         position_super_cell = []
         for k in range(self._positions.shape[0]):
             for r in itertools.product(*[range (i) for i in super_cell]):
-                position_super_cell.append(self._positions[k,:] + np.dot(np.array(r[::-1]),self.get_cell()))
+                position_super_cell.append(self._positions[k,:] + np.dot(np.array(r[::-1]),self.get_cell().T))
         position_super_cell = np.array(position_super_cell)
 
         return position_super_cell
@@ -186,8 +191,15 @@ class Structure:
         return self._cell.shape[0]
 
 
-    def get_atomic_numbers(self):
-        return self._atomic_numbers
+    def get_atomic_numbers(self,super_cell=None):
+        if super_cell is None:
+            super_cell = self.get_number_of_dimensions() * [1]
+
+        atomic_numbers_super_cell = []
+        for j in range(self.get_number_of_cell_atoms()):
+            atomic_numbers_super_cell += [self._atomic_numbers[j] ] * np.prod(super_cell)
+
+        return np.array(atomic_numbers_super_cell,dtype=int)
 
 
     def get_number_of_atoms(self):
@@ -240,8 +252,8 @@ class Structure:
         tolerance = 0.001
         if self._atom_type_index is None:
             primitive_cell_inverse = np.linalg.inv(self.get_primitive_cell())
-            self._atom_type_index = np.array(self.get_number_of_cell_atoms() * [None])
 
+            self._atom_type_index = np.array(self.get_number_of_cell_atoms() * [None])
             counter = 0
             for i in range(self.get_number_of_cell_atoms()):
                 if self._atom_type_index[i] is None:

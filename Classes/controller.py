@@ -20,6 +20,9 @@ class Calculation:
         self._correlation_phonon = None
         self._correlation_wave_vector = None
         self._correlation_direct = None
+        self._band_ranges = None
+        self._bands = None
+
 
 
     #Memory clear methods
@@ -68,7 +71,7 @@ class Calculation:
     def get_eigenvectors(self):
         if self._eigenvectors is None:
             print("Getting frequencies & eigenvectors from Phonopy")
-            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self.get_reduced_q_vector(),NAC=False)
+            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self.get_reduced_q_vector(),NAC=True)
             print("Frequencies obtained:")
             print(self._frequencies)
         return self._eigenvectors
@@ -79,6 +82,28 @@ class Calculation:
             print("Getting frequencies & eigenvectors from Phonopy")
             self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self.get_reduced_q_vector())
         return self._frequencies
+
+
+    def set_band_ranges(self,band_ranges):
+        self._band_ranges = band_ranges
+
+
+    def get_band_ranges(self):
+        if self._band_ranges is None:
+            self._band_ranges = [[ [0.0, 0.0, 0.0], [0,1, 0.0, 0.0] ]]
+        return self._band_ranges
+
+
+    def get_phonon_dispersion_spectra(self,band_ranges):
+        if self._bands is None:
+            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,band_ranges,NAC=True)
+
+        for i,freq in enumerate(self._bands[1]):
+            plt.plot(self._bands[1][i],self._bands[2][i],color ='r')
+        plt.axes().get_xaxis().set_visible(False)
+        plt.ylabel('Frequency (THz)')
+        plt.suptitle('Phonon dispersion spectra')
+        plt.show()
 
 
     #Projections related methods
@@ -107,7 +132,7 @@ class Calculation:
     def get_frequency_range(self):
         if self._frequency_range is None:
             print("Not frequency range specified: using default (0-20THz)")
-            self._frequency_range = np.array([0.05*i + 0.1 for i in range (400)])
+            self._frequency_range = np.array([0.05*i + 0.1 for i in range (500)])
         return self._frequency_range
 
 
@@ -134,7 +159,14 @@ class Calculation:
             self._correlation_direct = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.dynamic.get_velocity_mass_average().shape[1]):
                 self._correlation_direct =+ correlate.get_correlation_spectra_par(self.dynamic.get_velocity_mass_average()[:,i,:],self._dynamic,self.get_frequency_range())
+        self._correlation_direct = np.sum(self._correlation_direct,axis=1)
         return self._correlation_direct
+
+
+    def plot_correlation_direct(self):
+        plt.suptitle('Direct correlation')
+        plt.plot(self.get_frequency_range(),self.get_correlation_direct(),'r-')
+        plt.show()
 
 
     def plot_correlation_wave_vector(self):
@@ -145,9 +177,10 @@ class Calculation:
 
     def plot_correlation_phonon(self):
         for i in range(self.get_correlation_phonon().shape[1]):
+            plt.figure(i)
             plt.suptitle('Projection onto Phonon '+str(i+1))
             plt.plot(self.get_frequency_range(),self.get_correlation_phonon()[:,i])
-            plt.show()
+        plt.show()
 
 
     #Printing data to files
@@ -166,3 +199,4 @@ class Calculation:
     #Molecular dynamics analysis related methods
     def show_bolzmann_distribution(self):
         enerfunc.bolzmann_distribution(self.dynamic)
+

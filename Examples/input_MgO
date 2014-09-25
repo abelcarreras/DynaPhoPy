@@ -1,0 +1,29 @@
+STRUCTURE FILE
+/home/abel/VASP/MgO-phonon/3x3x3/OUTCAR
+
+FORCE CONSTANTS
+/home/abel/VASP/MgO-phonon/3x3x3/FORCE_SETS
+
+PRIMITIVE MATRIX
+0.0 0.5 0.5
+0.5 0.0 0.5
+0.5 0.5 0.0
+
+SUPERCELL MATRIX PHONOPY
+3 0 0
+0 3 0
+0 0 3
+
+
+XBANDS
+0.0,   0.0,   0.0       0.5,   0.0,    0.5
+0.5,   0.0,   5.0       0.375, 0.375,  0.75
+0.375, 0.375, 0.75      0.0,   0.0,    0.0
+0.0,   0.0,   0.0       0.5,   0.5,    0.5
+
+
+BANDS
+0.0, 0.0, 0.0    0.5, 0.0, 0.0
+0.5, 0.0, 0.0    0.5, 0.5, 0.0
+0.5, 0.5, 0.0    0.0, 0.0, 0.0
+0.0, 0.0, 0.0    0.5, 0.5, 0.5

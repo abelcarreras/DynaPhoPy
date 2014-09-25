@@ -31,12 +31,6 @@ directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
 
 
 
-
-
-
-
-
-
 structure = reading.read_from_file_structure(directory+'OUTCAR')
 
 structure.set_primitive_matrix([[0.0, 0.5, 0.5],
@@ -271,6 +265,7 @@ q_points, distances, frequencies, eigvecs = phonon.get_band_structure()
 for q, d, freq in zip(q_points, distances, frequencies):
     print q.real, d.real, freq.real
 phonon.plot_band_structure().show()
+phonon.set
 
 exit()
 

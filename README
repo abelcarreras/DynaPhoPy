@@ -1,0 +1,27 @@
+------------------------------------------
+DYNAPHOPY 1.0
+------------------------------------------
+Program to calculate crystal anharmonic frequencies from molecular
+dynamics calculation obtained from VASP code.
+
+------------------------------------
+Installation instructions
+------------------------------------
+1. Requisites
+Python 2.6 or higher
+Matplotlib
+Scipy
+Phonopy
+
+2. Download the source code a put it in the installation directory
+
+3. Run the setupy script
+python setup.py install --home=.
+
+------------------------------------------
+Contact
+------------------------------------------
+Abel Carreras
+abelcarreras83@gmail.com
+
+Kyoto University

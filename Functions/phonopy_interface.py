@@ -84,7 +84,6 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
     number_of_dimensions = structure.get_number_of_dimensions()
     number_of_primitive_atoms = structure.get_number_of_primitive_atoms()
 
-#    print(number_of_dimensions,number_of_primitive_atoms)
 
     arranged_ev = np.array([[[eigenvectors [j*number_of_dimensions+k,i]
                                     for k in range(number_of_dimensions)]
@@ -92,6 +91,44 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
                                     for i in range(number_of_primitive_atoms*number_of_dimensions)])
 
     return arranged_ev, frequencies
+
+def obtain_phonon_dispersion_spectra(structure,bands_ranges,NAC=False):
+
+    print('Calculating phonon dispersion spectra...')
+    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
+                        scaled_positions=structure.get_scaled_positions())
+    bulk.set_cell(structure.get_cell())
+
+    phonon = Phonopy(bulk,structure.get_super_cell_phonon(),
+                     primitive_matrix= structure.get_primitive_matrix(),
+                     is_auto_displacements=False)
+
+    if NAC:
+        print("Phonopy warning: Using Non Analitical Corrections")
+        get_is_symmetry = True  #sfrom phonopy:   settings.get_is_symmetry()
+        primitive = phonon.get_primitive()
+        nac_params = parse_BORN(primitive, get_is_symmetry)
+        phonon.set_nac_params(nac_params=nac_params)
+
+
+    phonon.set_displacement_dataset(copy.deepcopy(structure.get_force_set()))
+    phonon.produce_force_constants()
+
+
+    band_resolution =30
+    bands =[]
+    for q_start, q_end in bands_ranges:
+        band = []
+        for i in range(band_resolution+1):
+            band.append(np.array(q_start) +
+                        (np.array(q_end) - np.array(q_start)) / band_resolution * i)
+        bands.append(band)
+
+
+    phonon.set_band_structure(bands)
+    return phonon.get_band_structure()
+
+#if __name__ == 'phonopy_interface.py'
 
 '''
 #Starting test program
