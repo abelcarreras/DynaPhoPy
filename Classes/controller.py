@@ -121,6 +121,27 @@ class Calculation:
         return self._vq
 
 
+    def plot_vq(self,modes=None):
+        if not modes: modes = [0]
+
+        plt.suptitle('Phonon mode projection')
+        for mode in modes:
+            plt.plot(self.dynamic.get_time().real,self.get_vq()[:,mode].real,label='mode: '+str(mode))
+        plt.legend()
+        plt.show()
+
+    def plot_vc(self,atoms=None,coordinates=None):
+        if not atoms: atoms = [0]
+        if not coordinates: coordinates = [0]
+
+        plt.suptitle('Wave vector projection')
+        for atom in atoms:
+            for coordinate in coordinates:
+                plt.plot(self.dynamic.get_time().real,self.get_vc()[:,atom,coordinate].real,label='atom: '+str(atom)+' coordinate:'+str(coordinate))
+        plt.legend()
+        plt.show()
+
+
     #Frequency ranges related methods
     def set_frequency_range(self,frequency_range):
         if frequency_range != self._frequency_range:
@@ -183,6 +204,37 @@ class Calculation:
         plt.show()
 
 
+    #Analysis of dynamical properties related methods
+    def plot_trajectory(self,atoms=None,coordinates=None):
+        if not atoms: atoms = [0]
+        if not coordinates: coordinates = [0]
+
+        plt.suptitle('Trajectory')
+        for atom in atoms:
+            for coordinate in coordinates:
+                plt.plot(self.dynamic.get_time().real,self.dynamic.get_trajectory()[:,atom,coordinate].real,label='atom: '+str(atom)+' coordinate:'+str(coordinate))
+        plt.legend()
+        plt.show()
+
+
+    def plot_velocity(self,atoms=None,coordinates=None):
+        if not atoms: atoms = [0]
+        if not coordinates: coordinates = [0]
+
+        plt.suptitle('Velocity')
+        for atom in atoms:
+            for coordinate in coordinates:
+                plt.plot(self.dynamic.get_time().real,self.dynamic.velocity[:,atom,coordinate].real,label='atom: '+str(atom)+' coordinate:'+str(coordinate))
+        plt.legend()
+        plt.show()
+
+
+    def plot_energy(self):
+        plt.suptitle('Energy')
+        plt.plot(self.dynamic.get_time().real,self.dynamic.get_energy().real)
+        plt.show()
+
+
     #Printing data to files
     def write_correlation_direct(self,file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),self.get_correlation_direct(),file_name)
@@ -197,6 +249,6 @@ class Calculation:
 
 
     #Molecular dynamics analysis related methods
-    def show_bolzmann_distribution(self):
+    def show_boltzmann_distribution(self):
         enerfunc.bolzmann_distribution(self.dynamic)
 

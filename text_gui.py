@@ -13,9 +13,9 @@ def list_on_screen(pile,posx,posy):
 
     pile = np.array(pile).reshape((-1,3))
 
-    for i, freq_i in enumerate(pile):
-        for j, freq in enumerate(freq_i):
-            screen.addstr(posx+i,posy+j*20,str(i*len(pile[0])+j)+": "+str(freq)[:8])
+    for i, row_list in enumerate(pile):
+        for j, element in enumerate(row_list):
+            screen.addstr(posx+i,posy+j*20,str(i*len(pile[0])+j)+": "+str(element)[:8])
 
 
 # Get parametres from text ui
@@ -24,8 +24,8 @@ def get_param(prompt_string):
     screen.border(0)
     screen.addstr(2, 2, prompt_string)
     screen.refresh()
-    input = screen.getstr(10, 10, 60)
-    return input
+    input_data = screen.getstr(10, 10, 60)
+    return input_data
 
 
 #structure_file_name, force_constants_file_name, primitive_matrix, super_cell_matrix, band_ranges
@@ -129,7 +129,7 @@ while x != ord('0'):
 
     if x == ord('3'):
         curses.endwin()
-        calculation.show_bolzmann_distribution()
+        calculation.show_boltzmann_distribution()
 
 
     if x == ord('4'):

@@ -21,8 +21,8 @@ if True:
     q_vector_norm = np.array ([0.25, 0.25, 0.25])
 
     #Reading unit cell structure and force sets
-    directory ='/home/abel/VASP/MgO-phonon/3x3x3/'
-#    directory ='/home/abel/VASP/Si-phonon/3x3x3/'
+#    directory ='/home/abel/VASP/MgO-phonon/3x3x3/'
+    directory ='/home/abel/VASP/Si-phonon/3x3x3/'
     structure = reading.read_from_file_structure(directory+'OUTCAR')
     structure.set_force_set( file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
 
@@ -32,9 +32,9 @@ if True:
                                     [0.0, 0.5, 0.0],
                                     [0.0, 0.0, 0.5]])
 
-    structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-                                    [0.5, 0.0, 0.5],
-                                    [0.5, 0.5, 0.0]])
+#    structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+#                                    [0.5, 0.0, 0.5],
+#                                    [0.5, 0.5, 0.0]])
 
 
 #Supercell used for PHONOPY phonon calculations
