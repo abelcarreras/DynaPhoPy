@@ -71,7 +71,7 @@ class Calculation:
     def get_eigenvectors(self):
         if self._eigenvectors is None:
             print("Getting frequencies & eigenvectors from Phonopy")
-            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self.get_reduced_q_vector(),NAC=True)
+            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self.get_reduced_q_vector(),NAC=False)
             print("Frequencies obtained:")
             print(self._frequencies)
         return self._eigenvectors

@@ -25,11 +25,11 @@ def bolzmann_distribution(trajectory):
 
     params = maxwell.fit(energy,floc=0)
     print('Fit parameter:',params)
-    bolzmann_constant = 8.6173324E-5   #eV*K^-1
+    boltzmann_constant = 8.6173324E-5   #eV*K^-1
 #    temperature = 600  #K
     mass = np.average(masses) * 931.494061E6 # eV/c^2
 
-    print('Temperature Fit:',pow(params[1],2)*mass/bolzmann_constant)
+    print('Temperature Fit:',pow(params[1],2)*mass/boltzmann_constant)
 
 
     x = np.linspace(0, average+3*deviation, 100)

@@ -234,7 +234,7 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
 
     print(structure.get_atomic_types(super_cell=super_cell))
     #Generate an xyz file for checking
-    xyz_file = open('Data Files/test.xyz','w')
+    xyz_file = open('test.xyz','w')
 
     #Generate random wave vector sample
     q_vector_r=np.random.rand(0,3)
