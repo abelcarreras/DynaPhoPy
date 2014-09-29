@@ -11,9 +11,9 @@ import Functions.phonopy_interface as pho_interface
 # FORCE_SETS : force set file obtained from PHONOPY calculation
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
-directory ='/home/abel/VASP/Si-phonon/3x3x3/'
+#directory ='/home/abel/VASP/Si-phonon/3x3x3/'
 #directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
-#directory = '/home/abel/VASP/GaN-phonon/3x3x3/'
+directory = '/home/abel/VASP/GaN-phonon/3x3x3/'
 
 structure = reading.read_from_file_structure(directory+'OUTCAR')
 structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
@@ -24,17 +24,17 @@ structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'
 #    Primitive_cell = Unit_cell x Primitive_matrix
 #    This matrix is the same needed for PHONOPY calculation
 
-structure.set_primitive_matrix([[0.5, 0.0, 0.0],
-                                [0.0, 0.5, 0.0],
-                                [0.0, 0.0, 0.5]])
+#structure.set_primitive_matrix([[0.5, 0.0, 0.0],
+#                                [0.0, 0.5, 0.0],
+#                                [0.0, 0.0, 0.5]])
 
-structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-                                [0.5, 0.0, 0.5],
-                                [0.5, 0.5, 0.0]])
+#structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+#                                [0.5, 0.0, 0.5],
+#                                [0.5, 0.5, 0.0]])
 
-#structure.set_primitive_matrix([[1.0, 0.0, 0.0],
-#                                [0.0, 1.0, 0.0],
-#                                [0.0, 0.0, 1.0]])
+structure.set_primitive_matrix([[1.0, 0.0, 0.0],
+                                [0.0, 1.0, 0.0],
+                                [0.0, 0.0, 1.0]])
 
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements

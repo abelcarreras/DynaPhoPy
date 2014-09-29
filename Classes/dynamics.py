@@ -97,7 +97,7 @@ class Dynamics:
             super_cell= self.get_super_cell_matrix()
 
             for i in range(self._structure.get_number_of_atoms()):
-                self._velocity_mass_average[:,i,:] = self.velocity[:,i,:] /np.sqrt(self.structure.get_masses(super_cell=super_cell)[i])
+                self._velocity_mass_average[:,i,:] = self.velocity[:,i,:] * np.sqrt(self.structure.get_masses(super_cell=super_cell)[i])
 
         return np.array(self._velocity_mass_average)
 
