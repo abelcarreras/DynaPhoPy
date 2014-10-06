@@ -12,8 +12,8 @@ import Functions.phonopy_interface as pho_interface
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
 #directory ='/home/abel/VASP/Si-phonon/3x3x3/'
-#directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
-directory = '/home/abel/VASP/GaN-phonon/3x3x3/'
+directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
+#directory = '/home/abel/VASP/GaN-phonon/3x3x3_GGA/'
 
 structure = reading.read_from_file_structure(directory+'OUTCAR')
 structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
@@ -28,13 +28,13 @@ structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'
 #                                [0.0, 0.5, 0.0],
 #                                [0.0, 0.0, 0.5]])
 
-#structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-#                                [0.5, 0.0, 0.5],
-#                                [0.5, 0.5, 0.0]])
+structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+                                [0.5, 0.0, 0.5],
+                                [0.5, 0.5, 0.0]])
 
-structure.set_primitive_matrix([[1.0, 0.0, 0.0],
-                                [0.0, 1.0, 0.0],
-                                [0.0, 0.0, 1.0]])
+#structure.set_primitive_matrix([[1.0, 0.0, 0.0],
+#                                [0.0, 1.0, 0.0],
+#                                [0.0, 0.0, 1.0]])
 
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements
@@ -51,17 +51,21 @@ structure.set_super_cell_phonon([[3, 0, 0],
 #print(structure.get_masses(super_cell=[1,1,1]))
 #print(structure.get_number_of_atom_types())
 
+reading.write_xsf_file("test.xfs",structure)
 
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
-#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/RUN1/OUTCAR',structure)
-#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_300/RUN3/OUTCAR',structure)
-
-trajectory = reading.generate_test_trajectory(structure,[0.5, 0.3, 0.0])
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/RUN2/OUTCAR',structure)
+trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_600/RUN2/OUTCAR',structure,last_steps=5000)
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=5000)
+#trajectory = reading.generate_test_trajectory(structure,[0.5, 0.3, 0.4],super_cell=[2,2,2])
 
 calculation = controller.Calculation(trajectory)
-calculation.set_reduced_q_vector([0.5, 0.3, 0.0])
+calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
+calculation.set_NAC(True)
+
+print(calculation.get_frequencies())
 
 #################################### GET PROPERTIES #########################################
 #calculation.plot_trajectory()
@@ -79,7 +83,7 @@ calculation.plot_vq(modes=[0,1,2,3,4])
 # Python scripting features may be used for more complex requests
 
 # 5a. Set wave vector into which is going to be projected the velocity (default: gamma point)
-calculation.set_reduced_q_vector([0.5, 0.3, 0.0])
+#calculation.set_reduced_q_vector([0.5, 0.3, 0.0])
 
 # 5b. Define range of frequency to analyze (default: 0-20THz)
 #calculation.set_frequency_range(np.array([0.01*i + 14.0 for i in range (100)]))
@@ -91,7 +95,7 @@ calculation.set_reduced_q_vector([0.5, 0.3, 0.0])
 #calculation.plot_correlation_direct()
 
 # 5e. Request calculate plot of wave vector projected velocity correlation function
-#calculation.plot_correlation_wave_vector()
+calculation.plot_correlation_wave_vector()
 
 # 5f. Request calculate plot of phonon mode projected velocity correlation function
 calculation.plot_correlation_phonon()

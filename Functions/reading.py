@@ -219,7 +219,7 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
     positions = structure.get_positions(super_cell=super_cell)
     masses = structure.get_masses(super_cell=super_cell)
 
-    total_time = 5
+    total_time = 5.0
     time_step = 0.001
     amplitude = 2.0
 #    print('Freq Num',number_of_frequencies)
@@ -444,3 +444,32 @@ def read_parameters_from_input_file(file_name):
               'primitive_matrix':primitive_matrix,
               'super_cell_matrix':super_cell_matrix,
               'bands':bands}
+
+
+def write_xsf_file(file_name,structure):
+
+    xsf_file = open(file_name,"w")
+
+    xsf_file.write("CRYSTAL\n")
+    xsf_file.write("PRIMVEC\n")
+
+    for row in structure.get_primitive_cell().T:
+        xsf_file.write("{0:10.4f}\t{1:10.4f}\t{2:10.4f}\n".format(*row))
+    xsf_file.write("CONVVEC\n")
+
+    for row in structure.get_cell().T:
+        xsf_file.write("{0:10.4f}\t{1:10.4f}\t{2:10.4f}\n".format(*row))
+    xsf_file.write("PRIMCOORD\n")
+
+    xsf_file.write("{0:10d} {1:10d}\n".format(structure.get_number_of_primitive_atoms(),1))
+
+    counter = 0
+    while counter < structure.get_number_of_atom_types():
+        for i,value_type in enumerate(structure.get_atom_type_index()):
+            if value_type == counter:
+                xsf_file.write("{0:4d}\t{1:10.4f}\t{2:10.4f}\t{3:10.4f}\n".format(structure.get_atomic_numbers()[i],*structure.get_positions()[i]))
+                counter += 1
+                break
+    xsf_file.close()
+
+

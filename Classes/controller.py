@@ -22,6 +22,7 @@ class Calculation:
         self._correlation_direct = None
         self._band_ranges = None
         self._bands = None
+        self._phonopy_NAC = False
 
 
 
@@ -48,6 +49,11 @@ class Calculation:
     def dynamic(self):
         return self._dynamic
 
+    def set_NAC(self,NAC):
+        self._phonopy_NAC = NAC
+
+    def write_to_xfs_file(self,file_name):
+        reading.write_xsf_file(file_name,self.dynamic.structure)
 
     #Wave vector related methods
     def set_reduced_q_vector(self,q_vector):
@@ -71,7 +77,7 @@ class Calculation:
     def get_eigenvectors(self):
         if self._eigenvectors is None:
             print("Getting frequencies & eigenvectors from Phonopy")
-            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self.get_reduced_q_vector(),NAC=True)
+            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self.get_reduced_q_vector(),NAC=self._phonopy_NAC)
             print("Frequencies obtained:")
             print(self._frequencies)
         return self._eigenvectors
@@ -96,7 +102,7 @@ class Calculation:
 
     def get_phonon_dispersion_spectra(self,band_ranges):
         if self._bands is None:
-            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,band_ranges,NAC=True)
+            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,band_ranges,NAC=self._phonopy_NAC)
 
         for i,freq in enumerate(self._bands[1]):
             plt.plot(self._bands[1][i],self._bands[2][i],color ='r')
@@ -152,7 +158,7 @@ class Calculation:
 
     def get_frequency_range(self):
         if self._frequency_range is None:
-            print("Not frequency range specified: using default (0-20THz)")
+            print("Not frequency range specified: using default (0-25THz)")
             self._frequency_range = np.array([0.05*i + 0.1 for i in range (500)])
         return self._frequency_range
 
@@ -237,7 +243,7 @@ class Calculation:
 
     #Printing data to files
     def write_correlation_direct(self,file_name):
-        reading.write_correlation_to_file(self.get_frequency_range(),self.get_correlation_direct(),file_name)
+        reading.write_correlation_to_file(self.get_frequency_range(),self.get_correlation_direct()[None].T,file_name)
 
 
     def write_correlation_wave_vector(self,file_name):

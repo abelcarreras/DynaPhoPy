@@ -1,6 +1,6 @@
 
 import numpy as np
-import scitools.numpyutils
+#import scitools.numpyutils
 import random
 
 def eigenvectors_normalization(eigenvector):

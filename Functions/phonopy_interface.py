@@ -6,7 +6,7 @@ from phonopy.structure.atoms import Atoms as PhonopyAtoms
 #import eigenvectors as eigen
 #import Functions.reading as reading
 #import matplotlib.pyplot as plt
-import scitools.numpyutils as numpyutils
+#import scitools.numpyutils as numpyutils
 from phonopy.file_IO import parse_FORCE_SETS, parse_BORN
 from phonopy.interface.vasp import read_vasp
 import copy
