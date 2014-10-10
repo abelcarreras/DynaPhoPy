@@ -70,7 +70,7 @@ class Calculation:
 
 
     def get_q_vector(self):
-        return np.dot(self.get_reduced_q_vector(), 2*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell()).T)
+        return np.dot(self.get_reduced_q_vector(), 2.0*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell().T))
 
 
     #Phonopy harmonic calculation related methods
@@ -86,7 +86,7 @@ class Calculation:
     def get_frequencies(self):
         if self._eigenvectors is None:
             print("Getting frequencies & eigenvectors from Phonopy")
-            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self.get_reduced_q_vector())
+            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self.get_reduced_q_vector(),NAC=self._phonopy_NAC)
         return self._frequencies
 
 
@@ -96,13 +96,13 @@ class Calculation:
 
     def get_band_ranges(self):
         if self._band_ranges is None:
-            self._band_ranges = [[ [0.0, 0.0, 0.0], [0,1, 0.0, 0.0] ]]
+            self._band_ranges = [[ [0.0, 0.0, 0.0], [0.5, 0.0, 0.0] ]]
         return self._band_ranges
 
 
-    def get_phonon_dispersion_spectra(self,band_ranges):
+    def get_phonon_dispersion_spectra(self):
         if self._bands is None:
-            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,band_ranges,NAC=self._phonopy_NAC)
+            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,self.get_band_ranges(),NAC=self._phonopy_NAC)
 
         for i,freq in enumerate(self._bands[1]):
             plt.plot(self._bands[1][i],self._bands[2][i],color ='r')

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from os import system
 from time import sleep
 
@@ -28,7 +30,7 @@ def get_param(prompt_string):
     return input_data
 
 
-#structure_file_name, force_constants_file_name, primitive_matrix, super_cell_matrix, band_ranges
+#Get data from input file
 input_parameters = reading.read_parameters_from_input_file(sys.argv[1])
 
 structure = reading.read_from_file_structure(input_parameters['structure_file_name'])
@@ -44,6 +46,9 @@ calculation = controller.Calculation(trajectory)
 calculation.set_band_ranges(input_parameters['bands'])
 
 
+########## SET NAC IF NECESSARY (BANDS PLOT ONLY) ###########
+#calculation.set_NAC(True)
+#############################################################
 
 screen = curses.initscr()
 screen.border(0)
@@ -119,7 +124,7 @@ while x != ord('0'):
 
             if x2 == ord('3'):
                 curses.endwin()
-                calculation.get_phonon_dispersion_spectra(calculation.get_band_ranges())
+                calculation.get_phonon_dispersion_spectra()
 
     if x == ord('2'):
         q_vector = np.array(get_param("Introduce wave vector (values separated by comma)").split(','),dtype=float)
@@ -139,7 +144,6 @@ while x != ord('0'):
             screen = curses.initscr()
             screen.clear()
             screen.border(0)
-
 
             screen.addstr(2, 2, "Plotting...")
             screen.addstr(4, 4, "1 - Real space correlation")
@@ -170,7 +174,6 @@ while x != ord('0'):
             screen = curses.initscr()
             screen.clear()
             screen.border(0)
-
 
             screen.addstr(2, 2, "Saving...")
             screen.addstr(4, 4, "1 - Real space correlation")

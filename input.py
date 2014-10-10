@@ -63,10 +63,13 @@ trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_600/
 
 calculation = controller.Calculation(trajectory)
 calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
-calculation.set_NAC(True)
+
+#calculation.set_NAC(True)
 
 print(calculation.get_frequencies())
 
+
+calculation.get_phonon_dispersion_spectra()
 #################################### GET PROPERTIES #########################################
 #calculation.plot_trajectory()
 calculation.plot_energy()

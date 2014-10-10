@@ -63,7 +63,6 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
         nac_params = parse_BORN(primitive, get_is_symmetry)
         phonon.set_nac_params(nac_params=nac_params)
 
-
     phonon.set_displacement_dataset(copy.deepcopy(structure.get_force_set()))
     phonon.produce_force_constants()
 
@@ -118,14 +117,17 @@ def obtain_phonon_dispersion_spectra(structure,bands_ranges,NAC=False):
     band_resolution =30
     bands =[]
     for q_start, q_end in bands_ranges:
+        print(q_start,q_end)
         band = []
         for i in range(band_resolution+1):
-            band.append(np.array(q_start) +
-                        (np.array(q_end) - np.array(q_start)) / band_resolution * i)
+            band.append(np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i)
         bands.append(band)
 
 
     phonon.set_band_structure(bands)
+
+#    print(phonon.get_qpoints_phonon())
+
     return phonon.get_band_structure()
 
 #if __name__ == 'phonopy_interface.py'

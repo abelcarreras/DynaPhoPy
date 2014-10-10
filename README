@@ -18,6 +18,16 @@ Phonopy
 3. Run the setupy script
 python setup.py install --home=.
 
+---------------------------------------
+Executing the program
+---------------------------------------
+1) Script method
+Create/edit script like input.py and execute it
+The comments in the script makes it (hopefully) self explained.
+
+2) Interactive text interface method
+Execute text_gui.py and follow the instructions (still under development)
+
 ------------------------------------------
 Contact
 ------------------------------------------
