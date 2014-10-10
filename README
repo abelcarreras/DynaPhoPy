@@ -28,6 +28,10 @@ The comments in the script makes it (hopefully) self explained.
 2) Interactive text interface method
 Execute text_gui.py and follow the instructions (still under development)
 
+./text_gui.py input_file vasp_MD_OUTCAR
+
+Input files for several compounds can be found in Example directory
+
 ------------------------------------------
 Contact
 ------------------------------------------
