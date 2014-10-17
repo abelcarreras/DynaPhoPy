@@ -44,8 +44,12 @@ args = parser.parse_args()
 #Get data from input file
 input_parameters = reading.read_parameters_from_input_file(args.input_file[0])
 
-if 'structure_file_name' in input_parameters:
-    structure = reading.read_from_file_structure(input_parameters['structure_file_name'])
+if 'structure_file_name_outcar' in input_parameters:
+    structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name_outcar'])
+    structure_file = input_parameters['structure_file_name_outcar']
+else:
+    structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
+    structure_file = input_parameters['structure_file_name_poscar']
 
 if 'force_constants_file_name' in input_parameters:
     structure.set_force_set( file_IO.parse_FORCE_SETS(filename=input_parameters['force_constants_file_name']))
@@ -82,5 +86,5 @@ if args.save_phonon_mode:
     calculation.plot_correlation_phonon()
 
 if args.interactive:
-    text_ui.interactive_interface(calculation, trajectory, args, input_parameters)
+    text_ui.interactive_interface(calculation, trajectory, args, structure_file)
 

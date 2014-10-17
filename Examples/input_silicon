@@ -1,5 +1,5 @@
-STRUCTURE FILE
-/home/abel/VASP/Si-phonon/4x4x4B_GGA/OUTCAR
+STRUCTURE FILE POSCAR
+/home/abel/VASP/Si-phonon/4x4x4B_GGA/POSCAR
 
 FORCE CONSTANTS
 /home/abel/VASP/Si-phonon/2x2x2/FORCE_SETS

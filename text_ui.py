@@ -30,7 +30,7 @@ def get_param(screen,prompt_string):
 #calculation.set_NAC(True)
 #############################################################
 
-def interactive_interface(calculation,trajectory, args, input_parameters):
+def interactive_interface(calculation,trajectory, args, structure_file):
 
     screen = curses.initscr()
     screen.border(0)
@@ -47,7 +47,7 @@ def interactive_interface(calculation,trajectory, args, input_parameters):
 
         #Show parameters right screen
         screen.addstr(2,45,"Input file: "+args.input_file[0][-20:])
-        screen.addstr(3,45,"Structure file: "+ input_parameters['structure_file_name'][-20:])
+        screen.addstr(3,45,"Structure file: "+ structure_file[-20:])
         screen.addstr(4,45,"MD file: "+ args.md_file[0][-20:])
 
         screen.addstr(6,45,"Wave Vector: "+str(calculation.get_reduced_q_vector()))
@@ -92,6 +92,7 @@ def interactive_interface(calculation,trajectory, args, input_parameters):
                 if x2 == ord('1'):
                     curses.endwin()
                     freq = calculation.get_frequencies()
+                    sleep(1)
                     screen = curses.initscr()
                     screen.clear()
                     screen.border()
@@ -118,7 +119,6 @@ def interactive_interface(calculation,trajectory, args, input_parameters):
             q_vector = np.array(get_param(screen,"Insert reduced wave vector (values separated by comma)").split(','),dtype=float)
             calculation.set_reduced_q_vector(q_vector)
             curses.endwin()
-            print(q_vector)
 
         if x == ord('3'):
             frequency_limits = np.array(get_param(screen,"Insert frequency range (min, max, number of points)").split(','),dtype=float)
@@ -200,7 +200,7 @@ if __name__ == 'test_gui.py':
     #Get data from input file
     input_parameters = reading.read_parameters_from_input_file(sys.argv[1])
 
-    structure = reading.read_from_file_structure(input_parameters['structure_file_name'])
+    structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name'])
     structure.set_force_set( file_IO.parse_FORCE_SETS(filename=input_parameters['force_constants_file_name']))
     structure.set_primitive_matrix(input_parameters['primitive_matrix'])
     structure.set_super_cell_phonon(input_parameters['super_cell_matrix'])

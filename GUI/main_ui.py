@@ -29,7 +29,7 @@ class Dialog(QtGui.QMainWindow):
         if file_name:
             item = QtGui.QListWidgetItem(self.ui.list_structures)
             item.setText(file_name)
-            structure = reading.read_from_file_structure(file_name)
+            structure = reading.read_from_file_structure_outcar(file_name)
             item.setData(QtCore.Qt.UserRole,structure)
 
     def load_dynamic(self):

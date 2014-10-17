@@ -6,7 +6,7 @@ import pickle
 import Functions.phonopy_interface as pho_interface
 import os
 
-def read_from_file_structure(file_name):
+def read_from_file_structure_outcar(file_name):
 
     #Check file exists
     if not os.path.isfile(file_name):
@@ -113,7 +113,7 @@ def read_from_file_structure(file_name):
                               )
 
 
-def read_from_file_structure2(file_name):
+def read_from_file_structure_poscar(file_name):
     #Check file exists
     if not os.path.isfile(file_name):
         print('Structure file does not exist!')
@@ -426,26 +426,31 @@ def read_parameters_from_input_file(file_name):
 
     primitive_matrix = None
     super_cell_matrix = None
-    structure_file_name = None
+    structure_file_name_outcar = None
+    structure_file_name_poscar = 'POSCAR'
     force_constants_file_name = None
     bands = None
+
+    input_parameters = {'structure_file_name_poscar':'POSCAR'}
 
     input_file = open(file_name , "r").readlines()
     for i,line in enumerate(input_file):
 
-        if "STRUCTURE FILE" in line:
+        if "STRUCTURE FILE OUTCAR" in line:
+            input_parameters.update ({'structure_file_name_outcar':input_file[i+1].replace('\n','')})
 
-            structure_file_name = input_file[i+1].replace('\n','')
+        if "STRUCTURE FILE POSCAR" in line:
+            input_parameters.update ({'structure_file_name_poscar':input_file[i+1].replace('\n','')})
 
         if "FORCE CONSTANTS" in line:
-            force_constants_file_name = input_file[i+1].replace('\n','')
-
+            input_parameters.update ({'force_constants_file_name':input_file[i+1].replace('\n','')})
 
         if "PRIMITIVE MATRIX" in line:
             primitive_matrix = [input_file[i+1].replace('\n','').split(),
                                 input_file[i+2].replace('\n','').split(),
                                 input_file[i+3].replace('\n','').split()]
-            primitive_matrix = np.array(primitive_matrix,dtype=float)
+            input_parameters.update ({'primitive_matrix':np.array(primitive_matrix,dtype=float)})
+
 
         if "SUPERCELL MATRIX PHONOPY" in line:
             super_cell_matrix = [input_file[i+1].replace('\n','').split(),
@@ -453,6 +458,8 @@ def read_parameters_from_input_file(file_name):
                                  input_file[i+3].replace('\n','').split()]
 
             super_cell_matrix = np.array(super_cell_matrix,dtype=int)
+            input_parameters.update ({'super_cell_matrix':np.array(super_cell_matrix,dtype=int)})
+
 
         if "BANDS" in line:
             bands = []
@@ -465,14 +472,10 @@ def read_parameters_from_input_file(file_name):
                     break
                 i += 1
                 bands.append(band)
+            input_parameters.update ({'bands':bands})
 
 
-    return  { 'structure_file_name':structure_file_name,
-              'force_constants_file_name':force_constants_file_name,
-              'primitive_matrix':primitive_matrix,
-              'super_cell_matrix':super_cell_matrix,
-              'bands':bands}
-
+    return  input_parameters
 
 def write_xsf_file(file_name,structure):
 

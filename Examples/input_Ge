@@ -1,5 +1,5 @@
-STRUCTURE FILE
-/home/abel/VASP/Ge-phonon/4x4x4/OUTCAR
+STRUCTURE FILE POSCAR
+/home/abel/VASP/Ge-phonon/4x4x4/POSCAR
 
 FORCE CONSTANTS
 /home/abel/VASP/Ge-phonon/4x4x4/FORCE_SETS

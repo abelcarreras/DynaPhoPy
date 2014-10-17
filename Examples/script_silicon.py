@@ -5,7 +5,6 @@ import Functions.iofunctions as reading
 import phonopy.file_IO as file_IO
 import Classes.controller as controller
 
-
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure OUTCAR are placed
 # FORCE_SETS : force set file obtained from PHONOPY calculation
@@ -13,7 +12,7 @@ import Classes.controller as controller
 
 directory ='/home/abel/VASP/Si-phonon/4x4x4B/'
 
-structure = reading.read_from_file_structure(directory+'OUTCAR')
+structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
 
 
