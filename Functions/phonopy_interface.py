@@ -44,16 +44,25 @@ def get_force_constants_from_file (file_name):
 def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
 
 #   Needs to be cleaned!!!
-
-#    print('atomic',structure.get_atomic_types())
 #   Preparing the bulk type
+
+    print(structure.get_atomic_types())
+    print(structure.get_scaled_positions())
+    print(structure.get_cell().T)
+
+    print(structure.get_super_cell_phonon())
+    print(structure.get_primitive_matrix())
+
+#    exit()
+
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
-                        scaled_positions=structure.get_scaled_positions())
-    bulk.set_cell(structure.get_cell())
+                        scaled_positions=structure.get_scaled_positions(),
+                        cell=structure.get_cell().T)
 
     phonon = Phonopy(bulk,structure.get_super_cell_phonon(),
                      primitive_matrix= structure.get_primitive_matrix(),
                      is_auto_displacements=False)
+
 
     #Non Analitical Corrections (NAC) from Phonopy  (just for testing MgO)
     if NAC:
@@ -63,9 +72,9 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
         nac_params = parse_BORN(primitive, get_is_symmetry)
         phonon.set_nac_params(nac_params=nac_params)
 
-
     phonon.set_displacement_dataset(copy.deepcopy(structure.get_force_set()))
     phonon.produce_force_constants()
+
 
 ########################################################################
 
@@ -96,8 +105,8 @@ def obtain_phonon_dispersion_spectra(structure,bands_ranges,NAC=False):
 
     print('Calculating phonon dispersion spectra...')
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
-                        scaled_positions=structure.get_scaled_positions())
-    bulk.set_cell(structure.get_cell())
+                        scaled_positions=structure.get_scaled_positions(),
+                        cell=structure.get_cell().T)
 
     phonon = Phonopy(bulk,structure.get_super_cell_phonon(),
                      primitive_matrix= structure.get_primitive_matrix(),
@@ -120,76 +129,75 @@ def obtain_phonon_dispersion_spectra(structure,bands_ranges,NAC=False):
     for q_start, q_end in bands_ranges:
         band = []
         for i in range(band_resolution+1):
-            band.append(np.array(q_start) +
-                        (np.array(q_end) - np.array(q_start)) / band_resolution * i)
+            band.append(np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i)
         bands.append(band)
 
 
     phonon.set_band_structure(bands)
+
     return phonon.get_band_structure()
 
-#if __name__ == 'phonopy_interface.py'
 
-'''
-#Starting test program
+#Just for test
+if __name__ == 'phonopy_interface.py':
 
-q_vector = np.array([0.0, 0.0, 0.0])
+    #Starting test program
 
-#Reading structure
-structure = reading.read_from_file_structure('/home/abel/VASP/Si-test/OUTCAR')
-force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-test/vasprun.xml')[0]
-#force_constants = get_force_constants_from_file('/home/abel/VASP/Si-test/FORCE_CONSTANTS')
+    q_vector = np.array([0.0, 0.0, 0.0])
 
-structure.set_force_constants(force_constants)
+    #Reading structure
+    structure = reading.read_from_file_structure('/home/abel/VASP/Si-test/OUTCAR')
+    force_constants = file_IO.read_force_constant_vasprun_xml('/home/abel/VASP/Si-test/vasprun.xml')[0]
+    #force_constants = get_force_constants_from_file('/home/abel/VASP/Si-test/FORCE_CONSTANTS')
 
-arranged_EV, frequencies = obtain_eigenvectors_from_phonopy(structure,q_vector)
+    structure.set_force_constants(force_constants)
 
-#Phonopy bands calculation
-bands = []
-q_start  = np.array([0.5, 0.5, 0.0])
-q_end    = np.array([0.0, 0.0, 0.0])
-band = []
-for i in range(51):
-    print(i)
-    q_vector = (q_start + (q_end - q_start) / 50 * i)
-    frequencies = obtain_eigenvectors_from_phonopy(structure,q_vector)[1]
-    print(frequencies)
-    band.append(frequencies)
+    arranged_EV, frequencies = obtain_eigenvectors_from_phonopy(structure,q_vector)
 
-q_start  = np.array([0.0, 0.0, 0.0])
-q_end    = np.array([0.5, 0.0, 0.0])
-for i in range(1,51):
-    print(i)
-    q_vector = (q_start + (q_end - q_start) / 50 * i)
-    frequencies = obtain_eigenvectors_from_phonopy(structure,q_vector)[1]
-    print(frequencies)
-    band.append(frequencies)
+    #Phonopy bands calculation
+    bands = []
+    q_start  = np.array([0.5, 0.5, 0.0])
+    q_end    = np.array([0.0, 0.0, 0.0])
+    band = []
+    for i in range(51):
+        print(i)
+        q_vector = (q_start + (q_end - q_start) / 50 * i)
+        frequencies = obtain_eigenvectors_from_phonopy(structure,q_vector)[1]
+        print(frequencies)
+        band.append(frequencies)
 
-plt.plot(band)
-plt.show()
+    q_start  = np.array([0.0, 0.0, 0.0])
+    q_end    = np.array([0.5, 0.0, 0.0])
+    for i in range(1,51):
+        print(i)
+        q_vector = (q_start + (q_end - q_start) / 50 * i)
+        frequencies = obtain_eigenvectors_from_phonopy(structure,q_vector)[1]
+        print(frequencies)
+        band.append(frequencies)
+
+    plt.plot(band)
+    plt.show()
 
 
-#Restore Phonopy eigenvectors structure (for test only)
-eigenvectors = arranged_EV.flatten().reshape(arranged_EV.shape[0],arranged_EV.shape[1]*arranged_EV.shape[2])
+    #Restore Phonopy eigenvectors structure (for test only)
+    eigenvectors = arranged_EV.flatten().reshape(arranged_EV.shape[0],arranged_EV.shape[1]*arranged_EV.shape[2])
 
-#Bands definition
-bands = []
-q_start  = np.array([0.5, 0.5, 0.0])
-q_end    = np.array([0.0, 0.0, 0.0])
-band = []
-for i in range(51):
-    band.append(q_start + (q_end - q_start) / 50 * i)
-bands.append(band)
+    #Bands definition
+    bands = []
+    q_start  = np.array([0.5, 0.5, 0.0])
+    q_end    = np.array([0.0, 0.0, 0.0])
+    band = []
+    for i in range(51):
+        band.append(q_start + (q_end - q_start) / 50 * i)
+    bands.append(band)
 
-q_start  = np.array([0.0, 0.0, 0.0])
-q_end    = np.array([0.5, 0.0, 0.0])
-band = []
-for i in range(51):
-    band.append(q_start + (q_end - q_start) / 50 * i)
-bands.append(band)
+    q_start  = np.array([0.0, 0.0, 0.0])
+    q_end    = np.array([0.5, 0.0, 0.0])
+    band = []
+    for i in range(51):
+        band.append(q_start + (q_end - q_start) / 50 * i)
+    bands.append(band)
 
-#Bands calculation
-#phonon.set_band_structure(bands)
-#phonon.plot_band_structure().show()
-
-'''
+    #Bands calculation
+    #phonon.set_band_structure(bands)
+    #phonon.plot_band_structure().show()

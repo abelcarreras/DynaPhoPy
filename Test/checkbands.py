@@ -4,7 +4,7 @@ from phonopy.file_IO import parse_FORCE_SETS, parse_BORN
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
-import Functions.reading as reading
+import Functions.iofunctions as reading
 from phonopy.structure.atoms import Atoms as PhonopyAtoms
 from phonopy.structure.cells import Primitive
 

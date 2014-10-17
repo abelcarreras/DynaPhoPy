@@ -30,7 +30,7 @@ class Structure:
 
         self._cell = np.array(cell, dtype='double')
         self._masses = np.array(masses, dtype='double')
-        self._positions = np.array(positions, dtype='double')
+   #     self._positions = np.array(positions, dtype='double')
         self._atomic_numbers = np.array(atomic_numbers, dtype='double')
         self._force_set = np.array(force_set, dtype='double')
         self._force_constants = np.array(force_constants, dtype='double')
@@ -38,6 +38,7 @@ class Structure:
         self._atomic_types = atomic_types
         self._atom_type_index = atom_type_index
         self._scaled_positions = scaled_positions
+        self._positions = positions
         self._primitive_cell = primitive_cell
 
         self._super_cell_matrix = None
@@ -121,22 +122,30 @@ class Structure:
                 print('Warning: No primitive matrix defined! Using unit cell as primitive')
                 self._primitive_matrix = np.identity(self.get_number_of_dimensions())
             else:
-                self._primitive_matrix = np.dot(np.linalg.inv(self.get_cell()),self._primitive_cell)
+                self._primitive_matrix = np.dot(np.linalg.inv(self.get_cell().T),self._primitive_cell)
         return  self._primitive_matrix
 
 
     #Positions related methods
     def set_positions(self, cart_positions):
-        self._scaled_positions = np.dot(cart_positions, np.linalg.inv(self._cell))
+        self._scaled_positions = np.dot(cart_positions, np.linalg.inv(self.get_cell().T))
 
 
     def get_positions(self,super_cell=None):
+        if self._positions is None:
+            if self._scaled_positions is None:
+                print('No positions provided')
+                exit()
+            else:
+                print('Positions')
+                self._positions = np.dot(self._scaled_positions, self.get_cell().T)
+
         if super_cell is None:
             super_cell = self.get_number_of_dimensions() * [1]
 
         position_super_cell = []
         for k in range(self._positions.shape[0]):
-            for r in itertools.product(*[range (i) for i in super_cell]):
+            for r in itertools.product(*[range (i) for i in super_cell[::-1]]):
                 position_super_cell.append(self._positions[k,:] + np.dot(np.array(r[::-1]),self.get_cell().T))
         position_super_cell = np.array(position_super_cell)
 
@@ -144,13 +153,13 @@ class Structure:
 
     def get_scaled_positions(self):
         if self._scaled_positions is  None:
-            self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self._cell))
+            self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self.get_cell().T))
         return self._scaled_positions
 
 
     #Force related methods
     def set_force_constants(self, force_constants):
-        self._force_constants = np.array(force_constants)
+        self._force_constants = np.array(force_constants,dtype='double')
 
 
     def get_force_constants(self):
@@ -215,6 +224,7 @@ class Structure:
     def get_number_of_atom_types(self):
         if self._number_of_atom_types is None:
             self._number_of_atom_types = len(set(self.get_atom_type_index()))
+   #         print(self._number_of_atom_types)
         return  self._number_of_atom_types
 
     def get_number_of_primitive_atoms(self):

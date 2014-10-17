@@ -15,8 +15,26 @@ Phonopy
 
 2. Download the source code a put it in the installation directory
 
-3. Run the setupy script
+3. Run the setup.py script for install
 python setup.py install --home=.
+
+---------------------------------------
+Executing the program
+---------------------------------------
+1) Script method
+Create/edit script like input.py and execute it
+The comments in the script makes it (hopefully) self explained.
+    Example: input.py
+
+2a) Line command method
+./dynaphopy.py input_file vasp_MD_OUTCAR [Options]
+execute ./dynaphopy.py -h for detailed description of available options
+
+2b) Enter interactive interface
+Use -i option
+./dynaphopy.py input_file vasp_MD_OUTCAR -i
+
+Input files for several compounds can be found in Example directory
 
 ------------------------------------------
 Contact

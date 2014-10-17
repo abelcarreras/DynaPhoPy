@@ -113,6 +113,34 @@ def read_from_file_structure(file_name):
                               )
 
 
+def read_from_file_structure2(file_name):
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print('Structure file does not exist!')
+        exit()
+
+    #Read from VASP OUTCAR file
+    print("Reading VASP POSCAR structure")
+    poscar_file = open(file_name, 'r')
+    data_lines = poscar_file.read().split('\n')
+    poscar_file.close()
+
+    direct_cell = np.array([data_lines[i].split() for i in range(2,5)],dtype=float).T
+    number_of_types = np.array(data_lines[6].split(),dtype=int)
+    scaled_positions = np.array([data_lines[8+k].split() for k in range(np.prod(number_of_types))],dtype=float)
+
+    atomic_types = []
+    for i,j in enumerate(data_lines[5].split()):
+        atomic_types.append([j]*number_of_types[i])
+    atomic_types = np.array(atomic_types).flatten().tolist()
+
+    return atomtest.Structure(cell= direct_cell,
+                              scaled_positions=scaled_positions,
+                              atomic_types=atomic_types,
+#                              primitive_cell=primitive_cell
+                              )
+
+
 def read_from_file_trajectory(file_name,structure=None,
                               limit_number_steps=100000,  #Maximum number of steps read
                               last_steps=1000):           #Total number of read steps
@@ -219,9 +247,9 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
     positions = structure.get_positions(super_cell=super_cell)
     masses = structure.get_masses(super_cell=super_cell)
 
-    total_time = 5
+    total_time = 0.5
     time_step = 0.001
-    amplitude = 2.0
+    amplitude = 1.0
 #    print('Freq Num',number_of_frequencies)
 
     for i in range(structure.get_number_of_dimensions()):
@@ -444,3 +472,32 @@ def read_parameters_from_input_file(file_name):
               'primitive_matrix':primitive_matrix,
               'super_cell_matrix':super_cell_matrix,
               'bands':bands}
+
+
+def write_xsf_file(file_name,structure):
+
+    xsf_file = open(file_name,"w")
+
+    xsf_file.write("CRYSTAL\n")
+    xsf_file.write("PRIMVEC\n")
+
+    for row in structure.get_primitive_cell().T:
+        xsf_file.write("{0:10.4f}\t{1:10.4f}\t{2:10.4f}\n".format(*row))
+    xsf_file.write("CONVVEC\n")
+
+    for row in structure.get_cell().T:
+        xsf_file.write("{0:10.4f}\t{1:10.4f}\t{2:10.4f}\n".format(*row))
+    xsf_file.write("PRIMCOORD\n")
+
+    xsf_file.write("{0:10d} {1:10d}\n".format(structure.get_number_of_primitive_atoms(),1))
+
+    counter = 0
+    while counter < structure.get_number_of_atom_types():
+        for i,value_type in enumerate(structure.get_atom_type_index()):
+            if value_type == counter:
+                xsf_file.write("{0:4d}\t{1:10.4f}\t{2:10.4f}\t{3:10.4f}\n".format(structure.get_atomic_numbers()[i],*structure.get_positions()[i]))
+                counter += 1
+                break
+    xsf_file.close()
+
+

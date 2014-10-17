@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import Functions.reading as reading
+import Functions.iofunctions as reading
 import Functions.projection as projection
 import Functions.eigenvectors as eigen
 import Functions.peaksearch as peaksearch
@@ -118,7 +118,7 @@ print(original_frequencies)
 
 
 #Projection onto unit cell
-vc = projection.project_onto_unit_cell(trajectory,q_vector)
+vc = projection.project_onto_wave_vector(trajectory,q_vector)
 plt.suptitle('Projection onto wave vector')
 plt.plot(trajectory.get_time().real,vc[:,1,:].real)
 plt.show()
