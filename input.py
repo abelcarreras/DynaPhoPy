@@ -12,12 +12,12 @@ import Functions.phonopy_interface as pho_interface
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
 #directory ='/home/abel/VASP/Si-phonon/3x3x3/'
-directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
-#directory = '/home/abel/VASP/GaN-phonon/3x3x3_GGA/'
-
+#directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
+directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
+#directory = '/home/abel/VASP/GaN-phonon/2x2x2_GGA/'
 structure = reading.read_from_file_structure(directory+'OUTCAR')
-structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
-
+number_of_atoms = 32
+structure.set_force_set(file_IO.parse_FORCE_SETS(number_of_atoms,filename=directory+'FORCE_SETS'))
 
 ############################### PHONOPY CELL INFORMATION ####################################
 # 2. Set primitive matrix, this matrix fulfills that:
@@ -28,20 +28,24 @@ structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'
 #                                [0.0, 0.5, 0.0],
 #                                [0.0, 0.0, 0.5]])
 
-structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-                                [0.5, 0.0, 0.5],
-                                [0.5, 0.5, 0.0]])
+#structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+#                                [0.5, 0.0, 0.5],
+#                                [0.5, 0.5, 0.0]])
 
-#structure.set_primitive_matrix([[1.0, 0.0, 0.0],
-#                                [0.0, 1.0, 0.0],
-#                                [0.0, 0.0, 1.0]])
+structure.set_primitive_matrix([[1.0, 0.0, 0.0],
+                                [0.0, 1.0, 0.0],
+                                [0.0, 0.0, 1.0]])
 
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements
 
-structure.set_super_cell_phonon([[3, 0, 0],
-                                 [0, 3, 0],
-                                 [0, 0, 3]])
+structure.set_super_cell_phonon([[2, 0, 0],
+                                 [0, 2, 0],
+                                 [0, 0, 2]])
+
+
+
+#print(pho_interface.obtain_eigenvectors_from_phonopy(structure,[0,0,0.5])[1])
 
 
 #Checking values
@@ -57,9 +61,9 @@ reading.write_xsf_file("test.xfs",structure)
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/RUN2/OUTCAR',structure)
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_600/RUN2/OUTCAR',structure,last_steps=5000)
-#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=5000)
-#trajectory = reading.generate_test_trajectory(structure,[0.5, 0.3, 0.4],super_cell=[2,2,2])
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_600/RUN2/OUTCAR',structure,last_steps=5000)
+trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_300/RUN2/OUTCAR',structure,last_steps=5000)
+#trajectory = reading.generate_test_trajectory(structure,[0.0, 0.0, 0.5],super_cell=[2,4,4])
 
 calculation = controller.Calculation(trajectory)
 calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
@@ -107,9 +111,9 @@ calculation.plot_correlation_phonon()
 #calculation.write_correlation_direct('Data Files/correlation_d.out')
 
 # 5h. Request save wave vector projected velocity correlation function into file
-#calculation.write_correlation_wave_vector('Data Files/correlation_w.out')
+calculation.write_correlation_wave_vector('Data Files/correlation_w.out')
 
 # 5i. Request save phonon projected velocity correlation function into file
-calculation.write_correlation_phonon('Data Files/correlation_p.out')
+calculation.write_correlation_phonon('correlation_p.out')
 
 exit()

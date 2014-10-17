@@ -48,6 +48,7 @@ calculation.set_band_ranges(input_parameters['bands'])
 
 ########## SET NAC IF NECESSARY (BANDS PLOT ONLY) ###########
 #calculation.set_NAC(True)
+calculation.set_frequency_range(np.array([0.1*i + 0.1 for i in range (500)]))
 #############################################################
 
 screen = curses.initscr()

@@ -96,7 +96,7 @@ class Calculation:
 
     def get_band_ranges(self):
         if self._band_ranges is None:
-            self._band_ranges = [[ [0.0, 0.0, 0.0], [0.5, 0.0, 0.0] ]]
+            self._band_ranges = [[ [0.0, 0.0, 0.0], [0.0, 0.0, 0.5] ]]
         return self._band_ranges
 
 

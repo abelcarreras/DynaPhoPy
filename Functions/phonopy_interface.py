@@ -45,15 +45,15 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
 
 #   Needs to be cleaned!!!
 
-#    print('atomic',structure.get_atomic_types())
 #   Preparing the bulk type
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
-                        scaled_positions=structure.get_scaled_positions())
-    bulk.set_cell(structure.get_cell())
+                        scaled_positions=structure.get_scaled_positions(),
+                        cell=structure.get_cell().T)
 
     phonon = Phonopy(bulk,structure.get_super_cell_phonon(),
                      primitive_matrix= structure.get_primitive_matrix(),
                      is_auto_displacements=False)
+
 
     #Non Analitical Corrections (NAC) from Phonopy  (just for testing MgO)
     if NAC:
@@ -65,6 +65,7 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
 
     phonon.set_displacement_dataset(copy.deepcopy(structure.get_force_set()))
     phonon.produce_force_constants()
+
 
 ########################################################################
 
@@ -95,8 +96,8 @@ def obtain_phonon_dispersion_spectra(structure,bands_ranges,NAC=False):
 
     print('Calculating phonon dispersion spectra...')
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
-                        scaled_positions=structure.get_scaled_positions())
-    bulk.set_cell(structure.get_cell())
+                        scaled_positions=structure.get_scaled_positions(),
+                        cell=structure.get_cell().T)
 
     phonon = Phonopy(bulk,structure.get_super_cell_phonon(),
                      primitive_matrix= structure.get_primitive_matrix(),
@@ -117,7 +118,6 @@ def obtain_phonon_dispersion_spectra(structure,bands_ranges,NAC=False):
     band_resolution =30
     bands =[]
     for q_start, q_end in bands_ranges:
-        print(q_start,q_end)
         band = []
         for i in range(band_resolution+1):
             band.append(np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i)
@@ -125,8 +125,6 @@ def obtain_phonon_dispersion_spectra(structure,bands_ranges,NAC=False):
 
 
     phonon.set_band_structure(bands)
-
-#    print(phonon.get_qpoints_phonon())
 
     return phonon.get_band_structure()
 

@@ -121,13 +121,13 @@ class Structure:
                 print('Warning: No primitive matrix defined! Using unit cell as primitive')
                 self._primitive_matrix = np.identity(self.get_number_of_dimensions())
             else:
-                self._primitive_matrix = np.dot(np.linalg.inv(self.get_cell()),self._primitive_cell)
+                self._primitive_matrix = np.dot(np.linalg.inv(self.get_cell().T),self._primitive_cell)
         return  self._primitive_matrix
 
 
     #Positions related methods
     def set_positions(self, cart_positions):
-        self._scaled_positions = np.dot(cart_positions, np.linalg.inv(self._cell))
+        self._scaled_positions = np.dot(cart_positions, np.linalg.inv(self.get_cell().T))
 
 
     def get_positions(self,super_cell=None):
@@ -144,13 +144,13 @@ class Structure:
 
     def get_scaled_positions(self):
         if self._scaled_positions is  None:
-            self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self._cell))
+            self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self.get_cell().T))
         return self._scaled_positions
 
 
     #Force related methods
     def set_force_constants(self, force_constants):
-        self._force_constants = np.array(force_constants)
+        self._force_constants = np.array(force_constants,dtype='double')
 
 
     def get_force_constants(self):
@@ -215,6 +215,7 @@ class Structure:
     def get_number_of_atom_types(self):
         if self._number_of_atom_types is None:
             self._number_of_atom_types = len(set(self.get_atom_type_index()))
+   #         print(self._number_of_atom_types)
         return  self._number_of_atom_types
 
     def get_number_of_primitive_atoms(self):

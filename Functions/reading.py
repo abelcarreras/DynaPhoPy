@@ -219,9 +219,9 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
     positions = structure.get_positions(super_cell=super_cell)
     masses = structure.get_masses(super_cell=super_cell)
 
-    total_time = 5.0
+    total_time = 0.5
     time_step = 0.001
-    amplitude = 2.0
+    amplitude = 1.0
 #    print('Freq Num',number_of_frequencies)
 
     for i in range(structure.get_number_of_dimensions()):
