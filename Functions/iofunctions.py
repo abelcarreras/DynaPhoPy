@@ -113,6 +113,34 @@ def read_from_file_structure(file_name):
                               )
 
 
+def read_from_file_structure2(file_name):
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print('Structure file does not exist!')
+        exit()
+
+    #Read from VASP OUTCAR file
+    print("Reading VASP POSCAR structure")
+    poscar_file = open(file_name, 'r')
+    data_lines = poscar_file.read().split('\n')
+    poscar_file.close()
+
+    direct_cell = np.array([data_lines[i].split() for i in range(2,5)],dtype=float).T
+    number_of_types = np.array(data_lines[6].split(),dtype=int)
+    scaled_positions = np.array([data_lines[8+k].split() for k in range(np.prod(number_of_types))],dtype=float)
+
+    atomic_types = []
+    for i,j in enumerate(data_lines[5].split()):
+        atomic_types.append([j]*number_of_types[i])
+    atomic_types = np.array(atomic_types).flatten().tolist()
+
+    return atomtest.Structure(cell= direct_cell,
+                              scaled_positions=scaled_positions,
+                              atomic_types=atomic_types,
+#                              primitive_cell=primitive_cell
+                              )
+
+
 def read_from_file_trajectory(file_name,structure=None,
                               limit_number_steps=100000,  #Maximum number of steps read
                               last_steps=1000):           #Total number of read steps

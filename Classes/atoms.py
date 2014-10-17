@@ -30,7 +30,7 @@ class Structure:
 
         self._cell = np.array(cell, dtype='double')
         self._masses = np.array(masses, dtype='double')
-        self._positions = np.array(positions, dtype='double')
+   #     self._positions = np.array(positions, dtype='double')
         self._atomic_numbers = np.array(atomic_numbers, dtype='double')
         self._force_set = np.array(force_set, dtype='double')
         self._force_constants = np.array(force_constants, dtype='double')
@@ -38,6 +38,7 @@ class Structure:
         self._atomic_types = atomic_types
         self._atom_type_index = atom_type_index
         self._scaled_positions = scaled_positions
+        self._positions = positions
         self._primitive_cell = primitive_cell
 
         self._super_cell_matrix = None
@@ -131,6 +132,14 @@ class Structure:
 
 
     def get_positions(self,super_cell=None):
+        if self._positions is None:
+            if self._scaled_positions is None:
+                print('No positions provided')
+                exit()
+            else:
+                print('Positions')
+                self._positions = np.dot(self._scaled_positions, self.get_cell().T)
+
         if super_cell is None:
             super_cell = self.get_number_of_dimensions() * [1]
 
