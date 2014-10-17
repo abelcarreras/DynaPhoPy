@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 import argparse
+
 import numpy as np
-import Functions.iofunctions as reading
 import phonopy.file_IO as file_IO
+
+from Functions import interactive_ui
+import Functions.iofunctions as reading
 import Classes.controller as controller
-import text_ui
+
 
 #Define arguments
 parser = argparse.ArgumentParser(description='DynaPhonoPy options')
@@ -86,5 +89,5 @@ if args.save_phonon_mode:
     calculation.plot_correlation_phonon()
 
 if args.interactive:
-    text_ui.interactive_interface(calculation, trajectory, args, structure_file)
+    interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
 
