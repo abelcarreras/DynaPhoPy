@@ -136,7 +136,7 @@ class Structure:
 
         position_super_cell = []
         for k in range(self._positions.shape[0]):
-            for r in itertools.product(*[range (i) for i in super_cell]):
+            for r in itertools.product(*[range (i) for i in super_cell[::-1]]):
                 position_super_cell.append(self._positions[k,:] + np.dot(np.array(r[::-1]),self.get_cell().T))
         position_super_cell = np.array(position_super_cell)
 

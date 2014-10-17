@@ -111,9 +111,7 @@ class Dynamics:
                 print('Warning! Structure matrix and trajectory matrix does not fit!')
                 print('Matrix expansion vector is not integer:',super_cell_matrix_real)
                 exit()
-        print(self._super_cell_matrix[::-1])
- #       exit()
-        return self._super_cell_matrix[::-1]
+        return self._super_cell_matrix
 
 
     #Properties

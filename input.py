@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #import numpy as np
-import Functions.reading as reading
+import Functions.iofunctions as reading
 import phonopy.file_IO as file_IO
 import Classes.controller as controller
 import Functions.phonopy_interface as pho_interface

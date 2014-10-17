@@ -2,7 +2,7 @@ __author__ = 'abel'
 import sys, os
 from PyQt4 import QtGui,QtCore
 from main_window import Ui_MainWindow
-import Functions.reading as reading
+import Functions.iofunctions as reading
 import Classes.controller as controller
 
 

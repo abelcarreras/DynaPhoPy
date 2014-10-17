@@ -3,7 +3,7 @@ import Functions.projection as projection
 import Functions.correlate as correlate
 import matplotlib.pyplot as plt
 import Functions.phonopy_interface as pho_interface
-import Functions.reading as reading
+import Functions.iofunctions as reading
 import Functions.energy as enerfunc
 
 
@@ -116,7 +116,7 @@ class Calculation:
     def get_vc(self):
         if self._vc is None:
             print("Projecting into wave vector")
-            self._vc = projection.project_onto_unit_cell(self._dynamic,self.get_q_vector())
+            self._vc = projection.project_onto_wave_vector(self._dynamic,self.get_q_vector())
         return self._vc
 
 

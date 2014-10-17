@@ -3,7 +3,7 @@ from time import sleep
 
 import sys
 import curses
-import Functions.reading as reading
+import Functions.iofunctions as reading
 import phonopy.file_IO as file_IO
 import Classes.controller as controller
 import numpy as np
@@ -15,7 +15,7 @@ def list_on_screen(screen,pile,posx,posy):
 
     for i, row_list in enumerate(pile):
         for j, element in enumerate(row_list):
-            screen.addstr(posx+i,posy+j*20,str(i*len(pile[0])+j)+": "+str(element)[:8])
+            screen.addstr(posx+i,posy+j*20,str(i*len(pile[0])+j+1)+": "+str(element)[:8])
 
 # Get parametres from text ui
 def get_param(screen,prompt_string):
@@ -46,16 +46,16 @@ def interactive_interface(calculation,trajectory, args, input_parameters):
         screen.border(0)
 
         #Show parameters right screen
-        screen.addstr(2,50,"Input file: "+args.input_file[0][-20:])
-        screen.addstr(3,50,"Structure file: "+ input_parameters['structure_file_name'][-20:])
-        screen.addstr(4,50,"MD file: "+ args.md_file[0][-20:])
+        screen.addstr(2,45,"Input file: "+args.input_file[0][-20:])
+        screen.addstr(3,45,"Structure file: "+ input_parameters['structure_file_name'][-20:])
+        screen.addstr(4,45,"MD file: "+ args.md_file[0][-20:])
 
-        screen.addstr(6,50,"Wave Vector: "+str(calculation.get_reduced_q_vector()))
-        screen.addstr(7,50,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '
+        screen.addstr(6,45,"Wave Vector: "+str(calculation.get_reduced_q_vector()))
+        screen.addstr(7,45,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '
                                               +str(calculation.get_frequency_range()[-1])+' THz')
-        screen.addstr(8,50,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
-        screen.addstr(9,50,"MD cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
-        screen.addstr(10,50,"Number of MD steps: "+str(len(trajectory.get_time())))
+        screen.addstr(8,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
+        screen.addstr(9,45,"MD cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
+        screen.addstr(10,45,"Number of MD steps: "+str(len(trajectory.get_time())))
 
 
         #Option values left screen
@@ -115,13 +115,13 @@ def interactive_interface(calculation,trajectory, args, input_parameters):
                     calculation.get_phonon_dispersion_spectra()
 
         if x == ord('2'):
-            q_vector = np.array(get_param(screen,"Introduce wave vector (values separated by comma)").split(','),dtype=float)
+            q_vector = np.array(get_param(screen,"Insert reduced wave vector (values separated by comma)").split(','),dtype=float)
             calculation.set_reduced_q_vector(q_vector)
             curses.endwin()
             print(q_vector)
 
         if x == ord('3'):
-            frequency_limits = np.array(get_param(screen,"Introduce frequency range (min, max, number of points)").split(','),dtype=float)
+            frequency_limits = np.array(get_param(screen,"Insert frequency range (min, max, number of points)").split(','),dtype=float)
             calculation.set_frequency_range(np.linspace(*frequency_limits))
             curses.endwin()
 
