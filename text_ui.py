@@ -1,49 +1,213 @@
-import argparse
-import numpy as np
+from os import system
+from time import sleep
+
+import sys
+import curses
 import Functions.reading as reading
 import phonopy.file_IO as file_IO
 import Classes.controller as controller
+import numpy as np
 
-#Define arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("input_file", help="Input file",type=str)
-parser.add_argument("-wave_vector", help="Mother",type=int)
+#Display list on screen
+def list_on_screen(screen,pile,posx,posy):
 
-args = parser.parse_args()
+    pile = np.array(pile).reshape((-1,3))
 
-#Reading from file
-input_file = open(args.input_file , "r").readlines()
-for i,line in enumerate(input_file):
+    for i, row_list in enumerate(pile):
+        for j, element in enumerate(row_list):
+            screen.addstr(posx+i,posy+j*20,str(i*len(pile[0])+j)+": "+str(element)[:8])
 
-    if "STRUCTURE FILE" in line:
+# Get parametres from text ui
+def get_param(screen,prompt_string):
+    screen.clear()
+    screen.border(0)
+    screen.addstr(2, 2, prompt_string)
+    screen.refresh()
+    input_data = screen.getstr(10, 10, 60)
+    return input_data
 
-        structure_file_name = input_file[i+1].replace('\n','')
+########## SET NAC IF NECESSARY (BANDS PLOT ONLY) ###########
+#calculation.set_NAC(True)
+#############################################################
 
-    if "FORCE CONSTANTS" in line:
-        force_constants_file_name = input_file[i+1].replace('\n','')
+def interactive_interface(calculation,trajectory, args, input_parameters):
+
+    screen = curses.initscr()
+    screen.border(0)
+    screen.addstr(5, 7, "Welcome   to   DynaPhoPy 1.0")
+    screen.refresh()
+    sleep(3)
+    curses.endwin()
+
+    x = 0
+    while x != ord('0'):
+        screen = curses.initscr()
+        screen.clear()
+        screen.border(0)
+
+        #Show parameters right screen
+        screen.addstr(2,50,"Input file: "+args.input_file[0][-20:])
+        screen.addstr(3,50,"Structure file: "+ input_parameters['structure_file_name'][-20:])
+        screen.addstr(4,50,"MD file: "+ args.md_file[0][-20:])
+
+        screen.addstr(6,50,"Wave Vector: "+str(calculation.get_reduced_q_vector()))
+        screen.addstr(7,50,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '
+                                              +str(calculation.get_frequency_range()[-1])+' THz')
+        screen.addstr(8,50,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
+        screen.addstr(9,50,"MD cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
+        screen.addstr(10,50,"Number of MD steps: "+str(len(trajectory.get_time())))
 
 
-    if "PRIMITIVE MATRIX" in line:
-        print('Primitive')
-        primitive_matrix = [input_file[i+1].replace('\n','').split(),
-                            input_file[i+2].replace('\n','').split(),
-                            input_file[i+3].replace('\n','').split()]
+        #Option values left screen
+        screen.addstr(2, 2, "Please enter an option number...")
+        screen.addstr(4, 4, "1 - Harmonic data")
+        screen.addstr(5, 4, "2 - Change wave vector")
+        screen.addstr(6, 4, "3 - Change frequency range")
+        screen.addstr(7, 4, "4 - Boltzmann analysis")
+        screen.addstr(8, 4, "5 - Plot correlation function")
+        screen.addstr(9, 4, "6 - Save correlation function")
+        screen.addstr(11, 4, "0 - Exit")
 
-        primitive_matrix = np.array(primitive_matrix,dtype=float)
+        screen.refresh()
 
-    if "SUPERCELL MATRIX PHONOPY" in line:
-        print('Super cell')
-        super_cell_matrix = [input_file[i+1].replace('\n','').split(),
-                             input_file[i+2].replace('\n','').split(),
-                             input_file[i+3].replace('\n','').split()]
+        x = screen.getch()
 
-        super_cell_matrix = np.array(super_cell_matrix,dtype=int)
+        if x == ord('1'):
+            x2 = 0
+            while x2 != ord('0'):
+                screen = curses.initscr()
+                screen.clear()
+                screen.border(0)
+
+                screen.addstr(2, 2, "Display...")
+                screen.addstr(4, 4, "1 - Show harmonic frequencies")
+                screen.addstr(5, 4, "2 - Show harmonic eigenvectors")
+                screen.addstr(6, 4, "3 - Plot phonon dispersion spectra")
+                screen.addstr(8, 4, "0 - Return")
+                screen.refresh()
+
+                x2 = screen.getch()
 
 
-print(structure_file_name)
-print(force_constants_file_name)
-print(primitive_matrix)
-print(super_cell_matrix)
+                if x2 == ord('1'):
+                    curses.endwin()
+                    freq = calculation.get_frequencies()
+                    screen = curses.initscr()
+                    screen.clear()
+                    screen.border()
+
+                    screen.addstr(2,4,"Frequencies")
+                    screen.addstr(3,4,"------------")
+
+                    list_on_screen(screen,freq,5,4)
+
+      #              for i,freq in enumerate(freq):
+      #                  screen.addstr(4+i,4,str(i)+": "+str(freq))
+                    screen.getch()
 
 
+                if x2 == ord('2'):
+                    curses.endwin()
+                    calculation.get_eigenvectors()
 
+                if x2 == ord('3'):
+                    curses.endwin()
+                    calculation.get_phonon_dispersion_spectra()
+
+        if x == ord('2'):
+            q_vector = np.array(get_param(screen,"Introduce wave vector (values separated by comma)").split(','),dtype=float)
+            calculation.set_reduced_q_vector(q_vector)
+            curses.endwin()
+            print(q_vector)
+
+        if x == ord('3'):
+            frequency_limits = np.array(get_param(screen,"Introduce frequency range (min, max, number of points)").split(','),dtype=float)
+            calculation.set_frequency_range(np.linspace(*frequency_limits))
+            curses.endwin()
+
+        if x == ord('4'):
+            curses.endwin()
+            calculation.show_boltzmann_distribution()
+            curses.endwin()
+
+
+        if x == ord('5'):
+
+            x2 = 0
+            while x2 != ord('0'):
+                screen = curses.initscr()
+                screen.clear()
+                screen.border(0)
+
+                screen.addstr(2, 2, "Plotting...")
+                screen.addstr(4, 4, "1 - Real space correlation")
+                screen.addstr(5, 4, "2 - Wave vector projection correlation")
+                screen.addstr(6, 4, "3 - Phonon mode projection correlation")
+                screen.addstr(8, 4, "0 - Return")
+                screen.refresh()
+
+                x2 = screen.getch()
+
+
+                if x2 == ord('1'):
+                    curses.endwin()
+                    calculation.plot_correlation_direct()
+
+                if x2 == ord('2'):
+                    curses.endwin()
+                    calculation.plot_correlation_wave_vector()
+
+                if x2 == ord('3'):
+                    curses.endwin()
+                    calculation.plot_correlation_phonon()
+
+        if x == ord('6'):
+
+            x2 = 0
+            while x2 != ord('0'):
+                screen = curses.initscr()
+                screen.clear()
+                screen.border(0)
+
+                screen.addstr(2, 2, "Saving...")
+                screen.addstr(4, 4, "1 - Real space correlation")
+                screen.addstr(5, 4, "2 - Wave vector projection correlation")
+                screen.addstr(6, 4, "3 - Phonon mode projection correlation")
+                screen.addstr(8, 4, "0 - Return")
+                screen.refresh()
+
+                x2 = screen.getch()
+
+                if x2 == ord('1'):
+                    save_file = get_param(screen,'Insert file name')
+                    curses.endwin()
+                    calculation.write_correlation_direct(save_file)
+
+                if x2 == ord('2'):
+                    save_file = get_param(screen,'Insert file name')
+                    curses.endwin()
+                    calculation.write_correlation_wave_vector(save_file)
+
+                if x2 == ord('3'):
+                    save_file = get_param(screen,'Insert file name')
+                    curses.endwin()
+                    calculation.write_correlation_phonon(save_file)
+
+    curses.endwin()
+
+#Just for testing
+if __name__ == 'test_gui.py':
+    #Get data from input file
+    input_parameters = reading.read_parameters_from_input_file(sys.argv[1])
+
+    structure = reading.read_from_file_structure(input_parameters['structure_file_name'])
+    structure.set_force_set( file_IO.parse_FORCE_SETS(filename=input_parameters['force_constants_file_name']))
+    structure.set_primitive_matrix(input_parameters['primitive_matrix'])
+    structure.set_super_cell_phonon(input_parameters['super_cell_matrix'])
+
+    trajectory_file_name = sys.argv[2]
+
+    trajectory = reading.read_from_file_trajectory(trajectory_file_name,structure,last_steps=5000)
+
+    calculation = controller.Calculation(trajectory)
+    calculation.set_band_ranges(input_parameters['bands'])
