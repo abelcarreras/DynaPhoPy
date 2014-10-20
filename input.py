@@ -15,8 +15,8 @@ import Functions.phonopy_interface as pho_interface
 #directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
 #directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
 directory = '/home/abel/VASP/GaN-phonon/2x2x2_GGA/'
-#structure = reading.read_from_file_structure(directory+'OUTCAR')
-structure = reading.read_from_file_structure2(directory+'POSCAR')
+#structure = reading.read_from_file_structure_outcar(directory+'OUTCAR')
+structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_scaled_positions())
 #print(structure.get_positions())
 #exit()
