@@ -126,13 +126,23 @@ def read_from_file_structure_poscar(file_name):
     poscar_file.close()
 
     direct_cell = np.array([data_lines[i].split() for i in range(2,5)],dtype=float).T
-    number_of_types = np.array(data_lines[6].split(),dtype=int)
-    scaled_positions = np.array([data_lines[8+k].split() for k in range(np.prod(number_of_types))],dtype=float)
+    try:
+        number_of_types = np.array(data_lines[6].split(),dtype=int)
+        scaled_positions = np.array([data_lines[8+k].split() for k in range(np.sum(number_of_types))],dtype=float)
+        atomic_types = []
 
-    atomic_types = []
-    for i,j in enumerate(data_lines[5].split()):
-        atomic_types.append([j]*number_of_types[i])
-    atomic_types = np.array(atomic_types).flatten().tolist()
+        for i,j in enumerate(data_lines[5].split()):
+            atomic_types.append([j]*number_of_types[i])
+        atomic_types = np.array(atomic_types).flatten().tolist()
+
+    except ValueError:
+        number_of_types = np.array(data_lines[5].split(),dtype=int)
+        scaled_positions = np.array([data_lines[7+k].split() for k in range(np.sum(number_of_types))],dtype=float)
+        atomic_types = []
+        for i,j in enumerate(data_lines[0].split()):
+            atomic_types.append([j]*number_of_types[i])
+        atomic_types = np.array(atomic_types).flatten().tolist()
+
 
     return atomtest.Structure(cell= direct_cell,
                               scaled_positions=scaled_positions,
