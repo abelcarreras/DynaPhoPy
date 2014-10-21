@@ -32,7 +32,7 @@ def get_correlation_spectra_par(vq,trajectory,test_frequencies_range):
 
     print ('found',multiprocessing.cpu_count(), 'CPU')
 
-    pool = multiprocessing.Pool(processes=3)
+    pool = multiprocessing.Pool(processes=max(multiprocessing.cpu_count()-1,1))
     print('using:', pool._processes)
     for i in range(vq.shape[1]):
         pool.apply_async(correlation_worker,
