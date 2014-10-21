@@ -11,10 +11,10 @@ import Functions.phonopy_interface as pho_interface
 # FORCE_SETS : force set file obtained from PHONOPY calculation
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
-directory ='/home/abel/VASP/Si-phonon/3x3x3/'
+#directory ='/home/abel/VASP/Si-phonon/3x3x3/'
 #directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
 #directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
-#directory = '/home/abel/VASP/GaN-phonon/2x2x2_GGA/'
+directory = '/home/abel/VASP/GaN-phonon/2x2x2_GGA/'
 #structure = reading.read_from_file_structure_outcar(directory+'OUTCAR')
 structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_scaled_positions())
