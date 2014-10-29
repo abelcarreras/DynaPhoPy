@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def project_onto_wave_vector(trajectory,q_vector):

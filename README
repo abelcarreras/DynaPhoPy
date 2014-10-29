@@ -7,15 +7,15 @@ dynamics calculation obtained from VASP code.
 ------------------------------------
 Installation instructions
 ------------------------------------
-1. Requisites
+1. Requirements
 Python 2.6 or higher
 Matplotlib
 Scipy
 Phonopy
 
-2. Download the source code a put it in the installation directory
+2. Download the source code and place it in the installation directory
 
-3. Run the setup.py script for install
+3. Run setup.py script to install
 python setup.py install --home=.
 
 ---------------------------------------
@@ -26,7 +26,7 @@ Create/edit script like input.py and execute it
 The comments in the script makes it (hopefully) self explained.
     Example: input.py
 
-2a) Line command method
+2a) Command line method
 ./dynaphopy.py input_file vasp_MD_OUTCAR [Options]
 execute ./dynaphopy.py -h for detailed description of available options
 

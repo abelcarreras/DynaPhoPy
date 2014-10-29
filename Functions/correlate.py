@@ -79,7 +79,6 @@ def get_correlation_spectrum_par2(vq,trajectory,test_frequencies_range):
     out_queue = Queue()
     correlation_full_dict = {}
 
-    phonon_numbers = range(vq.shape[1])
     chunk_size = int(math.ceil(vq.shape[1] / float(number_or_processes)))
 
     for i in range(number_or_processes):
@@ -107,7 +106,7 @@ def get_correlation_spectrum_par2(vq,trajectory,test_frequencies_range):
     return correlation_vector
 
 
-def get_correlation_spectrum(vq,trajectory,test_frequencies_range):
+def get_correlation_spectrum(vq,test_frequencies_range):
 
     correlation_vector = np.zeros((test_frequencies_range.shape[0],vq.shape[1]),dtype=complex)
 
