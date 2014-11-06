@@ -16,7 +16,7 @@ def progress_bar(progress):
         progress = float(progress)
     if not isinstance(progress, float):
         progress = 0
-        status = "Error: progress must be a float\r\n"
+        status = "Progress error\r\n"
     if progress < 0:
         progress = 0
         status = "Halt ...\r\n"
@@ -24,7 +24,7 @@ def progress_bar(progress):
         progress = 1
         status = "Done...\r\n"
     block = int(round(bar_length*progress))
-    text = "\rCorrelation: [{0}] {1}% {2}".format("#"*block + "-"*(bar_length-block),progress*100, status)
+    text = "\rCorrelation: [{0}] {1:.2f}% {2}".format("#"*block + "-"*(bar_length-block), progress*100, status)
     sys.stdout.write(text)
     sys.stdout.flush()
 
