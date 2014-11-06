@@ -1,58 +1,83 @@
 import numpy as np
 import correlation
 import math
+import time
+import sys
 import multiprocessing
 import matplotlib.pyplot as plt
 from multiprocessing import Process
 from multiprocessing import Queue
 
 
-def correlation_worker(n_pos,test_frequencies_range, vq, trajectory):
+def progress_bar(progress):
+    bar_length = 30
+    status = ""
+    if isinstance(progress, int):
+        progress = float(progress)
+    if not isinstance(progress, float):
+        progress = 0
+        status = "Error: progress must be a float\r\n"
+    if progress < 0:
+        progress = 0
+        status = "Halt ...\r\n"
+    if progress >= 1:
+        progress = 1
+        status = "Done...\r\n"
+    block = int(round(bar_length*progress))
+    text = "\rCorrelation: [{0}] {1}% {2}".format("#"*block + "-"*(bar_length-block),progress*100, status)
+    sys.stdout.write(text)
+    sys.stdout.flush()
 
+def correlation_worker(n_pos, test_frequencies_range, vq, trajectory):
     correlation_function_step = 5
 
-    print('starting:',n_pos,'Time step:',trajectory.get_time_step_average(),'Frame skip:',correlation_function_step)
+#    print('starting:',n_pos,'Time step:',trajectory.get_time_step_average(),'Frame skip:',correlation_function_step)
 
     correlation_range = []
     for k in range (test_frequencies_range.shape[0]):
         angular_frequency = test_frequencies_range[k] * 2 * np.pi # Frequency(THz) -> angular frequency (rad/ps)
         #correlation_range.append(correlation.correlation(angular_frequency,vq,trajectory.get_time(),correlation_function_step))
         correlation_range.append(correlation.correlation2(angular_frequency,vq,trajectory.get_time_step_average(),correlation_function_step))
-    print('finishing',n_pos)
-#    correlation_range = correlation_range/np.sum(correlation_range)
+#    print('finishing',n_pos)
+    correlation_range = correlation_range/np.sum(correlation_range)
     return {n_pos:correlation_range}
 
 
 def get_correlation_spectra_par(vq,trajectory,test_frequencies_range):
 
     correlation_full_dict = {}
-
+    progress_bar(0)
     def log_result(result):
         correlation_full_dict.update(result)
+        progress_bar(float(len(correlation_full_dict))/vq.shape[1])
 
-    print ('found',multiprocessing.cpu_count(), 'CPU')
-
+#    print ('found',multiprocessing.cpu_count(), 'CPU')
     pool = multiprocessing.Pool(processes=max(multiprocessing.cpu_count()-1,1))
-    print('using:', pool._processes)
+#    pool = multiprocessing.Pool(processes=1)
+
+#    print('using:', pool._processes)
     for i in range(vq.shape[1]):
         pool.apply_async(correlation_worker,
-                         args = (i,test_frequencies_range,
+                         args = (i, test_frequencies_range,
                             vq[:,i],
                             trajectory),
                          callback = log_result)
+
+
     pool.close()
     pool.join()
+
 
     correlation_vector = np.array([correlation_full_dict[i] for i in correlation_full_dict.keys()]).T
 
     return correlation_vector
 
 
-#Below Only testing (Not maintained)
+#################### Functions Below testing only (Not maintained)###############
 
 def correlation_worker2(n_pos,test_frequencies_range, vq, trajectory, correlation_function_step, out_queue):
 
-    print('startingr:',n_pos)
+    print('starting:',n_pos)
 
     correlation_dict = {}
     for i in range (vq.shape[1]):
