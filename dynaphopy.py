@@ -41,6 +41,10 @@ parser.add_argument('-sw', '--save_wave_vector', metavar='file', type=str, nargs
 parser.add_argument('-sp', '--save_phonon_mode', metavar='file', type=str, nargs=1,
                     help='save projection into phonon modes to file')
 
+parser.add_argument('-ds', '--display_spectrum', action='store_true',
+                    help='display phonon dispersion spectrum data in screen (just for test: not recommended)')
+
+
 args = parser.parse_args()
 
 
@@ -91,3 +95,7 @@ if args.save_phonon_mode:
 if args.interactive:
     interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
 
+
+#On development (not recommended)
+if args.display_spectrum:
+    calculation.print_phonon_dispersion_spectrum()

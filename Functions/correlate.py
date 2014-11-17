@@ -39,7 +39,6 @@ def correlation_worker(n_pos, test_frequencies_range, vq, trajectory):
         #correlation_range.append(correlation.correlation(angular_frequency,vq,trajectory.get_time(),correlation_function_step))
         correlation_range.append(correlation.correlation2(angular_frequency,vq,trajectory.get_time_step_average(),correlation_function_step))
 #    print('finishing',n_pos)
-    correlation_range = correlation_range/np.sum(correlation_range)
     return {n_pos:correlation_range}
 
 

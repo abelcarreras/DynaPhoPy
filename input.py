@@ -19,7 +19,6 @@ directory = '/home/abel/VASP/GaN-phonon/2x2x2_GGA/'
 structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_scaled_positions())
 #print(structure.get_positions())
-#exit()
 
 structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
 
@@ -76,8 +75,12 @@ calculation.set_reduced_q_vector([0.0, 0.0, 0.5])
 
 print(calculation.get_frequencies())
 
-
+calculation.print_phonon_dispersion_spectrum()
 calculation.get_phonon_dispersion_spectra()
+
+exit()
+
+
 #################################### GET PROPERTIES #########################################
 #calculation.plot_trajectory()
 calculation.plot_energy()

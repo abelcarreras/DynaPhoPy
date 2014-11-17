@@ -111,6 +111,13 @@ class Calculation:
         plt.suptitle('Phonon dispersion spectra')
         plt.show()
 
+    def print_phonon_dispersion_spectrum(self):
+        if self._bands is None:
+            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,self.get_band_ranges(),NAC=self._phonopy_NAC)
+        np.set_printoptions(linewidth=200)
+        for i,freq in enumerate(self._bands[1]):
+            print(str(np.hstack([self._bands[1][i][None].T,self._bands[2][i]])).replace('[','').replace(']',''))
+ #           np.savetxt('spectrum.out', np.hstack([self._bands[1][i][None].T,self._bands[2][i]]))
 
     #Projections related methods
     def get_vc(self):
