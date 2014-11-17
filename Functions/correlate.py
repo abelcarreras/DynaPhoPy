@@ -1,5 +1,5 @@
 import numpy as np
-import correlation
+import Extensions.correlation as correlation
 import math
 import time
 import sys
