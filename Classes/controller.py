@@ -157,7 +157,8 @@ class Calculation:
 
     #Frequency ranges related methods
     def set_frequency_range(self,frequency_range):
-        if frequency_range != self._frequency_range:
+        if np.array(frequency_range != self._frequency_range).all():
+
             print("Setting new frequency range")
             self.correlation_clear()
             self._frequency_range = frequency_range

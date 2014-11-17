@@ -122,6 +122,7 @@ def interactive_interface(calculation,trajectory, args, structure_file):
 
         if x == ord('3'):
             frequency_limits = np.array(get_param(screen,"Insert frequency range (min, max, number of points)").split(','),dtype=float)
+            print(frequency_limits)
             calculation.set_frequency_range(np.linspace(*frequency_limits))
             curses.endwin()
 

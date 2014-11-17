@@ -1,6 +1,6 @@
 import atoms
 import numpy as np
-import derivative
+import derivative as derivative
 #import correlation
 #import matplotlib.pyplot as plt
 
