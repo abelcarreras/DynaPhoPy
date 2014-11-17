@@ -3,12 +3,12 @@ import numpy
 
 include_dirs_numpy = [numpy.get_include()]
 
-correlation = Extension('DynaPhoPy._correlation',
+correlation = Extension('correlation',
                         extra_compile_args=['-std=c99'],
                         include_dirs = include_dirs_numpy,
                         sources=['Extensions/correlation.c'])
 
-derivative  = Extension('DynaPhoPy._derivative',
+derivative  = Extension('derivative',
                         extra_compile_args=['-std=c99'],
                         include_dirs = include_dirs_numpy,
                         sources=['Extensions/derivative.c'])
