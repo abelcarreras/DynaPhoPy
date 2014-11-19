@@ -75,10 +75,11 @@ calculation.set_reduced_q_vector([0.0, 0.0, 0.5])
 
 print(calculation.get_frequencies())
 
-calculation.print_phonon_dispersion_spectrum()
-calculation.get_phonon_dispersion_spectra()
+#Show phonon dispersion spectra
+#calculation.print_phonon_dispersion_spectrum()
+#calculation.get_phonon_dispersion_spectra()
 
-exit()
+#exit()
 
 
 #################################### GET PROPERTIES #########################################
