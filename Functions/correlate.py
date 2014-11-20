@@ -29,13 +29,14 @@ def progress_bar(progress):
     sys.stdout.flush()
 
 def correlation_worker(n_pos, test_frequencies_range, vq, trajectory):
-    correlation_function_step = 5
+    correlation_function_step = 10
 
 #    print('starting:',n_pos,'Time step:',trajectory.get_time_step_average(),'Frame skip:',correlation_function_step)
 
     correlation_range = []
     for k in range (test_frequencies_range.shape[0]):
         angular_frequency = test_frequencies_range[k] * 2 * np.pi # Frequency(THz) -> angular frequency (rad/ps)
+        # integration_method:        0 Trapezoid method (slow)     1 Rectangle method (fast)
         #correlation_range.append(correlation.correlation(angular_frequency,vq,trajectory.get_time(),step=correlation_function_step,integration_method=1))
         correlation_range.append(correlation.correlation2(angular_frequency,vq,trajectory.get_time_step_average(),step=correlation_function_step,integration_method=1))
 #    print('finishing',n_pos)

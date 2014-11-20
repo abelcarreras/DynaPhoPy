@@ -47,7 +47,6 @@ static PyObject* correlation1 (PyObject* self, PyObject *arg, PyObject *keywords
 				case 0: //	Trapezoid Integration
 					Correl += (conj(VQ[j]) * VQ[j+i+Increment] * cexp(_Complex_I*Frequency                            * (Time[i+Increment] - Time[0]))
 					       +   conj(VQ[j]) * VQ[j+i]           * cexp(_Complex_I*Frequency * (Time[i]-Time[0])) )/2.0 * (Time[i+Increment] - Time[i]);
-
 					break;
 				case 1: //	Rectangular Integration
 					Correl +=  conj(VQ[j]) * VQ[j+i]           * cexp(_Complex_I*Frequency * (Time[i]-Time[0]))       * (Time[i+Increment] - Time[i]);
@@ -101,7 +100,7 @@ static PyObject* correlation2 (PyObject* self, PyObject *arg, PyObject *keywords
                            +   conj(VQ[j]) * VQ[j+i]           * cexp(_Complex_I*Frequency * (i*DTime) ))/2.0 ;
                     break;
                 case 1: //	Rectangular Integration
-                     Correl +=  conj(VQ[j]) * VQ[j+i]            * cexp(_Complex_I*Frequency  *  (i*DTime));
+                     Correl +=  conj(VQ[j]) * VQ[j+i]          * cexp(_Complex_I*Frequency * (i*DTime));
                     break;
                 default:
                     puts ("\nIntegration method selected does not exist\n");
