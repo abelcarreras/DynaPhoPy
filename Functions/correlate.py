@@ -28,6 +28,7 @@ def progress_bar(progress):
     sys.stdout.write(text)
     sys.stdout.flush()
 
+
 def correlation_worker(n_pos, test_frequencies_range, vq, trajectory):
     correlation_function_step = 10
 
