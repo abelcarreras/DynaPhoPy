@@ -37,7 +37,7 @@ def correlation_worker(n_pos, test_frequencies_range, vq, trajectory):
     for k in range (test_frequencies_range.shape[0]):
         angular_frequency = test_frequencies_range[k] * 2 * np.pi # Frequency(THz) -> angular frequency (rad/ps)
         #correlation_range.append(correlation.correlation(angular_frequency,vq,trajectory.get_time(),step=correlation_function_step,integration_method=1))
-        correlation_range.append(correlation.correlation2(angular_frequency,vq,trajectory.get_time_step_average(),step=correlation_function_step))
+        correlation_range.append(correlation.correlation2(angular_frequency,vq,trajectory.get_time_step_average(),step=correlation_function_step,integration_method=1))
 #    print('finishing',n_pos)
     return {n_pos:correlation_range}
 

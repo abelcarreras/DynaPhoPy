@@ -14,7 +14,7 @@ static PyObject* correlation1 (PyObject* self, PyObject *arg, PyObject *keywords
 
 //  Declaring basic variables
     double  Frequency;
-	int     Increment = 1;   //Default value for Increment
+	int     Increment = 10;   //Default value for Increment
  	int     IntMethod = 1;    //Define integration method
 
 //  Interface with python
@@ -69,8 +69,8 @@ static PyObject* correlation2 (PyObject* self, PyObject *arg, PyObject *keywords
 //  Declaring basic variables
     double  Frequency;
     double  DTime;
- 	int     Increment = 13;   //Default value for Increment
- 	int     IntMethod = 0;    //Define integration method
+ 	int     Increment = 10;   //Default value for Increment
+ 	int     IntMethod = 1;    //Define integration method
 
 
 //  Interface with python
@@ -94,6 +94,20 @@ static PyObject* correlation2 (PyObject* self, PyObject *arg, PyObject *keywords
 	for (int i = 0; i < NumberOfData; i += Increment) {
 		for (int j = 0; j < (NumberOfData-i-Increment); j++) {
 			Correl += conj(VQ[j]) * VQ[j+i] * cexp(_Complex_I*Frequency*(i*DTime));
+
+            switch (IntMethod) {
+                case 0: //	Trapezoid Integration
+                    Correl += (conj(VQ[j]) * VQ[j+i+Increment] * cexp(_Complex_I*Frequency * ((i+Increment)*DTime))
+                           +   conj(VQ[j]) * VQ[j+i]           * cexp(_Complex_I*Frequency * (i*DTime) ))/2.0 ;
+                    break;
+                case 1: //	Rectangular Integration
+                     Correl +=  conj(VQ[j]) * VQ[j+i]            * cexp(_Complex_I*Frequency  *  (i*DTime));
+                    break;
+                default:
+                    puts ("\nIntegration method selected does not exist\n");
+                    return NULL;
+                    break;
+            }
 		}
 	}
 

@@ -14,7 +14,7 @@ import Functions.phonopy_interface as pho_interface
 #directory ='/home/abel/VASP/Si-phonon/3x3x3/'
 #directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
 #directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
-directory = '/home/abel/VASP/GaN-phonon/2x2x2_GGA/'
+directory = '/home/abel/VASP/GaN-phonon/4x4x2_GGA/'
 #structure = reading.read_from_file_structure_outcar(directory+'OUTCAR')
 structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_scaled_positions())
@@ -42,8 +42,8 @@ structure.set_primitive_matrix([[1.0, 0.0, 0.0],
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements
 
-structure.set_super_cell_phonon([[2, 0, 0],
-                                 [0, 2, 0],
+structure.set_super_cell_phonon([[4, 0, 0],
+                                 [0, 4, 0],
                                  [0, 0, 2]])
 
 
@@ -65,11 +65,11 @@ reading.write_xsf_file("test.xfs",structure)
 
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/RUN2/OUTCAR',structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_600/RUN2/OUTCAR',structure,last_steps=5000)
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_300/RUN2/OUTCAR',structure,last_steps=2000)
-#trajectory = reading.generate_test_trajectory(structure,[0.0, 0.0, 0.5],super_cell=[2,4,4])
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_300/RUN2/OUTCAR',structure,last_steps=2000)
+trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.0],super_cell=[2,4,4])
 
 calculation = controller.Calculation(trajectory)
-calculation.set_reduced_q_vector([0.0, 0.0, 0.5])
+calculation.set_reduced_q_vector([0.5, 0.0, 0.0])
 
 #calculation.set_NAC(True)
 
