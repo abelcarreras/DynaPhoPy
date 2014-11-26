@@ -1,8 +1,8 @@
 STRUCTURE FILE POSCAR
-/home/abel/VASP/MgO-phonon/4x4x4/POSCAR
+/home/abel/VASP/MgO-phonon/5x5x5/POSCAR
 
 FORCE CONSTANTS
-/home/abel/VASP/MgO-phonon/3x3x3/FORCE_SETS
+/home/abel/VASP/MgO-phonon/5x5x5/FORCE_SETS
 
 
 PRIMITIVE MATRIX

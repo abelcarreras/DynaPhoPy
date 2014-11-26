@@ -25,7 +25,6 @@ class Calculation:
         self._phonopy_NAC = False
 
 
-
     #Memory clear methods
     def full_clear(self):
         self._eigenvectors = None
@@ -57,7 +56,6 @@ class Calculation:
 
     #Wave vector related methods
     def set_reduced_q_vector(self,q_vector):
-      #  if not(np.allclose(np.array(q_vector), self._reduced_q_vector)):
         self.full_clear()
         self._reduced_q_vector = np.array(q_vector)
 
@@ -70,8 +68,7 @@ class Calculation:
 
 
     def get_q_vector(self):
-        return np.dot(self.get_reduced_q_vector(), 2.0*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell().T))
-
+        return np.dot(self.get_reduced_q_vector(), 2.0*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
 
     #Phonopy harmonic calculation related methods
     def get_eigenvectors(self):
@@ -111,6 +108,7 @@ class Calculation:
         plt.suptitle('Phonon dispersion spectra')
         plt.show()
 
+
     def print_phonon_dispersion_spectrum(self):
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,self.get_band_ranges(),NAC=self._phonopy_NAC)
@@ -118,6 +116,7 @@ class Calculation:
         for i,freq in enumerate(self._bands[1]):
             print(str(np.hstack([self._bands[1][i][None].T,self._bands[2][i]])).replace('[','').replace(']',''))
  #           np.savetxt('spectrum.out', np.hstack([self._bands[1][i][None].T,self._bands[2][i]]))
+
 
     #Projections related methods
     def get_vc(self):
@@ -136,12 +135,12 @@ class Calculation:
 
     def plot_vq(self,modes=None):
         if not modes: modes = [0]
-
         plt.suptitle('Phonon mode projection')
         for mode in modes:
             plt.plot(self.dynamic.get_time().real,self.get_vq()[:,mode].real,label='mode: '+str(mode))
         plt.legend()
         plt.show()
+
 
     def plot_vc(self,atoms=None,coordinates=None):
         if not atoms: atoms = [0]
@@ -157,11 +156,11 @@ class Calculation:
 
     #Frequency ranges related methods
     def set_frequency_range(self,frequency_range):
-        if np.array(frequency_range != self._frequency_range).all():
+#        if np.array(frequency_range != self._frequency_range).all():
 
-            print("Setting new frequency range")
-            self.correlation_clear()
-            self._frequency_range = frequency_range
+        print("Setting new frequency range")
+        self.correlation_clear()
+        self._frequency_range = frequency_range
 
 
     def get_frequency_range(self):
@@ -265,4 +264,3 @@ class Calculation:
     #Molecular dynamics analysis related methods
     def show_boltzmann_distribution(self):
         enerfunc.bolzmann_distribution(self.dynamic)
-

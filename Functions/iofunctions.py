@@ -249,17 +249,15 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
         trajectory = pickle.load(dump_file)
         return  trajectory
 
-#    print(q_vector_o)
-#    q_vector_o = np.array ([0.25,0.25,0.25])
-#    q_vector_o = np.prod([[0.25,0.25,0.25],2*np.pi/structure.get_primitive_cell().diagonal()],axis=0)
-
     number_of_atoms = structure.get_number_of_cell_atoms()
     positions = structure.get_positions(super_cell=super_cell)
     masses = structure.get_masses(super_cell=super_cell)
 
+
+    #Parameters used to generate harmonic trajectory
     total_time = 0.5
     time_step = 0.001
-    amplitude = 1.0
+    amplitude = 10.0
 #    print('Freq Num',number_of_frequencies)
 
     for i in range(structure.get_number_of_dimensions()):
@@ -292,6 +290,8 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
     print('obtained frequencies')
     print(frequencies_r)
 
+
+    print(np.pi*2.0*np.linalg.inv(structure.get_primitive_cell()).T)
     #Generating trajectory
     trajectory = []
     for time in np.arange(total_time,step=time_step):
@@ -303,13 +303,13 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
             coordinate = np.array(positions[i_atom,:],dtype=complex)
             for i_freq in range(number_of_frequencies):
                 for i_long in range(q_vector_r.shape[0]):
-                    q_vector = np.dot(q_vector_r[i_long,:], 2*np.pi*np.linalg.inv(structure.get_primitive_cell()).T)
+                    q_vector = np.dot(q_vector_r[i_long,:], 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
                     # Beware in the testing amplitude!! Made for all phonons have the same!!
                     if abs(frequencies_r[i_long][i_freq]) > 0.01: #Prevent dividing by 0
-                        coordinate += amplitude / (np.sqrt(masses[i_atom]) *frequencies_r[i_long][i_freq])*\
-                                      eigenvectors_r[i_long][i_freq,atom_type[i_atom]]*\
-                                      np.exp(np.complex(0,-1)*frequencies_r[i_long][i_freq]*2.*np.pi*time)*\
-                                      np.exp(np.complex(0,1)*np.dot(q_vector,positions[i_atom,:]))
+                        coordinate += amplitude / (np.sqrt(masses[i_atom]) *frequencies_r[i_long][i_freq])*(
+                                      eigenvectors_r[i_long][i_freq,atom_type[i_atom]]*
+                                      np.exp(np.complex(0,-1)*frequencies_r[i_long][i_freq]*2.*np.pi*time)*
+                                      np.exp(np.complex(0,1)*np.dot(q_vector,positions[i_atom,:])) )
 
             xyz_file.write(structure.get_atomic_types(super_cell=super_cell)[i_atom]+'\t'+
                            '\t'.join([str(item) for item in coordinate.real]) + '\n')
@@ -348,7 +348,7 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
                         super_cell=np.dot(np.diagflat(super_cell),structure.get_cell()))
 
 
-#Just for testing
+#Testing function
 def read_from_file_test():
 
     print('Reading structure from test file')
@@ -384,8 +384,6 @@ def read_from_file_test():
     print(structure.get_number_of_primitive_atoms())
     print('number of total atoms in structure (super cell)')
     print(number_of_atoms)
-#    structure.set_primitive_matrix([[1.0, 0.0],
-#                                    [0.0, 1.0]])
 
     #Velocity reading section
     velocity = []
@@ -417,6 +415,7 @@ def read_from_file_test():
         #                velocity=velocity,
                         time=time,
                         structure=structure)
+
 
 
 def write_correlation_to_file(frequency_range,correlation_vector,file_name):

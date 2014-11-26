@@ -20,6 +20,7 @@ def project_onto_wave_vector(trajectory,q_vector):
         print("Warning!! Q-vector and coordinates dimension do not match")
         exit()
 
+
     #Projection into wave vector
     for i in range(number_of_atoms):
         for k in range(number_of_dimensions):

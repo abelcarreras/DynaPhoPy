@@ -59,12 +59,11 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
     phonon.set_displacement_dataset(copy.deepcopy(structure.get_force_set()))
     phonon.produce_force_constants()
 
-
-########################################################################
+    ########################################################################
 
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
-#   Making sure for eigenvectors to be orthonormal (can be omitted)
+    #Making sure for eigenvectors to be orthonormal (can be omitted)
     if True:
         eigenvectors = eigenvectors_normalization(eigenvectors)
         print('Testing eigenvectors orthonormality')
