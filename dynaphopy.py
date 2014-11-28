@@ -89,7 +89,7 @@ if args.save_phonon_mode:
 if args.plot_wave_vector:
     calculation.plot_correlation_wave_vector()
 
-if args.save_phonon_mode:
+if args.plot_phonon_mode:
     calculation.plot_correlation_phonon()
 
 if args.interactive:
