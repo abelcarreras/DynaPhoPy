@@ -27,7 +27,7 @@ parser.add_argument('-r', '--frequency_range',metavar='N', type=float, nargs=3,
                    help='Frequency range for correlation function calculation (min, max, number of points)')
 
 parser.add_argument('-n', metavar='N', type=int, default=2000,
-                   help='number of MD steps to take (default: 2000)')
+                   help='number of MD last steps to take (default: 2000)')
 
 parser.add_argument('-pw', '--plot_wave_vector', action='store_true',
                     help='Plot projection into wave vector')
