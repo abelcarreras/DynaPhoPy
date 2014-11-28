@@ -78,7 +78,7 @@ if args.q:
     calculation.set_reduced_q_vector(np.array(args.q))
 
 if args.frequency_range:
-    calculation.set_reduced_q_vector(np.linspace(*args.frequency_range))
+    calculation.set_frequency_range(np.linspace(*args.frequency_range))
 
 if args.save_wave_vector:
     calculation.write_correlation_wave_vector(args.save_wave_vector[0])

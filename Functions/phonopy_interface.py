@@ -1,4 +1,3 @@
-# Lots of stuff I really don't need!!! (just here for testing)
 import numpy as np
 from phonopy import Phonopy
 from phonopy.structure.atoms import Atoms as PhonopyAtoms
