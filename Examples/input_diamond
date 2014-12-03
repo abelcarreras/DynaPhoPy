@@ -1,0 +1,23 @@
+STRUCTURE FILE POSCAR
+/home/abel/VASP/C-phonon/4x4x4/POSCAR
+
+FORCE CONSTANTS
+/home/abel/VASP/C-phonon/4x4x4/FORCE_SETS
+
+
+PRIMITIVE MATRIX
+0.0 0.5 0.5
+0.5 0.0 0.5
+0.5 0.5 0.0
+
+SUPERCELL MATRIX PHONOPY
+4 0 0
+0 4 0
+0 0 4
+
+
+BANDS
+0.0,   0.0,   0.0         0.5,   0.0,  0.5
+0.5,   0.0,   0.5         0.625  0.25  0.625
+0.375, 0.375, 0.75        0.0,   0.0,  0.0
+0.0,   0.0,   0.0         0.5,   0.5,  0.5

@@ -2,8 +2,11 @@
   <dictionary name="abel">
     <words>
       <w>arrayobject</w>
+      <w>carreras</w>
       <w>eigenvectors</w>
       <w>orthonormality</w>
+      <w>outcar</w>
+      <w>poscar</w>
     </words>
   </dictionary>
 </component>

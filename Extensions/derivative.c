@@ -57,11 +57,11 @@ static PyObject* method1 (PyObject* self, PyObject *arg) {
     int dims[2]={NumberOfData,NumberOfDimensions};
 
     Derivative_object=(PyArrayObject *) PyArray_FromDims(2,dims,NPY_CDOUBLE);
-    Derivative=pymatrix_to_c_array(Derivative_object);
+    Derivative=pymatrix_to_c_array( Derivative_object);
 
 
 //  Create a pointer array for cell matrix (to be improved)
-    double  **Cell_c = pymatrix_to_c_array_real(Cell_array);
+    double  **Cell_c = pymatrix_to_c_array_real((PyArrayObject *) Cell_array);
 
 /*
 	printf("\nCell Matrix");
@@ -191,7 +191,7 @@ static PyObject* method2 (PyObject* self, PyObject *arg) {
 
 
 //  Create a pointer array for cell matrix (to be improved)
-    double  **Cell_c = pymatrix_to_c_array_real(Cell_array);
+    double  **Cell_c = pymatrix_to_c_array_real((PyArrayObject *)Cell_array);
 
 /*
 	printf("\nCell Matrix");
@@ -483,10 +483,10 @@ static int TwotoOne(int Row, int Column, int NumColumns) {
 //  --------------- Interface functions ---------------- //
 
 static char extension_docs_method1[] =
-    "derivative1( ): Calculation of the derivative (centered differencing)\n";
+    "derivative1(cell, trajectory, time )\n\n Calculation of the derivative (centered differencing)\n";
 
 static char extension_docs_method2[] =
-    "derivative2( ): Calculation of the derivative (centered differencing) [real]\n";
+    "derivative2(cell, trajectory, time )\n\n Calculation of the derivative (centered differencing) [real]\n";
 
 
 static PyMethodDef extension_funcs[] = {

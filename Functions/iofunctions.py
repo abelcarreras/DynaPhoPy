@@ -2,30 +2,17 @@ import numpy as np
 import Classes.dynamics as dyn
 import Classes.atoms as atomtest
 import mmap
-import phonopy.file_IO as file_IO
 import pickle
 import Functions.phonopy_interface as pho_interface
+import os
 
+def read_from_file_structure_outcar(file_name):
 
-"""
-def read_from_file_structure2(file_name):
-    estructura = Atoms.Atoms(ase.io.vasp.read_vasp_out(filename=file_name, index=-1))
- #   print(estructura.get_cell())
- #   print(estructura.get_forces())
- #   print(estructura.get_masses())
- #   print(estructura.get_positions())
- #   print(estructura.get_scaled_positions())
- #   print(estructura.get_atomic_numbers())
- #   print(estructura.get_number_of_atoms())
-    return atomtest.Structure(cell= estructura.get_cell(),
-                                   positions=estructura.get_positions(),
-                                   masses=estructura.get_masses(),
-                                   forces=estructura.get_forces(),
-                                   atomic_numbers=estructura.get_atomic_numbers())
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print('Structure file does not exist!')
+        exit()
 
-"""
-
-def read_from_file_structure(file_name):
     #Read from VASP OUTCAR file
     print("Reading VASP structure")
 
@@ -37,28 +24,28 @@ def read_from_file_structure(file_name):
         #Setting number of dimensions
         number_of_dimensions = 3
 
+        #Test reading for guessing primitive cell (Not stable)
+        if False:
+           #Reading primitive cell (not sure about this, by default disabled)
+            position_number = file_map.find('PRICEL')
+            file_map.seek(position_number)
+            position_number = file_map.find('A1')
+            file_map.seek(position_number)
 
-       #Reading primitive cell
-        position_number = file_map.find('PRICEL')
-        file_map.seek(position_number)
-        position_number = file_map.find('A1')
-        file_map.seek(position_number)
-
-        primitive_cell = []    #Primitive Cell
-        for i in range (number_of_dimensions):
-            primitive_cell.append(file_map.readline()
-                                      .replace(",", "")
-                                      .replace(")", "")
-                                      .replace(")","")
-                                      .split()[3:number_of_dimensions+3])
-        primitive_cell = np.array(primitive_cell,dtype="double").T
+            primitive_cell = []    #Primitive Cell
+            for i in range (number_of_dimensions):
+                primitive_cell.append(file_map.readline()
+                                          .replace(",", "")
+                                          .replace(")", "")
+                                          .replace(")","")
+                                          .split()[3:number_of_dimensions+3])
+            primitive_cell = np.array(primitive_cell,dtype="double").T
 
 
         #Reading number of atoms
         position_number = file_map.find('NIONS =')
         file_map.seek(position_number+7)
         number_of_atoms = int(file_map.readline())
-#        print('Number of atoms:',number_of_atoms)
 
 
         #Reading atoms per type
@@ -126,34 +113,89 @@ def read_from_file_structure(file_name):
                               )
 
 
-def read_from_file_trajectory(file_name,structure):
+def read_from_file_structure_poscar(file_name):
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print('Structure file does not exist!')
+        exit()
 
+    #Read from VASP OUTCAR file
+    print("Reading VASP POSCAR structure")
+    poscar_file = open(file_name, 'r')
+    data_lines = poscar_file.read().split('\n')
+    poscar_file.close()
+
+    direct_cell = np.array([data_lines[i].split() for i in range(2,5)],dtype=float).T
+    try:
+        number_of_types = np.array(data_lines[6].split(),dtype=int)
+        scaled_positions = np.array([data_lines[8+k].split() for k in range(np.sum(number_of_types))],dtype=float)
+        atomic_types = []
+
+        for i,j in enumerate(data_lines[5].split()):
+            atomic_types.append([j]*number_of_types[i])
+        atomic_types = np.array(atomic_types).flatten().tolist()
+
+    except ValueError:
+        number_of_types = np.array(data_lines[5].split(),dtype=int)
+        scaled_positions = np.array([data_lines[7+k].split() for k in range(np.sum(number_of_types))],dtype=float)
+        atomic_types = []
+        for i,j in enumerate(data_lines[0].split()):
+            atomic_types.append([j]*number_of_types[i])
+        atomic_types = np.array(atomic_types).flatten().tolist()
+
+
+    return atomtest.Structure(cell= direct_cell,
+                              scaled_positions=scaled_positions,
+                              atomic_types=atomic_types,
+#                              primitive_cell=primitive_cell
+                              )
+
+
+def read_from_file_trajectory(file_name,structure=None,
+                              limit_number_steps=100000,  #Maximum number of steps read
+                              last_steps=1000):           #Total number of read steps
+
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print('Trajectory file does not exist!')
+        exit()
+
+    #Starting reading
     print("Reading VASP trajectory")
+    print("This could take long, please wait..")
 
-#   Maximum number of structures that's gonna be read
-    limit_number_structures = 50000
-    last_points_taken = 15000
+    #Dimensionality of VASP calculation
+    number_of_dimensions = 3
 
     with open(file_name, "r+") as f:
-    # memory-map the file
+        #Memory-map the file
         file_map = mmap.mmap(f.fileno(), 0)
         position_number=file_map.find('NIONS =')
         file_map.seek(position_number+7)
         number_of_atoms = int(file_map.readline())
-#        print('Number of atoms:',number_of_atoms)
-#       check number of atoms
 
-#       Read time step
+        #Read time step
         position_number=file_map.find('POTIM  =')
         file_map.seek(position_number+8)
         time_step = float(file_map.readline().split()[0])* 1E-3 # in picoseconds
 
+        #Reading super cell
+        position_number = file_map.find('direct lattice vectors')
+        file_map.seek(position_number)
+        file_map.readline()
+        super_cell = []
+        for i in range (number_of_dimensions):
+            super_cell.append(file_map.readline().split()[0:number_of_dimensions])
+        super_cell = np.array(super_cell,dtype='double').T
+
+        file_map.seek(position_number)
+        file_map.readline()
 
     # Check if number of atoms is multiple of cell atoms
-        if number_of_atoms % structure.get_number_of_cell_atoms() != 0:
-            print('Warning: Number of atoms not matching, check VASP output files')
-        structure.set_number_of_atoms(number_of_atoms)
-
+        if structure:
+            if number_of_atoms % structure.get_number_of_cell_atoms() != 0:
+                print('Warning: Number of atoms not matching, check VASP output files')
+            structure.set_number_of_atoms(number_of_atoms)
 
 #       Read coordinates and energy
         trajectory = []
@@ -161,71 +203,61 @@ def read_from_file_trajectory(file_name,structure):
         while True :
             position_number=file_map.find('POSITION')
             if position_number < 0 : break
+
             file_map.seek(position_number)
             file_map.readline()
             file_map.readline()
+
             read_coordinates = []
             for i in range (number_of_atoms):
-#                print np.array(( file_map.readline().split()[0:3] ),dtype='double')
-                read_coordinates.append(file_map.readline().split()[0:structure.get_number_of_dimensions()])
+                read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
             position_number=file_map.find('energy(')
             file_map.seek(position_number)
             read_energy = file_map.readline().split()[2]
             trajectory.append(np.array(read_coordinates,dtype=float).flatten()) #in angstrom
             energy.append(np.array(read_energy,dtype=float))
-#            print(np.array(supercell,dtype=float).flatten())
-            limit_number_structures -= 1
+            limit_number_steps -= 1
 
-            if limit_number_structures < 0:
+            if limit_number_steps < 0:
                 break
 
         file_map.close()
 
-#        print('fi')
- #       print(number_of_atoms)
-#        trajectory = np.array(trajectory)
-        number_of_dimensions = structure.get_number_of_dimensions()
- #       print(trajectory[0])
-
         trajectory = np.array([[[trajectory[i][j*number_of_dimensions+k] for k in range(number_of_dimensions) ] for j in range(number_of_atoms)] for i in range (len(trajectory))])
-#        print (trajectory[0,1,:])
+        trajectory = trajectory[-last_steps:,:,:]
+        energy = energy[-last_steps:]
 
-        trajectory = trajectory[-last_points_taken:,:,:]
-        energy = energy[-last_points_taken:]
-
-        print('No Points:',trajectory.shape[0])
+        print('Number of total steps read:',trajectory.shape[0])
         time = np.array([ i*time_step for i in range(trajectory.shape[0])],dtype=float)
-
 
         print('Trajectory file read')
         return dyn.Dynamics(structure = structure,
                             trajectory = np.array(trajectory,dtype=complex),
                             energy = np.array(energy),
-                            time=time)
+                            time=time,
+                            super_cell=super_cell)
 
 
+#Just for testing
+def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
 
-def generate_test_trajectory(structure,q_vector_o):
+    print('Generating ideal harmonic data for testing')
 
-    print('Making fake ideal data for testing')
+    #Getting data from file instead of calculating (has to be the same object type generated by this function)
     if False:
         dump_file = open( "trajectory.save", "r" )
         trajectory = pickle.load(dump_file)
         return  trajectory
 
-
-    super_cell= structure.get_super_cell_matrix()
-    print(q_vector_o)
-#    q_vector_o = np.array ([0.25,0.25,0.25])
-#    q_vector_o = np.prod([[0.25,0.25,0.25],2*np.pi/structure.get_primitive_cell().diagonal()],axis=0)
-
     number_of_atoms = structure.get_number_of_cell_atoms()
     positions = structure.get_positions(super_cell=super_cell)
     masses = structure.get_masses(super_cell=super_cell)
 
-    total_time = 2.0
+
+    #Parameters used to generate harmonic trajectory
+    total_time = 0.5
     time_step = 0.001
-    amplitude = 1.0
+    amplitude = 50.0
 #    print('Freq Num',number_of_frequencies)
 
     for i in range(structure.get_number_of_dimensions()):
@@ -238,7 +270,7 @@ def generate_test_trajectory(structure,q_vector_o):
 
     print(structure.get_atomic_types(super_cell=super_cell))
     #Generate an xyz file for checking
-    xyz_file = open('Data Files/test.xyz','w')
+    xyz_file = open('test.xyz','w')
 
     #Generate random wave vector sample
     q_vector_r=np.random.rand(0,3)
@@ -250,6 +282,7 @@ def generate_test_trajectory(structure,q_vector_o):
     eigenvectors_r = []
     frequencies_r = []
     for i in range(len(q_vector_r)):
+        print(q_vector_r[i])
         eigenvectors, frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure,q_vector_r[i])
         eigenvectors_r.append(eigenvectors)
         frequencies_r.append(frequencies)
@@ -257,6 +290,8 @@ def generate_test_trajectory(structure,q_vector_o):
     print('obtained frequencies')
     print(frequencies_r)
 
+
+    print(np.pi*2.0*np.linalg.inv(structure.get_primitive_cell()).T)
     #Generating trajectory
     trajectory = []
     for time in np.arange(total_time,step=time_step):
@@ -264,15 +299,17 @@ def generate_test_trajectory(structure,q_vector_o):
         xyz_file.write(str(number_of_atoms) + '\n\n')
         coordinates = []
         for i_atom in range(number_of_atoms):
-            coordinate = map(complex,positions[i_atom,:])
+       #     coordinate = map(complex,positions[i_atom])
+            coordinate = np.array(positions[i_atom,:],dtype=complex)
             for i_freq in range(number_of_frequencies):
                 for i_long in range(q_vector_r.shape[0]):
-                    q_vector = np.prod([q_vector_r[i_long,:],2*np.pi/structure.get_primitive_cell().diagonal()],axis=0)
+                    q_vector = np.dot(q_vector_r[i_long,:], 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
                     # Beware in the testing amplitude!! Made for all phonons have the same!!
-                    coordinate += amplitude / (np.sqrt(masses[i_atom]) *frequencies_r[i_long][i_freq])*\
-                                  eigenvectors_r[i_long][i_freq,atom_type[i_atom]]*\
-                                  np.exp(np.complex(0,-1)*frequencies_r[i_long][i_freq]*2.*np.pi*time)*\
-                                  np.exp(np.complex(0,1)*np.dot(q_vector,positions[i_atom,:]))
+                    if abs(frequencies_r[i_long][i_freq]) > 0.01: #Prevent dividing by 0
+                        coordinate += amplitude / (np.sqrt(masses[i_atom]) *frequencies_r[i_long][i_freq])*(
+                                      eigenvectors_r[i_long][i_freq,atom_type[i_atom]]*
+                                      np.exp(np.complex(0,-1)*frequencies_r[i_long][i_freq]*2.*np.pi*time)*
+                                      np.exp(np.complex(0,1)*np.dot(q_vector,positions[i_atom,:])) )
 
             xyz_file.write(structure.get_atomic_types(super_cell=super_cell)[i_atom]+'\t'+
                            '\t'.join([str(item) for item in coordinate.real]) + '\n')
@@ -291,23 +328,27 @@ def generate_test_trajectory(structure,q_vector_o):
     structure.set_number_of_atoms(number_of_atoms)
 ##########################################################################
 
+    #Save a trajectory object to file for later recovery
     dump_file = open( "trajectory.save", "w" )
     pickle.dump( dyn.Dynamics(structure = structure,
                         trajectory = np.array(trajectory,dtype=complex),
                         energy = np.array(energy),
-                        time=time),
+                        time=time,
+                        super_cell=np.dot(np.diagflat(super_cell),structure.get_cell())),
                  dump_file)
 
     dump_file.close()
 
+    print(np.dot(np.diagflat(super_cell),structure.get_cell()))
+
     return dyn.Dynamics(structure = structure,
                         trajectory = np.array(trajectory,dtype=complex),
                         energy = np.array(energy),
-                        time=time)
+                        time=time,
+                        super_cell=np.dot(np.diagflat(super_cell),structure.get_cell()))
 
 
-
-
+#Testing function
 def read_from_file_test():
 
     print('Reading structure from test file')
@@ -343,8 +384,6 @@ def read_from_file_test():
     print(structure.get_number_of_primitive_atoms())
     print('number of total atoms in structure (super cell)')
     print(number_of_atoms)
-#    structure.set_primitive_matrix([[1.0, 0.0],
-#                                    [0.0, 1.0]])
 
     #Velocity reading section
     velocity = []
@@ -391,7 +430,86 @@ def write_correlation_to_file(frequency_range,correlation_vector,file_name):
     output_file.close()
     return 0
 
-#print (read_from_file_structure('../Data Files/NaCl/OUTCAR').get_number_of_dimensions())
-#print (read_from_file_structure2('../Data Files/NaCl/OUTCAR'))
-#print (read_from_file_trajectory('/home/abel/Desktop/Bi2O3_md/OUTCAR')[1,79,:])
+
+def read_parameters_from_input_file(file_name):
+
+    primitive_matrix = None
+    super_cell_matrix = None
+    structure_file_name_outcar = None
+    structure_file_name_poscar = 'POSCAR'
+    force_constants_file_name = None
+    bands = None
+
+    input_parameters = {'structure_file_name_poscar':'POSCAR'}
+
+    input_file = open(file_name , "r").readlines()
+    for i,line in enumerate(input_file):
+
+        if "STRUCTURE FILE OUTCAR" in line:
+            input_parameters.update ({'structure_file_name_outcar':input_file[i+1].replace('\n','')})
+
+        if "STRUCTURE FILE POSCAR" in line:
+            input_parameters.update ({'structure_file_name_poscar':input_file[i+1].replace('\n','')})
+
+        if "FORCE CONSTANTS" in line:
+            input_parameters.update ({'force_constants_file_name':input_file[i+1].replace('\n','')})
+
+        if "PRIMITIVE MATRIX" in line:
+            primitive_matrix = [input_file[i+1].replace('\n','').split(),
+                                input_file[i+2].replace('\n','').split(),
+                                input_file[i+3].replace('\n','').split()]
+            input_parameters.update ({'primitive_matrix':np.array(primitive_matrix,dtype=float)})
+
+
+        if "SUPERCELL MATRIX PHONOPY" in line:
+            super_cell_matrix = [input_file[i+1].replace('\n','').split(),
+                                 input_file[i+2].replace('\n','').split(),
+                                 input_file[i+3].replace('\n','').split()]
+
+            super_cell_matrix = np.array(super_cell_matrix,dtype=int)
+            input_parameters.update ({'super_cell_matrix':np.array(super_cell_matrix,dtype=int)})
+
+
+        if "BANDS" in line:
+            bands = []
+            while i < len(input_file)-1:
+                try:
+                    band =  np.array(input_file[i+1].replace(',',' ').split(),dtype=float).reshape((2,3))
+                except IOError:
+                    break
+                except ValueError:
+                    break
+                i += 1
+                bands.append(band)
+            input_parameters.update ({'bands':bands})
+
+
+    return  input_parameters
+
+def write_xsf_file(file_name,structure):
+
+    xsf_file = open(file_name,"w")
+
+    xsf_file.write("CRYSTAL\n")
+    xsf_file.write("PRIMVEC\n")
+
+    for row in structure.get_primitive_cell().T:
+        xsf_file.write("{0:10.4f}\t{1:10.4f}\t{2:10.4f}\n".format(*row))
+    xsf_file.write("CONVVEC\n")
+
+    for row in structure.get_cell().T:
+        xsf_file.write("{0:10.4f}\t{1:10.4f}\t{2:10.4f}\n".format(*row))
+    xsf_file.write("PRIMCOORD\n")
+
+    xsf_file.write("{0:10d} {1:10d}\n".format(structure.get_number_of_primitive_atoms(),1))
+
+    counter = 0
+    while counter < structure.get_number_of_atom_types():
+        for i,value_type in enumerate(structure.get_atom_type_index()):
+            if value_type == counter:
+                xsf_file.write("{0:4d}\t{1:10.4f}\t{2:10.4f}\t{3:10.4f}\n".format(structure.get_atomic_numbers()[i],*structure.get_positions()[i]))
+                counter += 1
+                break
+    xsf_file.close()
+
 

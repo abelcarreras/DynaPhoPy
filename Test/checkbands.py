@@ -4,7 +4,7 @@ from phonopy.file_IO import parse_FORCE_SETS, parse_BORN
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
-import Functions.reading as reading
+import Functions.iofunctions as reading
 from phonopy.structure.atoms import Atoms as PhonopyAtoms
 from phonopy.structure.cells import Primitive
 
@@ -27,12 +27,6 @@ def append_band(bands, q_start, q_end):
 
 #directory = '/home/abel/VASP/MgO-phonon/2x2x2/'
 directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
-
-
-
-
-
-
 
 
 
@@ -271,6 +265,7 @@ q_points, distances, frequencies, eigvecs = phonon.get_band_structure()
 for q, d, freq in zip(q_points, distances, frequencies):
     print q.real, d.real, freq.real
 phonon.plot_band_structure().show()
+phonon.set
 
 exit()
 

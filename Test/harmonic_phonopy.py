@@ -3,7 +3,7 @@ from phonopy import Phonopy
 from phonopy.structure.atoms import Atoms as PhonopyAtoms
 import phonopy.file_IO as file_IO
 import numpy as np
-import Functions.reading as reading
+import Functions.iofunctions as reading
 import Functions.phonopy_interface as phoin
 import matplotlib.pyplot as plt
 from phonopy.interface.vasp import read_vasp
