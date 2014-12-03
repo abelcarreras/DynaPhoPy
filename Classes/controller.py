@@ -54,6 +54,15 @@ class Calculation:
     def write_to_xfs_file(self,file_name):
         reading.write_xsf_file(file_name,self.dynamic.structure)
 
+    def save_velocity(self, file_name):
+        reading.save_data_hdf5(file_name, self.dynamic.velocity, self.dynamic.get_time(), self.dynamic.get_super_cell_matrix())
+        print("Velocity saved in file", file_name)
+
+    def read_velocity(self, file_name):
+        print("Loading velocity from file", file_name)
+        self.dynamic.velocity = reading.read_data_hdf5(file_name)
+
+
     #Wave vector related methods
     def set_reduced_q_vector(self,q_vector):
         self.full_clear()

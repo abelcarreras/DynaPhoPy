@@ -15,16 +15,6 @@ def obtain_velocity_from_positions(cell,trajectory,time):
     return velocity
 
 
-def obtain_velocity_from_positions2(trajectory):  #Using python (Very slow)
-    print("Using pure python function for obtaining velocity (slow)")
-    velocity = trajectory.copy()
-    for i in range(trajectory.shape[1]):
-        for j in range(trajectory.shape[2]):
-            velocity [:,i,j] =  np.resize( np.diff(trajectory[:,i,j],n=4), velocity.shape[0])
-    print('Velocity obtained from trajectory derivative')
-    return velocity
-
-
 class Dynamics:
 
     def __init__(self,
@@ -97,8 +87,7 @@ class Dynamics:
         if self._velocity_mass_average is None:
             self._velocity_mass_average = np.empty_like(self.velocity)
             super_cell= self.get_super_cell_matrix()
-
-            for i in range(self._structure.get_number_of_atoms()):
+            for i in range(self.structure.get_number_of_atoms()):
                 self._velocity_mass_average[:,i,:] = self.velocity[:,i,:] * np.sqrt(self.structure.get_masses(super_cell=super_cell)[i])
 
         return np.array(self._velocity_mass_average)
