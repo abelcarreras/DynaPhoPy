@@ -5,6 +5,7 @@ import mmap
 import pickle
 import Functions.phonopy_interface as pho_interface
 import os
+import h5py
 
 def read_from_file_structure_outcar(file_name):
 
@@ -255,7 +256,7 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
 
 
     #Parameters used to generate harmonic trajectory
-    total_time = 0.5
+    total_time = 0.005
     time_step = 0.001
     amplitude = 50.0
 #    print('Freq Num',number_of_frequencies)
@@ -417,7 +418,6 @@ def read_from_file_test():
                         structure=structure)
 
 
-
 def write_correlation_to_file(frequency_range,correlation_vector,file_name):
     output_file = open(file_name, 'w')
 
@@ -513,3 +513,39 @@ def write_xsf_file(file_name,structure):
     xsf_file.close()
 
 
+def save_data_hdf5(file_name, velocity, time, super_cell):
+    hdf5_file = h5py.File(file_name, "w")
+
+    hdf5_file.create_dataset('velocity', data=velocity)
+    hdf5_file.create_dataset('time', data=time)
+    hdf5_file.create_dataset('super_cell', data=super_cell)
+
+    hdf5_file.close()
+
+
+
+def read_data_hdf5(file_name):
+
+    hdf5_file = h5py.File(file_name, "r")
+    velocity = hdf5_file['velocity'][:]
+    hdf5_file.close()
+
+    print(velocity)
+    return  velocity
+
+
+def initialize_from_file(file_name,structure):
+    hdf5_file = h5py.File(file_name, "r")
+    velocity = hdf5_file['velocity'][:]
+    time = hdf5_file['time'][:]
+    super_cell = hdf5_file['super_cell'][:]
+
+
+#################!!!!!!!!!!!! Cal arreglar aixo!!!!!!!!!!!!!!!###########
+    structure.set_number_of_atoms(structure.get_number_of_atoms()*np.product(super_cell))
+#########################################################################
+
+    return dyn.Dynamics(structure = structure,
+                        velocity = velocity,
+                        time=time,
+                        super_cell=np.dot(np.diagflat(super_cell),structure.get_cell()))

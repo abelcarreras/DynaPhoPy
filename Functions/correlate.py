@@ -31,7 +31,6 @@ def progress_bar(progress):
 
 def correlation_worker(n_pos, test_frequencies_range, vq, trajectory):
     correlation_function_step = 10
-
 #    print('starting:',n_pos,'Time step:',trajectory.get_time_step_average(),'Frame skip:',correlation_function_step)
 
     correlation_range = []
@@ -98,7 +97,7 @@ def get_correlation_spectrum_par2(vq,trajectory,test_frequencies_range):
 
     #def worker(test_frequencies_range, vq, trajectory, correlation_function_step, out_queue):
 
-    correlation_function_step = 1
+    correlation_function_step = 10
 
     number_or_processes = 3
     processes = []

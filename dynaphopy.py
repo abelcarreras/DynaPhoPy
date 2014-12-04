@@ -41,9 +41,15 @@ parser.add_argument('-sw', '--save_wave_vector', metavar='file', type=str, nargs
 parser.add_argument('-sp', '--save_phonon_mode', metavar='file', type=str, nargs=1,
                     help='save projection into phonon modes to file')
 
+#Under development
+parser.add_argument('-sv', '--save_velocity', metavar='file', type=str, nargs=1,
+                    help='save velocity into hdf5 file')
+
+parser.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
+                    help='load velocity from hdf5 file')
+
 parser.add_argument('-ds', '--display_spectrum', action='store_true',
                     help='display phonon dispersion spectrum data in screen (just for test: not recommended)')
-
 
 args = parser.parse_args()
 
@@ -67,13 +73,26 @@ if 'primitive_matrix' in input_parameters:
 if 'super_cell_matrix' in input_parameters:
     structure.set_super_cell_phonon(input_parameters['super_cell_matrix'])
 
-trajectory = reading.read_from_file_trajectory(args.md_file[0],structure,last_steps=args.n)
+#trajectory = reading.read_from_file_trajectory(args.md_file[0],structure,last_steps=args.n)
+
+if args.load_velocity:
+    trajectory = reading.initialize_from_file(args.load_velocity[0],structure)
+    #calculation.read_velocity(args.load_velocity[0])
+else:
+    trajectory = reading.read_from_file_trajectory(args.md_file[0],structure,last_steps=args.n)
+
 calculation = controller.Calculation(trajectory)
+
+#print(calculation.get_vc())
 
 if 'bands' in input_parameters:
     calculation.set_band_ranges(input_parameters['bands'])
 
 #Process arguments
+if args.save_velocity:
+    calculation.save_velocity(args.save_velocity[0])
+
+
 if args.q:
     calculation.set_reduced_q_vector(np.array(args.q))
 
