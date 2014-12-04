@@ -83,9 +83,8 @@ print(structure.get_primitive_cell())
 
 #exit()
 
-
-#calculation.save_velocity('test.h5')
-calculation.dynamic.velocity = 0
+calculation.save_velocity('test.h5')
+calculation.dynamic.velocity = None
 calculation.read_velocity('test.h5')
 
 #################################### GET PROPERTIES #########################################
@@ -96,6 +95,8 @@ calculation.plot_trajectory(atoms=[0,1,2,3])
 
 #calculation.plot_vc(atoms=[0,1])
 #calculation.plot_vq(modes=[0,1,2,3,4])
+
+print(structure.get_number_of_atoms())
 
 ############################## DEFINE CALCULATION REQUESTS #####################################
 # All this options are totally optional and independent, just comment or uncomment the desired ones

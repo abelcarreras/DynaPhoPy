@@ -54,8 +54,9 @@ def interactive_interface(calculation,trajectory, args, structure_file):
         screen.addstr(7,45,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '
                                               +str(calculation.get_frequency_range()[-1])+' THz')
         screen.addstr(8,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
-        screen.addstr(9,45,"MD cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
-        screen.addstr(10,45,"Number of MD steps: "+str(len(trajectory.get_time())))
+        screen.addstr(9,45,"Unit cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
+        screen.addstr(10,45,"MD  cell atoms: "+str(trajectory.get_number_of_atoms()))
+        screen.addstr(11,45,"Number of MD steps: "+str(len(trajectory.get_time())))
 
 
         #Option values left screen

@@ -92,7 +92,6 @@ if 'bands' in input_parameters:
 if args.save_velocity:
     calculation.save_velocity(args.save_velocity[0])
 
-
 if args.q:
     calculation.set_reduced_q_vector(np.array(args.q))
 
@@ -113,7 +112,6 @@ if args.plot_phonon_mode:
 
 if args.interactive:
     interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
-
 
 #On development (not recommended)
 if args.display_spectrum:

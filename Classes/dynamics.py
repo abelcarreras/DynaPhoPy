@@ -34,6 +34,7 @@ class Dynamics:
         self._time_step_average = None
         self._velocity_mass_average = None
         self._super_cell_matrix = None
+        self._number_of_atoms = None
 
         if structure:
             self._structure = structure
@@ -41,6 +42,11 @@ class Dynamics:
             print('Warning: Initialization without structure (not recommended)')
             self._structure = None
 
+
+    def get_number_of_atoms(self):
+        if self._number_of_atoms is None:
+            self._number_of_atoms = self.structure.get_number_of_atoms()*np.product(self.get_super_cell_matrix())
+        return self._number_of_atoms
 
     def set_trajectory(self,trajectory):
         self._trajectory = trajectory
@@ -87,7 +93,7 @@ class Dynamics:
         if self._velocity_mass_average is None:
             self._velocity_mass_average = np.empty_like(self.velocity)
             super_cell= self.get_super_cell_matrix()
-            for i in range(self.structure.get_number_of_atoms()):
+            for i in range(self.get_number_of_atoms()):
                 self._velocity_mass_average[:,i,:] = self.velocity[:,i,:] * np.sqrt(self.structure.get_masses(super_cell=super_cell)[i])
 
         return np.array(self._velocity_mass_average)

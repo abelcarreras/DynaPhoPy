@@ -196,7 +196,7 @@ def read_from_file_trajectory(file_name,structure=None,
         if structure:
             if number_of_atoms % structure.get_number_of_cell_atoms() != 0:
                 print('Warning: Number of atoms not matching, check VASP output files')
-            structure.set_number_of_atoms(number_of_atoms)
+    #        structure.set_number_of_atoms(number_of_atoms)
 
 #       Read coordinates and energy
         trajectory = []
@@ -256,7 +256,7 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
 
 
     #Parameters used to generate harmonic trajectory
-    total_time = 0.005
+    total_time = 0.5
     time_step = 0.001
     amplitude = 50.0
 #    print('Freq Num',number_of_frequencies)
@@ -273,8 +273,9 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
     #Generate an xyz file for checking
     xyz_file = open('test.xyz','w')
 
-    #Generate random wave vector sample
-    q_vector_r=np.random.rand(0,3)
+    #Generate additional random wave vectors sample for further testing
+    number_of_wave_vectors = 0
+    q_vector_r=np.random.rand(number_of_wave_vectors,3)
     q_vector_r=np.concatenate((q_vector_r,[q_vector_o]),axis=0)
     print('test wave vectors')
     print(q_vector_r)
@@ -305,7 +306,7 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
             for i_freq in range(number_of_frequencies):
                 for i_long in range(q_vector_r.shape[0]):
                     q_vector = np.dot(q_vector_r[i_long,:], 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
-                    # Beware in the testing amplitude!! Made for all phonons have the same!!
+                    # Beware in the testing amplitude!! Normalized for all phonons to have the same height!!
                     if abs(frequencies_r[i_long][i_freq]) > 0.01: #Prevent dividing by 0
                         coordinate += amplitude / (np.sqrt(masses[i_atom]) *frequencies_r[i_long][i_freq])*(
                                       eigenvectors_r[i_long][i_freq,atom_type[i_atom]]*
@@ -324,10 +325,6 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
 
     time = np.array([ i*time_step for i in range(trajectory.shape[0])],dtype=float)
     energy = np.array([ 0*i for i in range(trajectory.shape[0])],dtype=float)
-
-###########################CAL CANVIAR EN ALGUN MOMENT#################
-    structure.set_number_of_atoms(number_of_atoms)
-##########################################################################
 
     #Save a trajectory object to file for later recovery
     dump_file = open( "trajectory.save", "w" )
@@ -523,14 +520,12 @@ def save_data_hdf5(file_name, velocity, time, super_cell):
     hdf5_file.close()
 
 
-
 def read_data_hdf5(file_name):
 
     hdf5_file = h5py.File(file_name, "r")
     velocity = hdf5_file['velocity'][:]
     hdf5_file.close()
 
-    print(velocity)
     return  velocity
 
 
@@ -539,11 +534,6 @@ def initialize_from_file(file_name,structure):
     velocity = hdf5_file['velocity'][:]
     time = hdf5_file['time'][:]
     super_cell = hdf5_file['super_cell'][:]
-
-
-#################!!!!!!!!!!!! Cal arreglar aixo!!!!!!!!!!!!!!!###########
-    structure.set_number_of_atoms(structure.get_number_of_atoms()*np.product(super_cell))
-#########################################################################
 
     return dyn.Dynamics(structure = structure,
                         velocity = velocity,
