@@ -166,13 +166,6 @@ def phonon_width_analysis(vq,trajectory,test_frequencies_range):
         plt.show()
 
 
-
-#    plt.plot(frequency,result)
-#    plt.plot(frequency,lorentzian(frequency,*all_params[i_max])-all_params[i_max][3])
-#    plt.show()
-
-
-
   #  correlation_vector = np.array([mem_full_dict[i] for i in mem_full_dict.keys()]).T
 
 

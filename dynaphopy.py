@@ -41,12 +41,15 @@ parser.add_argument('-sw', '--save_wave_vector', metavar='file', type=str, nargs
 parser.add_argument('-sp', '--save_phonon_mode', metavar='file', type=str, nargs=1,
                     help='save projection into phonon modes to file')
 
-#Under development
 parser.add_argument('-sv', '--save_velocity', metavar='file', type=str, nargs=1,
                     help='save velocity into hdf5 file')
 
 parser.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
                     help='load velocity from hdf5 file')
+
+#Under development
+parser.add_argument('-pa', '--peak_analysis', action='store_true',
+                    help='Request peak analysis (MEM only)')
 
 parser.add_argument('-ds', '--display_spectrum', action='store_true',
                     help='display phonon dispersion spectrum data in screen (just for test: not recommended)')
@@ -116,3 +119,6 @@ if args.interactive:
 #On development (not recommended)
 if args.display_spectrum:
     calculation.print_phonon_dispersion_spectrum()
+
+if args.peak_analysis:
+    calculation.phonon_width_analysis()
