@@ -1,15 +1,18 @@
 import numpy as np
 import Functions.projection as projection
 import Functions.correlate as correlate
+import Functions.mem as mem
 import matplotlib.pyplot as plt
 import Functions.phonopy_interface as pho_interface
 import Functions.iofunctions as reading
 import Functions.energy as enerfunc
 
 
+
 class Calculation:
 
     def __init__(self,dynamic):
+
         self._dynamic = dynamic
         self._eigenvectors = None
         self._frequencies = None
@@ -23,6 +26,12 @@ class Calculation:
         self._band_ranges = None
         self._bands = None
         self._phonopy_NAC = False
+
+        self._power_spectrum_algorithm = 1
+        self._power_spectrum_functions = {
+            0: correlate.get_correlation_spectra_par,
+            1: mem.get_mem_spectra_par
+        }
 
 
     #Memory clear methods
@@ -163,6 +172,15 @@ class Calculation:
         plt.show()
 
 
+    def save_vc(self,file_name):
+        print("Saving wave vector projection to file")
+        np.savetxt(file_name,self.get_vc()[:,0,:].real)
+
+    def save_vq(self,file_name):
+        print("Saving phonon projection to file")
+        np.savetxt(file_name,self.get_vq().real)
+       # reading.write_correlation_to_file(self.get_frequency_range(),self.get_vq().real,file_name)
+
     #Frequency ranges related methods
     def set_frequency_range(self,frequency_range):
 #        if np.array(frequency_range != self._frequency_range).all():
@@ -179,11 +197,14 @@ class Calculation:
         return self._frequency_range
 
 
-    #Correlation related methods
+    #Power spectra related methods
+
     def get_correlation_phonon(self):
         if self._correlation_phonon is None:
             print("Calculating phonon projection autocorrelation function")
-            self._correlation_phonon =  correlate.get_correlation_spectra_par(self.get_vq(),self.dynamic,self.get_frequency_range())
+            self._correlation_phonon =  self._power_spectrum_functions[self._power_spectrum_algorithm](self.get_vq(),self.dynamic,self.get_frequency_range())
+    #        self._correlation_phonon =  correlate.get_correlation_spectra_par(self.get_vq(),self.dynamic,self.get_frequency_range())
+
         return self._correlation_phonon
 
 
@@ -192,7 +213,8 @@ class Calculation:
             print("Calculating wave vector projection autocorrelation function")
             self._correlation_wave_vector = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.get_vc().shape[1]):
-                self._correlation_wave_vector += correlate.get_correlation_spectra_par(self.get_vc()[:,i,:],self._dynamic,self.get_frequency_range())
+                self._correlation_wave_vector += self._power_spectrum_functions[self._power_spectrum_algorithm](self.get_vc()[:,i,:],self._dynamic,self.get_frequency_range())
+
         return np.sum(self._correlation_wave_vector,axis=1)
 
 
@@ -201,9 +223,16 @@ class Calculation:
             print("Calculation direct autocorrelation function")
             self._correlation_direct = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.dynamic.get_velocity_mass_average().shape[1]):
-                self._correlation_direct =+ correlate.get_correlation_spectra_par(self.dynamic.get_velocity_mass_average()[:,i,:],self._dynamic,self.get_frequency_range())
+                self._correlation_direct =+  self._power_spectrum_functions[self._power_spectrum_algorithm](self.dynamic.get_velocity_mass_average()[:,i,:],self._dynamic,self.get_frequency_range())
         self._correlation_direct = np.sum(self._correlation_direct,axis=1)
         return self._correlation_direct
+
+
+    def phonon_width_analysis(self):
+        print("Phonon width analysis (Maximum Entropy Method Only)")
+        self._correlation_phonon =  mem.phonon_width_analysis(self.get_vq(),self.dynamic,self.get_frequency_range())
+    #        self._correlation_phonon =  correlate.get_correlation_spectra_par(self.get_vq(),self.dynamic,self.get_frequency_range())
+
 
 
     def plot_correlation_direct(self):

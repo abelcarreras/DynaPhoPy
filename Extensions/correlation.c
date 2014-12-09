@@ -74,7 +74,7 @@ static PyObject* correlation2 (PyObject* self, PyObject *arg, PyObject *keywords
 
 //  Interface with python
     PyObject *VQ_obj;
-    static char *kwlist[] = {"frequency","vq","time","step","integration_method",NULL};
+    static char *kwlist[] = {"frequency","vq","dtime","step","integration_method",NULL};
     if (!PyArg_ParseTupleAndKeywords(arg, keywords, "dOd|ii", kwlist, &Frequency, &VQ_obj, &DTime, &Increment, &IntMethod))  return NULL;
 
     PyObject *VQ_array = PyArray_FROM_OTF(VQ_obj, NPY_CDOUBLE, NPY_IN_ARRAY);

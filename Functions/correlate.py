@@ -29,8 +29,7 @@ def progress_bar(progress):
     sys.stdout.flush()
 
 
-def correlation_worker(n_pos, test_frequencies_range, vq, trajectory):
-    correlation_function_step = 10
+def correlation_worker(n_pos, test_frequencies_range, vq, trajectory,correlation_function_step):
 #    print('starting:',n_pos,'Time step:',trajectory.get_time_step_average(),'Frame skip:',correlation_function_step)
 
     correlation_range = []
@@ -44,6 +43,8 @@ def correlation_worker(n_pos, test_frequencies_range, vq, trajectory):
 
 
 def get_correlation_spectra_par(vq,trajectory,test_frequencies_range):
+
+    correlation_function_step = 10
 
     correlation_full_dict = {}
     progress_bar(0)
@@ -60,7 +61,8 @@ def get_correlation_spectra_par(vq,trajectory,test_frequencies_range):
         pool.apply_async(correlation_worker,
                          args = (i, test_frequencies_range,
                             vq[:,i],
-                            trajectory),
+                            trajectory,
+                            correlation_function_step),
                          callback = log_result)
 
 
