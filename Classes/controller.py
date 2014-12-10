@@ -222,9 +222,13 @@ class Calculation:
         return self._correlation_direct
 
 
-    def phonon_width_analysis(self):
+    def phonon_width_scan_analysis(self):
+        print("Phonon coefficient scan analysis (Maximum Entropy Method Only)")
+        self._correlation_phonon =  mem.phonon_width_scan_analysis(self.get_vq(),self.dynamic,self._parameters)
+
+    def phonon_width_individual_analysis(self):
         print("Phonon width analysis (Maximum Entropy Method Only)")
-        self._correlation_phonon =  mem.phonon_width_analysis(self.get_vq(),self.dynamic,self._parameters)
+        self._correlation_phonon =  mem.phonon_width_individual_analysis(self.get_vq(),self.dynamic,self._parameters)
 
 
     def plot_correlation_direct(self):

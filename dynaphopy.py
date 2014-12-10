@@ -54,8 +54,11 @@ parser.add_argument('-psm', '--power_spectrum_algorithm',metavar='N', type=int, 
 parser.add_argument('-cf', '--number_of_mem_coefficients',metavar='N', type=int, nargs=1,
                    help='Number of coefficients to use in MEM algorithm (default 300)')
 
-parser.add_argument('-pa', '--peak_analysis', action='store_true',
-                    help='Request peak analysis (MEM only)')
+parser.add_argument('-pa', '--coefficient_scan_analysis', action='store_true',
+                    help='Request coefficient scan analysis (MEM only)')
+
+parser.add_argument('-pi', '--peak_analysis', action='store_true',
+                    help='Request a peak analysis (MEM only)')
 
 parser.add_argument('-ds', '--display_spectrum', action='store_true',
                     help='display phonon dispersion spectrum data in screen (just for test: not recommended)')
@@ -135,5 +138,8 @@ if args.interactive:
 if args.display_spectrum:
     calculation.print_phonon_dispersion_spectrum()
 
+if args.coefficient_scan_analysis:
+    calculation.phonon_width_scan_analysis()
+
 if args.peak_analysis:
-    calculation.phonon_width_analysis()
+    calculation.phonon_width_individual_analysis()

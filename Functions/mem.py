@@ -104,8 +104,7 @@ def mem_worker_scan(n_pos, velocity, trajectory, parameters):
     return {n_pos:[power_spectrum,best_width,best_index,fit_data,scan_params]}
 
 
-def phonon_width_analysis(vq,trajectory,parameters):
-    test_frequencies_range = parameters.frequency_range
+def phonon_width_scan_analysis(vq,trajectory,parameters):
 
     mem_full_dict = {}
     progress_bar(0)
@@ -129,6 +128,7 @@ def phonon_width_analysis(vq,trajectory,parameters):
     pool.close()
     pool.join()
 
+    test_frequencies_range = parameters.frequency_range
 
     for i in range(vq.shape[1]):
 
@@ -142,32 +142,67 @@ def phonon_width_analysis(vq,trajectory,parameters):
 
         print "Position:",scan_params[best_index][0],"THz"
         print "Optimum coefficients num:",fit_data[0][best_index]
-        print "Best Fitting Error:", np.min(fit_data[2])
+        print "Fitting Error:", np.min(fit_data[2])
         print ("\n")
 
+        plt.figure(0)
         plt.xlabel('Number of coefficients')
         plt.ylabel('Fitting error^-1')
         plt.title('fitting error ^-1')
         plt.plot(fit_data[0],np.sqrt(1./fit_data[2]))
-        plt.show()
 
+        plt.figure(1)
         plt.xlabel('Number of coefficients')
         plt.ylabel('Width [THz]')
         plt.title('Peak width')
         plt.plot(fit_data[0],fit_data[1])
         plt.plot((fit_data[0][0], fit_data[0][-1]), (mem_full_dict[i][1], mem_full_dict[i][1]), 'k-')
-        plt.show()
 
+        plt.figure(2)
         plt.xlabel('Frequency [THz]')
         plt.title('Best curve fitting')
-        plt.plot(test_frequencies_range,mem_full_dict[i][0])
-        plt.plot(test_frequencies_range,lorentzian(test_frequencies_range,*scan_params[best_index]))
+        plt.plot(test_frequencies_range,mem_full_dict[i][0],label='Power spectrum')
+        plt.plot(test_frequencies_range,lorentzian(test_frequencies_range,*scan_params[best_index]),label='Lorentzian fit')
         plt.show()
 
 
-  #  correlation_vector = np.array([mem_full_dict[i] for i in mem_full_dict.keys()]).T
+def phonon_width_individual_analysis(vq,trajectory,parameters):
 
+    number_of_coefficients = parameters.number_of_coefficients_mem
+    test_frequencies_range = parameters.frequency_range
 
+    for i in range(vq.shape[1]):
+        velocity = vq[:,i]
 
+        power_spectrum = mem.mem(test_frequencies_range,velocity.real,trajectory.get_time_step_average(),coefficients=number_of_coefficients)
+        height = np.max(power_spectrum)
+        position = test_frequencies_range[np.argmax(power_spectrum)]
 
+        try:
+            fitParams, fitCovariances = curve_fit(lorentzian, test_frequencies_range, power_spectrum,p0=[position, 0.1, height, 0.0])
+        except:
+            print('Warning: Fitting error, skipping point!',number_of_coefficients)
+            continue
 
+        error = get_error_from_covariance(fitCovariances)
+        width = 2.0*fitParams[1]
+
+        print "\nPeak #",i+1
+        print("------------------------------------")
+        print "Estimated Width:",width,"THz"
+
+        print "Position:",fitParams[0],"THz"
+        print "coefficients num:",number_of_coefficients
+        print "Best Fitting Error:", error
+
+        plt.xlabel('Frequency [THz]')
+        plt.title('Curve fitting')
+
+        plt.figure(i)
+        plt.suptitle('Phonon '+str(i+1))
+        plt.text(fitParams[0], 10, "Width: "+str(width), fontsize=12)
+        plt.plot(test_frequencies_range,power_spectrum,label='Power spectrum')
+        plt.plot(test_frequencies_range,lorentzian(test_frequencies_range,*fitParams),label='Lorentzian fit')
+        plt.legend()
+
+    plt.show()
