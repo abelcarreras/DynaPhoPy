@@ -27,16 +27,15 @@ def progress_bar(progress):
     sys.stdout.flush()
 
 
-def mem_worker(n_pos, test_frequencies_range, velocity, trajectory, number_of_coeficients):
-#    print('starting:',n_pos,'Time step:',trajectory.get_time_step_average(),'Frame skip:',correlation_function_step)
-    power_spectrum = mem.mem(test_frequencies_range,velocity.real,trajectory.get_time_step_average(),coefficients=number_of_coeficients)
+def mem_worker(n_pos, velocity, trajectory, parameters):
+    power_spectrum = mem.mem(parameters.frequency_range,velocity.real,trajectory.get_time_step_average(),coefficients=parameters.number_of_coefficients_mem)
 
     return {n_pos:power_spectrum}
 
 
-def get_mem_spectra_par(velocity,trajectory,test_frequencies_range):
+def get_mem_spectra_par(velocity,trajectory,parameters):
 
-    number_of_coefficients = 1000
+
     mem_full_dict = {}
     progress_bar(0)
     def log_result(result):
@@ -45,15 +44,14 @@ def get_mem_spectra_par(velocity,trajectory,test_frequencies_range):
 
 #    print ('found',multiprocessing.cpu_count(), 'CPU')
     pool = multiprocessing.Pool(processes=max(multiprocessing.cpu_count()-1,1))
-#    pool = multiprocessing.Pool(processes=1)
-
 #    print('using:', pool._processes)
+
     for i in range(velocity.shape[1]):
         pool.apply_async(mem_worker,
-                         args = (i, test_frequencies_range,
+                         args = (i,
                             velocity[:,i],
                             trajectory,
-                            number_of_coefficients),
+                            parameters),
                          callback = log_result)
 
     pool.close()
@@ -70,13 +68,15 @@ def lorentzian(x, a, b, c, d):
 def get_error_from_covariance(covariance):
     return abs(np.average(covariance))
 
-def mem_worker_scan(n_pos, test_frequencies_range, velocity, trajectory, maximum_number_of_coefficients):
+def mem_worker_scan(n_pos, velocity, trajectory, parameters):
+
+    test_frequencies_range = parameters.frequency_range
 
     fit_data = []
     scan_params = []
     power_spectra = []
 
-    for number_of_coefficients in range(20,maximum_number_of_coefficients,10):
+    for number_of_coefficients in parameters.mem_scan_range:
         power_spectrum = mem.mem(test_frequencies_range,velocity.real,trajectory.get_time_step_average(),coefficients=number_of_coefficients)
         height = np.max(power_spectrum)
         position = test_frequencies_range[np.argmax(power_spectrum)]
@@ -104,9 +104,8 @@ def mem_worker_scan(n_pos, test_frequencies_range, velocity, trajectory, maximum
     return {n_pos:[power_spectrum,best_width,best_index,fit_data,scan_params]}
 
 
-def phonon_width_analysis(vq,trajectory,test_frequencies_range):
-
-    maximum_number_of_coefficients = 1000
+def phonon_width_analysis(vq,trajectory,parameters):
+    test_frequencies_range = parameters.frequency_range
 
     mem_full_dict = {}
     progress_bar(0)
@@ -121,10 +120,10 @@ def phonon_width_analysis(vq,trajectory,test_frequencies_range):
 #    print('using:', pool._processes)
     for i in range(vq.shape[1]):
         pool.apply_async(mem_worker_scan,
-                         args = (i, test_frequencies_range,
-                            vq[:,i],
-                            trajectory,
-                            maximum_number_of_coefficients),
+                         args = (i,
+                                 vq[:,i],
+                                 trajectory,
+                                 parameters),
                          callback = log_result)
 
     pool.close()
@@ -135,15 +134,15 @@ def phonon_width_analysis(vq,trajectory,test_frequencies_range):
 
         print "Peak #",i+1
         print("------------------------------------")
-        print "Best width:",mem_full_dict[i][1],"THz"
+        print "Estimated Width:",mem_full_dict[i][1],"THz"
 
         fit_data = mem_full_dict[i][3]
         scan_params = mem_full_dict[i][4]
         best_index = mem_full_dict[i][2]
 
         print "Position:",scan_params[best_index][0],"THz"
-        print "Best Num coefficents:",fit_data[0][best_index]
-        print "Fitting Error:", np.min(fit_data[2])
+        print "Optimum coefficients num:",fit_data[0][best_index]
+        print "Best Fitting Error:", np.min(fit_data[2])
         print ("\n")
 
         plt.xlabel('Number of coefficients')

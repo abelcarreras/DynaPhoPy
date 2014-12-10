@@ -1,7 +1,6 @@
 import numpy as np
 import Extensions.correlation as correlation
 import math
-import time
 import sys
 import multiprocessing
 import matplotlib.pyplot as plt
@@ -42,9 +41,9 @@ def correlation_worker(n_pos, test_frequencies_range, vq, trajectory,correlation
     return {n_pos:correlation_range}
 
 
-def get_correlation_spectra_par(vq,trajectory,test_frequencies_range):
-
-    correlation_function_step = 10
+def get_correlation_spectra_par(vq,trajectory,parameters):
+    test_frequencies_range = parameters.frequency_range
+    correlation_function_step = parameters.correlation_function_step
 
     correlation_full_dict = {}
     progress_bar(0)
@@ -73,6 +72,16 @@ def get_correlation_spectra_par(vq,trajectory,test_frequencies_range):
     correlation_vector = np.array([correlation_full_dict[i] for i in correlation_full_dict.keys()]).T
 
     return correlation_vector
+
+
+
+
+
+
+
+
+
+
 
 
 #################### Functions Below testing only (Not maintained)###############
@@ -131,6 +140,8 @@ def get_correlation_spectrum_par2(vq,trajectory,test_frequencies_range):
     plt.show()
 
     return correlation_vector
+
+
 
 
 def get_correlation_spectrum(vq,test_frequencies_range):

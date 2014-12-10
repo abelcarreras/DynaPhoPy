@@ -48,6 +48,12 @@ parser.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
                     help='load velocity from hdf5 file')
 
 #Under development
+parser.add_argument('-psm', '--power_spectrum_algorithm',metavar='N', type=int, nargs=1,
+                   help='Select power spectrum calculation algorithm (default 0)')
+
+parser.add_argument('-cf', '--number_of_mem_coefficients',metavar='N', type=int, nargs=1,
+                   help='Number of coefficients to use in MEM algorithm (default 300)')
+
 parser.add_argument('-pa', '--peak_analysis', action='store_true',
                     help='Request peak analysis (MEM only)')
 
@@ -91,12 +97,21 @@ calculation = controller.Calculation(trajectory)
 if 'bands' in input_parameters:
     calculation.set_band_ranges(input_parameters['bands'])
 
-#Process arguments
-if args.save_velocity:
-    calculation.save_velocity(args.save_velocity[0])
+#Process properties arguments
 
 if args.q:
     calculation.set_reduced_q_vector(np.array(args.q))
+
+if args.power_spectrum_algorithm:
+    calculation.select_power_spectra_algorithm(args.power_spectrum_algorithm[0])
+
+if args.number_of_mem_coefficients:
+    calculation.set_number_of_mem_coefficients (args.number_of_mem_coefficients[0])
+
+#Process calculation arguments
+
+if args.save_velocity:
+    calculation.save_velocity(args.save_velocity[0])
 
 if args.frequency_range:
     calculation.set_frequency_range(np.linspace(*args.frequency_range))
@@ -116,7 +131,7 @@ if args.plot_phonon_mode:
 if args.interactive:
     interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
 
-#On development (not recommended)
+#On development methods (not recommended)
 if args.display_spectrum:
     calculation.print_phonon_dispersion_spectrum()
 

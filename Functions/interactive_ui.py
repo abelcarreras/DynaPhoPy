@@ -26,15 +26,11 @@ def get_param(screen,prompt_string):
     input_data = screen.getstr(10, 10, 60)
     return input_data
 
-########## SET NAC IF NECESSARY (BANDS PLOT ONLY) ###########
-#calculation.set_NAC(True)
-#############################################################
-
 def interactive_interface(calculation,trajectory, args, structure_file):
 
     screen = curses.initscr()
     screen.border(0)
-    screen.addstr(5, 7, "Welcome   to   DynaPhoPy 1.0")
+    screen.addstr(5, 7, "Welcome   to   DynaPhoPy 1.1")
     screen.refresh()
     sleep(3)
     curses.endwin()
@@ -65,8 +61,8 @@ def interactive_interface(calculation,trajectory, args, structure_file):
         screen.addstr(5, 4, "2 - Change wave vector")
         screen.addstr(6, 4, "3 - Change frequency range")
         screen.addstr(7, 4, "4 - Boltzmann analysis")
-        screen.addstr(8, 4, "5 - Plot correlation function")
-        screen.addstr(9, 4, "6 - Save correlation function")
+        screen.addstr(8, 4, "5 - Plot power spectrum")
+        screen.addstr(9, 4, "6 - Save power spectrum")
         screen.addstr(11, 4, "0 - Exit")
 
         screen.refresh()
@@ -142,9 +138,9 @@ def interactive_interface(calculation,trajectory, args, structure_file):
                 screen.border(0)
 
                 screen.addstr(2, 2, "Plotting...")
-                screen.addstr(4, 4, "1 - Real space correlation")
-                screen.addstr(5, 4, "2 - Wave vector projection correlation")
-                screen.addstr(6, 4, "3 - Phonon mode projection correlation")
+                screen.addstr(4, 4, "1 - Real space power spectrum")
+                screen.addstr(5, 4, "2 - Wave vector projection power spectrum")
+                screen.addstr(6, 4, "3 - Phonon mode projection power spectrum")
                 screen.addstr(8, 4, "0 - Return")
                 screen.refresh()
 
@@ -172,9 +168,9 @@ def interactive_interface(calculation,trajectory, args, structure_file):
                 screen.border(0)
 
                 screen.addstr(2, 2, "Saving...")
-                screen.addstr(4, 4, "1 - Real space correlation")
-                screen.addstr(5, 4, "2 - Wave vector projection correlation")
-                screen.addstr(6, 4, "3 - Phonon mode projection correlation")
+                screen.addstr(4, 4, "1 - Real space power spectrum")
+                screen.addstr(5, 4, "2 - Wave vector projection power spectrum")
+                screen.addstr(6, 4, "3 - Phonon mode projection power spectrum")
                 screen.addstr(8, 4, "0 - Return")
                 screen.refresh()
 

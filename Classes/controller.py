@@ -6,8 +6,13 @@ import matplotlib.pyplot as plt
 import Functions.phonopy_interface as pho_interface
 import Functions.iofunctions as reading
 import Functions.energy as enerfunc
+import Classes.parameters as parameters
 
 
+power_spectrum_functions = {
+    0: correlate.get_correlation_spectra_par,
+    1: mem.get_mem_spectra_par
+}
 
 class Calculation:
 
@@ -16,29 +21,21 @@ class Calculation:
         self._dynamic = dynamic
         self._eigenvectors = None
         self._frequencies = None
-        self._frequency_range = None
         self._reduced_q_vector = None
         self._vc = None
         self._vq = None
         self._correlation_phonon = None
         self._correlation_wave_vector = None
         self._correlation_direct = None
-        self._band_ranges = None
         self._bands = None
-        self._phonopy_NAC = False
 
-        self._power_spectrum_algorithm = 1
-        self._power_spectrum_functions = {
-            0: correlate.get_correlation_spectra_par,
-            1: mem.get_mem_spectra_par
-        }
+        self._parameters = parameters.Parameters()
 
 
     #Memory clear methods
     def full_clear(self):
         self._eigenvectors = None
         self._frequencies = None
-        self._reduced_q_vector =None
         self._vc = None
         self._vq = None
         self._correlation_direct = None
@@ -58,7 +55,7 @@ class Calculation:
         return self._dynamic
 
     def set_NAC(self,NAC):
-        self._phonopy_NAC = NAC
+        self._parameters.use_NAC = NAC
 
     def write_to_xfs_file(self,file_name):
         reading.write_xsf_file(file_name,self.dynamic.structure)
@@ -71,28 +68,35 @@ class Calculation:
         print("Loading velocity from file", file_name)
         self.dynamic.velocity = reading.read_data_hdf5(file_name)
 
+    def set_number_of_mem_coefficients(self,coefficients):
+        self._parameters.number_of_coefficients_mem = coefficients
+
+       #Frequency ranges related methods
+    def set_frequency_range(self,frequency_range):
+        self._parameters.frequency_range = frequency_range
+
+    def get_frequency_range(self):
+         return self._parameters.frequency_range
+
 
     #Wave vector related methods
     def set_reduced_q_vector(self,q_vector):
         self.full_clear()
-        self._reduced_q_vector = np.array(q_vector)
-
+        self._parameters.reduced_q_vector = np.array(q_vector)
 
     def get_reduced_q_vector(self):
-        if self._reduced_q_vector is None:
-            print("Warning: No wave vector especified.\nUsing gamma point wave vector [0 0 0]")
-            self._reduced_q_vector = np.array([0,0,0])
-        return self._reduced_q_vector
+        return self._parameters.reduced_q_vector
 
 
     def get_q_vector(self):
-        return np.dot(self.get_reduced_q_vector(), 2.0*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
+        return np.dot(self._parameters.reduced_q_vector, 2.0*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
+
 
     #Phonopy harmonic calculation related methods
     def get_eigenvectors(self):
         if self._eigenvectors is None:
             print("Getting frequencies & eigenvectors from Phonopy")
-            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self.get_reduced_q_vector(),NAC=self._phonopy_NAC)
+            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self._parameters.reduced_q_vector,NAC=self._parameters.use_NAC)
             print("Frequencies obtained:")
             print(self._frequencies)
         return self._eigenvectors
@@ -101,23 +105,21 @@ class Calculation:
     def get_frequencies(self):
         if self._eigenvectors is None:
             print("Getting frequencies & eigenvectors from Phonopy")
-            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self.get_reduced_q_vector(),NAC=self._phonopy_NAC)
+            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,self._parameters.reduced_q_vector,NAC=self._parameters.use_NAC)
         return self._frequencies
 
 
     def set_band_ranges(self,band_ranges):
-        self._band_ranges = band_ranges
+        self._parameters.band_ranges = band_ranges
 
 
     def get_band_ranges(self):
-        if self._band_ranges is None:
-            self._band_ranges = [[ [0.0, 0.0, 0.0], [0.0, 0.0, 0.5] ]]
-        return self._band_ranges
+        return self._parameters.band_ranges
 
 
     def get_phonon_dispersion_spectra(self):
         if self._bands is None:
-            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,self.get_band_ranges(),NAC=self._phonopy_NAC)
+            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,self._parameters.band_ranges,NAC=self._parameters.use_NAC)
 
         for i,freq in enumerate(self._bands[1]):
             plt.plot(self._bands[1][i],self._bands[2][i],color ='r')
@@ -129,11 +131,10 @@ class Calculation:
 
     def print_phonon_dispersion_spectrum(self):
         if self._bands is None:
-            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,self.get_band_ranges(),NAC=self._phonopy_NAC)
+            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,self._parameters.band_ranges,NAC=self._parameters.use_NAC)
         np.set_printoptions(linewidth=200)
         for i,freq in enumerate(self._bands[1]):
             print(str(np.hstack([self._bands[1][i][None].T,self._bands[2][i]])).replace('[','').replace(']',''))
- #           np.savetxt('spectrum.out', np.hstack([self._bands[1][i][None].T,self._bands[2][i]]))
 
 
     #Projections related methods
@@ -179,31 +180,24 @@ class Calculation:
     def save_vq(self,file_name):
         print("Saving phonon projection to file")
         np.savetxt(file_name,self.get_vq().real)
-       # reading.write_correlation_to_file(self.get_frequency_range(),self.get_vq().real,file_name)
-
-    #Frequency ranges related methods
-    def set_frequency_range(self,frequency_range):
-#        if np.array(frequency_range != self._frequency_range).all():
-
-        print("Setting new frequency range")
-        self.correlation_clear()
-        self._frequency_range = frequency_range
-
-
-    def get_frequency_range(self):
-        if self._frequency_range is None:
-            print("Not frequency range specified: using default (0-25THz)")
-            self._frequency_range = np.array([0.05*i + 0.1 for i in range (500)])
-        return self._frequency_range
 
 
     #Power spectra related methods
+    def select_power_spectra_algorithm(self,algorith):
+        if algorith in power_spectrum_functions.keys():
+            self._parameters.power_spectra_algorithm = algorith
+            print("Using ", power_spectrum_functions[algorith], "Function")
+        else:
+            print("Algorithm function number not found!\nPlease select:")
+            for i in power_spectrum_functions.keys():
+                print(i,power_spectrum_functions[i])
+            exit()
+
 
     def get_correlation_phonon(self):
         if self._correlation_phonon is None:
             print("Calculating phonon projection autocorrelation function")
-            self._correlation_phonon =  self._power_spectrum_functions[self._power_spectrum_algorithm](self.get_vq(),self.dynamic,self.get_frequency_range())
-    #        self._correlation_phonon =  correlate.get_correlation_spectra_par(self.get_vq(),self.dynamic,self.get_frequency_range())
+            self._correlation_phonon =  power_spectrum_functions[self._parameters.power_spectra_algorithm](self.get_vq(),self.dynamic,self._parameters)
 
         return self._correlation_phonon
 
@@ -213,7 +207,7 @@ class Calculation:
             print("Calculating wave vector projection autocorrelation function")
             self._correlation_wave_vector = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.get_vc().shape[1]):
-                self._correlation_wave_vector += self._power_spectrum_functions[self._power_spectrum_algorithm](self.get_vc()[:,i,:],self._dynamic,self.get_frequency_range())
+                self._correlation_wave_vector += power_spectrum_functions[self._parameters.power_spectra_algorithm](self.get_vc()[:,i,:],self._dynamic,self._parameters)
 
         return np.sum(self._correlation_wave_vector,axis=1)
 
@@ -223,16 +217,14 @@ class Calculation:
             print("Calculation direct autocorrelation function")
             self._correlation_direct = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.dynamic.get_velocity_mass_average().shape[1]):
-                self._correlation_direct =+  self._power_spectrum_functions[self._power_spectrum_algorithm](self.dynamic.get_velocity_mass_average()[:,i,:],self._dynamic,self.get_frequency_range())
+                self._correlation_direct =+  power_spectrum_functions[self._parameters.power_spectra_algorithm](self.dynamic.get_velocity_mass_average()[:,i,:],self._dynamic,self._parameters)
         self._correlation_direct = np.sum(self._correlation_direct,axis=1)
         return self._correlation_direct
 
 
     def phonon_width_analysis(self):
         print("Phonon width analysis (Maximum Entropy Method Only)")
-        self._correlation_phonon =  mem.phonon_width_analysis(self.get_vq(),self.dynamic,self.get_frequency_range())
-    #        self._correlation_phonon =  correlate.get_correlation_spectra_par(self.get_vq(),self.dynamic,self.get_frequency_range())
-
+        self._correlation_phonon =  mem.phonon_width_analysis(self.get_vq(),self.dynamic,self._parameters)
 
 
     def plot_correlation_direct(self):
