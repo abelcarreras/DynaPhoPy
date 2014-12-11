@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 
 import numpy as np
-
 import phonopy.file_IO as file_IO
-
-
+import dynaphopy.functions.iofunctions as reading
+import dynaphopy.classes.controller as controller
 
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure OUTCAR are placed
 # FORCE_SETS : force set file obtained from PHONOPY calculation
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
-from dynaphopy import functions as reading
 
 directory ='/home/abel/VASP/Si-phonon/4x4x4B/'
 
@@ -63,7 +61,7 @@ calculation.set_reduced_q_vector([0.5, 0.0, 0.0]) # X Point
 calculation.set_frequency_range(np.array([0.01*i + 14.0 for i in range (100)])) #(range: 14 to 15Thz using 100 steps of 0.01 THz)
 
 # 5c. Request Boltzmann distribution trajectory analysis
-calculation.show_bolzmann_distribution()
+calculation.show_boltzmann_distribution()
 
 # 5d. Request calculate plot of direct velocity correlation function (without projection)
 #calculation.plot_correlation_direct()
