@@ -94,7 +94,7 @@ calculation.save_vc("vc.out")
 
 #exit()
 
-calculation.phonon_width_analysis()
+calculation.phonon_width_scan_analysis()
 
 exit()
 

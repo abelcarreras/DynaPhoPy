@@ -25,7 +25,8 @@ setup(name='DynaPhoPy',
       author='Abel Carreras',
       url='https://github.com/abelcarreras/DynaPhoPy',
       author_email='abelcarreras83@gmail.com',
-#      packages=['Classes','Functions'],            #Enable for full install
+      packages=['Classes','Functions'],
+      scripts=['dynaphopy.py'],
       ext_modules=[correlation, derivative, mem])
 
 
