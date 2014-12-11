@@ -1,5 +1,5 @@
 import numpy as np
-import Extensions.mem as mem
+import dynaphopy.mem as mem
 import math
 import sys
 import multiprocessing

@@ -19,9 +19,9 @@ mem = Extension('mem',
                 sources=['Extensions/mem.c'])
 
 
-setup(name='DynaPhoPy',
-      version='0.9',
-      description='DynaPhoPy extensions',
+setup(name='dynaphopy',
+      version='1.1',
+      description='dynaphopy module',
       author='Abel Carreras',
       url='https://github.com/abelcarreras/DynaPhoPy',
       author_email='abelcarreras83@gmail.com',
@@ -31,22 +31,4 @@ setup(name='DynaPhoPy',
 
 
 
-try:
-    os.remove('Extensions/correlation.so')
-    os.remove('Extensions/derivative.so')
-    os.remove('Extensions/mem.so')
-
-
-except:
-    print('Overwriting files')
-
-for src_path in ('lib/python/correlation.so','lib/python/derivative.so', 'lib/python/mem.so'):
-
-    os.symlink(
-        os.path.relpath(
-            src_path,
-            'Extensions/'
-        ),
-        os.path.join('Extensions', os.path.basename(src_path))
-    )
-
+exit()

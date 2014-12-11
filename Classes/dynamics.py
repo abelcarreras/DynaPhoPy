@@ -1,7 +1,7 @@
 import atoms
 import numpy as np
 #import derivative as derivative
-import Extensions.derivative as derivative
+import dynaphopy.derivative as derivative
 
 #import correlation
 #import matplotlib.pyplot as plt

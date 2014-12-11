@@ -1,5 +1,5 @@
 import numpy as np
-import Extensions.correlation as correlation
+import dynaphopy.correlation as correlation
 import math
 import sys
 import multiprocessing
