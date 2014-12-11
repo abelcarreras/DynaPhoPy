@@ -20,6 +20,7 @@ structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_scaled_positions())
 #print(structure.get_positions())
 
+
 structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
 
 ############################### PHONOPY CELL INFORMATION ####################################
