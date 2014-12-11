@@ -7,6 +7,7 @@ import dynaphopy .functions.iofunctions as reading
 import dynaphopy.classes.controller as controller
 import dynaphopy.functions.interactive_ui as interactive_ui
 
+
 #Define arguments
 parser = argparse.ArgumentParser(description='DynaPhonoPy options')
 parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
