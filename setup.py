@@ -1,5 +1,5 @@
 from distutils.core import setup, Extension
-import numpy, os
+import numpy
 
 include_dirs_numpy = [numpy.get_include()]
 
@@ -28,7 +28,7 @@ setup(name='dynaphopy',
       packages=['dynaphopy',
                 'dynaphopy.classes',
                 'dynaphopy.functions'],
-      scripts=['dynaphopy.py'],
+      scripts=['scripts/dynaphopy'],
       ext_modules=[correlation, derivative, mem])
 
 
