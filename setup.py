@@ -3,17 +3,17 @@ import numpy, os
 
 include_dirs_numpy = [numpy.get_include()]
 
-correlation = Extension('correlation',
+correlation = Extension('dynaphopy.correlation',
                         extra_compile_args=['-std=c99'],
                         include_dirs = include_dirs_numpy,
                         sources=['Extensions/correlation.c'])
 
-derivative  = Extension('derivative',
+derivative  = Extension('dynaphopy.derivative',
                         extra_compile_args=['-std=c99'],
                         include_dirs = include_dirs_numpy,
                         sources=['Extensions/derivative.c'])
 
-mem = Extension('mem',
+mem = Extension('dynaphopy.mem',
                 extra_compile_args=['-std=c99'],
                 include_dirs = include_dirs_numpy,
                 sources=['Extensions/mem.c'])
@@ -25,7 +25,9 @@ setup(name='dynaphopy',
       author='Abel Carreras',
       url='https://github.com/abelcarreras/DynaPhoPy',
       author_email='abelcarreras83@gmail.com',
-      packages=['Classes','Functions'],
+      packages=['dynaphopy',
+                'dynaphopy.classes',
+                'dynaphopy.functions'],
       scripts=['dynaphopy.py'],
       ext_modules=[correlation, derivative, mem])
 

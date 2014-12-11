@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
 import numpy as np
-import Functions.iofunctions as reading
+
 import phonopy.file_IO as file_IO
-import Classes.controller as controller
+
+
 
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure OUTCAR are placed
 # FORCE_SETS : force set file obtained from PHONOPY calculation
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
+from dynaphopy import functions as reading
 
 directory ='/home/abel/VASP/Si-phonon/4x4x4B/'
 

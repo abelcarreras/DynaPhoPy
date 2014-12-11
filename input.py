@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 import numpy as np
-import Functions.iofunctions as reading
 import phonopy.file_IO as file_IO
-import Classes.controller as controller
-import Functions.phonopy_interface as pho_interface
+import dynaphopy.functions.iofunctions as reading
+import dynaphopy.classes.controller as controller
+
 
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure OUTCAR are placed
