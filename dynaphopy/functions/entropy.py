@@ -205,11 +205,11 @@ def phonon_width_individual_analysis(vq, trajectory, parameters):
 
         print '\nPeak #', i+1
         print('------------------------------------')
-        print 'Estimated Width:', width, 'THz'
+        print 'Width:', width, 'THz'
 
         print 'Position:', fitParams[0], 'THz'
-        print 'coefficients num:', number_of_coefficients
-        print 'Best Fitting Error:', error
+        print 'Coefficients:', number_of_coefficients
+        print 'Fitting Error:', error
 
         plt.xlabel('Frequency [THz]')
         plt.title('Curve fitting')

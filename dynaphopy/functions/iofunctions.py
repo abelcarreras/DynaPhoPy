@@ -63,7 +63,9 @@ def read_from_file_structure_outcar(file_name):
         for i in range(atoms_per_type.shape[0]):
             file_map.seek(position_number+9+6*i)
             atomic_mass_per_type.append(file_map.read(6))
-        atomic_mass = sum([ [atomic_mass_per_type[j] for i in range(atoms_per_type[j])] for j in range(atoms_per_type.shape[0])],[])
+        atomic_mass = sum([[atomic_mass_per_type[j]
+                            for i in range(atoms_per_type[j])]
+                           for j in range(atoms_per_type.shape[0])],[])
         atomic_mass = np.array(atomic_mass,dtype='double')
 
 
@@ -128,10 +130,12 @@ def read_from_file_structure_poscar(file_name):
     data_lines = poscar_file.read().split('\n')
     poscar_file.close()
 
-    direct_cell = np.array([data_lines[i].split() for i in range(2,5)],dtype=float).T
+    direct_cell = np.array([data_lines[i].split()
+                            for i in range(2,5)],dtype=float).T
     try:
         number_of_types = np.array(data_lines[6].split(),dtype=int)
-        scaled_positions = np.array([data_lines[8+k].split() for k in range(np.sum(number_of_types))],dtype=float)
+        scaled_positions = np.array([data_lines[8+k].split()
+                                     for k in range(np.sum(number_of_types))],dtype=float)
         atomic_types = []
 
         for i,j in enumerate(data_lines[5].split()):
@@ -140,7 +144,8 @@ def read_from_file_structure_poscar(file_name):
 
     except ValueError:
         number_of_types = np.array(data_lines[5].split(),dtype=int)
-        scaled_positions = np.array([data_lines[7+k].split() for k in range(np.sum(number_of_types))],dtype=float)
+        scaled_positions = np.array([data_lines[7+k].split()
+                                     for k in range(np.sum(number_of_types))],dtype=float)
         atomic_types = []
         for i,j in enumerate(data_lines[0].split()):
             atomic_types.append([j]*number_of_types[i])
@@ -226,7 +231,11 @@ def read_from_file_trajectory(file_name,structure=None,
 
         file_map.close()
 
-        trajectory = np.array([[[trajectory[i][j*number_of_dimensions+k] for k in range(number_of_dimensions) ] for j in range(number_of_atoms)] for i in range (len(trajectory))])
+        trajectory = np.array([[[trajectory[i][j*number_of_dimensions+k]
+                                 for k in range(number_of_dimensions)]
+                                for j in range(number_of_atoms)]
+                               for i in range (len(trajectory))])
+
         trajectory = trajectory[-last_steps:,:,:]
         energy = energy[-last_steps:]
 
@@ -310,12 +319,12 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
                     q_vector = np.dot(q_vector_r[i_long,:], 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
                     # Beware in the testing amplitude!! Normalized for all phonons to have the same height!!
                     if abs(frequencies_r[i_long][i_freq]) > 0.01: #Prevent dividing by 0
-                        coordinate += amplitude / (np.sqrt(masses[i_atom]) *frequencies_r[i_long][i_freq])*(
-                                      eigenvectors_r[i_long][i_freq,atom_type[i_atom]]*
-                                      np.exp(np.complex(0,-1)*frequencies_r[i_long][i_freq]*2.*np.pi*time)*
-                                      np.exp(np.complex(0,1)*np.dot(q_vector,positions[i_atom,:])) )
+                        coordinate += amplitude / (np.sqrt(masses[i_atom]) * frequencies_r[i_long][i_freq]) * (
+                                      eigenvectors_r[i_long][i_freq,atom_type[i_atom]] *
+                                      np.exp(np.complex(0,-1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time) *
+                                      np.exp(np.complex(0,1) * np.dot(q_vector,positions[i_atom,:])))
 
-            xyz_file.write(structure.get_atomic_types(super_cell=super_cell)[i_atom]+'\t'+
+            xyz_file.write(structure.get_atomic_types(super_cell=super_cell)[i_atom]+'\t' +
                            '\t'.join([str(item) for item in coordinate.real]) + '\n')
             coordinates.append(coordinate)
         trajectory.append(coordinates)
@@ -329,21 +338,21 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
     energy = np.array([ 0*i for i in range(trajectory.shape[0])],dtype=float)
 
     #Save a trajectory object to file for later recovery
-    dump_file = open( "trajectory.save", "w" )
-    pickle.dump( dyn.Dynamics(structure = structure,
-                        trajectory = np.array(trajectory,dtype=complex),
-                        energy = np.array(energy),
-                        time=time,
-                        super_cell=np.dot(np.diagflat(super_cell),structure.get_cell())),
-                 dump_file)
+    dump_file = open("trajectory.save", "w")
+    pickle.dump(dyn.Dynamics(structure=structure,
+                             trajectory=np.array(trajectory,dtype=complex),
+                             energy=np.array(energy),
+                             time=time,
+                             super_cell=np.dot(np.diagflat(super_cell),structure.get_cell())),
+                dump_file)
 
     dump_file.close()
 
     print(np.dot(np.diagflat(super_cell),structure.get_cell()))
 
-    return dyn.Dynamics(structure = structure,
-                        trajectory = np.array(trajectory,dtype=complex),
-                        energy = np.array(energy),
+    return dyn.Dynamics(structure=structure,
+                        trajectory=np.array(trajectory,dtype=complex),
+                        energy=np.array(energy),
                         time=time,
                         super_cell=np.dot(np.diagflat(super_cell),structure.get_cell()))
 
@@ -395,7 +404,10 @@ def read_from_file_test():
   #  velocity = velocity[:4000][:]  #Limitate the number of points (just for testing)
 
     time = np.array([velocity[i][0]  for i in range(len(velocity))]).real
-    velocity = np.array([[[velocity[i][j*number_of_dimensions+k+1] for k in range( number_of_dimensions ) ] for j in range(number_of_atoms)] for i in range (len(velocity))])
+    velocity = np.array([[[velocity[i][j*number_of_dimensions+k+1]
+                           for k in range(number_of_dimensions)]
+                          for j in range(number_of_atoms)]
+                         for i in range (len(velocity))])
     print('Velocity reading complete')
 
 
@@ -407,12 +419,15 @@ def read_from_file_test():
         for i in range(len(row)): row[i] = complex('('+row[i]+')')
         trajectory.append(row)
 
-    trajectory = np.array([[[trajectory[i][j*number_of_dimensions+k+1] for k in range(number_of_dimensions) ] for j in range(number_of_atoms)] for i in range (len(trajectory))])
+    trajectory = np.array([[[trajectory[i][j*number_of_dimensions+k+1]
+                             for k in range(number_of_dimensions)]
+                            for j in range(number_of_atoms)]
+                           for i in range (len(trajectory))])
 
     print('Trajectory reading complete')
 
-    return dyn.Dynamics(trajectory= trajectory,
-        #                velocity=velocity,
+    return dyn.Dynamics(trajectory=trajectory,
+                        #velocity=velocity,
                         time=time,
                         structure=structure)
 
@@ -432,32 +447,25 @@ def write_correlation_to_file(frequency_range,correlation_vector,file_name):
 
 def read_parameters_from_input_file(file_name):
 
-    primitive_matrix = None
-    super_cell_matrix = None
-    structure_file_name_outcar = None
-    structure_file_name_poscar = 'POSCAR'
-    force_constants_file_name = None
-    bands = None
+    input_parameters = {'structure_file_name_poscar': 'POSCAR'}
 
-    input_parameters = {'structure_file_name_poscar':'POSCAR'}
-
-    input_file = open(file_name , "r").readlines()
-    for i,line in enumerate(input_file):
+    input_file = open(file_name, "r").readlines()
+    for i, line in enumerate(input_file):
 
         if "STRUCTURE FILE OUTCAR" in line:
-            input_parameters.update ({'structure_file_name_outcar':input_file[i+1].replace('\n','')})
+            input_parameters.update({'structure_file_name_outcar': input_file[i+1].replace('\n','')})
 
         if "STRUCTURE FILE POSCAR" in line:
-            input_parameters.update ({'structure_file_name_poscar':input_file[i+1].replace('\n','')})
+            input_parameters.update({'structure_file_name_poscar': input_file[i+1].replace('\n','')})
 
         if "FORCE CONSTANTS" in line:
-            input_parameters.update ({'force_constants_file_name':input_file[i+1].replace('\n','')})
+            input_parameters.update({'force_constants_file_name': input_file[i+1].replace('\n','')})
 
         if "PRIMITIVE MATRIX" in line:
             primitive_matrix = [input_file[i+1].replace('\n','').split(),
                                 input_file[i+2].replace('\n','').split(),
                                 input_file[i+3].replace('\n','').split()]
-            input_parameters.update ({'primitive_matrix':np.array(primitive_matrix,dtype=float)})
+            input_parameters.update({'primitive_matrix': np.array(primitive_matrix, dtype=float)})
 
 
         if "SUPERCELL MATRIX PHONOPY" in line:
@@ -465,15 +473,15 @@ def read_parameters_from_input_file(file_name):
                                  input_file[i+2].replace('\n','').split(),
                                  input_file[i+3].replace('\n','').split()]
 
-            super_cell_matrix = np.array(super_cell_matrix,dtype=int)
-            input_parameters.update ({'super_cell_matrix':np.array(super_cell_matrix,dtype=int)})
+            super_cell_matrix = np.array(super_cell_matrix, dtype=int)
+            input_parameters.update({'super_cell_matrix': np.array(super_cell_matrix, dtype=int)})
 
 
         if "BANDS" in line:
             bands = []
             while i < len(input_file)-1:
                 try:
-                    band =  np.array(input_file[i+1].replace(',',' ').split(),dtype=float).reshape((2,3))
+                    band = np.array(input_file[i+1].replace(',',' ').split(),dtype=float).reshape((2,3))
                 except IOError:
                     break
                 except ValueError:
@@ -483,7 +491,7 @@ def read_parameters_from_input_file(file_name):
             input_parameters.update ({'bands':bands})
 
 
-    return  input_parameters
+    return input_parameters
 
 def write_xsf_file(file_name,structure):
 
@@ -506,7 +514,8 @@ def write_xsf_file(file_name,structure):
     while counter < structure.get_number_of_atom_types():
         for i,value_type in enumerate(structure.get_atom_type_index()):
             if value_type == counter:
-                xsf_file.write("{0:4d}\t{1:10.4f}\t{2:10.4f}\t{3:10.4f}\n".format(structure.get_atomic_numbers()[i],*structure.get_positions()[i]))
+                xsf_file.write("{0:4d}\t{1:10.4f}\t{2:10.4f}\t{3:10.4f}\n".format(structure.get_atomic_numbers()[i],
+                                                                                  *structure.get_positions()[i]))
                 counter += 1
                 break
     xsf_file.close()
@@ -528,7 +537,7 @@ def read_data_hdf5(file_name):
     velocity = hdf5_file['velocity'][:]
     hdf5_file.close()
 
-    return  velocity
+    return velocity
 
 
 def initialize_from_file(file_name,structure):
@@ -540,4 +549,4 @@ def initialize_from_file(file_name,structure):
     return dyn.Dynamics(structure = structure,
                         velocity = velocity,
                         time=time,
-                        super_cell=np.dot(np.diagflat(super_cell),structure.get_cell()))
+                        super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()))

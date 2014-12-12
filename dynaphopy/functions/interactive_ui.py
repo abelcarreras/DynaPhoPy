@@ -111,12 +111,14 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     calculation.get_phonon_dispersion_spectra()
 
         if x == ord('2'):
-            q_vector = np.array(get_param(screen,"Insert reduced wave vector (values separated by comma)").split(','),dtype=float)
+            q_vector = np.array(get_param(screen, "Insert reduced wave vector (values separated by comma)").split(','),
+                                dtype=float)
             calculation.set_reduced_q_vector(q_vector)
             curses.endwin()
 
         if x == ord('3'):
-            frequency_limits = np.array(get_param(screen,"Insert frequency range (min, max, number of points)").split(','),dtype=float)
+            frequency_limits = np.array(get_param(screen, "Insert frequency range (min, max, number of points)").split(','),
+                                        dtype=float)
             print(frequency_limits)
             calculation.set_frequency_range(np.linspace(*frequency_limits))
             curses.endwin()
