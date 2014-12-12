@@ -133,7 +133,7 @@ def phonon_width_scan_analysis(vq, trajectory, parameters):
 
         print "Peak #", i+1
         print("------------------------------------")
-        print "Estimated Width:", mem_full_dict[i][1], "THz"
+        print "Estimated Width(FWHM):", mem_full_dict[i][1], "THz"
 
         fit_data = mem_full_dict[i][3]
         scan_params = mem_full_dict[i][4]

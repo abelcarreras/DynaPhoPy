@@ -24,22 +24,22 @@ def phonon_fitting_analysis(original, parameters):
         position = test_frequencies_range[np.argmax(power_spectrum)]
 
         try:
-            fitParams, fitCovariances = curve_fit(lorentzian,
-                                                  test_frequencies_range,
-                                                  power_spectrum,
-                                                  p0=[position, 0.1, height, 0.0])
+            fit_params, fit_covariances = curve_fit(lorentzian,
+                                                    test_frequencies_range,
+                                                    power_spectrum,
+                                                    p0=[position, 0.1, height, 0.0])
         except:
             print('Warning: Fitting error, skipping point!', number_of_coefficients)
             continue
 
-        error = get_error_from_covariance(fitCovariances)
-        width = 2.0*fitParams[1]
+        error = get_error_from_covariance(fit_covariances)
+        width = 2.0*fit_params[1]
 
         print '\nPeak #', i+1
         print('------------------------------------')
-        print 'Width:', width, 'THz'
+        print 'Width(FWHM):', width, 'THz'
 
-        print 'Position:', fitParams[0], 'THz'
+        print 'Position:', fit_params[0], 'THz'
         print 'Coefficients:', number_of_coefficients
         print 'Fitting Error:', error
 
@@ -48,9 +48,9 @@ def phonon_fitting_analysis(original, parameters):
 
         plt.figure(i)
         plt.suptitle('Phonon '+str(i+1))
-        plt.text(fitParams[0], 10, 'Width: ' + str(width), fontsize=12)
+        plt.text(fit_params[0], 10, 'Width: ' + str(width), fontsize=12)
         plt.plot(test_frequencies_range, power_spectrum, label='Power spectrum')
-        plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fitParams), label='Lorentzian fit')
+        plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params), label='Lorentzian fit')
         plt.legend()
 
     plt.show()

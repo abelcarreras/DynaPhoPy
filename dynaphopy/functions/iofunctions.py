@@ -286,7 +286,8 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
 
     #Generate additional random wave vectors sample for further testing
     number_of_wave_vectors = 0
-    q_vector_r=np.random.rand(number_of_wave_vectors,3)
+    q_vector_r=np.random.random([number_of_wave_vectors, 3])
+  #  np.random.random(number_of_wave_vectors,3)
     q_vector_r=np.concatenate((q_vector_r,[q_vector_o]),axis=0)
     print('test wave vectors')
     print(q_vector_r)

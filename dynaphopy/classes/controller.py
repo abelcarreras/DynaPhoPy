@@ -109,7 +109,7 @@ class Calculation:
         return self._eigenvectors
 
     def get_frequencies(self):
-        if self._eigenvectors is None:
+        if self._frequencies is None:
             print("Getting frequencies & eigenvectors from Phonopy")
             self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,
                                                                                                    self._parameters.reduced_q_vector,
@@ -200,9 +200,9 @@ class Calculation:
     def get_correlation_phonon(self):
         if self._correlation_phonon is None:
             print("Calculating phonon projection power spectrum")
-            self._correlation_phonon = power_spectrum_functions[self._parameters.power_spectra_algorithm](self.get_vq(),
-                                                                                                          self.dynamic,
-                                                                                                          self._parameters)
+            self._correlation_phonon = (power_spectrum_functions[self._parameters.power_spectra_algorithm])(self.get_vq(),
+                                                                                                            self.dynamic,
+                                                                                                            self._parameters)
 
         return self._correlation_phonon
 
@@ -211,9 +211,9 @@ class Calculation:
             print("Calculating wave vector projection power spectrum")
             self._correlation_wave_vector = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.get_vc().shape[1]):
-                self._correlation_wave_vector += power_spectrum_functions[self._parameters.power_spectra_algorithm](self.get_vc()[:,i,:],
-                                                                                                                    self._dynamic,
-                                                                                                                    self._parameters)
+                self._correlation_wave_vector += (power_spectrum_functions[self._parameters.power_spectra_algorithm])(self.get_vc()[:,i,:],
+                                                                                                                      self._dynamic,
+                                                                                                                      self._parameters)
 
         return np.sum(self._correlation_wave_vector,axis=1)
 
@@ -222,9 +222,9 @@ class Calculation:
             print("Calculation direct power spectrum")
             self._correlation_direct = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.dynamic.get_velocity_mass_average().shape[1]):
-                self._correlation_direct =+  power_spectrum_functions[self._parameters.power_spectra_algorithm](self.dynamic.get_velocity_mass_average()[:, i, :],
-                                                                                                                self._dynamic,
-                                                                                                                self._parameters)
+                self._correlation_direct += (power_spectrum_functions[self._parameters.power_spectra_algorithm])(self.dynamic.get_velocity_mass_average()[:, i, :],
+                                                                                                                 self._dynamic,
+                                                                                                                 self._parameters)
         self._correlation_direct = np.sum(self._correlation_direct, axis=1)
         return self._correlation_direct
 
