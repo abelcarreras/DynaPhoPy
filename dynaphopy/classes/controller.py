@@ -13,7 +13,8 @@ import dynaphopy.functions.fitting as fitting
 
 power_spectrum_functions = {
     0: correlate.get_correlation_spectra_par,
-    1: mem.get_mem_spectra_par
+    1: mem.get_mem_spectra_par,
+    2: correlate.get_correlation_spectra
 }
 
 class Calculation:

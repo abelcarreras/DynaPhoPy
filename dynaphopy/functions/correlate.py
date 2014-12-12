@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 import multiprocessing
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import dynaphopy.correlation as correlation
 
 
@@ -29,16 +29,21 @@ def correlation_worker(n_pos, test_frequencies_range, vq, trajectory,correlation
 #    print('starting:',n_pos,'Time step:',trajectory.get_time_step_average(),'Frame skip:',correlation_function_step)
 
     correlation_range = []
-    for k in range (test_frequencies_range.shape[0]):
-        angular_frequency = test_frequencies_range[k] * 2 * np.pi # Frequency(THz) -> angular frequency (rad/ps)
+    for k, frequency in enumerate(test_frequencies_range):
+        angular_frequency = frequency * 2 * np.pi # Frequency(THz) -> angular frequency (rad/ps)
         # integration_method:        0 Trapezoid method (slow)     1 Rectangle method (fast)
         #correlation_range.append(correlation.correlation(angular_frequency,vq,trajectory.get_time(),step=correlation_function_step,integration_method=1))
-        correlation_range.append(correlation.correlation2(angular_frequency,vq,trajectory.get_time_step_average(),step=correlation_function_step,integration_method=1))
+
+        correlation_range.append(correlation.correlation2(angular_frequency,
+                                                          vq,
+                                                          trajectory.get_time_step_average(),
+                                                          step=correlation_function_step,
+                                                          integration_method=1))
 #    print('finishing',n_pos)
     return {n_pos:correlation_range}
 
 
-def get_correlation_spectra_par(vq,trajectory,parameters):
+def get_correlation_spectra_par(vq, trajectory, parameters):
     test_frequencies_range = parameters.frequency_range
     correlation_function_step = parameters.correlation_function_step
 
@@ -74,38 +79,20 @@ def get_correlation_spectra_par(vq,trajectory,parameters):
 #################### functions Below testing only (Not maintained)###############
 
 
-def get_correlation_spectrum(vq,test_frequencies_range):
+def get_correlation_spectra(vq, trajectory, parameters):
+    test_frequency_range = np.array(parameters.frequency_range)
 
-    correlation_vector = np.zeros((test_frequencies_range.shape[0],vq.shape[1]),dtype=complex)
-
-    #print('Average: ',trajectory.get_time_step_average())
-
-    #out3 = zip(*pool.map(calc_stuff, range(0, 10 * offset, offset)))
-#    pool = multiprocessing.Pool()
-
-
-    print(vq.shape[1])
+    correlation_vector = np.zeros((len(test_frequency_range),vq.shape[1]),dtype=float)
+    progress_bar(0)
     for i in range (vq.shape[1]):
 
-        print 'Frequency:',i
-        for k in range (test_frequencies_range.shape[0]):
-            angular_frequency = test_frequencies_range[k] * 2 * np.pi # Frequency(THz) -> angular frequency (rad/ps)
-#            correlation_vector[k,i] = correlation.correlation(Frequency,vq[:,i],trajectory.get_time(),correlation_function_step)
- #           correlation_vector[k,i] = correlation.correlation2(Frequency,vq[:,i],trajectory.get_time_step_average(),correlation_function_step)
-            print angular_frequency,correlation_vector[k,i].real
-
-        print('\n')
-        #print(Time)
-
-        plt.plot(test_frequencies_range,correlation_vector[:,i].real)
-        plt.show()
-
-#        pool.close()
-#        pool.join()
- #   plt.show()
-
-
-    plt.plot(test_frequencies_range,correlation_vector.sum(axis=1).real)
-    plt.show()
+        for k, frequency in enumerate(test_frequency_range):
+            angular_frequency = frequency * 2 * np.pi # Frequency(THz) -> angular frequency (rad/ps)
+            correlation_vector[k,i] = correlation.correlation2(angular_frequency,
+                                                               vq[:, i],
+                                                               trajectory.get_time_step_average(),
+                                                               step=parameters.correlation_function_step,
+                                                               integration_method=0)
+        progress_bar(float(i+1)/vq.shape[1])
 
     return correlation_vector
