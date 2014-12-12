@@ -5,7 +5,6 @@ from phonopy.file_IO import parse_BORN
 import copy
 
 
-
 #Direct force constants read from file 'FORCE_CONSTANTS' (test, but could be useful)
 
 def eigenvectors_normalization(eigenvector):
@@ -35,9 +34,7 @@ def get_force_constants_from_file (file_name):
 # The only actually (very) important function in this module!!
 def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
 
-#   Needs to be cleaned!!!
 #   Preparing the bulk type
-
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
                         scaled_positions=structure.get_scaled_positions(),
                         cell=structure.get_cell().T)
@@ -45,7 +42,6 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
     phonon = Phonopy(bulk,structure.get_super_cell_phonon(),
                      primitive_matrix= structure.get_primitive_matrix(),
                      is_auto_displacements=False)
-
 
     #Non Analitical Corrections (NAC) from Phonopy  (just for testing MgO)
     if NAC:
@@ -57,8 +53,6 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
 
     phonon.set_displacement_dataset(copy.deepcopy(structure.get_force_set()))
     phonon.produce_force_constants()
-
-    ########################################################################
 
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
@@ -96,6 +90,7 @@ def obtain_phonon_dispersion_spectra(structure,bands_ranges,NAC=False):
 
     if NAC:
         print("Phonopy warning: Using Non Analitical Corrections")
+        print("BORN file is needed to do this")
         get_is_symmetry = True  #sfrom phonopy:   settings.get_is_symmetry()
         primitive = phonon.get_primitive()
         nac_params = parse_BORN(primitive, get_is_symmetry)

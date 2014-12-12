@@ -32,5 +32,4 @@ setup(name='dynaphopy',
       ext_modules=[correlation, derivative, mem])
 
 
-
 exit()

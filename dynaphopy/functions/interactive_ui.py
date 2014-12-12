@@ -2,22 +2,17 @@ from time import sleep
 import sys
 import curses
 import numpy as np
-
 import phonopy.file_IO as file_IO
 
 
-
-#Display list on screen
-from dynaphopy import functions as reading
-
-
-def list_on_screen(screen,pile,posx,posy):
+def list_on_screen(screen, pile, posx, posy):
 
     pile = np.array(pile).reshape((-1,3))
 
     for i, row_list in enumerate(pile):
         for j, element in enumerate(row_list):
             screen.addstr(posx+i,posy+j*20,str(i*len(pile[0])+j+1)+": "+str(element)[:8])
+
 
 # Get parametres from text ui
 def get_param(screen,prompt_string):
@@ -28,7 +23,8 @@ def get_param(screen,prompt_string):
     input_data = screen.getstr(10, 10, 60)
     return input_data
 
-def interactive_interface(calculation,trajectory, args, structure_file):
+
+def interactive_interface(calculation, trajectory, args, structure_file):
 
     screen = curses.initscr()
     screen.border(0)
@@ -45,7 +41,7 @@ def interactive_interface(calculation,trajectory, args, structure_file):
 
         #Show parameters right screen
         screen.addstr(2,45,"Input file: "+args.input_file[0][-20:])
-        screen.addstr(3,45,"Structure file: "+ structure_file[-20:])
+        screen.addstr(3,45,"Structure file: "+ structure_file[-14:])
         screen.addstr(4,45,"MD file: "+ args.md_file[0][-20:])
 
         screen.addstr(6,45,"Wave Vector: "+str(calculation.get_reduced_q_vector()))
@@ -130,7 +126,6 @@ def interactive_interface(calculation,trajectory, args, structure_file):
             calculation.show_boltzmann_distribution()
             curses.endwin()
 
-
         if x == ord('5'):
 
             x2 = 0
@@ -197,6 +192,8 @@ def interactive_interface(calculation,trajectory, args, structure_file):
 
 #Just for testing
 if __name__ == 'test_gui.py':
+    import dynaphopy.classes.controller as controller
+    import dynaphopy.functions.iofunctions as reading
     #Get data from input file
     input_parameters = reading.read_parameters_from_input_file(sys.argv[1])
 

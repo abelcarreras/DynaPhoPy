@@ -1,22 +1,17 @@
 
 import numpy as np
 #import scitools.numpyutils
-import random
 
 def eigenvectors_normalization(eigenvector):
     for i in range(eigenvector.shape[0]):
-#        eigenvector[i,:] = eigenvector[i,:]/np.sqrt(np.sum(pow(abs(eigenvector[i,:]),2)))
         eigenvector[i,:] = eigenvector[i,:]/np.linalg.norm(eigenvector[i,:])
     return eigenvector
 
-
-
-def get_eigenvectors_test(estructura):
+def get_eigenvectors_test(estructure):
 
     #Manual eigenvectors definition (from Wolfram Mathematica calculations)
-    number_of_cell_atoms = estructura.get_number_of_primitive_atoms()
-    number_of_dimensions = estructura.get_number_of_dimensions()
-
+    number_of_cell_atoms = estructure.get_number_of_primitive_atoms()
+    number_of_dimensions = estructure.get_number_of_dimensions()
     eigenvectors = np.array([[0.707107,0,-0.707107,0],
                              [-7.542995783e-13,-0.707107,-6.91441e-16,0.707107],
                              [-0.3441510098,0.6177054982,-0.3441510098,0.6177054982],
@@ -33,6 +28,7 @@ def get_eigenvectors_test(estructura):
     print(np.dot(eigenvectors.T,np.ma.conjugate(eigenvectors)))
 
     arranged_EV = np.array([[[eigenvectors [j*number_of_dimensions+k,i] for k in range(number_of_dimensions)] for j in range(number_of_cell_atoms)] for i in range(number_of_cell_atoms*number_of_dimensions)])
+
     return arranged_EV, frequencies
 
 def build_dynamical_matrix(structure, frequencies, eigenvectors):
@@ -55,4 +51,5 @@ def build_dynamical_matrix(structure, frequencies, eigenvectors):
 
 #    new_eigenvectors = np.mat(scitools.numpyutils.Gram_Schmidt(new_eigenvectors.real,normalize=True))
     new_eigenvectors = eigenvectors_normalization(new_eigenvectors)
+
     return new_frequencies, new_eigenvectors, dynamical_matrix

@@ -1,0 +1,6 @@
+dynaphopy
+numpy
+scipy
+matplotlib
+phonopy
+h5py
