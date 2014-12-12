@@ -9,7 +9,7 @@ import dynaphopy.classes.parameters as parameters
 import dynaphopy.functions.phonopy_interface as pho_interface
 import dynaphopy.functions.iofunctions as reading
 import dynaphopy.functions.energy as energy
-
+import dynaphopy.functions.fitting as fitting
 
 power_spectrum_functions = {
     0: correlate.get_correlation_spectra_par,
@@ -229,16 +229,15 @@ class Calculation:
         return self._correlation_direct
 
     def phonon_width_scan_analysis(self):
-        print("Phonon coefficient scan analysis (Maximum Entropy Method Only)")
+        print("Phonon coefficient scan analysis")
         self._correlation_phonon =  mem.phonon_width_scan_analysis(self.get_vq(),
                                                                    self.dynamic,
                                                                    self._parameters)
 
     def phonon_width_individual_analysis(self):
         print("Phonon width analysis (Maximum Entropy Method Only)")
-        self._correlation_phonon =  mem.phonon_width_individual_analysis(self.get_vq(),
-                                                                         self.dynamic,
-                                                                         self._parameters)
+        fitting.phonon_fitting_analysis(self.get_correlation_phonon(),self._parameters)
+        return
 
     def plot_correlation_direct(self):
         plt.suptitle('Direct correlation')

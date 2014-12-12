@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from dynaphopy.mem import mem
 
+from dynaphopy.functions.fitting import lorentzian, get_error_from_covariance
 
 def progress_bar(progress):
     bar_length = 30
@@ -62,14 +63,6 @@ def get_mem_spectra_par(velocity, trajectory, parameters):
     return correlation_vector
 
 
-def lorentzian(x, a, b, c, d):
-    return c/(np.pi*b*(1.0+((x-a)/b)**2))+d
-
-
-def get_error_from_covariance(covariance):
-    return abs(np.average(covariance))
-
-
 def mem_worker_scan(n_pos, velocity, trajectory, parameters):
 
     test_frequencies_range = parameters.frequency_range
@@ -92,7 +85,7 @@ def mem_worker_scan(n_pos, velocity, trajectory, parameters):
                                                   power_spectrum,
                                                   p0=[position, 0.1, height, 0.0])
         except:
-            print('Warning: Fitting error, skipping point!',number_of_coefficients)
+            print('Warning: Fitting error, skipping point!', number_of_coefficients)
             continue
 
         error = get_error_from_covariance(fitCovariances)
@@ -109,7 +102,7 @@ def mem_worker_scan(n_pos, velocity, trajectory, parameters):
     best_index = int(np.argmin(fit_data[2]))
     power_spectrum = power_spectra[best_index]
 
-    return {n_pos:[power_spectrum, best_width, best_index, fit_data, scan_params]}
+    return {n_pos: [power_spectrum, best_width, best_index, fit_data, scan_params]}
 
 
 def phonon_width_scan_analysis(vq, trajectory, parameters):
@@ -167,58 +160,9 @@ def phonon_width_scan_analysis(vq, trajectory, parameters):
         plt.figure(2)
         plt.xlabel('Frequency [THz]')
         plt.title('Best curve fitting')
-        plt.plot(test_frequencies_range,mem_full_dict[i][0],label='Power spectrum')
+        plt.plot(test_frequencies_range, mem_full_dict[i][0], label='Power spectrum')
         plt.plot(test_frequencies_range,
                  lorentzian(test_frequencies_range, *scan_params[best_index]),
                  label='Lorentzian fit')
 
         plt.show()
-
-
-def phonon_width_individual_analysis(vq, trajectory, parameters):
-
-    number_of_coefficients = parameters.number_of_coefficients_mem
-    test_frequencies_range = parameters.frequency_range
-
-    for i in range(vq.shape[1]):
-        velocity = vq[:, i]
-
-        power_spectrum = mem(test_frequencies_range,
-                             velocity.real,
-                             trajectory.get_time_step_average(),
-                             coefficients=number_of_coefficients)
-
-        height = np.max(power_spectrum)
-        position = test_frequencies_range[np.argmax(power_spectrum)]
-
-        try:
-            fitParams, fitCovariances = curve_fit(lorentzian,
-                                                  test_frequencies_range,
-                                                  power_spectrum,
-                                                  p0=[position, 0.1, height, 0.0])
-        except:
-            print('Warning: Fitting error, skipping point!', number_of_coefficients)
-            continue
-
-        error = get_error_from_covariance(fitCovariances)
-        width = 2.0*fitParams[1]
-
-        print '\nPeak #', i+1
-        print('------------------------------------')
-        print 'Width:', width, 'THz'
-
-        print 'Position:', fitParams[0], 'THz'
-        print 'Coefficients:', number_of_coefficients
-        print 'Fitting Error:', error
-
-        plt.xlabel('Frequency [THz]')
-        plt.title('Curve fitting')
-
-        plt.figure(i)
-        plt.suptitle('Phonon '+str(i+1))
-        plt.text(fitParams[0], 10, 'Width: ' + str(width), fontsize=12)
-        plt.plot(test_frequencies_range, power_spectrum, label='Power spectrum')
-        plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fitParams), label='Lorentzian fit')
-        plt.legend()
-
-    plt.show()
