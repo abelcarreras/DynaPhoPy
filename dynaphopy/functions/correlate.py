@@ -103,7 +103,7 @@ def get_correlation_spectra_par_openmp(vq, trajectory, parameters):
     correlation_vector = []
     progress_bar(0)
     for i in range (vq.shape[1]):
-        correlation_vector.append(correlation.correlation2_par(test_frequency_range,
+        correlation_vector.append(correlation.correlation_par(test_frequency_range,
                                                                vq[:, i],
                                                                trajectory.get_time_step_average(),
                                                                step=parameters.correlation_function_step,

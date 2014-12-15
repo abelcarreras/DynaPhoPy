@@ -64,7 +64,7 @@ reading.write_xsf_file("test.xfs",structure)
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure,last_steps=20000)
+trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure,last_steps=2000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,last_steps=50000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=20000)
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.5],super_cell=[2,2,2])
@@ -73,7 +73,7 @@ calculation = controller.Calculation(trajectory)
 
 calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
 calculation.set_frequency_range(np.linspace(1,25,200))
-calculation.select_power_spectra_algorithm(1)
+calculation.select_power_spectra_algorithm(2)
 #calculation.set_NAC(True)
 
 print(calculation.get_frequencies())

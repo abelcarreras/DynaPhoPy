@@ -22,24 +22,24 @@ static PyObject* correlation1 (PyObject* self, PyObject *arg, PyObject *keywords
  	int     IntMethod = 1;    //Define integration method
 
 //  Interface with python
-    PyObject *VQ_obj, *Time_obj;
-    static char *kwlist[] = {"frequency","vq","time","step","integration_method",NULL};
-    if (!PyArg_ParseTupleAndKeywords(arg, keywords, "dOO|ii", kwlist, &Frequency, &VQ_obj, &Time_obj, &Increment, &IntMethod))  return NULL;
+    PyObject *Velocity_obj, *Time_obj;
+    static char *kwlist[] = {"frequency","velocity","time","step","integration_method",NULL};
+    if (!PyArg_ParseTupleAndKeywords(arg, keywords, "dOO|ii", kwlist, &Frequency, &Velocity_obj, &Time_obj, &Increment, &IntMethod))  return NULL;
 
-    PyObject *VQ_array = PyArray_FROM_OTF(VQ_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
+    PyObject *Velocity_array = PyArray_FROM_OTF(Velocity_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
     PyObject *Time_array = PyArray_FROM_OTF(Time_obj, NPY_DOUBLE, NPY_IN_ARRAY);
 
-    if (VQ_array == NULL || Time_array == NULL ) {
-         Py_XDECREF(VQ_array);
+    if (Velocity_array == NULL || Time_array == NULL ) {
+         Py_XDECREF(Velocity_array);
          Py_XDECREF(Time_array);
          return NULL;
     }
 
 
 
-    double _Complex  *VQ = (double _Complex*)PyArray_DATA(VQ_array);
+    double _Complex  *Velocity = (double _Complex*)PyArray_DATA(Velocity_array);
     double *Time         = (double*)PyArray_DATA(Time_array);
-    int     NumberOfData = (int)PyArray_DIM(VQ_array, 0);
+    int     NumberOfData = (int)PyArray_DIM(Velocity_array, 0);
 
 
 //  Starting correlation calculation
@@ -49,11 +49,11 @@ static PyObject* correlation1 (PyObject* self, PyObject *arg, PyObject *keywords
 		for (int j = 0; j< (NumberOfData-i-Increment); j++) {
 			switch (IntMethod) {
 				case 0: //	Trapezoid Integration
-					Correl += (conj(VQ[j]) * VQ[j+i+Increment] * cexp(_Complex_I*Frequency                            * (Time[i+Increment] - Time[0]))
-					       +   conj(VQ[j]) * VQ[j+i]           * cexp(_Complex_I*Frequency * (Time[i]-Time[0])) )/2.0 * (Time[i+Increment] - Time[i]);
+					Correl += (conj(Velocity[j]) * Velocity[j+i+Increment] * cexp(_Complex_I*Frequency                            * (Time[i+Increment] - Time[0]))
+					       +   conj(Velocity[j]) * Velocity[j+i]           * cexp(_Complex_I*Frequency * (Time[i]-Time[0])) )/2.0 * (Time[i+Increment] - Time[i]);
 					break;
 				case 1: //	Rectangular Integration
-					Correl +=  conj(VQ[j]) * VQ[j+i]           * cexp(_Complex_I*Frequency * (Time[i]-Time[0]))       * (Time[i+Increment] - Time[i]);
+					Correl +=  conj(Velocity[j]) * Velocity[j+i]           * cexp(_Complex_I*Frequency * (Time[i]-Time[0]))       * (Time[i+Increment] - Time[i]);
 					break;
 				default:
 				    puts ("\nIntegration method selected does not exist\n");
@@ -65,61 +65,39 @@ static PyObject* correlation1 (PyObject* self, PyObject *arg, PyObject *keywords
     return Py_BuildValue ("d", creal(Correl)/NumberOfData);
 };
 
-// Correlation method for constant time (DTime) step trajectories
+// Correlation method for constant time (TimeStep) step trajectories
 static PyObject* correlation2 (PyObject* self, PyObject *arg, PyObject *keywords )
 {
 
 //  Declaring basic variables
     double  Frequency;
-    double  DTime;
+    double  TimeStep;
  	int     Increment = 10;   //Default value for Increment
  	int     IntMethod = 1;    //Define integration method
 
 
 //  Interface with python
-    PyObject *VQ_obj;
-    static char *kwlist[] = {"frequency","vq","dtime","step","integration_method",NULL};
-    if (!PyArg_ParseTupleAndKeywords(arg, keywords, "dOd|ii", kwlist, &Frequency, &VQ_obj, &DTime, &Increment, &IntMethod))  return NULL;
+    PyObject *Velocity_obj;
+    static char *kwlist[] = {"frequency","velocity","TimeStep","step","integration_method",NULL};
+    if (!PyArg_ParseTupleAndKeywords(arg, keywords, "dOd|ii", kwlist, &Frequency, &Velocity_obj, &TimeStep, &Increment, &IntMethod))  return NULL;
 
-    PyObject *VQ_array = PyArray_FROM_OTF(VQ_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
+    PyObject *Velocity_array = PyArray_FROM_OTF(Velocity_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
 
-    if (VQ_array == NULL ) {
-         Py_XDECREF(VQ_array);
+    if (Velocity_array == NULL ) {
+         Py_XDECREF(Velocity_array);
          return NULL;
     }
 
-    double _Complex *VQ  = (double _Complex*)PyArray_DATA(VQ_array);
-    int    NumberOfData = (int)PyArray_DIM(VQ_array, 0);
+    double _Complex *Velocity  = (double _Complex*)PyArray_DATA(Velocity_array);
+    int    NumberOfData = (int)PyArray_DIM(Velocity_array, 0);
 
-//     printf ("inc %f\n",DTime);
-//  Starting correlation calculation
-	double _Complex Correl = 0;
-	for (int i = 0; i < NumberOfData; i += Increment) {
-		for (int j = 0; j < (NumberOfData-i-Increment); j++) {
-			Correl += conj(VQ[j]) * VQ[j+i] * cexp(_Complex_I*Frequency*(i*DTime));
 
-            switch (IntMethod) {
-                case 0: //	Trapezoid Integration
-                    Correl += (conj(VQ[j]) * VQ[j+i+Increment] * cexp(_Complex_I*Frequency * ((i+Increment)*DTime))
-                           +   conj(VQ[j]) * VQ[j+i]           * cexp(_Complex_I*Frequency * (i*DTime) ))/2.0 ;
-                    break;
-                case 1: //	Rectangular Integration
-                     Correl +=  conj(VQ[j]) * VQ[j+i]          * cexp(_Complex_I*Frequency * (i*DTime));
-                    break;
-                default:
-                    puts ("\nIntegration method selected does not exist\n");
-                    return NULL;
-                    break;
-            }
-		}
-	}
-
-    return Py_BuildValue("d", creal(Correl) * DTime/(NumberOfData/Increment));
+    return Py_BuildValue("d",  EvaluateCorrelation(Frequency, Velocity, NumberOfData, TimeStep, Increment, IntMethod));
 
 };
 
-// Correlation method for constant time (DTime) step trajectories paralellized with OpenMP
-static PyObject* correlation2_par (PyObject* self, PyObject *arg, PyObject *keywords)
+// Correlation method for constant time (TimeStep) step trajectories paralellized with OpenMP
+static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywords)
 {
     //  Declaring initial variables
     double  TimeStep;
@@ -159,9 +137,8 @@ static PyObject* correlation2_par (PyObject* self, PyObject *arg, PyObject *keyw
         return NULL;
     }
 
-    int i;
-# pragma omp parallel for default(shared) private(i,AngularFrequency)
-    for (i=0;i<NumberOfFrequencies;i++) {
+# pragma omp parallel for default(shared) private(AngularFrequency)
+    for (int i=0;i<NumberOfFrequencies;i++) {
         AngularFrequency = Frequency[i]*2.0*M_PI;
         PowerSpectrum[i] = EvaluateCorrelation(AngularFrequency, Velocity, NumberOfData, TimeStep, Increment, IntMethod);
     }
@@ -199,13 +176,13 @@ static char extension_docs_2[] =
     "correlation2( ): Calculation of the correlation\n Constant time step method (faster)";
 
 static char extension_docs_3[] =
-    "correlation3( ): Calculation of the correlation\n Constant time step method (faster)\n OpenMP paralellized";
+    "correlation_par( ): Calculation of the correlation\n Constant time step method (faster)\n OpenMP paralellized";
 
 static PyMethodDef extension_funcs[] =
 {
     {"correlation",  (PyCFunction)correlation1, METH_VARARGS|METH_KEYWORDS, extension_docs_1},
     {"correlation2", (PyCFunction)correlation2, METH_VARARGS|METH_KEYWORDS, extension_docs_2},
-    {"correlation2_par", (PyCFunction)correlation2_par, METH_VARARGS|METH_KEYWORDS, extension_docs_3},
+    {"correlation_par", (PyCFunction)correlation_par, METH_VARARGS|METH_KEYWORDS, extension_docs_3},
     {NULL}
 };
 
