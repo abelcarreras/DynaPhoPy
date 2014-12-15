@@ -64,15 +64,16 @@ reading.write_xsf_file("test.xfs",structure)
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure,last_steps=50000)
+trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure,last_steps=20000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,last_steps=50000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=20000)
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.5],super_cell=[2,2,2])
 
 calculation = controller.Calculation(trajectory)
+
 calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
 calculation.set_frequency_range(np.linspace(1,25,200))
-
+calculation.select_power_spectra_algorithm(1)
 #calculation.set_NAC(True)
 
 print(calculation.get_frequencies())
@@ -117,13 +118,13 @@ calculation.plot_trajectory(atoms=[0,1,2,3])
 # Python scripting features may be used for more complex requests
 
 # 5a. Set wave vector into which is going to be projected the velocity (default: gamma point)
-#calculation.set_reduced_q_vector([0.5, 0.3, 0.0])
+#calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
 
 # 5b. Define range of frequency to analyze (default: 0-20THz)
 #calculation.set_frequency_range(np.array([0.01*i + 14.0 for i in range (100)]))
 
 # 5c. Request Boltzmann distribution trajectory analysis
-#calculation.show_bolzmann_distribution()
+calculation.show_bolzmann_distribution()
 
 # 5d. Request calculate plot of direct velocity correlation function (without projection)
 #calculation.plot_correlation_direct()

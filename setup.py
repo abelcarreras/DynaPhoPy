@@ -4,7 +4,8 @@ import numpy
 include_dirs_numpy = [numpy.get_include()]
 
 correlation = Extension('dynaphopy.correlation',
-                        extra_compile_args=['-std=c99'],
+                        extra_compile_args=['-std=c99', '-fopenmp'],
+                        extra_link_args=['-lgomp'],
                         include_dirs = include_dirs_numpy,
                         sources=['Extensions/correlation.c'])
 

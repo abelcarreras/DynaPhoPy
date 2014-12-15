@@ -12,9 +12,10 @@ import dynaphopy.functions.energy as energy
 import dynaphopy.functions.fitting as fitting
 
 power_spectrum_functions = {
-    0: correlate.get_correlation_spectra_par,
-    1: mem.get_mem_spectra_par,
-    2: correlate.get_correlation_spectra
+    0: correlate.get_correlation_spectra_par_python,
+    1: mem.get_mem_spectra_par_python,
+    2: correlate.get_correlation_spectra_serial,
+    3: correlate.get_correlation_spectra_par_openmp
 }
 
 class Calculation:

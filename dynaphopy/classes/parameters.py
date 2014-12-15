@@ -6,7 +6,7 @@ class Parameters:
 
     def __init__(self,
                  #Projections
-                 reduced_q_vector = (0,0,0),
+                 reduced_q_vector=(0, 0, 0),
 
                  #Maximum Entropy Method
                  number_of_coefficients_mem=300,
@@ -22,7 +22,7 @@ class Parameters:
 
                  #Phonon dispersion diagram
                  use_NAC = False,
-                 band_ranges = ((0.0, 0.0, 0.0),(0.0, 0.0, 0.5)),
+                 band_ranges=((0.0, 0.0, 0.0), (0.0, 0.0, 0.5)),
                  ):
 
         self._number_of_coefficients_mem=number_of_coefficients_mem

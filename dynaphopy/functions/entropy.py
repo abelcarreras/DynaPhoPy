@@ -37,7 +37,7 @@ def mem_worker(n_pos, velocity, trajectory, parameters):
     return {n_pos: power_spectrum}
 
 
-def get_mem_spectra_par(velocity, trajectory, parameters):
+def get_mem_spectra_par_python(velocity, trajectory, parameters):
 
     mem_full_dict = {}
     progress_bar(0)

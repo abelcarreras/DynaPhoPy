@@ -43,7 +43,7 @@ def correlation_worker(n_pos, test_frequencies_range, vq, trajectory,correlation
     return {n_pos:correlation_range}
 
 
-def get_correlation_spectra_par(vq, trajectory, parameters):
+def get_correlation_spectra_par_python(vq, trajectory, parameters):
     test_frequencies_range = parameters.frequency_range
     correlation_function_step = parameters.correlation_function_step
 
@@ -76,10 +76,8 @@ def get_correlation_spectra_par(vq, trajectory, parameters):
     return correlation_vector
 
 
-#################### functions Below testing only (Not maintained)###############
 
-
-def get_correlation_spectra(vq, trajectory, parameters):
+def get_correlation_spectra_serial(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
     correlation_vector = np.zeros((len(test_frequency_range),vq.shape[1]),dtype=float)
@@ -92,7 +90,27 @@ def get_correlation_spectra(vq, trajectory, parameters):
                                                                vq[:, i],
                                                                trajectory.get_time_step_average(),
                                                                step=parameters.correlation_function_step,
-                                                               integration_method=0)
+                                                               integration_method=parameters.integration_method)
         progress_bar(float(i+1)/vq.shape[1])
 
     return correlation_vector
+
+
+
+def get_correlation_spectra_par_openmp(vq, trajectory, parameters):
+    test_frequency_range = np.array(parameters.frequency_range)
+
+    correlation_vector = []
+    progress_bar(0)
+    for i in range (vq.shape[1]):
+        correlation_vector.append(correlation.correlation2_par(test_frequency_range,
+                                                               vq[:, i],
+                                                               trajectory.get_time_step_average(),
+                                                               step=parameters.correlation_function_step,
+                                                               integration_method=parameters.integration_method))
+        progress_bar(float(i+1)/vq.shape[1])
+
+    correlation_vector = np.array(correlation_vector).T
+
+    return correlation_vector
+
