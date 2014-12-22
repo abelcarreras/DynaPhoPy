@@ -160,8 +160,8 @@ def read_from_file_structure_poscar(file_name):
 
 
 def read_from_file_trajectory(file_name,structure=None,
-                              limit_number_steps=100000,  #Maximum number of steps read
-                              last_steps=100000):           #Total number of read steps
+                              limit_number_steps=1000000,  #Maximum number of steps read
+                              last_steps=1000000):         #Total number of read steps (deprecated)
 
     #Check file exists
     if not os.path.isfile(file_name):
