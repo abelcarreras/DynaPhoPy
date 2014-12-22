@@ -20,7 +20,10 @@ power_spectrum_functions = {
 
 class Calculation:
 
-    def __init__(self,dynamic):
+    def __init__(self,
+                 dynamic,
+                 last_steps=None,
+                 save_hfd5=None):
 
         self._dynamic = dynamic
         self._eigenvectors = None
@@ -35,6 +38,13 @@ class Calculation:
 
         self._parameters = parameters.Parameters()
 
+        if save_hfd5 is not None:
+            self.save_velocity(save_hfd5)
+
+        if last_steps is not None:
+            dynamic.crop_trajectory(last_steps)
+
+        print("Using ", dynamic.velocity.shape[0], "steps")
 
     #Memory clear methods
     def full_clear(self):

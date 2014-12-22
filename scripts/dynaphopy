@@ -40,7 +40,7 @@ parser.add_argument('-sw', '--save_wave_vector', metavar='file', type=str, nargs
 parser.add_argument('-sp', '--save_phonon_mode', metavar='file', type=str, nargs=1,
                     help='save projection into phonon modes to file')
 
-parser.add_argument('-sv', '--save_velocity', metavar='file', type=str, nargs=1,
+parser.add_argument('-sv', '--save_velocity', metavar='file', type=str, nargs=1, default=[None],
                     help='save velocity into hdf5 file')
 
 parser.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
@@ -87,12 +87,12 @@ if 'super_cell_matrix' in input_parameters:
 #trajectory = reading.read_from_file_trajectory(args.md_file[0],structure,last_steps=args.n)
 
 if args.load_velocity:
-    trajectory = reading.initialize_from_file(args.load_velocity[0],structure)
+    trajectory = reading.initialize_from_file(args.load_velocity[0], structure)
     #calculation.read_velocity(args.load_velocity[0])
 else:
-    trajectory = reading.read_from_file_trajectory(args.md_file[0],structure,last_steps=args.n)
+    trajectory = reading.read_from_file_trajectory(args.md_file[0], structure)
 
-calculation = controller.Calculation(trajectory)
+calculation = controller.Calculation(trajectory, last_steps=args.n, save_hfd5=args.save_velocity[0])
 
 #print(calculation.get_vc())
 
@@ -112,8 +112,8 @@ if args.number_of_mem_coefficients:
 
 #Process calculation arguments
 
-if args.save_velocity:
-    calculation.save_velocity(args.save_velocity[0])
+#if args.save_velocity:
+#    calculation.save_velocity(args.save_velocity[0])
 
 if args.frequency_range:
     calculation.set_frequency_range(np.linspace(*args.frequency_range))

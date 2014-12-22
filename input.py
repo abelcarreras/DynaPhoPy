@@ -64,15 +64,16 @@ reading.write_xsf_file("test.xfs",structure)
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure,last_steps=2000)
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,last_steps=50000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=20000)
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.5],super_cell=[2,2,2])
 
-calculation = controller.Calculation(trajectory)
+trajectory = reading.initialize_from_file('test.hdf5', structure)
+calculation = controller.Calculation(trajectory, last_steps=5000, save_hfd5='test.hdf5')
 
 calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
-calculation.set_frequency_range(np.linspace(1,25,200))
+calculation.set_frequency_range(np.linspace(1, 25, 200))
 calculation.select_power_spectra_algorithm(2)
 #calculation.set_NAC(True)
 
@@ -86,9 +87,9 @@ print(structure.get_primitive_cell())
 
 #exit()
 
-calculation.save_velocity('test.h5')
-calculation.dynamic.velocity = None
-calculation.read_velocity('test.h5')
+#calculation.save_velocity('test.h5')
+#calculation.dynamic.velocity = None
+#calculation.read_velocity('test.h5')
 
 
 calculation.save_vq("vq.out")

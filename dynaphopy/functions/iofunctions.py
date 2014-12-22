@@ -161,7 +161,7 @@ def read_from_file_structure_poscar(file_name):
 
 def read_from_file_trajectory(file_name,structure=None,
                               limit_number_steps=100000,  #Maximum number of steps read
-                              last_steps=1000):           #Total number of read steps
+                              last_steps=100000):           #Total number of read steps
 
     #Check file exists
     if not os.path.isfile(file_name):
@@ -341,7 +341,7 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
     #Save a trajectory object to file for later recovery
     dump_file = open("trajectory.save", "w")
     pickle.dump(dyn.Dynamics(structure=structure,
-                             trajectory=np.array(trajectory,dtype=complex),
+                             trajectory=np.array(trajectory, dtype=complex),
                              energy=np.array(energy),
                              time=time,
                              super_cell=np.dot(np.diagflat(super_cell),structure.get_cell())),
@@ -529,6 +529,7 @@ def save_data_hdf5(file_name, velocity, time, super_cell):
     hdf5_file.create_dataset('time', data=time)
     hdf5_file.create_dataset('super_cell', data=super_cell)
 
+    print("saved", velocity.shape[0], "steps")
     hdf5_file.close()
 
 
@@ -542,10 +543,13 @@ def read_data_hdf5(file_name):
 
 
 def initialize_from_file(file_name,structure):
+    print("Reading velocity from hdf5 file: " + file_name)
+
     hdf5_file = h5py.File(file_name, "r")
     velocity = hdf5_file['velocity'][:]
     time = hdf5_file['time'][:]
     super_cell = hdf5_file['super_cell'][:]
+    hdf5_file.close()
 
     return dyn.Dynamics(structure = structure,
                         velocity = velocity,
