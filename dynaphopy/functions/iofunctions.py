@@ -159,7 +159,7 @@ def read_from_file_structure_poscar(file_name):
                               )
 
 
-def read_from_file_trajectory(file_name,structure=None,
+def read_from_file_trajectory(file_name, structure=None,
                               limit_number_steps=1000000,  #Maximum number of steps read
                               last_steps=1000000):         #Total number of read steps (deprecated)
 
@@ -243,9 +243,9 @@ def read_from_file_trajectory(file_name,structure=None,
         time = np.array([ i*time_step for i in range(trajectory.shape[0])],dtype=float)
 
         print('Trajectory file read')
-        return dyn.Dynamics(structure = structure,
-                            trajectory = np.array(trajectory,dtype=complex),
-                            energy = np.array(energy),
+        return dyn.Dynamics(structure=structure,
+                            trajectory=np.array(trajectory,dtype=complex),
+                            energy=np.array(energy),
                             time=time,
                             super_cell=super_cell)
 

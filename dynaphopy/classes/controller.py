@@ -18,6 +18,7 @@ power_spectrum_functions = {
     3: correlate.get_correlation_spectra_par_openmp
 }
 
+
 class Calculation:
 
     def __init__(self,
@@ -38,12 +39,13 @@ class Calculation:
 
         self._parameters = parameters.Parameters()
 
-        if save_hfd5 is not None:
+        if save_hfd5:
             self.save_velocity(save_hfd5)
 
-        if last_steps is not None:
-            dynamic.crop_trajectory(last_steps)
+        if last_steps:
+            self._parameters.last_steps = last_steps
 
+        dynamic.crop_trajectory(self._parameters.last_steps)
         print("Using ", dynamic.velocity.shape[0], "steps")
 
     #Memory clear methods
