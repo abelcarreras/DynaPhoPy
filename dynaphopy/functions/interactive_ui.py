@@ -61,12 +61,15 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(7, 4, "4 - Boltzmann analysis")
         screen.addstr(8, 4, "5 - Plot power spectrum")
         screen.addstr(9, 4, "6 - Save power spectrum")
-        screen.addstr(11, 4, "0 - Exit")
+        screen.addstr(10, 4, "7 - Peak analysis")
+        screen.addstr(11, 4, "9 - Preferences")
+        screen.addstr(13, 4, "0 - Exit")
 
         screen.refresh()
 
         x = screen.getch()
 
+######## OPTION 1 :  DISPLAY HARMONIC DATA
         if x == ord('1'):
             x2 = 0
             while x2 != ord('0'):
@@ -110,12 +113,14 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
                     calculation.get_phonon_dispersion_spectra()
 
+######## OPTION 2 :  DEFINE WAVE VECTOR
         if x == ord('2'):
             q_vector = np.array(get_param(screen, "Insert reduced wave vector (values separated by comma)").split(','),
                                 dtype=float)
             calculation.set_reduced_q_vector(q_vector)
             curses.endwin()
 
+######## OPTION 3 :  DEFINE FREQUENCY RANGE
         if x == ord('3'):
             frequency_limits = np.array(get_param(screen, "Insert frequency range (min, max, number of points)").split(','),
                                         dtype=float)
@@ -123,11 +128,13 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             calculation.set_frequency_range(np.linspace(*frequency_limits))
             curses.endwin()
 
+######## OPTION 4 :  BOLTZMANN DISTRIBUTION
         if x == ord('4'):
             curses.endwin()
             calculation.show_boltzmann_distribution()
             curses.endwin()
 
+######## OPTION 5 :  PLOTTING POWER SPECTRA
         if x == ord('5'):
 
             x2 = 0
@@ -158,6 +165,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
                     calculation.plot_correlation_phonon()
 
+######## OPTION 6 :  SAVING POWER SPECTRA
         if x == ord('6'):
 
             x2 = 0
@@ -190,7 +198,62 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
                     calculation.write_correlation_phonon(save_file)
 
+
+######## OPTION 7 :  PEAK ANALYSIS
+        if x == ord('7'):
+            curses.endwin()
+            calculation.phonon_width_individual_analysis()
+            screen.getch()
+            curses.endwin()
+
+
+######## OPTION 9 :  PREFERENCES  (UNDER DEVELOPMENT)
+        if x == ord('9'):
+
+            x2 = 0
+            while x2 != ord('0'):
+                screen = curses.initscr()
+                screen.clear()
+                screen.border(0)
+
+                screen.addstr(2, 2, "Preferences... (Interface only)")
+                screen.addstr(4, 4, "1 - Choose algorithm")
+                screen.addstr(5, 4, "2 - Not yet")
+                screen.addstr(6, 4, "3 - Not yet")
+                screen.addstr(8, 4, "0 - Return")
+                screen.refresh()
+
+                x2 = screen.getch()
+
+                if x2 == ord('1'):
+                    x3 = ord("9")
+                    while int(chr(int(x3))) >= len(calculation.get_algorithm_list()):
+                        screen = curses.initscr()
+                        screen.clear()
+                        screen.border(0)
+
+                        screen.addstr(2, 2, "Algorithms...")
+                        for i, algorithm in enumerate(calculation.get_algorithm_list()):
+                            if i == calculation.parameters.power_spectra_algorithm:
+                                screen.addstr(4+i, 3, ">"+str(i) +" : "+ str(algorithm))
+                            else:
+                                screen.addstr(4+i, 4, str(i) +" : "+ str(algorithm))
+
+                        screen.refresh()
+                        x3 = screen.getch()
+                    calculation.select_power_spectra_algorithm(int(chr(int(x3))))
+                    curses.endwin()
+
+                if x2 == ord('2'):
+                    curses.endwin()
+
+                if x2 == ord('3'):
+                    curses.endwin()
+
+
     curses.endwin()
+
+
 
 #Just for testing
 if __name__ == 'test_gui.py':

@@ -45,7 +45,7 @@ class Calculation:
         if last_steps:
             self._parameters.last_steps = last_steps
 
-        dynamic.crop_trajectory(self._parameters.last_steps)
+        self._dynamic.crop_trajectory(self._parameters.last_steps)
         print("Using ", dynamic.velocity.shape[0], "steps")
 
     #Memory clear methods
@@ -70,8 +70,12 @@ class Calculation:
     def dynamic(self):
         return self._dynamic
 
+    @property
+    def parameters(self):
+        return self._parameters
+
     def set_NAC(self, NAC):
-        self._parameters.use_NAC = NAC
+        self.parameters.use_NAC = NAC
 
     def write_to_xfs_file(self,file_name):
         reading.write_xsf_file(file_name,self.dynamic.structure)
@@ -89,35 +93,35 @@ class Calculation:
         self.dynamic.velocity = reading.read_data_hdf5(file_name)
 
     def set_number_of_mem_coefficients(self,coefficients):
-        self._parameters.number_of_coefficients_mem = coefficients
+        self.parameters.number_of_coefficients_mem = coefficients
 
-       #Frequency ranges related methods
+       #Frequency ranges related methods  (To be deprecated)
     def set_frequency_range(self,frequency_range):
-        self._parameters.frequency_range = frequency_range
+        self.parameters.frequency_range = frequency_range
 
     def get_frequency_range(self):
-         return self._parameters.frequency_range
+         return self.parameters.frequency_range
 
     #Wave vector related methods
     def set_reduced_q_vector(self,q_vector):
         self.full_clear()
-        self._parameters.reduced_q_vector = np.array(q_vector)
+        self.parameters.reduced_q_vector = np.array(q_vector)
 
     def get_reduced_q_vector(self):
-        return self._parameters.reduced_q_vector
-
+        return self.parameters.reduced_q_vector
 
     def get_q_vector(self):
-        return np.dot(self._parameters.reduced_q_vector,
+        return np.dot(self.parameters.reduced_q_vector,
                       2.0*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
 
     #Phonopy harmonic calculation related methods
     def get_eigenvectors(self):
         if self._eigenvectors is None:
             print("Getting frequencies & eigenvectors from Phonopy")
-            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,
-                                                                                                   self._parameters.reduced_q_vector,
-                                                                                                   NAC=self._parameters.use_NAC)
+            self._eigenvectors, self._frequencies = (
+                pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,
+                                                               self.parameters.reduced_q_vector,
+                                                               NAC=self.parameters.use_NAC))
             print("Frequencies obtained:")
             print(self._frequencies)
         return self._eigenvectors
@@ -125,22 +129,23 @@ class Calculation:
     def get_frequencies(self):
         if self._frequencies is None:
             print("Getting frequencies & eigenvectors from Phonopy")
-            self._eigenvectors, self._frequencies = pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,
-                                                                                                   self._parameters.reduced_q_vector,
-                                                                                                   NAC=self._parameters.use_NAC)
+            self._eigenvectors, self._frequencies = (
+                pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,
+                                                               self.parameters.reduced_q_vector,
+                                                               NAC=self.parameters.use_NAC))
         return self._frequencies
 
     def set_band_ranges(self,band_ranges):
-        self._parameters.band_ranges = band_ranges
+        self.parameters.band_ranges = band_ranges
 
     def get_band_ranges(self):
-        return self._parameters.band_ranges
+        return self.parameters.band_ranges
 
     def get_phonon_dispersion_spectra(self):
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,
-                                                                         self._parameters.band_ranges,
-                                                                         NAC=self._parameters.use_NAC)
+                                                                         self.parameters.band_ranges,
+                                                                         NAC=self.parameters.use_NAC)
 
         for i,freq in enumerate(self._bands[1]):
             plt.plot(self._bands[1][i],self._bands[2][i],color ='r')
@@ -152,8 +157,8 @@ class Calculation:
     def print_phonon_dispersion_spectrum(self):
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,
-                                                                         self._parameters.band_ranges,
-                                                                         NAC=self._parameters.use_NAC)
+                                                                         self.parameters.band_ranges,
+                                                                         NAC=self.parameters.use_NAC)
         np.set_printoptions(linewidth=200)
         for i,freq in enumerate(self._bands[1]):
             print(str(np.hstack([self._bands[1][i][None].T,self._bands[2][i]])).replace('[','').replace(']',''))
@@ -201,10 +206,12 @@ class Calculation:
         np.savetxt(file_name, self.get_vq().real)
 
     #Power spectra related methods
-    def select_power_spectra_algorithm(self,algorith):
-        if algorith in power_spectrum_functions.keys():
-            self._parameters.power_spectra_algorithm = algorith
-            print("Using ", power_spectrum_functions[algorith], "Function")
+    def select_power_spectra_algorithm(self,algorithm):
+        if algorithm in power_spectrum_functions.keys():
+            if algorithm != self.parameters.power_spectra_algorithm:
+                self.correlation_clear()
+                self.parameters.power_spectra_algorithm = algorithm
+            print("Using ", power_spectrum_functions[algorithm], "Function")
         else:
             print("Algorithm function number not found!\nPlease select:")
             for i in power_spectrum_functions.keys():
@@ -214,9 +221,10 @@ class Calculation:
     def get_correlation_phonon(self):
         if self._correlation_phonon is None:
             print("Calculating phonon projection power spectrum")
-            self._correlation_phonon = (power_spectrum_functions[self._parameters.power_spectra_algorithm])(self.get_vq(),
-                                                                                                            self.dynamic,
-                                                                                                            self._parameters)
+            self._correlation_phonon = (
+                power_spectrum_functions[self.parameters.power_spectra_algorithm])(self.get_vq(),
+                                                                                   self.dynamic,
+                                                                                   self.parameters)
 
         return self._correlation_phonon
 
@@ -225,9 +233,10 @@ class Calculation:
             print("Calculating wave vector projection power spectrum")
             self._correlation_wave_vector = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.get_vc().shape[1]):
-                self._correlation_wave_vector += (power_spectrum_functions[self._parameters.power_spectra_algorithm])(self.get_vc()[:,i,:],
-                                                                                                                      self._dynamic,
-                                                                                                                      self._parameters)
+                self._correlation_wave_vector += (
+                    power_spectrum_functions[self.parameters.power_spectra_algorithm])(self.get_vc()[:,i,:],
+                                                                                       self.dynamic,
+                                                                                       self.parameters)
 
         return np.sum(self._correlation_wave_vector,axis=1)
 
@@ -236,9 +245,10 @@ class Calculation:
             print("Calculation direct power spectrum")
             self._correlation_direct = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.dynamic.get_velocity_mass_average().shape[1]):
-                self._correlation_direct += (power_spectrum_functions[self._parameters.power_spectra_algorithm])(self.dynamic.get_velocity_mass_average()[:, i, :],
-                                                                                                                 self._dynamic,
-                                                                                                                 self._parameters)
+                self._correlation_direct += (power_spectrum_functions[self.parameters.power_spectra_algorithm])(
+                    self.dynamic.get_velocity_mass_average()[:, i, :],
+                    self.dynamic,
+                    self.parameters)
         self._correlation_direct = np.sum(self._correlation_direct, axis=1)
         return self._correlation_direct
 
@@ -246,11 +256,11 @@ class Calculation:
         print("Phonon coefficient scan analysis(Maximum Entropy Method Only)")
         self._correlation_phonon =  mem.phonon_width_scan_analysis(self.get_vq(),
                                                                    self.dynamic,
-                                                                   self._parameters)
+                                                                   self.parameters)
 
     def phonon_width_individual_analysis(self):
         print("Phonon width analysis")
-        fitting.phonon_fitting_analysis(self.get_correlation_phonon(),self._parameters)
+        fitting.phonon_fitting_analysis(self.get_correlation_phonon(),self.parameters)
         return
 
     def plot_correlation_direct(self):
@@ -279,7 +289,7 @@ class Calculation:
         for atom in atoms:
             for coordinate in coordinates:
                 plt.plot(self.dynamic.get_time().real,
-                         self.dynamic.get_trajectory()[:,atom,coordinate].real,
+                         self.dynamic.trajectory[:,atom,coordinate].real,
                          label='atom: ' + str(atom) + ' coordinate:' + str(coordinate))
         plt.legend()
         plt.show()
@@ -322,3 +332,7 @@ class Calculation:
     #Molecular dynamics analysis related methods
     def show_boltzmann_distribution(self):
         energy.bolzmann_distribution(self.dynamic)
+
+    #Other
+    def get_algorithm_list(self):
+        return power_spectrum_functions.values()

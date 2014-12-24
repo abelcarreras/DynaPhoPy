@@ -86,6 +86,7 @@ if 'super_cell_matrix' in input_parameters:
 
 if args.load_velocity:
     trajectory = reading.initialize_from_file(args.load_velocity[0], structure)
+    structure_file = args.load_velocity[0]
 else:
     trajectory = reading.read_from_file_trajectory(args.md_file[0], structure)
 
@@ -103,7 +104,7 @@ if args.power_spectrum_algorithm:
     calculation.select_power_spectra_algorithm(args.power_spectrum_algorithm[0])
 
 if args.number_of_mem_coefficients:
-    calculation.set_number_of_mem_coefficients (args.number_of_mem_coefficients[0])
+    calculation.parameters.number_of_coefficients_mem = args.number_of_mem_coefficients[0]
 
 #Process calculation arguments
 

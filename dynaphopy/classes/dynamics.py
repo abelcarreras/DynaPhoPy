@@ -50,17 +50,10 @@ class Dynamics:
         if self._trajectory is not None: self._trajectory = self._trajectory[-last_steps:, :, :]
         if self._energy is not  None: self._energy = self._energy[-last_steps:]
 
-
     def get_number_of_atoms(self):
         if self._number_of_atoms is None:
             self._number_of_atoms = self.structure.get_number_of_atoms()*np.product(self.get_super_cell_matrix())
         return self._number_of_atoms
-
-    def set_trajectory(self,trajectory):
-        self._trajectory = trajectory
-
-    def get_trajectory(self):
-        return self._trajectory
 
     def set_time(self, time):
         self._time = time
@@ -116,12 +109,19 @@ class Dynamics:
         return self._structure
 
     @property
+    def trajectory(self):
+        return self._trajectory
+
+    @property
     def velocity(self):
         if self._velocity is None:
             print('No velocity provided! calculating it!')
-            self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.get_trajectory(),self.get_time())
+            self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time())
         return self._velocity
 
     @velocity.setter
     def velocity(self,velocity):
         self._velocity = velocity
+
+
+
