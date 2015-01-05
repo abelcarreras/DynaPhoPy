@@ -41,7 +41,7 @@ class Dynamics:
             self._structure = None
 
     def crop_trajectory(self, last_steps):
-        if last_steps > self._velocity.shape[0]:
+        if last_steps > self.velocity.shape[0]:
             print("Warning: specified step number larger than available")
 
         self.velocity = self.velocity[-last_steps:, :, :]

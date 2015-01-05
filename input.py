@@ -64,12 +64,12 @@ reading.write_xsf_file("test.xfs",structure)
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
-#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
+trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,last_steps=50000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=20000)
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.5],super_cell=[2,2,2])
 
-trajectory = reading.initialize_from_file('test.hdf5', structure)
+#trajectory = reading.initialize_from_file('test.hdf5', structure)
 calculation = controller.Calculation(trajectory, last_steps=5000, save_hfd5='test.hdf5')
 
 calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
