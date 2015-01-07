@@ -11,7 +11,7 @@ def list_on_screen(screen, pile, posx, posy):
 
     for i, row_list in enumerate(pile):
         for j, element in enumerate(row_list):
-            screen.addstr(posx+i,posy+j*20,str(i*len(pile[0])+j+1)+": "+str(element)[:8])
+            screen.addstr(posx+i,posy+j*20, str(i*len(pile[0])+j+1)+": "+str(element)[:8])
 
 
 # Get parametres from text ui
