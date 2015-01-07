@@ -21,14 +21,17 @@ mem = Extension('dynaphopy.mem',
 
 
 setup(name='dynaphopy',
-      version='1.1',
+      version='1.2',
       description='dynaphopy module',
       author='Abel Carreras',
       url='https://github.com/abelcarreras/DynaPhoPy',
       author_email='abelcarreras83@gmail.com',
       packages=['dynaphopy',
                 'dynaphopy.classes',
-                'dynaphopy.functions'],
+                'dynaphopy.functions',
+                'dynaphopy.methods',
+                'dynaphopy.analysis'
+                'dynaphopy.interface'],
       scripts=['scripts/dynaphopy'],
       ext_modules=[correlation, derivative, mem])
 

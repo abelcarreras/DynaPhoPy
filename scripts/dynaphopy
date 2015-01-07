@@ -3,9 +3,11 @@ import argparse
 import numpy as np
 
 import phonopy.file_IO as file_IO
-import dynaphopy .functions.iofunctions as reading
+
+import dynaphopy .functions.iofile as reading
 import dynaphopy.classes.controller as controller
-import dynaphopy.functions.interactive_ui as interactive_ui
+import interface.interactive_ui as interactive_ui
+
 
 
 #Define arguments
@@ -57,7 +59,7 @@ parser.add_argument('-pa', '--coefficient_scan_analysis', action='store_true',
                     help='Request coefficient scan analysis')
 
 parser.add_argument('-pi', '--peak_analysis', action='store_true',
-                    help='Request a peak analysis (MEM only)')
+                    help='Request a peak analysis')
 
 parser.add_argument('-ds', '--display_spectrum', action='store_true',
                     help='display phonon dispersion spectrum data in screen (just for test: not recommended)')

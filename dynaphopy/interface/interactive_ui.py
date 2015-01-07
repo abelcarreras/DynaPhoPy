@@ -16,11 +16,13 @@ def list_on_screen(screen, pile, posx, posy):
 
 # Get parametres from text ui
 def get_param(screen,prompt_string):
+
     screen.clear()
     screen.border(0)
     screen.addstr(2, 2, prompt_string)
     screen.refresh()
     input_data = screen.getstr(10, 10, 60)
+
     return input_data
 
 
@@ -28,7 +30,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
     screen = curses.initscr()
     screen.border(0)
-    screen.addstr(5, 7, "Welcome   to   DynaPhoPy 1.1")
+    screen.addstr(5, 7, "Welcome   to   DynaPhoPy 1.2")
     screen.refresh()
     sleep(3)
     curses.endwin()
@@ -50,7 +52,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(8,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
         screen.addstr(9,45,"Unit cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
         screen.addstr(10,45,"MD  cell atoms: "+str(trajectory.get_number_of_atoms()))
-        screen.addstr(11,45,"Number of MD steps: "+str(len(trajectory.get_time())))
+        screen.addstr(11,45,"Number of MD steps: "+str(len(trajectory.velocity)))
 
 
         #Option values left screen

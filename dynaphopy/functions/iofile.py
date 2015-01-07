@@ -6,7 +6,7 @@ import h5py
 
 import dynaphopy.classes.dynamics as dyn
 import dynaphopy.classes.atoms as atomtest
-import dynaphopy.functions.phonopy_interface as pho_interface
+import dynaphopy.functions.phonopy_link as pho_interface
 
 
 def read_from_file_structure_outcar(file_name):
