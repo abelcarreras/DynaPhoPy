@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from dynaphopy.mem import mem
 
-from analysis.fitting import lorentzian, get_error_from_covariance
+from dynaphopy.analysis.fitting import lorentzian, get_error_from_covariance
 
 
 def progress_bar(progress):

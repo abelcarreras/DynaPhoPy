@@ -3,13 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import dynaphopy.functions.projection as projection
-import methods.correlate as correlate
-import methods.maximum_entropy as mem
+import dynaphopy.methods.correlate as correlate
+import dynaphopy.methods.maximum_entropy as mem
 import dynaphopy.classes.parameters as parameters
 import dynaphopy.functions.phonopy_link as pho_interface
 import dynaphopy.functions.iofile as reading
-import analysis.energy as energy
-import analysis.fitting as fitting
+import dynaphopy.analysis.energy as energy
+import dynaphopy.analysis.fitting as fitting
 
 power_spectrum_functions = {
     0: correlate.get_correlation_spectra_par_python,

@@ -30,7 +30,7 @@ setup(name='dynaphopy',
                 'dynaphopy.classes',
                 'dynaphopy.functions',
                 'dynaphopy.methods',
-                'dynaphopy.analysis'
+                'dynaphopy.analysis',
                 'dynaphopy.interface'],
       scripts=['scripts/dynaphopy'],
       ext_modules=[correlation, derivative, mem])
