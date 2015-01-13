@@ -3,13 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import dynaphopy.functions.projection as projection
-import methods.correlate as correlate
-import methods.maximum_entropy as mem
+import dynaphopy.methods.correlate as correlate
+import dynaphopy.methods.maximum_entropy as mem
 import dynaphopy.classes.parameters as parameters
 import dynaphopy.functions.phonopy_link as pho_interface
 import dynaphopy.functions.iofile as reading
-import analysis.energy as energy
-import analysis.fitting as fitting
+import dynaphopy.analysis.energy as energy
+import dynaphopy.analysis.fitting as fitting
 
 power_spectrum_functions = {
     0: correlate.get_correlation_spectra_par_python,
@@ -58,12 +58,10 @@ class Calculation:
         self._correlation_wave_vector = None
         self._correlation_phonon = None
 
-
     def correlation_clear(self):
         self._correlation_phonon = None
         self._correlation_wave_vector = None
         self._correlation_direct = None
-
 
     #Properties
     @property
@@ -73,6 +71,7 @@ class Calculation:
     @property
     def parameters(self):
         return self._parameters
+
 
     def set_NAC(self, NAC):
         self.parameters.use_NAC = NAC
@@ -96,6 +95,7 @@ class Calculation:
         self.parameters.number_of_coefficients_mem = coefficients
 
        #Frequency ranges related methods  (To be deprecated)
+
     def set_frequency_range(self,frequency_range):
         self.parameters.frequency_range = frequency_range
 

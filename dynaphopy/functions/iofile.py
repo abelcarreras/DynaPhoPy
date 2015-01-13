@@ -161,7 +161,7 @@ def read_from_file_structure_poscar(file_name):
 
 def read_from_file_trajectory(file_name, structure=None,
                               limit_number_steps=1000000,  #Maximum number of steps read
-                              last_steps=1000000):         #Total number of read steps (deprecated)
+                              last_steps=None):         #Total number of read steps (deprecated)
 
     #Check file exists
     if not os.path.isfile(file_name):
@@ -236,8 +236,9 @@ def read_from_file_trajectory(file_name, structure=None,
                                 for j in range(number_of_atoms)]
                                for i in range (len(trajectory))])
 
-        trajectory = trajectory[-last_steps:,:,:]
-        energy = energy[-last_steps:]
+        if last_steps is not None:
+            trajectory = trajectory[-last_steps:,:,:]
+            energy = energy[-last_steps:]
 
         print('Number of total steps read:',trajectory.shape[0])
         time = np.array([ i*time_step for i in range(trajectory.shape[0])],dtype=float)

@@ -65,21 +65,28 @@ reading.write_xsf_file("test.xfs",structure)
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,last_steps=50000)
+trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,limit_number_steps=100000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=20000)
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.5],super_cell=[2,2,2])
 
 #trajectory = reading.initialize_from_file('test.hdf5', structure)
-calculation = controller.Calculation(trajectory, last_steps=50000, save_hfd5='test.hdf5')
+
+from dynaphopy.classes.dynamics import obtain_velocity_from_positions
+#obtain_velocity_from_positions(structure.get_cell(),trajectory.trajectory,trajectory.get_time())
+
+#exit()
+
+calculation = controller.Calculation(trajectory, last_steps=100000, save_hfd5='test.hdf5')
+
 
 calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
-calculation.set_frequency_range(np.linspace(1, 25, 200))
+calculation.set_frequency_range(np.linspace(1, 25, 500))
 calculation.select_power_spectra_algorithm(1)
 #calculation.set_NAC(True)
 
-print(calculation.get_frequencies())
-print(calculation.get_q_vector())
-print(structure.get_primitive_cell())
+#print(calculation.get_frequencies())
+#print(calculation.get_q_vector())
+#print(structure.get_primitive_cell())
 
 #Show phonon dispersion spectra
 #calculation.print_phonon_dispersion_spectrum()
@@ -91,26 +98,26 @@ print(structure.get_primitive_cell())
 #calculation.dynamic.velocity = None
 #calculation.read_velocity('test.h5')
 
-
 #calculation.save_vq("vq.out")
 #calculation.save_vc("vc.out")
 
 #exit()
 
-calculation.phonon_width_individual_analysis()
-
-
 
 #################################### GET PROPERTIES #########################################
 #calculation.plot_trajectory()
 #calculation.plot_energy()
-#calculation.plot_trajectory(atoms=[0,1,2,3])
-#calculation.plot_velocity(atoms=[0,1,2,3])
+calculation.plot_trajectory(atoms=[0,1,2,3])
+calculation.plot_velocity(atoms=[0,1,2,3])
 
 #calculation.plot_vc(atoms=[0,1])
 #calculation.plot_vq(modes=[0,1,2,3,4])
 
 #print(structure.get_number_of_atoms())
+
+
+#calculation.phonon_width_individual_analysis()
+#exit()
 
 ############################## DEFINE CALCULATION REQUESTS #####################################
 # All this options are totally optional and independent, just comment or uncomment the desired ones
@@ -133,6 +140,7 @@ calculation.phonon_width_individual_analysis()
 # 5e. Request calculate plot of wave vector projected velocity correlation function
 calculation.plot_correlation_wave_vector()
 
+exit()
 # 5f. Request calculate plot of phonon mode projected velocity correlation function
 calculation.plot_correlation_phonon()
 

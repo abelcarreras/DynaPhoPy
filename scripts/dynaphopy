@@ -4,9 +4,9 @@ import numpy as np
 
 import phonopy.file_IO as file_IO
 
-import dynaphopy .functions.iofile as reading
+import dynaphopy.functions.iofile as reading
 import dynaphopy.classes.controller as controller
-import interface.interactive_ui as interactive_ui
+import dynaphopy.interface.interactive_ui as interactive_ui
 
 
 

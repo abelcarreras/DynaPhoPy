@@ -15,7 +15,8 @@ derivative  = Extension('dynaphopy.derivative',
                         sources=['Extensions/derivative.c'])
 
 mem = Extension('dynaphopy.mem',
-                extra_compile_args=['-std=c99'],
+                extra_compile_args=['-std=c99','-fopenmp'],
+                extra_link_args=['-lgomp'],
                 include_dirs = include_dirs_numpy,
                 sources=['Extensions/mem.c'])
 
@@ -30,7 +31,7 @@ setup(name='dynaphopy',
                 'dynaphopy.classes',
                 'dynaphopy.functions',
                 'dynaphopy.methods',
-                'dynaphopy.analysis'
+                'dynaphopy.analysis',
                 'dynaphopy.interface'],
       scripts=['scripts/dynaphopy'],
       ext_modules=[correlation, derivative, mem])

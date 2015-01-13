@@ -1,13 +1,14 @@
 import numpy as np
 from dynaphopy.classes import atoms
-from dynaphopy.derivative import derivative
+from dynaphopy.derivative import derivative_general as derivative
 #import matplotlib.pyplot as plt
 
 
-def obtain_velocity_from_positions(cell,trajectory,time):
+def obtain_velocity_from_positions(cell,trajectory, time):
     velocity = np.empty_like(trajectory)
     for i in range(trajectory.shape[1]):
-        velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time)
+   #     velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time)
+         velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=8)
 
     print('Velocity obtained from trajectory derivative')
     return velocity
@@ -49,6 +50,7 @@ class Dynamics:
 
         if self._trajectory is not None: self._trajectory = self._trajectory[-last_steps:, :, :]
         if self._energy is not  None: self._energy = self._energy[-last_steps:]
+        if self._time is not  None: self._time = self._time[-last_steps:]
 
     def get_number_of_atoms(self):
         if self._number_of_atoms is None:
@@ -116,7 +118,9 @@ class Dynamics:
     def velocity(self):
         if self._velocity is None:
             print('No velocity provided! calculating it!')
-            self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time())
+            self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time_step_average())
+ #           self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time())
+
         return self._velocity
 
     @velocity.setter
