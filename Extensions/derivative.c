@@ -5,20 +5,24 @@
 #include <complex.h>
 #include <numpy/arrayobject.h>
 
+#define min(a,b) ((a) < (b) ? (a) : (b))
 
 //  Functions declaration
 //static double   **matrix_inverse_3x3    (double  **a);
 static double   **matrix_multiplication (double  **a, double  **b, int n, int l, int m);
+static void       matrix_multiplication2 (double  **a, double  **b, double  **c, int n, int l, int m);
+
 static int       TwotoOne              (int Row, int Column, int NumColumns);
 static double   **pymatrix_to_c_array_real   (PyArrayObject *array);
 
 static double _Complex  **pymatrix_to_c_array   (PyArrayObject *array);
 
-
 static double  **matrix_inverse ( double ** a ,int n);
 static double  Determinant(double  **a,int n);
 static double  ** CoFactor(double  **a,int n);
 
+static double *FiniteDifferenceCoefficients(int DerivativeOrder, int PrecisionOrder);
+static int Position(int i);
 
 //  Derivate calculation (centered differencing)
 static PyObject* method1 (PyObject* self, PyObject *arg) {
@@ -144,7 +148,6 @@ static PyObject* method1 (PyObject* self, PyObject *arg) {
     return(PyArray_Return(Derivative_object));
 
 };
-
 
 
 //  Derivate calculation (centered differencing) [real]
@@ -275,6 +278,116 @@ static PyObject* method2 (PyObject* self, PyObject *arg) {
     return(PyArray_Return(Derivative_object));
 
 };
+
+
+//  Derivate calculation (centered differencing with arbitrary order of precision)
+static PyObject* method3 (PyObject* self, PyObject *arg, PyObject *keywords) {
+
+//  Declaring basic variables (default)
+	int Order = 2;
+    double  TimeStep;
+
+//  Interface with python
+    PyObject *Cell_obj, *Trajectory_obj;
+    static char *kwlist[] = {"cell", "trajectory", "time_step", "precision_order", NULL};
+    if (!PyArg_ParseTupleAndKeywords(arg, keywords, "OOd|i", kwlist, &Cell_obj, &Trajectory_obj, &TimeStep, &Order))  return NULL;
+
+    PyObject *Cell_array = PyArray_FROM_OTF(Cell_obj, NPY_DOUBLE, NPY_IN_ARRAY);
+    PyObject *Trajectory_array = PyArray_FROM_OTF(Trajectory_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
+
+    if (Cell_array == NULL || Trajectory_array == NULL ) {
+         Py_XDECREF(Cell_array);
+         Py_XDECREF(Trajectory_array);
+         return NULL;
+    }
+
+//    double _Complex *Cell           = (double _Complex*)PyArray_DATA(Cell_array);
+    double _Complex *Trajectory = (double _Complex*)PyArray_DATA(Trajectory_array);
+    int    NumberOfData         = (int)PyArray_DIM(Trajectory_array, 0);
+    int    NumberOfDimensions   = (int)PyArray_DIM(Cell_array, 0);
+
+
+//  Create new Numpy array to store the result
+    double _Complex **Derivative;
+    PyArrayObject *Derivative_object;
+
+    int dims[2]={NumberOfData,NumberOfDimensions};
+
+    Derivative_object=(PyArrayObject *) PyArray_FromDims(2,dims,NPY_CDOUBLE);
+    Derivative=pymatrix_to_c_array( Derivative_object);
+
+
+//  Create a pointer array for cell matrix (to be improved)
+    double  **Cell_c = pymatrix_to_c_array_real((PyArrayObject *) Cell_array);
+
+
+//	Matrix inversion
+	double  **Cell_i = matrix_inverse(Cell_c,NumberOfDimensions);
+
+
+//  Pointers definition
+	double _Complex* Point_initial        = malloc(NumberOfDimensions*sizeof(double _Complex));
+	double _Complex* Point_final          = malloc(NumberOfDimensions*sizeof(double _Complex));
+
+    double * Coefficients                 = malloc((Order+1)*sizeof(double));
+
+	double ** Separation           = malloc(sizeof(double *));
+	for (int k = 0; k < NumberOfDimensions; k++) Separation[k] = (double *) malloc(sizeof(double ));
+
+
+	double ** ProjectedSeparation           = malloc(sizeof(double *));
+	for (int k = 0; k < NumberOfDimensions; k++) ProjectedSeparation[k] = (double *) malloc(sizeof(double ));
+
+
+	double ** Point_diff          = malloc(sizeof(double *));
+	for (int k = 0; k < NumberOfDimensions; k++) Point_diff[k] = (double *) malloc(sizeof(double ));
+
+
+
+//	Derivation algorithm
+    Coefficients = FiniteDifferenceCoefficients(1, Order);
+
+	for (int i=Order; i<(NumberOfData-Order); i++) {
+
+		for (int k = 0; k < NumberOfDimensions; k++) {
+			Point_initial[k] = Trajectory[TwotoOne(i, k, NumberOfDimensions)];
+			Derivative[i][k] = 0;
+		}
+
+		for (int j = 0; j <= Order; j++) {
+
+
+            for (int k = 0; k < NumberOfDimensions; k++) {
+                Point_final  [k]    = Trajectory[TwotoOne(i+Position(j), k, NumberOfDimensions)];
+                Point_diff   [k][0] = (Point_final[k] - Point_initial[k]) / 0.5;
+            }
+            matrix_multiplication2(Cell_i, Point_diff, Separation, NumberOfDimensions, NumberOfDimensions, 1);
+
+            for (int k = 0; k < NumberOfDimensions; k++) Separation[k][0] = (double)(int)Separation[k][0];
+            matrix_multiplication2(Cell_c, Separation, ProjectedSeparation, NumberOfDimensions, NumberOfDimensions, 1);
+
+            for (int k = 0; k < NumberOfDimensions; k++) Point_final[k]= Point_final[k]-ProjectedSeparation[k][0];
+
+        	for (int k = 0; k < NumberOfDimensions; k++) Derivative[i][k] += (Point_final[k]*Coefficients[j])/ pow(TimeStep,1);
+
+        }
+
+	}
+
+//  Side limits extrapolation
+	for (int k = Order; k > 0; k--) {
+		for (int j = 0; j < NumberOfDimensions; j++) {
+			Derivative[k-1][j] = 2.0 * Derivative[1+k-1][j] - Derivative[2+k-1][j];
+			Derivative[NumberOfData-k][j] = 2.0 * Derivative[NumberOfData-1-k][j] - Derivative[NumberOfData-2-k][j] ;
+		}
+	 }
+
+
+//  Returning python array
+    return(PyArray_Return(Derivative_object));
+
+};
+
 
 //  ---------------   Support functions ----------------  //
 
@@ -453,7 +566,6 @@ static double ** CoFactor(double  **a,int n)
 }
 
 
-
 //  Calculate the matrix multiplication
 static double  **matrix_multiplication ( double   **a, double   **b, int n, int l, int m ){
 
@@ -473,25 +585,83 @@ static double  **matrix_multiplication ( double   **a, double   **b, int n, int 
 	return c;
 };
 
+static void  matrix_multiplication2 (double  **a, double  **b, double  **c, int n, int l, int m){
+
+	for (int i = 0 ; i< n ;i++) {
+		for (int j  = 0; j<m ; j++) {
+			c[i][j] = 0;
+			for (int k = 0; k<l; k++) {
+				c[i][j] += a[i][k] * b[k][j];
+			}
+		}
+	}
+}
+
 
 static int TwotoOne(int Row, int Column, int NumColumns) {
 	return Row*NumColumns + Column;
 };
 
+static int Position(int i) {
+    return (i+1)/2*pow(-1,i+1);
+    }
+
+
+static double *FiniteDifferenceCoefficients(int M, int N) {
+    double *df = malloc((N+1)*sizeof(double *));
+    double d[M+1][N+1][N+1];
+    double a[N+1];
+
+    double x0;
+    int c1, c2, c3;
+    int m,n,v, i;
+
+    for (i=0; i <= N ; i++) {
+        a[i] = Position(i);
+    }
+
+    x0 = 0;
+    d[0][0][0] = 1.0;
+    c1 = 1;
+    for ( n = 1; n<=N; n++) {
+        c2 = 1;
+        for ( v=0; v < n; v++){
+            c3 = a[n] - a[v];
+            c2 = c2 * c3;
+            if (n < M)  d[n][n-1][v]=0.0;
+            for ( m=0; m <= min(n,M); m++) {
+                d[m][n][v] = ((a[n]-x0)*d[m][n-1][v]-m*d[m-1][n-1][v])/c3;
+            }
+        }
+        for (m=0; m <= min(n,M); m++) {
+            d[m][n][v] = c1*(m*d[m-1][n-1][n-1]-(a[n-1]-x0)*d[m][n-1][n-1])/c2;
+        }
+        c1 = c2;
+    }
+
+    for (i=0; i<=N ; i++) {
+        df[i] = d[M][N][i];
+    }
+
+    return df;
+}
 
 
 //  --------------- Interface functions ---------------- //
 
 static char extension_docs_method1[] =
-    "derivative1(cell, trajectory, time )\n\n Calculation of the derivative (centered differencing)\n";
+    "derivative(cell, trajectory, time, order=1 )\n\n Calculation of the derivative [centered differencing]\n";
 
 static char extension_docs_method2[] =
-    "derivative2(cell, trajectory, time )\n\n Calculation of the derivative (centered differencing) [real]\n";
+    "derivative_real(cell, trajectory, time, order=1 )\n\n Calculation of the derivative [centered differencing] [real]\n";
 
+static char extension_docs_method3[] =
+    "derivative_real(cell, trajectory, time, precision_order=2 )\n\n Calculation of the derivative [centered differencing] [Any order]\n";
 
 static PyMethodDef extension_funcs[] = {
     {"derivative", (PyCFunction)method1, METH_VARARGS, extension_docs_method1},
     {"derivative_real", (PyCFunction)method2, METH_VARARGS, extension_docs_method2},
+    {"derivative_general", (PyCFunction)method3, METH_VARARGS|METH_KEYWORDS, extension_docs_method3},
     {NULL}
 };
 

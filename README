@@ -1,5 +1,5 @@
 ------------------------------------------
-DYNAPHOPY 1.1
+DYNAPHOPY 1.2
 ------------------------------------------
 Program to calculate crystal anharmonic frequencies from molecular
 dynamics calculation obtained from VASP code.

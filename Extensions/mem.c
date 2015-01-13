@@ -4,11 +4,12 @@
 #include <stdlib.h>
 #include <complex.h>
 #include <numpy/arrayobject.h>
+#include <omp.h>
 
 #undef I
 
 static float FrequencyEvaluation(float TimeStep, float Coeficients[], int m, float xms);
-static double GetCoeficients(_Complex double data[], int n, int m, float d[]);
+static double GetCoeficients( double data[], int n, int m, float d[]);
 
 
 static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *keywords)
@@ -47,7 +48,9 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     float coefficients[NumberOfCoefficients];
 
     // Maximum Entropy Method Algorithm
-    double MeanSquareDiscrepancy = GetCoeficients(Velocity, NumberOfData, NumberOfCoefficients, coefficients);
+    double MeanSquareDiscrepancy = GetCoeficients((double *)Velocity, NumberOfData, NumberOfCoefficients, coefficients);
+
+# pragma omp parallel for default(shared)
     for (int i=0;i<NumberOfFrequencies;i++)
         PowerSpectrum[i] = FrequencyEvaluation(Frequency[i]*TimeStep, coefficients, NumberOfCoefficients, MeanSquareDiscrepancy);
 
@@ -68,7 +71,7 @@ static float FrequencyEvaluation(float TimeStep, float Coefficients[], int Numbe
 }
 
 
-static double GetCoeficients(_Complex double Data[], int NumberOfData, int NumberOfCoefficients, float Coefficients[]) {
+static double GetCoeficients( double Data[], int NumberOfData, int NumberOfCoefficients, float Coefficients[]) {
 
     int k,j,i;
     float p=0.0;
@@ -90,7 +93,6 @@ static double GetCoeficients(_Complex double Data[], int NumberOfData, int Numbe
         wk2[j-1]=Data[j];
     }
 
-
     for (k=1;k<=NumberOfCoefficients;k++) {
 
         float Numerator=0.0,Denominator=0.0;
@@ -106,7 +108,7 @@ static double GetCoeficients(_Complex double Data[], int NumberOfData, int Numbe
 
         for (i=1;i<=(k-1);i++) Coefficients[i]=wkm[i]-Coefficients[k]*wkm[k-i];
 
-        if (k == NumberOfCoefficients) return MeanSquareDiscrepany;
+        if (k == NumberOfCoefficients) continue;
 
         for (i=1;i<=k;i++) wkm[i]=Coefficients[i];
 
@@ -115,7 +117,7 @@ static double GetCoeficients(_Complex double Data[], int NumberOfData, int Numbe
             wk2[j]  = wk2[j+1]-wkm[k]*wk1[j+1];
         }
     }
-    return 0;
+    return MeanSquareDiscrepany;
 };
 
 

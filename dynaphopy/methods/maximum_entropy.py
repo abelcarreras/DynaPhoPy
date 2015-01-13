@@ -1,11 +1,13 @@
 import numpy as np
 import sys
 import multiprocessing
+
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from dynaphopy.mem import mem
 
-from dynaphopy.functions.fitting import lorentzian, get_error_from_covariance
+from dynaphopy.analysis.fitting import lorentzian, get_error_from_covariance
+
 
 def progress_bar(progress):
     bar_length = 30
@@ -37,7 +39,7 @@ def mem_worker(n_pos, velocity, trajectory, parameters):
     return {n_pos: power_spectrum}
 
 
-def get_mem_spectra_par(velocity, trajectory, parameters):
+def get_mem_spectra_par_python(velocity, trajectory, parameters):
 
     mem_full_dict = {}
     progress_bar(0)
