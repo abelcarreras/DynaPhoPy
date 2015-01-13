@@ -2,7 +2,7 @@
 
 import numpy as np
 import phonopy.file_IO as file_IO
-import dynaphopy.functions.iofunctions as reading
+import dynaphopy.functions.iofile as reading
 import dynaphopy.classes.controller as controller
 
 
@@ -11,8 +11,8 @@ import dynaphopy.classes.controller as controller
 # FORCE_SETS : force set file obtained from PHONOPY calculation
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
-directory ='/home/abel/VASP/Si-phonon/3x3x3/'
-#directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
+#directory ='/home/abel/VASP/Si-phonon/3x3x3/'
+directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
 #directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
 #directory = '/home/abel/VASP/GaN-phonon/4x4x2_GGA/'
 #structure = reading.read_from_file_structure_outcar(directory+'OUTCAR')
@@ -64,15 +64,17 @@ reading.write_xsf_file("test.xfs",structure)
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure,last_steps=50000)
-#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,last_steps=50000)
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
+trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,last_steps=50000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=20000)
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.5],super_cell=[2,2,2])
 
-calculation = controller.Calculation(trajectory)
-calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
-calculation.set_frequency_range(np.linspace(1,25,200))
+#trajectory = reading.initialize_from_file('test.hdf5', structure)
+calculation = controller.Calculation(trajectory, last_steps=50000, save_hfd5='test.hdf5')
 
+calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
+calculation.set_frequency_range(np.linspace(1, 25, 200))
+calculation.select_power_spectra_algorithm(1)
 #calculation.set_NAC(True)
 
 print(calculation.get_frequencies())
@@ -82,27 +84,27 @@ print(structure.get_primitive_cell())
 #Show phonon dispersion spectra
 #calculation.print_phonon_dispersion_spectrum()
 #calculation.get_phonon_dispersion_spectra()
-
+#calculation.plot_energy()
 #exit()
 
-calculation.save_velocity('test.h5')
-calculation.dynamic.velocity = None
-calculation.read_velocity('test.h5')
+#calculation.save_velocity('test.h5')
+#calculation.dynamic.velocity = None
+#calculation.read_velocity('test.h5')
 
 
-calculation.save_vq("vq.out")
-calculation.save_vc("vc.out")
+#calculation.save_vq("vq.out")
+#calculation.save_vc("vc.out")
 
 #exit()
 
 calculation.phonon_width_individual_analysis()
 
-exit()
+
 
 #################################### GET PROPERTIES #########################################
 #calculation.plot_trajectory()
-calculation.plot_energy()
-calculation.plot_trajectory(atoms=[0,1,2,3])
+#calculation.plot_energy()
+#calculation.plot_trajectory(atoms=[0,1,2,3])
 #calculation.plot_velocity(atoms=[0,1,2,3])
 
 #calculation.plot_vc(atoms=[0,1])
@@ -117,10 +119,10 @@ calculation.plot_trajectory(atoms=[0,1,2,3])
 # Python scripting features may be used for more complex requests
 
 # 5a. Set wave vector into which is going to be projected the velocity (default: gamma point)
-#calculation.set_reduced_q_vector([0.5, 0.3, 0.0])
+#calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
 
 # 5b. Define range of frequency to analyze (default: 0-20THz)
-#calculation.set_frequency_range(np.array([0.01*i + 14.0 for i in range (100)]))
+#calculation.set_frequency_range(np.linspace(0,40,200))
 
 # 5c. Request Boltzmann distribution trajectory analysis
 #calculation.show_bolzmann_distribution()

@@ -483,10 +483,10 @@ static int TwotoOne(int Row, int Column, int NumColumns) {
 //  --------------- Interface functions ---------------- //
 
 static char extension_docs_method1[] =
-    "derivative1(cell, trajectory, time )\n\n Calculation of the derivative (centered differencing)\n";
+    "derivative(cell, trajectory, time, order=1 )\n\n Calculation of the derivative [centered differencing]\n";
 
 static char extension_docs_method2[] =
-    "derivative2(cell, trajectory, time )\n\n Calculation of the derivative (centered differencing) [real]\n";
+    "derivative_real(cell, trajectory, time, order=1 )\n\n Calculation of the derivative [centered differencing] [real]\n";
 
 
 static PyMethodDef extension_funcs[] = {

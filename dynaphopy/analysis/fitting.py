@@ -38,7 +38,6 @@ def phonon_fitting_analysis(original, parameters):
         print '\nPeak #', i+1
         print('------------------------------------')
         print 'Width(FWHM):', width, 'THz'
-
         print 'Position:', fit_params[0], 'THz'
         print 'Coefficients:', number_of_coefficients
         print 'Fitting Error:', error
@@ -48,7 +47,7 @@ def phonon_fitting_analysis(original, parameters):
 
         plt.figure(i)
         plt.suptitle('Phonon '+str(i+1))
-        plt.text(fit_params[0], 10, 'Width: ' + str(width), fontsize=12)
+        plt.text(fit_params[0], height/2, 'Width: ' + "{:10.4f}".format(width), fontsize=12)
         plt.plot(test_frequencies_range, power_spectrum, label='Power spectrum')
         plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params), label='Lorentzian fit')
         plt.legend()

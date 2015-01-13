@@ -5,26 +5,34 @@ import numpy as np
 class Parameters:
 
     def __init__(self,
+                 #Cutting
+                 last_steps=2000,  # default number of last steps used to perform the calculations
+
                  #Projections
-                 reduced_q_vector = (0,0,0),
+                 reduced_q_vector=(0, 0, 0),  # default reduced wave vector
 
                  #Maximum Entropy Method
                  number_of_coefficients_mem=300,
-                 mem_scan_range=np.array(np.linspace(40,1000,100),dtype=int),
+                 mem_scan_range=np.array(np.linspace(40, 1000, 100),dtype=int),
 
                  #Correlation Method
-                 correlation_function_step = 10,
+                 correlation_function_step=10,
                  integration_method = 1,  # 0: Trapezoid  1:Rectangles
 
                  #Power spectra
-                 power_spectra_algorithm = 0, # 0: Correlation Method     1: Maximum Entropy Method
-                 frequency_range=np.linspace(0,40,500),
+                    # 0: Correlation functions parallel(python)
+                    # 1: Maximum Entropy Method
+                    # 2: Correlation functions serial
+                    # 3: Correlation functions parallel (OpenMP)
+                 power_spectra_algorithm=3,
+                 frequency_range=np.linspace(0, 40, 500),
 
                  #Phonon dispersion diagram
                  use_NAC = False,
-                 band_ranges = ((0.0, 0.0, 0.0),(0.0, 0.0, 0.5)),
+                 band_ranges=((0.0, 0.0, 0.0), (0.0, 0.0, 0.5)),
                  ):
 
+        self._last_steps = last_steps
         self._number_of_coefficients_mem=number_of_coefficients_mem
         self._mem_scan_range=mem_scan_range
         self._correlation_function_step = correlation_function_step
@@ -37,6 +45,14 @@ class Parameters:
 
 
     #Properties
+    @property
+    def last_steps(self):
+        return self._last_steps
+
+    @last_steps.setter
+    def last_steps(self, last_steps):
+        self._last_steps = last_steps
+
     @property
     def reduced_q_vector(self):
         return self._reduced_q_vector
