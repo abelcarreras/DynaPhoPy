@@ -15,7 +15,8 @@ power_spectrum_functions = {
     0: correlate.get_correlation_spectra_par_python,
     1: mem.get_mem_spectra_par_python,
     2: correlate.get_correlation_spectra_serial,
-    3: correlate.get_correlation_spectra_par_openmp
+    3: correlate.get_correlation_spectra_par_openmp,
+    4: mem.get_mem_spectra_par_openmp
 }
 
 
@@ -254,13 +255,13 @@ class Calculation:
 
     def phonon_width_scan_analysis(self):
         print("Phonon coefficient scan analysis(Maximum Entropy Method Only)")
-        self._correlation_phonon =  mem.phonon_width_scan_analysis(self.get_vq(),
+        self._correlation_phonon =  mem.phonon_width_scan_analysis_openmp(self.get_vq(),
                                                                    self.dynamic,
                                                                    self.parameters)
 
     def phonon_width_individual_analysis(self):
         print("Phonon width analysis")
-        fitting.phonon_fitting_analysis(self.get_correlation_phonon(),self.parameters)
+        fitting.phonon_fitting_analysis(self.get_correlation_phonon(),self.parameters.frequency_range)
         return
 
     def plot_correlation_direct(self):

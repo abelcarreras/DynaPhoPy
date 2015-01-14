@@ -13,7 +13,7 @@ class Parameters:
 
                  #Maximum Entropy Method
                  number_of_coefficients_mem=300,
-                 mem_scan_range=np.array(np.linspace(40, 1000, 100),dtype=int),
+                 mem_scan_range=np.array(np.linspace(40, 2000, 100), dtype=int),
 
                  #Correlation Method
                  correlation_function_step=10,
