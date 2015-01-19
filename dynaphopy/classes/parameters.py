@@ -5,6 +5,9 @@ import numpy as np
 class Parameters:
 
     def __init__(self,
+                 #General
+                 silent=False,
+
                  #Cutting
                  last_steps=2000,  # default number of last steps used to perform the calculations
 
@@ -32,6 +35,7 @@ class Parameters:
                  band_ranges=((0.0, 0.0, 0.0), (0.0, 0.0, 0.5)),
                  ):
 
+        self._silent = silent
         self._last_steps = last_steps
         self._number_of_coefficients_mem=number_of_coefficients_mem
         self._mem_scan_range=mem_scan_range
@@ -43,8 +47,15 @@ class Parameters:
         self._use_NAC = use_NAC
         self._band_ranges = band_ranges
 
-
     #Properties
+    @property
+    def silent(self):
+        return self._silent
+
+    @silent.setter
+    def silent(self, silent):
+        self._silent = silent
+
     @property
     def last_steps(self):
         return self._last_steps

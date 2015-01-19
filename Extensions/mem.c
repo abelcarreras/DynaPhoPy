@@ -126,7 +126,7 @@ static double GetCoeficients( double Data[], int NumberOfData, int NumberOfCoeff
 //"MEM ( ): Calculation of Power spectra with <Maximum Entropy Method";
 
 static char extension_docs[] =
-    "MeM ( ): Maximum Entropy Method\n Constant time step ";
+    "mem(frequency, velocity, time_step, coefficients=100 )\n\n Maximum Entropy Method\n Constant time step ";
 
 
 static PyMethodDef extension_funcs[] =

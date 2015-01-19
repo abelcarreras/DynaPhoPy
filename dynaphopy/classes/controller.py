@@ -261,7 +261,10 @@ class Calculation:
 
     def phonon_width_individual_analysis(self):
         print("Phonon width analysis")
-        fitting.phonon_fitting_analysis(self.get_correlation_phonon(),self.parameters.frequency_range)
+        fitting.phonon_fitting_analysis(self.get_correlation_phonon(),
+                                        self.parameters.frequency_range,
+                                        harmonic_frequencies=self.get_frequencies(),
+                                        show_plots=not self.parameters.silent)
         return
 
     def plot_correlation_direct(self):
@@ -281,7 +284,7 @@ class Calculation:
             plt.plot(self.get_frequency_range(), self.get_correlation_phonon()[:, i])
         plt.show()
 
-    #Analysis of dynamical properties related methods
+    #Plot dynamical properties related methods
     def plot_trajectory(self, atoms=None, coordinates=None):
         if not atoms: atoms = [0]
         if not coordinates: coordinates = [0]

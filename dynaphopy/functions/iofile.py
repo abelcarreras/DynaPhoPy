@@ -536,6 +536,11 @@ def save_data_hdf5(file_name, velocity, time, super_cell):
 
 def read_data_hdf5(file_name):
 
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print(file_name + ' file does not exist!')
+        exit()
+
     hdf5_file = h5py.File(file_name, "r")
     velocity = hdf5_file['velocity'][:]
     hdf5_file.close()
@@ -545,6 +550,11 @@ def read_data_hdf5(file_name):
 
 def initialize_from_file(file_name,structure):
     print("Reading velocity from hdf5 file: " + file_name)
+
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print(file_name + ' file does not exist!')
+        exit()
 
     hdf5_file = h5py.File(file_name, "r")
     velocity = hdf5_file['velocity'][:]

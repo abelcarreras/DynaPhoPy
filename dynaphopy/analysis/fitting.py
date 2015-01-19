@@ -8,10 +8,10 @@ def lorentzian(x, a, b, c, d):
 
 
 def get_error_from_covariance(covariance):
-    return abs(np.average(covariance))
+    return np.trace(covariance)
 
 
-def phonon_fitting_analysis(original, test_frequencies_range):
+def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None, show_plots=True):
 
 #    number_of_coefficients = parameters.number_of_coefficients_mem
 #    test_frequencies_range = parameters.frequency_range
@@ -40,23 +40,28 @@ def phonon_fitting_analysis(original, test_frequencies_range):
         print('------------------------------------')
         print 'Width(FWHM):', width, 'THz'
         print 'Position:', fit_params[0], 'THz'
-        print 'Fitting Error:', error
+        if harmonic_frequencies is not None:
+            print 'Frequency shift:', fit_params[0] - harmonic_frequencies[i], 'THz'
+        print 'Fitting Error (MMSE):', error
 
-        plt.figure(i+1)
 
-        plt.xlabel('Frequency [THz]')
-        plt.title('Curve fitting')
+        if show_plots:
+            plt.figure(i+1)
 
-        plt.suptitle('Phonon '+str(i+1))
-        plt.text(fit_params[0], height/2, 'Width: ' + "{:10.4f}".format(width),
-                 fontsize=12)
+            plt.xlabel('Frequency [THz]')
+            plt.title('Curve fitting')
 
-        plt.plot(test_frequencies_range, power_spectrum,
-                 label='Power spectrum')
-        plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params),
-                 label='Lorentzian fit',
-                 linewidth=3)
+            plt.suptitle('Phonon '+str(i+1))
+            plt.text(fit_params[0], height/2, 'Width: ' + "{:10.4f}".format(width),
+                     fontsize=12)
 
-        plt.legend()
+            plt.plot(test_frequencies_range, power_spectrum,
+                     label='Power spectrum')
+            plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params),
+                     label='Lorentzian fit',
+                     linewidth=3)
 
-    plt.show()
+            plt.legend()
+
+    if show_plots:
+        plt.show()

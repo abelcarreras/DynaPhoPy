@@ -131,8 +131,6 @@ def phonon_width_scan_analysis_openmp(vq, trajectory, parameters):
         mem_full_dict.update({i: [power_spectrum, best_width, best_index, fit_data, scan_params]})
 
 
-
-
     for i in range(vq.shape[1]):
 
         print "Peak #", i+1
@@ -150,8 +148,8 @@ def phonon_width_scan_analysis_openmp(vq, trajectory, parameters):
 
         plt.figure(0)
         plt.xlabel('Number of coefficients')
-        plt.ylabel('Fitting error^-1')
-        plt.title('fitting error ^-1')
+        plt.ylabel('MMSE^-1')
+        plt.title('Fitting error (MMSE)')
         plt.plot(fit_data[0], np.sqrt(1./fit_data[2]))
 
         plt.figure(1)
