@@ -37,6 +37,7 @@ class Calculation:
         self._correlation_wave_vector = None
         self._correlation_direct = None
         self._bands = None
+        self._anharmonic_bands = None
 
         self._parameters = parameters.Parameters()
 
@@ -283,6 +284,22 @@ class Calculation:
             plt.suptitle('Projection onto Phonon ' + str(i+1))
             plt.plot(self.get_frequency_range(), self.get_correlation_phonon()[:, i])
         plt.show()
+
+    def get_anharmonic_dispersion_spectra(self, band_resolution=30):
+        if self._anharmonic_bands is None:
+            anharmonic_bands = []
+            for q_start, q_end in self.parameters.band_ranges:
+                print(q_start)
+                for i in range(band_resolution+1):
+                    q_vector = np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i
+
+                    self.set_reduced_q_vector(q_vector)
+                    phonon_frequencies = fitting.phonon_fitting_analysis(self.get_correlation_phonon(),
+                                                                     self.parameters.frequency_range,
+                                                                     show_plots=False)[0]
+                    anharmonic_bands.append(phonon_frequencies)
+            self._anharmonic_bands = np.array(anharmonic_bands)
+        return self._anharmonic_bands
 
     #Plot dynamical properties related methods
     def plot_trajectory(self, atoms=None, coordinates=None):

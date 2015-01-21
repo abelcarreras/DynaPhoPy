@@ -44,7 +44,10 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         #Show parameters right screen
         screen.addstr(2,45,"Input file: "+args.input_file[0][-20:])
         screen.addstr(3,45,"Structure file: "+ structure_file[-14:])
-        screen.addstr(4,45,"MD file: "+ args.md_file[0][-20:])
+        if args.load_velocity:
+            screen.addstr(4,45,"hdf5 file: "+ args.load_velocity[0][-20:])
+        else:
+            screen.addstr(4,45,"MD file: "+ args.md_file[0][-20:])
 
         screen.addstr(6,45,"Wave Vector: "+str(calculation.get_reduced_q_vector()))
         screen.addstr(7,45,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '

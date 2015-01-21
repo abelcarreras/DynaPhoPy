@@ -4,7 +4,7 @@ import numpy as np
 import phonopy.file_IO as file_IO
 import dynaphopy.functions.iofile as reading
 import dynaphopy.classes.controller as controller
-
+import matplotlib.pyplot as pl
 
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure OUTCAR are placed
@@ -115,8 +115,13 @@ calculation.plot_velocity(atoms=[0,1,2,3])
 
 #print(structure.get_number_of_atoms())
 
+#calculation.print_phonon_dispersion_spectrum()
+calculation.get_phonon_dispersion_spectra()
+spectrum = calculation.get_anharmonic_dispersion_spectra(band_resolution=30)
 
-calculation.phonon_width_individual_analysis()
+pl.plot(spectrum)
+pl.show()
+#calculation.phonon_width_individual_analysis()
 exit()
 
 ############################## DEFINE CALCULATION REQUESTS #####################################

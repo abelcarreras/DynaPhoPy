@@ -32,7 +32,7 @@ class Parameters:
 
                  #Phonon dispersion diagram
                  use_NAC = False,
-                 band_ranges=((0.0, 0.0, 0.0), (0.0, 0.0, 0.5)),
+                 band_ranges=([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]]),
                  ):
 
         self._silent = silent

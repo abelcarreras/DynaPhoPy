@@ -16,7 +16,11 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 #    number_of_coefficients = parameters.number_of_coefficients_mem
 #    test_frequencies_range = parameters.frequency_range
 
-    print(range(original.shape[1]))
+    widths = []
+    positions = []
+    shifts = []
+
+    print(range(original.shape[1]), " phonons")
     for i in range(original.shape[1]):
 
         power_spectrum = original[:, i]
@@ -43,6 +47,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         if harmonic_frequencies is not None:
             print 'Frequency shift:', fit_params[0] - harmonic_frequencies[i], 'THz'
         print 'Fitting Error (MMSE):', error
+        positions.append(fit_params[0])
+        widths.append(width)
 
 
         if show_plots:
@@ -63,5 +69,10 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 
             plt.legend()
 
+
+
+
     if show_plots:
         plt.show()
+
+    return positions, widths

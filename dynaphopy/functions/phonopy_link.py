@@ -77,7 +77,7 @@ def obtain_eigenvectors_from_phonopy(structure,q_vector,NAC=False):
 
     return arranged_ev, frequencies
 
-def obtain_phonon_dispersion_spectra(structure,bands_ranges,NAC=False):
+def obtain_phonon_dispersion_spectra(structure,bands_ranges,NAC=False,band_resolution=30):
 
     print('Calculating phonon dispersion spectra...')
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
@@ -101,7 +101,6 @@ def obtain_phonon_dispersion_spectra(structure,bands_ranges,NAC=False):
     phonon.produce_force_constants()
 
 
-    band_resolution =30
     bands =[]
     for q_start, q_end in bands_ranges:
         band = []
