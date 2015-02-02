@@ -69,6 +69,7 @@ parser.add_argument('--silent', action='store_true',
 parser.add_argument('-ds', '--display_spectrum', action='store_true',
                     help='display phonon dispersion spectrum data in screen (just for test: not recommended)')
 
+
 args = parser.parse_args()
 
 

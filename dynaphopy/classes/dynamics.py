@@ -100,8 +100,8 @@ class Dynamics:
             self._super_cell_matrix = np.around(super_cell_matrix_real).astype("int")
 
             if abs(sum(self._super_cell_matrix - super_cell_matrix_real)) > tolerance:
-                print('Warning! Structure matrix and trajectory matrix does not fit!')
-                print('Matrix expansion vector is not integer:',super_cell_matrix_real)
+                print('Warning! Structure cell and MD cell do not fit!')
+                print('Cell size relation is not integer:',super_cell_matrix_real)
                 exit()
         return self._super_cell_matrix
 

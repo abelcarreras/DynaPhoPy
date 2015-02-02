@@ -138,6 +138,7 @@ class Calculation:
         return self._frequencies
 
     def set_band_ranges(self,band_ranges):
+        self.correlation_clear()
         self.parameters.band_ranges = band_ranges
 
     def get_band_ranges(self):

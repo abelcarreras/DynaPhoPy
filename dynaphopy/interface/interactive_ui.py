@@ -11,7 +11,7 @@ def list_on_screen(screen, pile, posx, posy):
 
     for i, row_list in enumerate(pile):
         for j, element in enumerate(row_list):
-            screen.addstr(posx+i,posy+j*20, str(i*len(pile[0])+j+1)+": "+str(element)[:8])
+            screen.addstr(posx+i,posy+j*20, str(i*len(pile[0])+j+1)+": {0:.4f}".format(element))
 
 
 # Get parametres from text ui
@@ -47,7 +47,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         if args.load_velocity:
             screen.addstr(4,45,"hdf5 file: "+ args.load_velocity[0][-20:])
         else:
-            screen.addstr(4,45,"MD file: "+ args.md_file[0][-20:])
+            screen.addstr(4,45,"MD file: "+ args.md_file[-20:])
 
         screen.addstr(6,45,"Wave Vector: "+str(calculation.get_reduced_q_vector()))
         screen.addstr(7,45,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '

@@ -8,8 +8,8 @@
 
 #undef I
 
-static float FrequencyEvaluation(float TimeStep, float Coeficients[], int m, float xms);
-static double GetCoeficients( double data[], int n, int m, float d[]);
+static float FrequencyEvaluation(float TimeStep, float Coefficients[], int m, float xms);
+static double GetCoefficients( double data[], int n, int m, float d[]);
 
 
 static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *keywords)
@@ -48,7 +48,7 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     float coefficients[NumberOfCoefficients];
 
     // Maximum Entropy Method Algorithm
-    double MeanSquareDiscrepancy = GetCoeficients((double *)Velocity, NumberOfData, NumberOfCoefficients, coefficients);
+    double MeanSquareDiscrepancy = GetCoefficients((double *)Velocity, NumberOfData, NumberOfCoefficients, coefficients);
 
 # pragma omp parallel for default(shared)
     for (int i=0;i<NumberOfFrequencies;i++)
@@ -71,7 +71,7 @@ static float FrequencyEvaluation(float TimeStep, float Coefficients[], int Numbe
 }
 
 
-static double GetCoeficients( double Data[], int NumberOfData, int NumberOfCoefficients, float Coefficients[]) {
+static double GetCoefficients( double Data[], int NumberOfData, int NumberOfCoefficients, float Coefficients[]) {
 
     int k,j,i;
     float p=0.0;

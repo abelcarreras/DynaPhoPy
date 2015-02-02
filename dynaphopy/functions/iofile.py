@@ -140,17 +140,21 @@ def read_from_file_structure_poscar(file_name):
 
         for i,j in enumerate(data_lines[5].split()):
             atomic_types.append([j]*number_of_types[i])
-        atomic_types = np.array(atomic_types).flatten().tolist()
+        atomic_types = [item for sublist in atomic_types for item in sublist]
+#        atomic_types = np.array(atomic_types).flatten().tolist()
 
+
+    #Old style poscar format
     except ValueError:
+        print "Reading old style POSCAR"
         number_of_types = np.array(data_lines[5].split(),dtype=int)
         scaled_positions = np.array([data_lines[7+k].split()
                                      for k in range(np.sum(number_of_types))],dtype=float)
         atomic_types = []
         for i,j in enumerate(data_lines[0].split()):
             atomic_types.append([j]*number_of_types[i])
-        atomic_types = np.array(atomic_types).flatten().tolist()
-
+        atomic_types = [item for sublist in atomic_types for item in sublist]
+       # atomic_types = np.array(atomic_types).flatten().tolist()
 
     return atomtest.Structure(cell= direct_cell,
                               scaled_positions=scaled_positions,
