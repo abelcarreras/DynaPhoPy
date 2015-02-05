@@ -88,13 +88,14 @@ class Calculation:
                                self.dynamic.get_time(),
                                self.dynamic.get_super_cell_matrix())
 
-        print("Velocity saved in file", file_name)
+        print("Velocity saved in file " + file_name)
 
     def read_velocity(self, file_name):
         print("Loading velocity from file", file_name)
         self.dynamic.velocity = reading.read_data_hdf5(file_name)
 
     def set_number_of_mem_coefficients(self,coefficients):
+        self.correlation_clear()
         self.parameters.number_of_coefficients_mem = coefficients
 
        #Frequency ranges related methods  (To be deprecated)

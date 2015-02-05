@@ -29,15 +29,15 @@ if len(sys.argv) == 1:
     print('Usage: concath5 file.h5 file2.h5 ...  concatenated.h5')
     exit()
 
-last = 80000
+first = 10000
 velocity, time, super_cell = read_file_hdf5(sys.argv[1])
-velocity = velocity[-last:]
+velocity = velocity[first:]
 print(sys.argv[1])
 
 for arg in sys.argv[2:-1]:
     print(arg)
     new_velocity = read_file_hdf5(arg)[0]
-    velocity = np.concatenate((velocity, new_velocity[-last:]), axis=0)
+    velocity = np.concatenate((velocity, new_velocity[first:]), axis=0)
 print "Final: ", sys.argv[-1]
 
 save_data_hdf5(sys.argv[-1], velocity, time, super_cell)

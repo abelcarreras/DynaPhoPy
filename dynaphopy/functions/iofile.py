@@ -534,7 +534,7 @@ def save_data_hdf5(file_name, velocity, time, super_cell):
     hdf5_file.create_dataset('time', data=time)
     hdf5_file.create_dataset('super_cell', data=super_cell)
 
-    print("saved", velocity.shape[0], "steps")
+ #   print("saved", velocity.shape[0], "steps")
     hdf5_file.close()
 
 
@@ -553,7 +553,7 @@ def read_data_hdf5(file_name):
 
 
 def initialize_from_file(file_name,structure):
-    print("Reading velocity from hdf5 file: " + file_name)
+    print("Reading data from hdf5 file: " + file_name)
 
     #Check file exists
     if not os.path.isfile(file_name):
