@@ -23,10 +23,10 @@ def plot_phonon_modes(structure, eigenvectors,
 
     atom_type = structure.get_atom_type_index(super_cell=super_cell)
     positions = structure.get_positions(super_cell=super_cell)
-    cell = structure.get_cell()
+    cell = structure.get_cell().T
 
     if draw_primitive:
-        cell = structure.get_primitive_cell()
+        cell = structure.get_primitive_cell().T
 
     for i_phonon in range(eigenvectors.shape[0]):
 

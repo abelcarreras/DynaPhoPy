@@ -12,11 +12,11 @@ import analysis.modes as modes
 # FORCE_SETS : force set file obtained from PHONOPY calculation
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
-directory ='/home/abel/VASP/Si-phonon/3x3x3/'
+#directory ='/home/abel/VASP/Si-phonon/3x3x3/'
 #directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
 #directory = '/home/abel/VASP/Bi2O3-phonon/'
 #directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
-#directory = '/home/abel/VASP/GaN-phonon/4x4x2_GGA/'
+directory = '/home/abel/VASP/GaN-phonon/4x4x2_GGA/'
 #structure = reading.read_from_file_structure_outcar(directory+'OUTCAR')
 structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_scaled_positions())
@@ -34,9 +34,9 @@ structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'
 #                                [0.0, 0.5, 0.0],
 #                                [0.0, 0.0, 0.5]])
 
-structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-                                [0.5, 0.0, 0.5],
-                                [0.5, 0.5, 0.0]])
+#structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+#                                [0.5, 0.0, 0.5],
+#                                [0.5, 0.5, 0.0]])
 
 #structure.set_primitive_matrix([[1.0, 0.0, 0.0],
 #                                [0.0, 1.0, 0.0],
@@ -68,12 +68,12 @@ reading.write_xsf_file("test.xfs",structure)
 
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,limit_number_steps=5000000)
-#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=50000)
+trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=50000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.5],super_cell=[2,2,2])
 
-trajectory = reading.initialize_from_file('test.hdf5', structure)
+#trajectory = reading.initialize_from_file('test.hdf5', structure)
 
 from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 #obtain_velocity_from_positions(structure.get_cell(),trajectory.trajectory,trajectory.get_time())
@@ -82,9 +82,10 @@ from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 
 calculation = controller.Calculation(trajectory, last_steps=80000, save_hfd5='test.hdf5')
 
-modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True)
-#calculation.plot_eigenvectors()
 calculation.set_reduced_q_vector([0.5, 0.0, 0.0])
+
+modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[2,2,2])
+#calculation.plot_eigenvectors()
 
 calculation.set_frequency_range(np.linspace(0, 25, 1000))
 calculation.select_power_spectra_algorithm(4)
