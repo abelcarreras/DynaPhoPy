@@ -24,6 +24,7 @@ def plot_phonon_modes(structure, eigenvectors,
     atom_type = structure.get_atom_type_index(super_cell=super_cell)
     positions = structure.get_positions(super_cell=super_cell)
     cell = structure.get_cell().T
+ #   masses = structure.get_masses(super_cell=super_cell)
 
     if draw_primitive:
         cell = structure.get_primitive_cell().T
@@ -56,7 +57,7 @@ def plot_phonon_modes(structure, eigenvectors,
 
         #Atom positions
         for i, position in enumerate(positions):
-            vector = np.array(eigenvectors[i_phonon, atom_type[i], :].real) * vectors_scale
+            vector = np.array(eigenvectors[i_phonon, atom_type[i], :].real) * vectors_scale #/ np.sqrt(masses[i])
             a = Arrow3D([position[0],position[0]+ vector[0]], [position[1], position[1]+vector[1]],
                         [position[2], position[2]+ vector[2]], mutation_scale=20, lw=3, arrowstyle="-|>", color="r")
             ax.add_artist(a)
