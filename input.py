@@ -5,6 +5,7 @@ import phonopy.file_IO as file_IO
 import dynaphopy.functions.iofile as reading
 import dynaphopy.classes.controller as controller
 import matplotlib.pyplot as pl
+import analysis.modes as modes
 
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure OUTCAR are placed
@@ -65,14 +66,14 @@ reading.write_xsf_file("test.xfs",structure)
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,limit_number_steps=5000000)
-#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=20000)
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=50000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.5],super_cell=[2,2,2])
 
-#trajectory = reading.initialize_from_file('test.hdf5', structure)
+trajectory = reading.initialize_from_file('test.hdf5', structure)
 
 from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 #obtain_velocity_from_positions(structure.get_cell(),trajectory.trajectory,trajectory.get_time())
@@ -81,10 +82,11 @@ from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 
 calculation = controller.Calculation(trajectory, last_steps=80000, save_hfd5='test.hdf5')
 
+modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True)
+#calculation.plot_eigenvectors()
+calculation.set_reduced_q_vector([0.5, 0.0, 0.0])
 
-calculation.set_reduced_q_vector([0.0, 0.0, 0.0])
-
-calculation.set_frequency_range(np.linspace(1, 25, 500))
+calculation.set_frequency_range(np.linspace(0, 25, 1000))
 calculation.select_power_spectra_algorithm(4)
 #calculation.set_NAC(True)
 
@@ -127,7 +129,7 @@ calculation.plot_velocity(atoms=[0,1,2,3])
 
 #pl.plot(spectrum)
 #pl.show()
-#calculation.phonon_width_individual_analysis()
+calculation.phonon_width_individual_analysis()
 #exit()
 
 ############################## DEFINE CALCULATION REQUESTS #####################################

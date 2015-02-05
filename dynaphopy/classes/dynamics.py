@@ -76,10 +76,9 @@ class Dynamics:
 
         if not self._time_step_average :
             self._time_step_average = 0
-            for i in range(self._time.shape[0]-1):
-                self._time_step_average += self._time[i+1] - self._time[i]
-            self._time_step_average /= (self._time.shape[0]-1)
-
+            for i in range(len(self.get_time()) - 1):
+                self._time_step_average += (self.get_time()[i+1] - self.get_time()[i])/(len(self.get_time()) - 1)
+   #         self._time_step_average /= (self.get_time().shape[0]-1)
         return self._time_step_average
 
     def set_structure(self, structure):

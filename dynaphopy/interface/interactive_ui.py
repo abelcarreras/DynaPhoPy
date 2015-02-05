@@ -4,7 +4,6 @@ import curses
 import numpy as np
 import phonopy.file_IO as file_IO
 
-
 def list_on_screen(screen, pile, posx, posy):
 
     pile = np.array(pile).reshape((-1,3))
@@ -112,7 +111,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 if x2 == ord('2'):
                     curses.endwin()
-                    calculation.get_eigenvectors()
+                    #calculation.get_eigenvectors()
+                    calculation.plot_eigenvectors()
 
                 if x2 == ord('3'):
                     curses.endwin()

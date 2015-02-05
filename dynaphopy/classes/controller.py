@@ -10,6 +10,7 @@ import dynaphopy.functions.phonopy_link as pho_interface
 import dynaphopy.functions.iofile as reading
 import dynaphopy.analysis.energy as energy
 import dynaphopy.analysis.fitting as fitting
+import dynaphopy.analysis.modes as modes
 
 power_spectrum_functions = {
     0: correlate.get_correlation_spectra_par_python,
@@ -165,6 +166,9 @@ class Calculation:
         np.set_printoptions(linewidth=200)
         for i,freq in enumerate(self._bands[1]):
             print(str(np.hstack([self._bands[1][i][None].T,self._bands[2][i]])).replace('[','').replace(']',''))
+
+    def plot_eigenvectors(self):
+        modes.plot_phonon_modes(self.dynamic.structure, self.get_eigenvectors())
 
     #Projections related methods
     def get_vc(self):
