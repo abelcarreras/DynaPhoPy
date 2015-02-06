@@ -7,11 +7,11 @@ def eigenvectors_normalization(eigenvector):
         eigenvector[i,:] = eigenvector[i,:]/np.linalg.norm(eigenvector[i,:])
     return eigenvector
 
-def get_eigenvectors_test(estructure):
+def get_eigenvectors_test(structure):
 
     #Manual eigenvectors definition (from Wolfram Mathematica calculations)
-    number_of_cell_atoms = estructure.get_number_of_primitive_atoms()
-    number_of_dimensions = estructure.get_number_of_dimensions()
+    number_of_cell_atoms = structure.get_number_of_primitive_atoms()
+    number_of_dimensions = structure.get_number_of_dimensions()
     eigenvectors = np.array([[0.707107,0,-0.707107,0],
                              [-7.542995783e-13,-0.707107,-6.91441e-16,0.707107],
                              [-0.3441510098,0.6177054982,-0.3441510098,0.6177054982],

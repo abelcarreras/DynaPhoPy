@@ -4,14 +4,13 @@ import curses
 import numpy as np
 import phonopy.file_IO as file_IO
 
-
 def list_on_screen(screen, pile, posx, posy):
 
     pile = np.array(pile).reshape((-1,3))
 
     for i, row_list in enumerate(pile):
         for j, element in enumerate(row_list):
-            screen.addstr(posx+i,posy+j*20, str(i*len(pile[0])+j+1)+": "+str(element)[:8])
+            screen.addstr(posx+i,posy+j*20, str(i*len(pile[0])+j+1)+": {0:.4f}".format(element))
 
 
 # Get parametres from text ui
@@ -43,16 +42,19 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
         #Show parameters right screen
         screen.addstr(2,45,"Input file: "+args.input_file[0][-20:])
-        screen.addstr(3,45,"Structure file: "+ structure_file[-14:])
-        screen.addstr(4,45,"MD file: "+ args.md_file[0][-20:])
+        if args.load_velocity:
+            screen.addstr(4,45,"hdf5 file: "+ args.load_velocity[0][-20:])
+        else:
+            screen.addstr(3,45,"Structure file: "+ structure_file[-14:])
+            screen.addstr(4,45,"MD file: "+ args.md_file[-20:])
 
         screen.addstr(6,45,"Wave Vector: "+str(calculation.get_reduced_q_vector()))
         screen.addstr(7,45,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '
                                               +str(calculation.get_frequency_range()[-1])+' THz')
-        screen.addstr(8,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
-        screen.addstr(9,45,"Unit cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
-        screen.addstr(10,45,"MD  cell atoms: "+str(trajectory.get_number_of_atoms()))
-        screen.addstr(11,45,"Number of MD steps: "+str(len(trajectory.velocity)))
+        screen.addstr(9,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
+        screen.addstr(10,45,"Unit cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
+        screen.addstr(11,45,"MD  cell atoms: "+str(trajectory.get_number_of_atoms()))
+        screen.addstr(12,45,"Number of MD steps: "+str(len(trajectory.velocity)))
 
 
         #Option values left screen
@@ -109,7 +111,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 if x2 == ord('2'):
                     curses.endwin()
-                    calculation.get_eigenvectors()
+                    #calculation.get_eigenvectors()
+                    calculation.plot_eigenvectors()
 
                 if x2 == ord('3'):
                     curses.endwin()
@@ -218,10 +221,12 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.clear()
                 screen.border(0)
 
-                screen.addstr(2, 2, "Preferences... (Interface only)")
-                screen.addstr(4, 4, "1 - Choose algorithm")
-                screen.addstr(5, 4, "2 - Not yet")
-                screen.addstr(6, 4, "3 - Not yet")
+                screen.addstr(2, 2, "Preferences... (on testing)")
+                screen.addstr(4, 4, "1 - Power spectrum algorithm")
+                screen.addstr(5, 4, "2 - Non analytical corrections (dispersion spectrum only): "+
+                            str(calculation.parameters.use_NAC))
+                screen.addstr(6, 4, "3 - Number of MEM coefficients: " +
+                              str(calculation.parameters.number_of_coefficients_mem))
                 screen.addstr(8, 4, "0 - Return")
                 screen.refresh()
 
@@ -247,9 +252,32 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
 
                 if x2 == ord('2'):
+                    x3 = ord("9")
+                    while int(chr(int(x3))) > 2:
+                        screen = curses.initscr()
+                        screen.clear()
+                        screen.border(0)
+
+                        screen.addstr(2, 2, "Non analytical corrections...")
+                        screen.addstr(4, 4, "1 - On  (BORN file is needed in work directory)")
+                        screen.addstr(5, 4, "2 - Off")
+
+
+                        if  calculation.parameters.use_NAC:
+                            screen.addstr(4, 3, ">")
+                        else:
+                            screen.addstr(5, 3, ">")
+
+
+                        screen.refresh()
+                        x3 = screen.getch()
+                    calculation.parameters.use_NAC = bool(int(chr(int(x3)))-2)
+
                     curses.endwin()
 
                 if x2 == ord('3'):
+                    calculation.set_number_of_mem_coefficients(
+                        int(get_param(screen, "Insert number of coefficients")))
                     curses.endwin()
 
 

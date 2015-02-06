@@ -8,14 +8,19 @@ def lorentzian(x, a, b, c, d):
 
 
 def get_error_from_covariance(covariance):
-    return abs(np.average(covariance))
+    return np.sqrt(np.trace(covariance))
 
 
-def phonon_fitting_analysis(original, parameters):
+def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None, show_plots=True):
 
-    number_of_coefficients = parameters.number_of_coefficients_mem
-    test_frequencies_range = parameters.frequency_range
+#    number_of_coefficients = parameters.number_of_coefficients_mem
+#    test_frequencies_range = parameters.frequency_range
 
+    widths = []
+    positions = []
+    shifts = []
+
+    print(range(original.shape[1]), " phonons")
     for i in range(original.shape[1]):
 
         power_spectrum = original[:, i]
@@ -29,7 +34,7 @@ def phonon_fitting_analysis(original, parameters):
                                                     power_spectrum,
                                                     p0=[position, 0.1, height, 0.0])
         except:
-            print('Warning: Fitting error, skipping point!', number_of_coefficients)
+            print('Warning: Fitting error, phonon',i)
             continue
 
         error = get_error_from_covariance(fit_covariances)
@@ -37,19 +42,37 @@ def phonon_fitting_analysis(original, parameters):
 
         print '\nPeak #', i+1
         print('------------------------------------')
-        print 'Width(FWHM):', width, 'THz'
+        print 'Width (FWHM):', width, 'THz'
         print 'Position:', fit_params[0], 'THz'
-        print 'Coefficients:', number_of_coefficients
-        print 'Fitting Error:', error
+        if harmonic_frequencies is not None:
+            print 'Frequency shift:', fit_params[0] - harmonic_frequencies[i], 'THz'
+        print 'Fitting Error (RMSE):', error
+        positions.append(fit_params[0])
+        widths.append(width)
 
-        plt.xlabel('Frequency [THz]')
-        plt.title('Curve fitting')
 
-        plt.figure(i)
-        plt.suptitle('Phonon '+str(i+1))
-        plt.text(fit_params[0], height/2, 'Width: ' + "{:10.4f}".format(width), fontsize=12)
-        plt.plot(test_frequencies_range, power_spectrum, label='Power spectrum')
-        plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params), label='Lorentzian fit')
-        plt.legend()
+        if show_plots:
+            plt.figure(i+1)
 
-    plt.show()
+            plt.xlabel('Frequency [THz]')
+            plt.title('Curve fitting')
+
+            plt.suptitle('Phonon '+str(i+1))
+            plt.text(fit_params[0], height/2, 'Width: ' + "{:10.4f}".format(width),
+                     fontsize=12)
+
+            plt.plot(test_frequencies_range, power_spectrum,
+                     label='Power spectrum')
+            plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params),
+                     label='Lorentzian fit',
+                     linewidth=3)
+
+            plt.legend()
+
+
+
+
+    if show_plots:
+        plt.show()
+
+    return positions, widths

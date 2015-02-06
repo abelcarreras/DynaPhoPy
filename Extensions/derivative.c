@@ -343,6 +343,10 @@ static PyObject* method3 (PyObject* self, PyObject *arg, PyObject *keywords) {
 	for (int k = 0; k < NumberOfDimensions; k++) Point_diff[k] = (double *) malloc(sizeof(double ));
 
 
+    if (NumberOfData < Order) {
+        puts("Not enough points for calculating derivative");
+        return (PyArray_Return(Derivative_object));
+    }
 
 //	Derivation algorithm
     Coefficients = FiniteDifferenceCoefficients(1, Order);

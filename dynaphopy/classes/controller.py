@@ -10,12 +10,14 @@ import dynaphopy.functions.phonopy_link as pho_interface
 import dynaphopy.functions.iofile as reading
 import dynaphopy.analysis.energy as energy
 import dynaphopy.analysis.fitting as fitting
+import dynaphopy.analysis.modes as modes
 
 power_spectrum_functions = {
     0: correlate.get_correlation_spectra_par_python,
     1: mem.get_mem_spectra_par_python,
     2: correlate.get_correlation_spectra_serial,
-    3: correlate.get_correlation_spectra_par_openmp
+    3: correlate.get_correlation_spectra_par_openmp,
+    4: mem.get_mem_spectra_par_openmp
 }
 
 
@@ -36,6 +38,7 @@ class Calculation:
         self._correlation_wave_vector = None
         self._correlation_direct = None
         self._bands = None
+        self._anharmonic_bands = None
 
         self._parameters = parameters.Parameters()
 
@@ -74,6 +77,7 @@ class Calculation:
 
 
     def set_NAC(self, NAC):
+        self._bands = None
         self.parameters.use_NAC = NAC
 
     def write_to_xfs_file(self,file_name):
@@ -85,13 +89,14 @@ class Calculation:
                                self.dynamic.get_time(),
                                self.dynamic.get_super_cell_matrix())
 
-        print("Velocity saved in file", file_name)
+        print("Velocity saved in file " + file_name)
 
     def read_velocity(self, file_name):
         print("Loading velocity from file", file_name)
         self.dynamic.velocity = reading.read_data_hdf5(file_name)
 
     def set_number_of_mem_coefficients(self,coefficients):
+        self.correlation_clear()
         self.parameters.number_of_coefficients_mem = coefficients
 
        #Frequency ranges related methods  (To be deprecated)
@@ -136,6 +141,7 @@ class Calculation:
         return self._frequencies
 
     def set_band_ranges(self,band_ranges):
+        self.correlation_clear()
         self.parameters.band_ranges = band_ranges
 
     def get_band_ranges(self):
@@ -162,6 +168,9 @@ class Calculation:
         np.set_printoptions(linewidth=200)
         for i,freq in enumerate(self._bands[1]):
             print(str(np.hstack([self._bands[1][i][None].T,self._bands[2][i]])).replace('[','').replace(']',''))
+
+    def plot_eigenvectors(self):
+        modes.plot_phonon_modes(self.dynamic.structure, self.get_eigenvectors())
 
     #Projections related methods
     def get_vc(self):
@@ -254,13 +263,16 @@ class Calculation:
 
     def phonon_width_scan_analysis(self):
         print("Phonon coefficient scan analysis(Maximum Entropy Method Only)")
-        self._correlation_phonon =  mem.phonon_width_scan_analysis(self.get_vq(),
+        self._correlation_phonon =  mem.phonon_width_scan_analysis_openmp(self.get_vq(),
                                                                    self.dynamic,
                                                                    self.parameters)
 
     def phonon_width_individual_analysis(self):
         print("Phonon width analysis")
-        fitting.phonon_fitting_analysis(self.get_correlation_phonon(),self.parameters)
+        fitting.phonon_fitting_analysis(self.get_correlation_phonon(),
+                                        self.parameters.frequency_range,
+                                        harmonic_frequencies=self.get_frequencies(),
+                                        show_plots=not self.parameters.silent)
         return
 
     def plot_correlation_direct(self):
@@ -280,7 +292,23 @@ class Calculation:
             plt.plot(self.get_frequency_range(), self.get_correlation_phonon()[:, i])
         plt.show()
 
-    #Analysis of dynamical properties related methods
+    def get_anharmonic_dispersion_spectra(self, band_resolution=30):
+        if self._anharmonic_bands is None:
+            anharmonic_bands = []
+            for q_start, q_end in self.parameters.band_ranges:
+                print(q_start)
+                for i in range(band_resolution+1):
+                    q_vector = np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i
+
+                    self.set_reduced_q_vector(q_vector)
+                    phonon_frequencies = fitting.phonon_fitting_analysis(self.get_correlation_phonon(),
+                                                                     self.parameters.frequency_range,
+                                                                     show_plots=False)[0]
+                    anharmonic_bands.append(phonon_frequencies)
+            self._anharmonic_bands = np.array(anharmonic_bands)
+        return self._anharmonic_bands
+
+    #Plot dynamical properties related methods
     def plot_trajectory(self, atoms=None, coordinates=None):
         if not atoms: atoms = [0]
         if not coordinates: coordinates = [0]

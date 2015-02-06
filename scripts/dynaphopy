@@ -15,8 +15,13 @@ parser = argparse.ArgumentParser(description='DynaPhonoPy options')
 parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
                    help='input file containing structure related data')
 
-parser.add_argument('md_file', metavar='OUTCAR', type=str, nargs=1,
+
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument('md_file', metavar='OUTCAR', type=str, nargs='?',
                    help='VASP Output file containing MD calculation (Super cell)')
+group.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
+                   help='load velocity from hdf5 file')
+
 
 parser.add_argument('-i', '--interactive', action='store_true',
                     help='enter interactive mode')
@@ -45,10 +50,6 @@ parser.add_argument('-sp', '--save_phonon_mode', metavar='file', type=str, nargs
 parser.add_argument('-sv', '--save_velocity', metavar='file', type=str, nargs=1, default=[None],
                     help='save velocity into hdf5 file')
 
-parser.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
-                    help='load velocity from hdf5 file')
-
-#Under development
 parser.add_argument('-psm', '--power_spectrum_algorithm',metavar='N', type=int, nargs=1,
                    help='Select power spectrum calculation algorithm (default 0)')
 
@@ -61,8 +62,13 @@ parser.add_argument('-pa', '--coefficient_scan_analysis', action='store_true',
 parser.add_argument('-pi', '--peak_analysis', action='store_true',
                     help='Request a peak analysis')
 
+parser.add_argument('--silent', action='store_true',
+                    help='Executes without showing plots')
+
+#Under development
 parser.add_argument('-ds', '--display_spectrum', action='store_true',
                     help='display phonon dispersion spectrum data in screen (just for test: not recommended)')
+
 
 args = parser.parse_args()
 
@@ -86,19 +92,22 @@ if 'primitive_matrix' in input_parameters:
 if 'super_cell_matrix' in input_parameters:
     structure.set_super_cell_phonon(input_parameters['super_cell_matrix'])
 
+
 if args.load_velocity:
     trajectory = reading.initialize_from_file(args.load_velocity[0], structure)
     structure_file = args.load_velocity[0]
 else:
-    trajectory = reading.read_from_file_trajectory(args.md_file[0], structure)
+    trajectory = reading.read_from_file_trajectory(args.md_file, structure)
 
 calculation = controller.Calculation(trajectory, last_steps=args.n, save_hfd5=args.save_velocity[0])
 
 if 'bands' in input_parameters:
     calculation.set_band_ranges(input_parameters['bands'])
 
-#Process properties arguments
+#Set Parameters
+calculation.parameters.silent = args.silent
 
+#Process properties arguments
 if args.q:
     calculation.set_reduced_q_vector(np.array(args.q))
 
@@ -109,7 +118,6 @@ if args.number_of_mem_coefficients:
     calculation.parameters.number_of_coefficients_mem = args.number_of_mem_coefficients[0]
 
 #Process calculation arguments
-
 if args.frequency_range:
     calculation.set_frequency_range(np.linspace(*args.frequency_range))
 

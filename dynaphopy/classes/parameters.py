@@ -5,6 +5,9 @@ import numpy as np
 class Parameters:
 
     def __init__(self,
+                 #General
+                 silent=False,
+
                  #Cutting
                  last_steps=2000,  # default number of last steps used to perform the calculations
 
@@ -13,7 +16,7 @@ class Parameters:
 
                  #Maximum Entropy Method
                  number_of_coefficients_mem=300,
-                 mem_scan_range=np.array(np.linspace(40, 1000, 100),dtype=int),
+                 mem_scan_range=np.array(np.linspace(40, 2000, 100), dtype=int),
 
                  #Correlation Method
                  correlation_function_step=10,
@@ -23,15 +26,17 @@ class Parameters:
                     # 0: Correlation functions parallel(python)
                     # 1: Maximum Entropy Method
                     # 2: Correlation functions serial
-                    # 3: Correlation functions parallel (OpenMP)
-                 power_spectra_algorithm=3,
+                    # 3: Correlation functions parallel (OpenMP) [Recommended]
+                    # 4: Maximum Entropy Method parallel (OpenMP) [Recommended]
+                 power_spectra_algorithm=4,
                  frequency_range=np.linspace(0, 40, 500),
 
                  #Phonon dispersion diagram
                  use_NAC = False,
-                 band_ranges=((0.0, 0.0, 0.0), (0.0, 0.0, 0.5)),
+                 band_ranges=([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]]),
                  ):
 
+        self._silent = silent
         self._last_steps = last_steps
         self._number_of_coefficients_mem=number_of_coefficients_mem
         self._mem_scan_range=mem_scan_range
@@ -43,8 +48,15 @@ class Parameters:
         self._use_NAC = use_NAC
         self._band_ranges = band_ranges
 
-
     #Properties
+    @property
+    def silent(self):
+        return self._silent
+
+    @silent.setter
+    def silent(self, silent):
+        self._silent = silent
+
     @property
     def last_steps(self):
         return self._last_steps

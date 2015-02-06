@@ -140,17 +140,21 @@ def read_from_file_structure_poscar(file_name):
 
         for i,j in enumerate(data_lines[5].split()):
             atomic_types.append([j]*number_of_types[i])
-        atomic_types = np.array(atomic_types).flatten().tolist()
+        atomic_types = [item for sublist in atomic_types for item in sublist]
+#        atomic_types = np.array(atomic_types).flatten().tolist()
 
+
+    #Old style poscar format
     except ValueError:
+        print "Reading old style POSCAR"
         number_of_types = np.array(data_lines[5].split(),dtype=int)
         scaled_positions = np.array([data_lines[7+k].split()
                                      for k in range(np.sum(number_of_types))],dtype=float)
         atomic_types = []
         for i,j in enumerate(data_lines[0].split()):
             atomic_types.append([j]*number_of_types[i])
-        atomic_types = np.array(atomic_types).flatten().tolist()
-
+        atomic_types = [item for sublist in atomic_types for item in sublist]
+       # atomic_types = np.array(atomic_types).flatten().tolist()
 
     return atomtest.Structure(cell= direct_cell,
                               scaled_positions=scaled_positions,
@@ -160,7 +164,7 @@ def read_from_file_structure_poscar(file_name):
 
 
 def read_from_file_trajectory(file_name, structure=None,
-                              limit_number_steps=1000000,  #Maximum number of steps read
+                              limit_number_steps=10000000,  #Maximum number of steps read
                               last_steps=None):         #Total number of read steps (deprecated)
 
     #Check file exists
@@ -224,9 +228,12 @@ def read_from_file_trajectory(file_name, structure=None,
             read_energy = file_map.readline().split()[2]
             trajectory.append(np.array(read_coordinates,dtype=float).flatten()) #in angstrom
             energy.append(np.array(read_energy,dtype=float))
+
+            #security routine to limit maximum of steps to read and put in memory
             limit_number_steps -= 1
 
             if limit_number_steps < 0:
+                print("Warning! maximum number of steps reached! No more steps will be read")
                 break
 
         file_map.close()
@@ -530,11 +537,16 @@ def save_data_hdf5(file_name, velocity, time, super_cell):
     hdf5_file.create_dataset('time', data=time)
     hdf5_file.create_dataset('super_cell', data=super_cell)
 
-    print("saved", velocity.shape[0], "steps")
+ #   print("saved", velocity.shape[0], "steps")
     hdf5_file.close()
 
 
 def read_data_hdf5(file_name):
+
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print(file_name + ' file does not exist!')
+        exit()
 
     hdf5_file = h5py.File(file_name, "r")
     velocity = hdf5_file['velocity'][:]
@@ -544,7 +556,12 @@ def read_data_hdf5(file_name):
 
 
 def initialize_from_file(file_name,structure):
-    print("Reading velocity from hdf5 file: " + file_name)
+    print("Reading data from hdf5 file: " + file_name)
+
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print(file_name + ' file does not exist!')
+        exit()
 
     hdf5_file = h5py.File(file_name, "r")
     velocity = hdf5_file['velocity'][:]

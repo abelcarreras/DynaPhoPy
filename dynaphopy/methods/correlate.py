@@ -83,7 +83,6 @@ def get_correlation_spectra_serial(vq, trajectory, parameters):
     correlation_vector = np.zeros((len(test_frequency_range),vq.shape[1]),dtype=float)
     progress_bar(0)
     for i in range (vq.shape[1]):
-
         for k, frequency in enumerate(test_frequency_range):
             angular_frequency = frequency * 2 * np.pi # Frequency(THz) -> angular frequency (rad/ps)
             correlation_vector[k,i] = correlation.correlation2(angular_frequency,
@@ -105,6 +104,7 @@ def get_correlation_spectra_par_openmp(vq, trajectory, parameters):
     for i in range (vq.shape[1]):
         correlation_vector.append(correlation.correlation_par(test_frequency_range,
                                                                vq[:, i],
+          #                                                     np.lib.pad(vq[:, i], (2500, 2500), 'constant'),
                                                                trajectory.get_time_step_average(),
                                                                step=parameters.correlation_function_step,
                                                                integration_method=parameters.integration_method))

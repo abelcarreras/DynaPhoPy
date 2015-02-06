@@ -64,6 +64,112 @@ def get_mem_spectra_par_python(velocity, trajectory, parameters):
 
     return correlation_vector
 
+def get_mem_spectra_par_openmp(vq, trajectory, parameters):
+    test_frequency_range = np.array(parameters.frequency_range)
+
+    correlation_vector = []
+    progress_bar(0)
+    for i in range (vq.shape[1]):
+        correlation_vector.append(mem(test_frequency_range,
+                                      vq[:, i],
+                                      trajectory.get_time_step_average(),
+                                      coefficients=parameters.number_of_coefficients_mem))
+
+        progress_bar(float(i+1)/vq.shape[1])
+
+    correlation_vector = np.array(correlation_vector).T
+
+    return correlation_vector
+
+def phonon_width_scan_analysis_openmp(vq, trajectory, parameters):
+
+    mem_full_dict = {}
+
+    for i in range(vq.shape[1]):
+        test_frequency_range = parameters.frequency_range
+        fit_data = []
+        scan_params = []
+        power_spectra = []
+        progress_bar(0)
+        for number_of_coefficients in parameters.mem_scan_range:
+
+
+            power_spectrum = mem(test_frequency_range,
+                                          vq[:, i],
+                                          trajectory.get_time_step_average(),
+                                          coefficients=number_of_coefficients)
+
+
+
+            height = np.max(power_spectrum)
+            position = test_frequency_range[np.argmax(power_spectrum)]
+
+            try:
+                fitParams, fitCovariances = curve_fit(lorentzian,
+                                                      test_frequency_range,
+                                                      power_spectrum,
+                                                      p0=[position, 0.1, height, 0.0])
+            except:
+                print('Warning: Fitting error, skipping point!', number_of_coefficients)
+                continue
+
+            error = get_error_from_covariance(fitCovariances)
+            width = 2.0 * fitParams[1]
+            fit_data.append([number_of_coefficients, width, error])
+            scan_params.append(fitParams)
+            power_spectra.append(power_spectrum)
+
+            progress_bar(float(number_of_coefficients+1)/parameters.mem_scan_range[-1])
+
+        fit_data = np.array(fit_data).T
+
+        best_width = np.average(fit_data[1], weights=np.sqrt(1./fit_data[2]))
+
+        best_index = int(np.argmin(fit_data[2]))
+        power_spectrum = power_spectra[best_index]
+
+        mem_full_dict.update({i: [power_spectrum, best_width, best_index, fit_data, scan_params]})
+
+
+    for i in range(vq.shape[1]):
+
+        print "Peak #", i+1
+        print("------------------------------------")
+        print "Estimated width(FWHM):", mem_full_dict[i][1], "THz"
+
+        fit_data = mem_full_dict[i][3]
+        scan_params = mem_full_dict[i][4]
+        best_index = mem_full_dict[i][2]
+
+        print "Position:", scan_params[best_index][0], "THz"
+        print "Optimum coefficients num:", fit_data[0][best_index]
+        print "Fitting Error:", np.min(fit_data[2])
+        print ("\n")
+
+        plt.figure(0)
+        plt.xlabel('Number of coefficients')
+        plt.ylabel('MMSE^-1')
+        plt.title('Fitting error (MMSE)')
+        plt.plot(fit_data[0], np.sqrt(1./fit_data[2]))
+
+        plt.figure(1)
+        plt.xlabel('Number of coefficients')
+        plt.ylabel('Width [THz]')
+        plt.title('Peak width')
+        plt.plot(fit_data[0], fit_data[1])
+        plt.plot((fit_data[0][0], fit_data[0][-1]), (mem_full_dict[i][1], mem_full_dict[i][1]), 'k-')
+
+        plt.figure(2)
+        plt.xlabel('Frequency [THz]')
+        plt.title('Best curve fitting')
+        plt.plot(test_frequency_range, mem_full_dict[i][0], label='Power spectrum')
+        plt.plot(test_frequency_range,
+                 lorentzian(test_frequency_range, *scan_params[best_index]),
+                 label='Lorentzian fit')
+
+        plt.show()
+
+
 
 def mem_worker_scan(n_pos, velocity, trajectory, parameters):
 
