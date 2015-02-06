@@ -164,7 +164,7 @@ def read_from_file_structure_poscar(file_name):
 
 
 def read_from_file_trajectory(file_name, structure=None,
-                              limit_number_steps=1000000,  #Maximum number of steps read
+                              limit_number_steps=10000000,  #Maximum number of steps read
                               last_steps=None):         #Total number of read steps (deprecated)
 
     #Check file exists
@@ -228,9 +228,12 @@ def read_from_file_trajectory(file_name, structure=None,
             read_energy = file_map.readline().split()[2]
             trajectory.append(np.array(read_coordinates,dtype=float).flatten()) #in angstrom
             energy.append(np.array(read_energy,dtype=float))
+
+            #security routine to limit maximum of steps to read and put in memory
             limit_number_steps -= 1
 
             if limit_number_steps < 0:
+                print("Warning! maximum number of steps reached! No more steps will be read")
                 break
 
         file_map.close()

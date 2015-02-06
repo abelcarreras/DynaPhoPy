@@ -45,9 +45,9 @@ structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements
 
-structure.set_super_cell_phonon([[3, 0, 0],
-                                 [0, 3, 0],
-                                 [0, 0, 3]])
+structure.set_super_cell_phonon([[4, 0, 0],
+                                 [0, 4, 0],
+                                 [0, 0, 2]])
 
 
 
@@ -84,7 +84,7 @@ calculation = controller.Calculation(trajectory, last_steps=80000, save_hfd5='te
 
 calculation.set_reduced_q_vector([0.5, 0.0, 0.0])
 
-modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[2,2,2])
+modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
 #calculation.plot_eigenvectors()
 
 calculation.set_frequency_range(np.linspace(0, 25, 1000))

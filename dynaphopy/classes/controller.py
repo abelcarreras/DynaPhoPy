@@ -77,6 +77,7 @@ class Calculation:
 
 
     def set_NAC(self, NAC):
+        self._bands = None
         self.parameters.use_NAC = NAC
 
     def write_to_xfs_file(self,file_name):
