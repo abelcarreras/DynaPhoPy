@@ -2,6 +2,7 @@
 
 import numpy as np
 import phonopy.file_IO as file_IO
+from dynaphopy.functions.phonopy_link import get_force_sets_from_file
 import dynaphopy.functions.iofile as reading
 import dynaphopy.classes.controller as controller
 import matplotlib.pyplot as pl
@@ -23,7 +24,7 @@ structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_positions())
 
 
-structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
+structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS'))
 
 ############################### PHONOPY CELL INFORMATION ####################################
 # 2. Set primitive matrix, this matrix fulfills that:
