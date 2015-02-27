@@ -14,10 +14,10 @@ import analysis.modes as modes
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
 #directory ='/home/abel/VASP/Si-phonon/3x3x3/'
-#directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
+directory = '/home/abel/VASP/MgO-phonon/4x4x4/'
 #directory = '/home/abel/VASP/Bi2O3-phonon/'
 #directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
-directory = '/home/abel/VASP/GaN-phonon/4x4x2_GGA/'
+#directory = '/home/abel/VASP/GaN-phonon/4x4x2_GGA/'
 #structure = reading.read_from_file_structure_outcar(directory+'OUTCAR')
 structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_scaled_positions())
@@ -35,9 +35,9 @@ structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS
 #                                [0.0, 0.5, 0.0],
 #                                [0.0, 0.0, 0.5]])
 
-#structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-#                                [0.5, 0.0, 0.5],
-#                                [0.5, 0.5, 0.0]])
+structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+                                [0.5, 0.0, 0.5],
+                                [0.5, 0.5, 0.0]])
 
 #structure.set_primitive_matrix([[1.0, 0.0, 0.0],
 #                                [0.0, 1.0, 0.0],
@@ -48,7 +48,7 @@ structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS
 
 structure.set_super_cell_phonon([[4, 0, 0],
                                  [0, 4, 0],
-                                 [0, 0, 2]])
+                                 [0, 0, 4]])
 
 
 
@@ -68,8 +68,8 @@ reading.write_xsf_file("test.xfs",structure)
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
-#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,limit_number_steps=5000000)
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=50000)
+trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,limit_number_steps=5000)
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=50000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.5],super_cell=[2,2,2])
@@ -88,10 +88,13 @@ calculation.set_reduced_q_vector([0.5, 0.0, 0.0])
 modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
 #calculation.plot_eigenvectors()
 
+
 calculation.set_frequency_range(np.linspace(0, 25, 1000))
 calculation.select_power_spectra_algorithm(4)
-#calculation.set_NAC(True)
+calculation.set_NAC(True)
 
+calculation.get_phonon_dispersion_spectra()
+exit()
 #print(calculation.get_frequencies())
 #print(calculation.get_q_vector())
 #print(structure.get_primitive_cell())

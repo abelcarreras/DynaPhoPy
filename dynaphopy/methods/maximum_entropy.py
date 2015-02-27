@@ -148,8 +148,8 @@ def phonon_width_scan_analysis_openmp(vq, trajectory, parameters):
 
         plt.figure(0)
         plt.xlabel('Number of coefficients')
-        plt.ylabel('MMSE^-1')
-        plt.title('Fitting error (MMSE)')
+        plt.ylabel('RMSD^-1')
+        plt.title('Fitting error (RMSD)')
         plt.plot(fit_data[0], np.sqrt(1./fit_data[2]))
 
         plt.figure(1)

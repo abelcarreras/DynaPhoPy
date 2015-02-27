@@ -176,7 +176,7 @@ static char extension_docs_2[] =
     "correlation2( ): Calculation of the correlation\n Constant time step method (faster)";
 
 static char extension_docs_3[] =
-    "correlation_par( ): Calculation of the correlation\n Constant time step method (faster)\n OpenMP paralellized";
+    "correlation_par( ): Calculation of the correlation\n Constant time step method (faster)\n OpenMP parallel";
 
 static PyMethodDef extension_funcs[] =
 {

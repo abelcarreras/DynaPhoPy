@@ -29,7 +29,7 @@ if len(sys.argv) == 1:
     print('Usage: concath5 file.h5 file2.h5 ...  concatenated.h5')
     exit()
 
-first = 10000
+first = 20000
 velocity, time, super_cell = read_file_hdf5(sys.argv[1])
 velocity = velocity[first:]
 print(sys.argv[1])
