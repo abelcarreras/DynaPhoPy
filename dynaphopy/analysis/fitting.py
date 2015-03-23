@@ -8,7 +8,8 @@ def lorentzian(x, a, b, c, d):
 
 
 def get_error_from_covariance(covariance):
-    return np.sqrt(np.trace(covariance))
+    return np.sqrt(np.sum(np.linalg.eigvals(covariance)**2))
+  #  return np.sqrt(np.trace(covariance))
 
 
 def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None, show_plots=True):
@@ -44,9 +45,10 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print('------------------------------------')
         print 'Width (FWHM):', width, 'THz'
         print 'Position:', fit_params[0], 'THz'
+        print 'Area:', fit_params[2], 'THz'
         if harmonic_frequencies is not None:
             print 'Frequency shift:', fit_params[0] - harmonic_frequencies[i], 'THz'
-        print 'Fitting Error (RMSE):', error
+        print 'Fitting Error (RMS):', error
         positions.append(fit_params[0])
         widths.append(width)
 

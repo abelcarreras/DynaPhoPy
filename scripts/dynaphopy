@@ -55,10 +55,10 @@ parser.add_argument('-psm', '--power_spectrum_algorithm',metavar='N', type=int, 
 parser.add_argument('-cf', '--number_of_mem_coefficients',metavar='N', type=int, nargs=1,
                    help='Number of coefficients to use in MEM algorithm (default 300)')
 
-parser.add_argument('-pa', '--coefficient_scan_analysis', action='store_true',
+parser.add_argument('-csa', '--coefficient_scan_analysis', action='store_true',
                     help='Request coefficient scan analysis')
 
-parser.add_argument('-pi', '--peak_analysis', action='store_true',
+parser.add_argument('-pa', '--peak_analysis', action='store_true',
                     help='Request a peak analysis')
 
 parser.add_argument('--silent', action='store_true',
