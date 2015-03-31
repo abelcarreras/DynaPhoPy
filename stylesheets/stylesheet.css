@@ -158,20 +158,18 @@ p img {
 }
 
 pre, code {
-  width: 100%;
-  color: #222;
-  background-color: #fff;
-
-  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
-  font-size: 14px;
-
-  border-radius: 2px;
-  -moz-border-radius: 2px;
-  -webkit-border-radius: 2px;
+width:100%;
+color: #222;
+background-color: #fff;
+font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+font-size: 14px;
+border-radius: 2px;
+-moz-border-radius: 2px;
+-webkit-border-radius: 2px;
 }
 
 pre {
-width:621px;
+width:auto;
 padding: 10px;
 box-shadow: 0 0 10px rgba(0,0,0,.1);
 overflow: auto;

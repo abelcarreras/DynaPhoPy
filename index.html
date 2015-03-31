@@ -21,7 +21,7 @@
         <header class="inner">
           <a id="forkme_banner" href="https://github.com/abelcarreras/DynaPhoPy">View on GitHub</a>
 
-          <h1 id="project_title">Dynaphopy</h1>
+          <h1 id="project_title">DynaPhoPy</h1>
           <h2 id="project_tagline">Anharmonic phonon calculations using MD</h2>
 
             <section id="downloads">
@@ -37,7 +37,8 @@
         <h3>
 <a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:
+<p> Dynaphopy allows to calculate the anaharmonic phonon properties using the modes descomposition technique. To do that it uses a <a href="https://www.vasp.at">VASP</a> calculated Molecular Dynamics (MD) simulation output  and projects the atoms velocity into a set of harmonic phonon modes obtained by <a href="http://phonopy.sourceforge.net">Phonopy</a>. Afterwards the power spectrum is calculated usign Fourier transform or <a http://cmm.cit.nih.gov/maxent/letsgo.html> Maximum entropy Method (MEM)</a> and the peaks are fitted to Lorentzian function. 
+
 $$
 \left\langle {{V^*}\left(0 \right)V\left( t \right)} \right\rangle  = \int\limits_{t' = 0}^\infty  {{V^*} \left( {t'} \right) \cdot V\left( {t' + t} \right)dt'}
 $$
@@ -48,22 +49,23 @@ $ git fetch origin
 $ git checkout gh-pages
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
-
 <h3>Installation instructions</h3>
 
-<h5 style="">1. Requeriments</h5><p style="">Python 2.7 or higher<br>Phonopy (<a href="http://phonopy/sourceforge.net" target="" name="">http://phonopy/sourceforge.net</a>)<br>Matplotlib<br>Scipy<br>h5py<br></p><h5 style="">2. Download</h5><p style="">Downlaod source code and unzip it in the installation directory</p><h5 style="">3. Configure and install</h5><p style="">Run setup.py script using python to install</p><pre><code>$ python setup.py install —-user
+<h5 style="">1. Requeriments</h5><p style="">Python 2.7 or higher<br>Phonopy (<a href="http://phonopy/sourceforge.net" target="" name="">http://phonopy/sourceforge.net</a>)<br>Matplotlib<br>Scipy<br>h5py<br>
+</p><h5 style="">2. Download</h5><p style="">Downlaod source code and unzip it in the installation directory</p><h5 style="">3. Configure and install</h5><p style="">Run setup.py script using&nbsp;python to install
+</p><pre><code>$ python setup.py install —-user
 </code></pre>
 
 <h3>
 <a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to use</h3>
 
+<p>This is a link to the new page I have <a href="usage.html">created</a> </p>
 
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
 
 <h3>
 <a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
