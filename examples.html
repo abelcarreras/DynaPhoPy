@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Dynaphopy : Phonon Analysis from Dynamical Data">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Dynaphopy</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <h2 id="project_tagline">Examples</h2>
+
+        </header>
+    </div>
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+    	<section id="main_content" class="inner">
+
+
+<h3>Introduction</h3>
+<p>
+Dynaphopy calculates the phonon linewidths and frequency shifts analizing the power spectrum of the velocity projection into the
+phonon modes. As a first step the velocity has to be projected into the wave vector in which the harmonic phonon modes are defined.
+To calculate this power spectrum dynaphopy can use Fourier transform or Maximum entropy Method. Dynaphopy can show these spectra if
+requested. 
+
+<h3>Power spectra </h3>
+<p>The power spectrum calculated by Phonopy can be either displayed in a matplotlib window or stored in a file (<a href="http://gnuplot.sourceforge.net"> gnuplot</a> format). The selection of the algorithm used to calculate the power spectra is defined by 
+flag <strong>-psm</strong> followed by the algorithm number.
+<br>At the present time there are 5 algorithms available:</p>
+<UL>
+<LI>0: Fourier transform algorithm using parallel python module
+<LI>1: Maximum Entropy Method using parallel python module
+<LI>2: Fourier transform algorithm serial
+<LI>3: Fourier transform algorithm parallel using OpenMP.
+<LI>4: Maximum Entropy mMthod algorithm parallel using OpenMP.
+</UL>
+<em>Algorithms 0 and 1 and are essencially for testing purposes, algorithms 2, 3 and 4 are <strong>strongly</strong> recomended.</em>
+
+<pre><code>$ ./dynaphopy input_file OUTCAR -psm 4</code></pre>
+<UL>
+<LI><h5>Full power spectra</h5>
+<p> 
+This option calculates the power spctra of the velocity 
+</p>
+
+<LI><h5>Prepare Molecular Dynamics calculation</h5>
+<p>Obtain an <strong>OUTCAR</strong> output file containing a MD calculation from VASP.
+<br>Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/vasp.html"> online manual</a> for detailed information to how to perform an MD simulation.
+<br>Warning: The cell in POSCAR file used to calculate VASP MD has to be a supercell of the cell used in phonopy calculation.
+The order of the atoms has to be kept in order to work properly.
+<br>A safer way is to use phonopy to generate the supercell that is going to be used as input in MD calculation (SPOSCAR). 
+</p>
+</UL>
+<h3>Dynaphopy input file</h3>
+<p>To run Dynaphopy needs an input file. The input file is an plain text that contains infromation about the input data.
+<br> All these parameters are optional, in case of not explicit especification dynaphopy will use the default parameters.
+<br> Each parameter is preceded by a label line which indicates wich kind of parameter is. Altering this line may result in
+an unrecognition of the parameter.</p>
+
+<UL><LI><h5>POSCAR and FORCE_SETS files location</h5>
+<p>Define the file name and path in wich the POSCAR containing the crystal unit cell and FORCE_SETS containing atom forces files are stored. If not specified working directory is taken.</p>
+
+<pre><code>STRUCTURE FILE POSCAR/home/user/phonopy/calculation/POSCAR_unitcell</code></pre>
+<p></p><pre><code>FORCE CONSTANTS/home/user/phonopy/calculation/FORCE_SETS
+</code></pre>
+<p>Alternatively to POSCAR file, an OUTCAR file can be used to read the cell estructure<p>
+<pre><code>STRUCTURE FILE OUTCAR/home/user/phonopy/calculation/OUTCAR_unitcell</code></pre>
+
+<LI><h5>Primitive matrix definition</h5>
+<p>This matrix defines the primitive cell respect to the unit cell. If not defined it takes identity matrix meaning that primitive cell and unit cell are equivalent.
+</p><pre><code>PRIMITIVE MATRIX0.0 0.5 0.50.5 0.0 0.50.5 0.5 0.0
+</code></pre>
+
+<LI><h5>Supercell matrix used in lattice dynamics calculation</h5>
+<p>In order to interface correctly with Phonopy, Dynaphopy needs to knwow the size of the supercell used to calculate the forces in Phonopy. This is usually specified with the 
+flag <strong>--dim</strong> in Phonopy calculation. For further information, please refere to Phonopy <a href="http://phonopy.sourceforge.net/procedure.html">manual</a>.
+<br>This matrix is usually integer and diagonal. As in primitive matrix case, by default it takes identity matrix.
+</p><pre><code>SUPERCELL MATRIX PHONOPY4 0 00 3 00 0 3
+</code></pre>
+
+<LI><h5>Phonon dispersion bands</h5>
+<p>Interfacing with phonopy, dynaphopy can get the phonon dispersion diagram. This command is used to define the path in the reciprocal space to calculate. Each line represent a linear piece of the path. The first 3 values indicate the origin point in reduced coordinates while
+tha last 3 indicate the destination. There is no limit for the number of lines used to build the path. 
+This feature is mean to be used as 
+reference so the resolution of the bands cannot be changed. For more options please use phonopy directly.
+</p><pre><code>SUPERCELL MATRIX PHONOPY4 0 00 3 00 0 3
+</code></pre>
+
+</UL>
+
+<h3>Execute Dynaphopy</h3>
+<p>Phonopy can be used in two different was, from command line flags and using interactive user interface.
+Interactive interface offere the most simple way to work with dynaphopy, but command line flag interface 
+has more options. Some options not direclly editables in interactive interface can be set loading dynaphopy with additional flags.
+<UL><LI><h5>Command line flag interface</h5>
+<p>To run dynaphopy only requires to call dynaphopy script with the input file and OUTCAR file as arguments. Input file defines where the FORCE_SETS and POSCAR are and OUTCAR file contain the MD trajectory.</p>
+</p><pre><code>$ ./dynaphopy input_file OUTCAR
+</code></pre>
+<p>This command does essentially nothing, since no calculation has been requested. It just checks that all the necessary files can be loaded correctlly.
+<br>To request a calculation, additional flag have to be set. Using <strong>-h</strong> flag a list of all available options is shown.</p>
+</p><pre><code>$ ./dynaphopy -h
+usage: dynaphopy [-h] [-lv file] [-i] [-q N N N] [-r N N N] [-n N] [-pw] 
+                 [-pp] [-sw file] [-sp file] [-sv file] [-psm N] [-cf N] 
+                 [-pa] [-pi] [--silent] [-ds] data_file [OUTCAR]DynaPhonoPy optionspositional arguments:  data_file             input file containing structure related data  OUTCAR                VASP Output file containing MD calculation 
+                        (Super cell)optional arguments:  -h, --help            show this help message and exit  -lv file, --load_velocity file                        load velocity from hdf5 file  -i, --interactive     enter interactive mode  -q N N N              wave vector used to calculate projections 
+                        (default: 0 0 0)  -r N N N, --frequency_range N N N                        Frequency range for correlation function 
+                        calculation (min, max, number of points)  -n N                  number of MD last steps to take (default: 2000)  -pw, --plot_wave_vector                        Plot projection into wave vector  -pp, --plot_phonon_mode                        plot projection into phonon modes  -sw file, --save_wave_vector file                        save projection into wave vector to file  -sp file, --save_phonon_mode file                        save projection into phonon modes to file  -sv file, --save_velocity file                        save velocity into hdf5 file  -psm N, --power_spectrum_algorithm N                        Select power spectrum calculation algorithm 
+                        (default 0)  -cf N, --number_of_mem_coefficients N                        Number of coefficients to use in MEM algorithm                        (default 300)  -pa, --coefficient_scan_analysis                        Request coefficient scan analysis  -pi, --peak_analysis  Request a peak analysis  --silent              Executes without showing plots  -ds, --display_spectrum                        display phonon dispersion spectrum data in 
+                        screen (just for test: not recommended)</code></pre>
+
+
+<LI><h5>Interactive interface</h5>
+<p>Interactive interface is the easiest way to run dynaphopy. To enter to interactive interaface the -i flag has to be set.
+Additional flags may be used to set different initial parameters but direct calculations requests are not recomended.</p>
+</p><pre><code>$ ./dynaphopy input_file OUTCAR -i 
+</code></pre>
+<img src="images/dynaphopy_inter.png" alt="Interactive" style="width:605px">
+</UL>
+
+
+
+
+
+
+    </section>
+    </div>
+    
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Dynaphopy maintained by <a href="https://github.com/abelcarreras">abelcarreras</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+    
+  </body>
+</html>
