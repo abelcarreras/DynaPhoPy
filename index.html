@@ -30,12 +30,22 @@
             </section>
         </header>
     </div>
-
+    
+ 
+    
     <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
+    <div id="main_content_wrap" class="outer" style="left:7px;top:0px">
+    
       <section id="main_content" class="inner">
-        <h3>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h3>
+   
+   <div id="version" style="position:relative;right:-355px;top:-30px;width:80px"><body> Version 1.2</body></div>
+    
+<h3>    
+<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>
+
+
+
+<h3>Introduction</h3>
 
 <p> Dynaphopy allows to calculate anharmonic phonon linewidhts and frequency shifts using the mode descomposition technique. To do that it uses a <a href="https://www.vasp.at">VASP</a> calculated Molecular Dynamics (MD) output and projects the atoms velocity into a set of harmonic phonon modes obtained by <a href="http://phonopy.sourceforge.net">Phonopy</a>. Afterwards the power spectrum is calculated usign Fourier transform or <a href="http://cmm.cit.nih.gov/maxent/letsgo.html"> Maximum Entropy Method (MEM)</a> and the peaks are fitted to Lorentzian function to extract the phonon properties. 
 
@@ -50,29 +60,40 @@ $ git checkout gh-pages
 </code></pre>
 
 <h3>Installation instructions</h3>
+<OL>
+<h5><LI>Check requeriments</h5><p style="">Python 2.7 or higher<br>Phonopy (<a href="http://phonopy/sourceforge.net" target="" name="">http://phonopy/sourceforge.net</a>)<br>Matplotlib<br>Scipy<br>h5py<br>
+</p>
+<h5><LI>Download</h5><p style="">Downlaod source code and unzip it into the installation directory</p>
+<h5><LI>Configure and install</h5>
 
-<h5 style="">1. Requeriments</h5><p style="">Python 2.7 or higher<br>Phonopy (<a href="http://phonopy/sourceforge.net" target="" name="">http://phonopy/sourceforge.net</a>)<br>Matplotlib<br>Scipy<br>h5py<br>
-</p><h5 style="">2. Download</h5><p style="">Downlaod source code and unzip it into the installation directory</p><h5 style="">3. Configure and install</h5><p style="">Run setup.py script using&nbsp;python to install
+<p>Run setup.py script using&nbsp;python to install
 </p><pre><code>$ python setup.py install —-user
 </code></pre>
+</OL>
 
 <h3>
 <a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage and description</h3>
-
- <p>1. <a href="usage.html">How to use</a> 
-<br>2. <a href="usage.html">Examples</a> 
-<br>3. <a href="usage.html">Theory</a> </p>
-
+<OL>
+ <p> <LI><a href="usage.html">How to use</a> 
+<LI><a href="usage.html">Examples</a> 
+<LI><a href="usage.html">Theory</a> </p>
+</OL>
 
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
 
-<p> This project has been developed by Abel Carreras Conill in <a href="http://cms.mtl.kyoto-u.ac.jp/index-e.html"> Tanaka Lab</a> at Kyoto University and suported by a Grant-in-Aid for Scientific Research on Innovative Areas “Nano Informatics” from the Japan Society for the Promotion of Science (JSPS).
+<p> This software has been developed by Abel Carreras Conill in <a href="http://cms.mtl.kyoto-u.ac.jp/index-e.html"> Tanaka Lab</a> at Kyoto University and suported by a Grant-in-Aid for Scientific Research on Innovative Areas “Nano Informatics” from the Japan Society for the Promotion of Science (JSPS).
 <br>Also I woul like to thank Dr. Atsushi Togo, developer of phonopy, for this support and advices during the development of this software, you can visit his profile at <a href="https://github.com/atztogo" class="user-mention">@atztogo</a>
 
 <h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h3>
+<p>
+This software has been developed as a open source under The MIT License (MIT)
+<br>Copyright (c) 2014 Abel Carreras Conill</p>
+
+<h3>
+<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contact & support</h3>
 
 <p>If you have any trouble or question related to this software, please feel free to contact to</p>
 <p> <strong>Abel Carreras Conill </strong>(<a href="mailto:abelcarreras83@gmail.com">abelcarreras83@gmail.com</a>)
