@@ -37,7 +37,7 @@
         <h3>
 <a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h3>
 
-<p> Dynaphopy allows to calculate the anaharmonic phonon properties using the modes descomposition technique. To do that it uses a <a href="https://www.vasp.at">VASP</a> calculated Molecular Dynamics (MD) simulation output  and projects the atoms velocity into a set of harmonic phonon modes obtained by <a href="http://phonopy.sourceforge.net">Phonopy</a>. Afterwards the power spectrum is calculated usign Fourier transform or <a http://cmm.cit.nih.gov/maxent/letsgo.html> Maximum entropy Method (MEM)</a> and the peaks are fitted to Lorentzian function. 
+<p> Dynaphopy allows to calculate anharmonic phonon linewidhts and frequency shifts using the mode descomposition technique. To do that it uses a <a href="https://www.vasp.at">VASP</a> calculated Molecular Dynamics (MD) output and projects the atoms velocity into a set of harmonic phonon modes obtained by <a href="http://phonopy.sourceforge.net">Phonopy</a>. Afterwards the power spectrum is calculated usign Fourier transform or <a href="http://cmm.cit.nih.gov/maxent/letsgo.html"> Maximum Entropy Method (MEM)</a> and the peaks are fitted to Lorentzian function to extract the phonon properties. 
 
 $$
 \left\langle {{V^*}\left(0 \right)V\left( t \right)} \right\rangle  = \int\limits_{t' = 0}^\infty  {{V^*} \left( {t'} \right) \cdot V\left( {t' + t} \right)dt'}
@@ -52,25 +52,33 @@ $ git checkout gh-pages
 <h3>Installation instructions</h3>
 
 <h5 style="">1. Requeriments</h5><p style="">Python 2.7 or higher<br>Phonopy (<a href="http://phonopy/sourceforge.net" target="" name="">http://phonopy/sourceforge.net</a>)<br>Matplotlib<br>Scipy<br>h5py<br>
-</p><h5 style="">2. Download</h5><p style="">Downlaod source code and unzip it in the installation directory</p><h5 style="">3. Configure and install</h5><p style="">Run setup.py script using&nbsp;python to install
+</p><h5 style="">2. Download</h5><p style="">Downlaod source code and unzip it into the installation directory</p><h5 style="">3. Configure and install</h5><p style="">Run setup.py script using&nbsp;python to install
 </p><pre><code>$ python setup.py install —-user
 </code></pre>
 
 <h3>
-<a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to use</h3>
+<a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage and description</h3>
 
-<p>This is a link to the new page I have <a href="usage.html">created</a> </p>
+ <p>1. <a href="usage.html">How to use</a> 
+<br>2. <a href="usage.html">Examples</a> 
+<br>3. <a href="usage.html">Theory</a> </p>
+
 
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p> This project has been developed by Abel Carreras Conill in <a href="http://cms.mtl.kyoto-u.ac.jp/index-e.html"> Tanaka Lab</a> at Kyoto University and suported by a Grant-in-Aid for Scientific Research on Innovative Areas “Nano Informatics” from the Japan Society for the Promotion of Science (JSPS).
+<br>Also I woul like to thank Dr. Atsushi Togo, developer of phonopy, for this support and advices during the development of this software, you can visit his profile at <a href="https://github.com/atztogo" class="user-mention">@atztogo</a>
 
 <h3>
 <a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="https://help.github.com/pages">https://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<p>If you have any trouble or question related to this software, please feel free to contact to</p>
+<p> <strong>Abel Carreras Conill </strong>(<a href="mailto:abelcarreras83@gmail.com">abelcarreras83@gmail.com</a>)
+<br><em>Department of Materials Science and Engineering, Kyoto University 
+<br>Yoshida-Honmachi, Sakyo-ku, Kyoto 606-8501, Japan</em></p>
+
       </section>
     </div>
 

@@ -28,8 +28,22 @@
     	<section id="main_content" class="inner">
 
 
-<h3>Installation instructions</h3>
+<h3>Obtain input data</h3>
+<h5>1. Prepare Phonopy harmonic lattice dynamics calculation</h5>
+<p> Dynaphopy interface with phonopy and needs <strong>FORCE_SETS</strong> file created by it to work properly. 
+<br> This file contains the information about atomic forces and is required in order to calculate the harmonic phonon modes.
+You can follow the instruction in phonopy <a href="http://phonopy.sourceforge.net/procedure.html">manual</a> to obtain it.
+<br><em>Keep original <strong>POSCAR</strong> file used in the calculation containing unaltered unit cell (VASP 5.x style prefered)</em></p>
 
-<h5 style="">1. Requeriments</h5><p style="">Python 2.7 or higher<br>Phonopy (<a href="http://phonopy/sourceforge.net" target="" name="">http://phonopy/sourceforge.net</a>)<br>Matplotlib<br>Scipy<br>h5py<br>
-</p><h5 style="">2. Download</h5><p style="">Downlaod source code and unzip it in the installation directory</p><h5 style="">3. Configure and install</h5><p style="">Run setup.py script using&nbsp;python to install</p><pre><code>$ python setup.py install —-user
+<h5>2. Prepare Molecular Dynamics calculation</h5>
+<p>Obtain an <strong>OUTCAR</strong> output file containing a MD calculation from VASP.
+<br>Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/vasp.html"> online manual</a> for detailed information to how to perform an MD simulation.
+<br>Warning: The cell in POSCAR file used to calculate VASP MD has to be a supercell of the cell used in phonopy calculation.
+The order of the atoms has to be kept in order to work properly.
+<br>A safer way is to use phonopy to generate the supercell that is going to be used as input in MD calculation (SPOSCAR). 
+</p>
+
+<h3>Dynaphopy input file</h3>
+<p>Run setup.py script using&nbsp;python to install
+</p><pre><code>$ python setup.py install —-user
 </code></pre>
