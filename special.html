@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Dynaphopy : Phonon Analysis from Dynamical Data">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Dynaphopy</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <h2 id="project_tagline">Options descritpion</h2>
+
+        </header>
+    </div>
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+    	<section id="main_content" class="inner">
+
+
+<h3>Introduction</h3>
+<p>
+Dynaphopy calculates the phonon linewidths and frequency shifts analizing the power spectrum of the velocity projection into the
+phonon modes. As a first step the velocity has to be projected into the wave vector in which the harmonic phonon modes are defined.
+To calculate this power spectrum dynaphopy can use Fourier transform or Maximum entropy Method. Dynaphopy can show these spectra if
+requested. 
+
+<h3>Power spectra </h3>
+<p>The power spectrum calculated by Phonopy can be either displayed in a matplotlib window or stored in a file (<a href="http://gnuplot.sourceforge.net"> gnuplot</a> format). The selection of the algorithm used to calculate the power spectra is defined by 
+flag <strong>-psm</strong> followed by the algorithm number.
+<br>At the present time there are 5 algorithms available:</p>
+<UL>
+<LI>0: Fourier transform algorithm using parallel python module
+<LI>1: Maximum Entropy Method using parallel python module
+<LI>2: Fourier transform algorithm serial
+<LI>3: Fourier transform algorithm parallel using OpenMP.
+<LI>4: Maximum Entropy mMthod algorithm parallel using OpenMP.
+</UL>
+<em>Algorithms 0 and 1 and are essencially for testing purposes, algorithms 2, 3 and 4 are <strong>strongly</strong> recomended. 
+If not specified algorithm 4 is used.</em>
+
+<pre><code>$ ./dynaphopy input_file OUTCAR -psm 4</code></pre>
+<p> Fourier methods do not require additional parameters but Maximum Entropy Method (MEM) does. MEM allows to obtain smoother and faster 
+power spectra interpolating the velocity using a polynomia which depends on a certain number of coefficents. The higher this number is, heavier becomes the calculation and closer to Fourier transfom solution. However the convergence of the paeks shape in MEM can be found much ealier 
+obtaining very good performance. By default the number of coefficents used is 300 but it can be changed using <strong>-cf</strong> followed by
+an integer number wich indicates the number of coeficients.</p>
+
+<pre><code>$ ./dynaphopy input_file OUTCAR -cf 800</code></pre>
+
+<UL>
+<LI><h5>Full power spectra</h5>
+<p> 
+This option calculates the power spectra directlly from cartessian coordinates velocity without any projection. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps limit, this power spectrum tends to the vibrational density of states (VDoS).
+</p>
+<p>Plot spectrum using matplotlib:</p>
+<pre><code>$ ./dynaphopy input_file OUTCAR -pd</code></pre>
+<p>Save to file:</p>
+<pre><code>$ ./dynaphopy input_file OUTCAR -sd filename</code></pre>
+
+<LI><h5>Wave vector projection power spectra</h5>
+<p>This option requests the atoms velocity to be projected into a point in the reciprocal space (wave vector) and display the power spectrum.
+<p>Plot spectrum using matplotlib:</p>
+<pre><code>$ ./dynaphopy input_file OUTCAR -pw</code></pre>
+<p>Save to file:</p>
+<pre><code>$ ./dynaphopy input_file OUTCAR -sw filename</code></pre>
+
+<LI><h5>Phonon modes projection power spectra</h5>
+<p>This option requests the atoms velocity to be projected into a point in the reciprocal space (wave vector) and additionally
+project it into each of the harmonic phonon modes in this point. This option requieres phonopy to be correctlly installed and 
+<strong>FORCE_SETS</strong> file has to be calculated first. The result is a set of phonon mode projections (one for each phonon)
+wich are either displayed in the screen in diferent windows or stored in a file (one column for each phonon) ordered from lower 
+to higher frequency.
+
+<p>Plot spectrum using matplotlib:</p>
+<pre><code>$ ./dynaphopy input_file OUTCAR -pp</code></pre>
+<p>Save to file:</p>
+<pre><code>$ ./dynaphopy input_file OUTCAR -sp filename</code></pre>
+
+<LI><h5>Additional options</h5>
+<p>Use <strong>-r</strong> option to change the power spectrum range and resolution (start, end, number of points).</p>
+<pre><code>$ ./dynaphopy input_file OUTCAR -r 0 25 100</code></pre>
+<p>Use <strong>-q</strong> Change the recirpocal space point (wave vector) in wich the velocity is projected. This option
+takes 3 real numbers (wave vector in reduced coordinates).
+<br><em>This option has effect only in wave vector and phonon modes projections</em></p>
+<pre><code>$ ./dynaphopy input_file OUTCAR -q 0.5 0 0.5</code></pre>
+
+<p>The number of time steps used to calculate the power spectra may have great influence in the final result. By default 
+it takes the <strong>last 2000</strong> time steps but using <strong>-n</strong> flag this value changed. This flag requires
+a integer number indicating the number of last time steps to be used in the calculation. I is recomended to leave some 
+stabilitzation time steps in the begining to ensure that the MD is totally converged. In interactive mode, using this flag is the
+only way to define the number of time steps to be used.
+<br><em>If the OUTCAR file contains less time steps than the especified in <strong>-n</strong> flag, all time steps will be used.</em></p>
+
+<pre><code>$ ./dynaphopy input_file OUTCAR -n 5000</code></pre>
+
+<p>All these option can be combined to obtain the desired results. In interactive mode these options can also be used and
+are read as a initial paramters that can be later changed inside interactive menus. The only exception is <strong>-n</strong>
+flag that cannot be changed. For very long MD the amount of RAM memory needed to do the calculations can be huge so only 
+the discarted time steps are erased from memory at the begining of the execution.
+</UL>
+
+<h3>Obtaining anharmonic phonon properties</h5>
+<p> 
+Phonon linewidhts and frequency shifts can be obtained by the direct analysis of power spectra. Using phonon modes projections
+are the best way to analize the individual phonons since the are separated. Dynaphopy offers a tool to automatically fit the
+obtained spectra to lorentzian functions and displayed the results on the screen. This tool is called peak analysis and is
+requested through flag <strong>-pa</strong>.
+<br><em>This option works better with MEM method since the obtained sprectra are smoother.</em>
+
+<pre><code>$ ./dynaphopy input_file OUTCAR -pa</code></pre>
+<p> 
+When the calculation is finished individual information for each phonon is displayed in the screen. Position and widht correspond directly
+to the phonon linewidths and peak anharmonic frequency. Frequency shift is calculated from the diference between harmonic frequency
+and calculated anharmonic frequency (position) for each peak.
+</p>
+<pre><code>Peak # 4------------------------------------Width (FWHM): 0.942807095508 THzPosition: 16.2166860349 THzArea: 4250.53142961 THzFrequency shift: 0.956759285644 THzFitting Error (RMS): 690.223340187</code></pre><p>
+Additionally for each peak, a matplotlib window apear in the screen showing the result of the fitting for visual observation.
+For new systems is strongly recomended to check for each phonon spectrum fitting to ensure that it has been succesfully performed.
+For calculations in batch calculations option <strong>--silent</strong> may be used. This option avoids matplotlib displays to be showed displaying only the text
+information wich can be stored in a file redirecting the output.   
+</p>
+<pre><code>$ ./dynaphopy input_file OUTCAR -pa --silent > output.log</code></pre>
+<p> 
+
+    </section>
+    </div>
+    
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Dynaphopy maintained by <a href="https://github.com/abelcarreras">abelcarreras</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+    
+  </body>
+</html>
