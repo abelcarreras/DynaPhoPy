@@ -2,9 +2,10 @@
 <html>
 
   <head>
-    <script type="text/javascript"
-            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+      <!-- Add equations support -->
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="description" content="Dynaphopy : Phonon Analysis from Dynamical Data">
@@ -22,7 +23,7 @@
           <a id="forkme_banner" href="https://github.com/abelcarreras/DynaPhoPy">View on GitHub</a>
 
           <h1 id="project_title">DynaPhoPy</h1>
-          <h2 id="project_tagline">Anharmonic phonon calculations using MD</h2>
+          <h2 id="project_tagline">Anharmonic phonon calculation by Molecular Dynamics</h2>
 
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/abelcarreras/DynaPhoPy/zipball/master">Download this project as a .zip file</a>
@@ -47,11 +48,14 @@
 
 <h3>Introduction</h3>
 
-<p> Dynaphopy allows to calculate anharmonic phonon linewidhts and frequency shifts using the mode descomposition technique. To do that it uses a <a href="https://www.vasp.at">VASP</a> calculated Molecular Dynamics (MD) output and projects the atoms velocity into a set of harmonic phonon modes obtained by <a href="http://phonopy.sourceforge.net">Phonopy</a>. Afterwards the power spectrum is calculated usign Fourier transform or <a href="http://cmm.cit.nih.gov/maxent/letsgo.html"> Maximum Entropy Method (MEM)</a> and the peaks are fitted to Lorentzian function to extract the phonon properties. 
+<p> Dynaphopy allows to calculate anharmonic phonon linewidhts and frequency shifts using the mode descomposition technique. To do that it uses a <a href="https://www.vasp.at">VASP</a> calculated Molecular Dynamics (MD) output and projects the atoms velocity into a set of harmonic phonon modes obtained by <a href="http://phonopy.sourceforge.net">Phonopy</a>. Afterwards the power spectrum is calculated usign Fourier transform or <a href="http://cmm.cit.nih.gov/maxent/letsgo.html"> Maximum Entropy Method (MEM)</a> and the peaks are fitted to Lorentzian function to extract the phonon anharmonic properties. 
 
-$$
+<!-- $$
+Equation Example
 \left\langle {{V^*}\left(0 \right)V\left( t \right)} \right\rangle  = \int\limits_{t' = 0}^\infty  {{V^*} \left( {t'} \right) \cdot V\left( {t' + t} \right)dt'}
 $$
+-->
+
 </p>
 
 <h3>Installation instructions</h3>
@@ -62,9 +66,13 @@ $$
 <br><em>Old releases available <a href="https://github.com/abelcarreras/DynaPhoPy/releases"> here</a></em></p>
 <h5><LI>Configure and install</h5>
 
-<p>Run setup.py script using&nbsp;python to install
-</p><pre><code>$ python setup.py install —-user
+<p>Run setup.py script using&nbsp;python to install</p>
+<pre><code>$ python setup.py install —-user
 </code></pre>
+<p>Executable scripts are placed in script folder. Optionally you can either add this folder to <strong>$PATH</strong> environment variable
+or copy(or link) them to /home/user/bin directory.</p>
+
+
 </OL>
 
 <h3>
@@ -81,13 +89,11 @@ $$
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
 
 <p> This software has been developed by Abel Carreras Conill in <a href="http://cms.mtl.kyoto-u.ac.jp/index-e.html"> Tanaka Lab</a> at Kyoto University and suported by a Grant-in-Aid for Scientific Research on Innovative Areas “Nano Informatics” from the Japan Society for the Promotion of Science (JSPS).
-<br>Also I woul like to thank Dr. Atsushi Togo, developer of phonopy, for this support and advices during the development of this software, you can visit his profile at <a href="https://github.com/atztogo" class="user-mention">@atztogo</a>
+<br>Also I would like to thank Dr. Atsushi Togo, developer of phonopy, for his support and advices during the development of this software. You can visit his profile at <a href="https://github.com/atztogo" class="user-mention">@atztogo</a>
 
 <h3>
 <a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h3>
 <p> This software has been developed by Abel Carreras Conill in <a href="http://cms.mtl.kyoto-u.ac.jp/index-e.html"> Tanaka Lab</a> at Kyoto University and suported by a Grant-in-Aid for Scientific Research on Innovative Areas “Nano Informatics” from the Japan Society for the Promotion of Science (JSPS).
-<br>Also I woul like to thank Dr. Atsushi Togo, developer of phonopy, for this support and advices during the development of this software, you can visit his profile at <a href="https://github.com/atztogo" class="user-mention">@atztogo</a>
-
 </p>
 
 <h3>

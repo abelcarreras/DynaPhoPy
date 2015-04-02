@@ -1,5 +1,5 @@
 
-.flux/project.dat
+.flux*
 
 .flux/settings.dat
 .PREVIEW
@@ -32,3 +32,5 @@ images/POSCAR.pdf
 .flux/snapshots/special.html/.thumbnail_2.html.png
 
 .flux/snapshots/special.html/2.html
+
+.flux/snapshots/index.html/.thumbnail_2.html.png
