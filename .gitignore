@@ -1,36 +1,9 @@
 
 .flux*
 
-.flux/settings.dat
-.PREVIEW
-.thumbnail_index.html.png
-
-.PREVIEW-index.html
-
 .filtersets.dat
 
-.PREVIEW-usage.html
+.PREVIEW*
 
-.thumbnail_usage.html.png
+.thumbnail_*
 
-images/POSCAR.pdf
-
-.PREVIEW-examples.html
-
-.thumbnail_examples.html.png
-
-.thumbnail_usage copy.html.png
-
-.thumbnail_special.html.png
-
-.PREVIEW-description.html
-
-.thumbnail_description.html.png
-
-.PREVIEW-special.html
-
-.flux/snapshots/special.html/.thumbnail_2.html.png
-
-.flux/snapshots/special.html/2.html
-
-.flux/snapshots/index.html/.thumbnail_2.html.png

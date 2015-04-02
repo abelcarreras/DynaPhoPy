@@ -36,9 +36,10 @@ files. Fortunatelly, in canonical ensemble the velocity time correlation decreas
 it becomes possible to join several independent MD trajectories to obtain a larger one with a negliglible added error. That allows to
 calculate many independent MD simulations at the same time and join them later to obtain a larger trajectory and increase the accuracy of
 the results significantly.
-To help with this task Dynaphopy can save the MD information into a hdf5 file to be read afterwards. Additionally I provide an independent
-script called concath5 which allows join several hdf5 files into one.</p>
-
+<br>To support this task Dynaphopy can save the MD information into a hdf5 file to be read afterwards. Additionally I provide an independent
+script called concath5 which allows join several hdf5 files into one.
+<br><em>Note: VASP code has to be compiled with advanced features in order to start MD from random velocities and generate diferent trajectories each run. Plase, refere
+to VASP <a href=http://cms.mpi.univie.ac.at/vasp/vasp/Advanced_MD_techniques.html">documantation</a> for further information.</em></p>
 <UL>
 <LI><h5>Save data into hdf5 file </h5>
 <p>Saving data into hdf5 file is a good practice in order to save space in the hard drive. Since only the necessary information for dynaphopy
