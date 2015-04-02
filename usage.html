@@ -27,21 +27,22 @@
     <div id="main_content_wrap" class="outer">
     	<section id="main_content" class="inner">
 
+<a href="index.html"><div id="backbutton" s style="position:relative;right:-580px;top:-170px;width:60px"><body>Back</body></div></a>
 
 <h3>Obtain input data</h3>
 <UL>
 <LI><h5>Prepare Phonopy harmonic lattice dynamics calculation</h5>
 <p> Dynaphopy interface with phonopy and needs <strong>FORCE_SETS</strong> file created by it to work properly. 
-<br> This file contains the information about atomic forces and is required in order to calculate the harmonic phonon modes.
-You can follow the instruction in phonopy <a href="http://phonopy.sourceforge.net/procedure.html">manual</a> to obtain it.
-<br><em>Keep original <strong>POSCAR</strong> file used in the calculation containing unaltered unit cell (VASP 5.x style prefered)</em></p>
+<br> This file contains the information about atomic forces and it is required in order to calculate the harmonic phonon modes.
+You can follow the instruction in phonopy <a href="http://phonopy.sourceforge.net/procedure.html">tutorial</a> to obtain it.
+<br><em>Keep original <strong>POSCAR</strong> file used in the calculation containing the unaltered unit cell (VASP 5.x style prefered)</em></p>
 
 <LI><h5>Prepare Molecular Dynamics calculation</h5>
 <p>Obtain an <strong>OUTCAR</strong> output file containing a MD calculation from VASP.
-<br>Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/vasp.html"> online manual</a> for detailed information to how to perform an MD simulation.
-<br>Warning: The cell in POSCAR file used to calculate VASP MD has to be a supercell of the cell used in phonopy calculation.
-The order of the atoms has to be kept in order to work properly.
-<br>A safer way is to use phonopy to generate the supercell that is going to be used as input in MD calculation (SPOSCAR). 
+<br>Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/vasp.html"> online manual</a> for detailed information to how to perform a MD simulation.
+<br>Warning: The supercell used to calculate VASP MD has to be an integer multiple of the cell used in phonopy calculation.
+The order of the atoms within the cell has to be kept in both cells to work properly.
+<br>A safe way is to use phonopy to generate the supercell that is going to be used in MD calculation (SPOSCAR). 
 </p>
 </UL>
 <h3>Dynaphopy input file</h3>

@@ -23,27 +23,28 @@
 
         </header>
     </div>
+    
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
     	<section id="main_content" class="inner">
 
+<a href="index.html"><div id="backbutton" s style="position:relative;right:-580px;top:-170px;width:60px"><body>Back</body></div></a>
 
 <h3>Silicon</h3>
-<p>Crystalline silicon is an well studied prototypical material that due to simple cubic structure makes 
-it very suitable as working example.</p>
+<p>Crystalline silicon is a well studied prototypical material that due to its simple cubic crystalline 
+structure makes becomes very suitable as working example.</p>
 <h5>Preparations</h5>
 
-<p>In order to calculate the anharmonic effects fist of all it is needed to define the unit cell in a VASP 
+<p>In order to calculate the anharmonic effects fist it is necessary to define the unit cell in a VASP 
 POSCAR type file: </p>
 <pre><code> Si                                        1.00000000000000          5.4365330000000000    0.0000000000000000    0.0000000000000000     0.0000000000000000    5.4365330000000000    0.0000000000000000     0.0000000000000000    0.0000000000000000    5.4365330000000000   Si     8Direct  0.8750000000000000  0.8750000000000000  0.8750000000000000  0.8750000000000000  0.3750000000000000  0.3750000000000000  0.3750000000000000  0.8750000000000000  0.3750000000000000  0.3750000000000000  0.3750000000000000  0.8750000000000000  0.1250000000000000  0.1250000000000000  0.1250000000000000  0.1250000000000000  0.6250000000000000  0.6250000000000000  0.6250000000000000  0.1250000000000000  0.6250000000000000  0.6250000000000000  0.6250000000000000  0.1250000000000000</code></pre>
-<p>Using phonopy the harmonic forces can be calculated as detailed in phonopy <a href="http://phonopy.sourceforge.net/procedure.html">online</a> tutorial. At the same time, using phonopy, a SPOSCAR file which contains a supercell of the original POSCAR file is generated.
-This file can be used to calculate the MD in VASP.
+<p>Using <a href="http://phonopy.sourceforge.net">Phonopy</a> the harmonic forces can be calculated as detailed in phonopy <a href="http://phonopy.sourceforge.net/procedure.html">online</a> tutorial. During the calculation, a SPOSCAR file which contains a supercell of the original POSCAR file is generated. This file can be used to calculate the MD in VASP.
 <br><em>Note: The supercell used in Phonopy to calculate the harmonic forces and the one used to calculate the MD in VASP can be different.
-Phonopy can easly generate a desired supercell using the command:</em>
- </p>
+Phonopy can easly generate a supercell using the command:</em></p>
 
 <pre><code> $ phonopy -d --dim="2 3 2" -c POSCAR_unitcell                                    
 </code></pre>
+
 <p>This generates a SPOSCAR file containing a 2x3x2 supercell of POSCAR_unitcell file.
 <br>VASP MD calculation is carried out using the supercell obtained and defining a regular VASP MD input </p>
   
@@ -55,20 +56,23 @@ PREC seems to not affect specially the results in the case of sillicon but be ca
 </pre></code>
 <p>At this point all the information needed for Dynaphopy to run is complete</p>
 
-<h5>Example calculations</h5>
-<p><LI>Load interactive interface (using last 80000 time steps):</p>
+<h5>Calculation examples</h5>
+
+<UL><p><LI>Load interactive interface (using last 80000 time steps):</p></UL>
 <pre><code>$ ./dynaphopy input_file OUTCAR -n 800000 -i</code></pre>
 
-<p><LI>Plot wave vector projection power spectrum at <em>L</em> point from 0 to 16 THz:</p>
+<UL><p><LI>Plot wave vector projection power spectrum at <em>L</em> point from 0 to 16 THz:</p></UL>
 <pre><code>$ ./dynaphopy input_file OUTCAR -n 800000 -pw -q 0.5 0.5 0.5 -r 0 16 200</code></pre>
 <img src="images/L_600.pdf" alt="Interactive" style="width:605px">
-<p><LI>Save phonon mode projection power spectrum at <em>X</em> point to spectrum.dat file :</p>
+
+<UL><p><LI>Save phonon mode projection power spectrum at <em>X</em> point to spectrum.dat file :</p></UL>
 <pre><code>$ ./dynaphopy input_file OUTCAR -n 800000 -sw power.dat -q 0.5 0.0 0.5</code></pre>
 
-<p><LI>Peak analysis at <em>Gamma</em> point using MEM method (parallel)  with 3000 coeficients:</p>
+<UL><p><LI>Peak analysis at <em>&Gamma;</em> point using MEM method (parallel) with 3000 coeficients:</p></UL>
 <pre><code>$ ./dynaphopy input_file OUTCAR -n 2000000 -pa -psm 4 -cf 3000</code></pre>
 <p></p>
-<pre><code>Peak # 4------------------------------------Width(FWHM): 0.840947499447 THzPosition: 15.2067936887 THzFrequency shift: -0.0531330605831 THzFitting Error (MMSE): 175.41060441Peak # 5------------------------------------Width(FWHM): 0.831509855563 THzPosition: 15.2007348236 THzFrequency shift: -0.0591919256555 THzFitting Error (MMSE): 122.527840653Peak # 6------------------------------------Width(FWHM): 0.898610177277 THzPosition: 15.1706635365 THzFrequency shift: -0.08926321275 THzFitting Error (MMSE): 116.735106226</code></pre>
+
+<pre><code>Peak # 4------------------------------------Width (FWHM): 0.840947499447 THzPosition: 15.2067936887 THzFrequency shift: -0.0531330605831 THzFitting Error (MMSE): 175.41060441Peak # 5------------------------------------Width (FWHM): 0.831509855563 THzPosition: 15.2007348236 THzFrequency shift: -0.0591919256555 THzFitting Error (MMSE): 122.527840653Peak # 6------------------------------------Width (FWHM): 0.898610177277 THzPosition: 15.1706635365 THzFrequency shift: -0.08926321275 THzFitting Error (MMSE): 116.735106226</code></pre></UL>
     </section>
     </div>
     
