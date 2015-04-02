@@ -400,7 +400,7 @@ static double  **matrix_inverse ( double ** a ,int n){
 
 	return b;
 
-}
+};
 
 //  Recursive definition of determinate using expansion by minors.
 
@@ -438,11 +438,11 @@ static double  Determinant(double  **a,int n)
       }
    }
    return(det);
-}
+};
 
 //   Find the cofactor matrix of a square matrix
 
-static double ** CoFactor(double  **a,int n)
+static double **CoFactor(double  **a,int n)
 {
    int i,j,ii,jj,i1,j1;
    double  det;
@@ -486,12 +486,12 @@ static double ** CoFactor(double  **a,int n)
    free(c);
    return b;
 
-}
+};
 
 //  Calculate the matrix multiplication
 static double  **matrix_multiplication ( double   **a, double   **b, int n, int l, int m ){
 
-	double ** c = malloc(n*sizeof(double *));
+	double **c = malloc(n*sizeof(double *));
     for (int i = 0; i < n; i++)
 		c[i] = (double *) malloc(m*sizeof(double ));
 
@@ -517,7 +517,7 @@ static void  matrix_multiplication2 (double  **a, double  **b, double  **c, int 
 			}
 		}
 	}
-}
+};
 
 
 static int TwotoOne(int Row, int Column, int NumColumns) {
@@ -526,7 +526,7 @@ static int TwotoOne(int Row, int Column, int NumColumns) {
 
 static int Position(int i) {
     return (i+1)/2*pow(-1,i+1);
-}
+};
 
 
 static double *FiniteDifferenceCoefficients(int M, int N) {
@@ -566,23 +566,23 @@ static double *FiniteDifferenceCoefficients(int M, int N) {
     }
 
     return df;
-}
+};
 
 //  --------------- Interface functions ---------------- //
 
 static char extension_docs_method1[] =
-    "derivative(cell, trajectory, time, order=1 )\n\n Calculation of the derivative [centered differencing]\n";
+    "derivative_original(cell, trajectory, time, order=1 )\n\n Calculation of the derivative [centered differencing]\n";
 
 static char extension_docs_method2[] =
     "derivative_real(cell, trajectory, time, order=1 )\n\n Calculation of the derivative [centered differencing] [real]\n";
 
 static char extension_docs_method3[] =
-    "derivative_real(cell, trajectory, time, precision_order=2 )\n\n Calculation of the derivative [centered differencing] [Any order]\n";
+    "derivative(cell, trajectory, time, precision_order=2 )\n\n Calculation of the derivative [centered differencing] [Any order]\n";
 
 static PyMethodDef extension_funcs[] = {
-    {"derivative", (PyCFunction)method1, METH_VARARGS, extension_docs_method1},
+    {"derivative_original", (PyCFunction)method1, METH_VARARGS, extension_docs_method1},
     {"derivative_real", (PyCFunction)method2, METH_VARARGS, extension_docs_method2},
-    {"derivative_general", (PyCFunction)method3, METH_VARARGS|METH_KEYWORDS, extension_docs_method3},
+    {"derivative", (PyCFunction)method3, METH_VARARGS|METH_KEYWORDS, extension_docs_method3},
     {NULL}
 };
 

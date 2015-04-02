@@ -30,6 +30,7 @@ if len(sys.argv) == 1:
     exit()
 
 first = 20000
+
 velocity, time, super_cell = read_file_hdf5(sys.argv[1])
 velocity = velocity[first:]
 print(sys.argv[1])
