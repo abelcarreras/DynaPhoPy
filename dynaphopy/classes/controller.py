@@ -83,17 +83,20 @@ class Calculation:
     def write_to_xfs_file(self,file_name):
         reading.write_xsf_file(file_name,self.dynamic.structure)
 
-    def save_velocity(self, file_name):
+    def save_velocity(self, file_name, save_trajectory=True):
+        if save_trajectory:
+            trajectory = self.dynamic.trajectory
+        else:
+            trajectory = ()
+
         reading.save_data_hdf5(file_name,
                                self.dynamic.velocity,
                                self.dynamic.get_time(),
-                               self.dynamic.get_super_cell_matrix())
+                               self.dynamic.get_super_cell_matrix(),
+                               trajectory=trajectory)
 
         print("Velocity saved in file " + file_name)
 
-    def read_velocity(self, file_name):
-        print("Loading velocity from file", file_name)
-        self.dynamic.velocity = reading.read_data_hdf5(file_name)
 
     def set_number_of_mem_coefficients(self,coefficients):
         self.correlation_clear()

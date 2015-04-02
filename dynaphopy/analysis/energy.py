@@ -19,11 +19,11 @@ def bolzmann_distribution(trajectory):
     deviation = np.std(energy)
     print('Average:',average)
     print('Deviation',deviation)
-    energy_distribution = np.histogram(energy,bins=25,density=True,normed=True)
+    energy_distribution = np.histogram(energy, bins=25, density=True, normed=True)
 #    print(energy_distribution)
     maxwell = stats.maxwell
 
-    params = maxwell.fit(energy,floc=0)
+    params = maxwell.fit(energy, floc=0)
     print('Fit parameter:',params)
     boltzmann_constant = 8.6173324E-5   #eV*K^-1
 #    temperature = 600  #K
@@ -35,7 +35,7 @@ def bolzmann_distribution(trajectory):
     x = np.linspace(0, average+3*deviation, 100)
     plt.plot(x, maxwell.pdf(x,*params), lw=3)
     plt.suptitle('Velocity distribution')
-    plt.hist(energy,bins=25,normed=True)
+    plt.hist(energy, bins=25,normed=True)
     plt.show()
 
 #   Read info in files

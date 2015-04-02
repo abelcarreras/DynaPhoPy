@@ -288,7 +288,7 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
 #    print('At type',atom_type)
 
 
-    print(structure.get_atomic_types(super_cell=super_cell))
+    #print(structure.get_atomic_types(super_cell=super_cell))
     #Generate an xyz file for checking
     xyz_file = open('test.xyz','w')
 
@@ -530,8 +530,11 @@ def write_xsf_file(file_name,structure):
     xsf_file.close()
 
 
-def save_data_hdf5(file_name, velocity, time, super_cell):
+def save_data_hdf5(file_name, velocity, time, super_cell, trajectory=None):
     hdf5_file = h5py.File(file_name, "w")
+
+    if trajectory is not None:
+        hdf5_file.create_dataset('trajectory', data=trajectory)
 
     hdf5_file.create_dataset('velocity', data=velocity)
     hdf5_file.create_dataset('time', data=time)
@@ -541,35 +544,26 @@ def save_data_hdf5(file_name, velocity, time, super_cell):
     hdf5_file.close()
 
 
-def read_data_hdf5(file_name):
-
-    #Check file exists
-    if not os.path.isfile(file_name):
-        print(file_name + ' file does not exist!')
-        exit()
-
-    hdf5_file = h5py.File(file_name, "r")
-    velocity = hdf5_file['velocity'][:]
-    hdf5_file.close()
-
-    return velocity
-
-
-def initialize_from_file(file_name,structure):
+def initialize_from_file(file_name, structure):
     print("Reading data from hdf5 file: " + file_name)
 
+    trajectory = None
     #Check file exists
     if not os.path.isfile(file_name):
         print(file_name + ' file does not exist!')
         exit()
 
     hdf5_file = h5py.File(file_name, "r")
+    if "trajectory" in hdf5_file:
+        trajectory = hdf5_file['trajectory'][:]
+
     velocity = hdf5_file['velocity'][:]
     time = hdf5_file['time'][:]
     super_cell = hdf5_file['super_cell'][:]
     hdf5_file.close()
 
     return dyn.Dynamics(structure = structure,
+                        trajectory=trajectory,
                         velocity = velocity,
                         time=time,
                         super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()))

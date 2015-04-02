@@ -2,12 +2,11 @@
 import argparse
 import numpy as np
 
-import phonopy.file_IO as file_IO
-
 import dynaphopy.functions.iofile as reading
 import dynaphopy.classes.controller as controller
 import dynaphopy.interface.interactive_ui as interactive_ui
 
+from dynaphopy.functions.phonopy_link import get_force_sets_from_file
 
 
 #Define arguments
@@ -35,11 +34,17 @@ parser.add_argument('-r', '--frequency_range',metavar='N', type=float, nargs=3,
 parser.add_argument('-n', metavar='N', type=int, default=0,
                    help='number of MD last steps to take (default: 2000)')
 
+parser.add_argument('-pd', '--plot_direct', action='store_true',
+                    help='Plot direct power spectrum')
+
 parser.add_argument('-pw', '--plot_wave_vector', action='store_true',
                     help='Plot projection into wave vector')
 
 parser.add_argument('-pp', '--plot_phonon_mode', action='store_true',
                     help='plot projection into phonon modes')
+
+parser.add_argument('-sd', '--save_direct', metavar='file', type=str, nargs=1,
+                    help='save direct power spectrum to file')
 
 parser.add_argument('-sw', '--save_wave_vector', metavar='file', type=str, nargs=1,
                     help='save projection into wave vector to file')
@@ -56,10 +61,10 @@ parser.add_argument('-psm', '--power_spectrum_algorithm',metavar='N', type=int, 
 parser.add_argument('-cf', '--number_of_mem_coefficients',metavar='N', type=int, nargs=1,
                    help='Number of coefficients to use in MEM algorithm (default 300)')
 
-parser.add_argument('-pa', '--coefficient_scan_analysis', action='store_true',
+parser.add_argument('-csa', '--coefficient_scan_analysis', action='store_true',
                     help='Request coefficient scan analysis')
 
-parser.add_argument('-pi', '--peak_analysis', action='store_true',
+parser.add_argument('-pa', '--peak_analysis', action='store_true',
                     help='Request a peak analysis')
 
 parser.add_argument('--silent', action='store_true',
@@ -84,7 +89,8 @@ else:
     structure_file = input_parameters['structure_file_name_poscar']
 
 if 'force_constants_file_name' in input_parameters:
-    structure.set_force_set( file_IO.parse_FORCE_SETS(filename=input_parameters['force_constants_file_name']))
+    structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_constants_file_name']))
+
 
 if 'primitive_matrix' in input_parameters:
     structure.set_primitive_matrix(input_parameters['primitive_matrix'])
@@ -121,11 +127,17 @@ if args.number_of_mem_coefficients:
 if args.frequency_range:
     calculation.set_frequency_range(np.linspace(*args.frequency_range))
 
+if args.save_direct:
+    calculation.write_correlation_direct(args.save_direct[0])
+
 if args.save_wave_vector:
     calculation.write_correlation_wave_vector(args.save_wave_vector[0])
 
 if args.save_phonon_mode:
     calculation.write_correlation_phonon(args.save_phonon_mode[0])
+
+if args.plot_direct:
+    calculation.plot_correlation_direct()
 
 if args.plot_wave_vector:
     calculation.plot_correlation_wave_vector()

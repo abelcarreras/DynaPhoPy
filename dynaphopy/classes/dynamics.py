@@ -1,13 +1,13 @@
 import numpy as np
 from dynaphopy.classes import atoms
-from dynaphopy.derivative import derivative_general as derivative
+from dynaphopy.derivative import derivative as derivative
 #import matplotlib.pyplot as plt
 
 
-def obtain_velocity_from_positions(cell,trajectory, time):
+def obtain_velocity_from_positions(cell, trajectory, time):
     velocity = np.empty_like(trajectory)
     for i in range(trajectory.shape[1]):
-   #     velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time)
+     #   velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time)
          velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=8)
 
     print('Velocity obtained from trajectory derivative')

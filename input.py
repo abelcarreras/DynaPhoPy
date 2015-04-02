@@ -2,6 +2,7 @@
 
 import numpy as np
 import phonopy.file_IO as file_IO
+from dynaphopy.functions.phonopy_link import get_force_sets_from_file
 import dynaphopy.functions.iofile as reading
 import dynaphopy.classes.controller as controller
 import matplotlib.pyplot as pl
@@ -13,17 +14,17 @@ import analysis.modes as modes
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
 #directory ='/home/abel/VASP/Si-phonon/3x3x3/'
-#directory = '/home/abel/VASP/MgO-phonon/3x3x3/'
+directory = '/home/abel/VASP/MgO-phonon/4x4x4/'
 #directory = '/home/abel/VASP/Bi2O3-phonon/'
 #directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
-directory = '/home/abel/VASP/GaN-phonon/4x4x2_GGA/'
+#directory = '/home/abel/VASP/GaN-phonon/4x4x2_GGA/'
 #structure = reading.read_from_file_structure_outcar(directory+'OUTCAR')
 structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_scaled_positions())
 #print(structure.get_positions())
 
 
-structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
+structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS'))
 
 ############################### PHONOPY CELL INFORMATION ####################################
 # 2. Set primitive matrix, this matrix fulfills that:
@@ -34,9 +35,9 @@ structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'
 #                                [0.0, 0.5, 0.0],
 #                                [0.0, 0.0, 0.5]])
 
-#structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-#                                [0.5, 0.0, 0.5],
-#                                [0.5, 0.5, 0.0]])
+structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+                                [0.5, 0.0, 0.5],
+                                [0.5, 0.5, 0.0]])
 
 #structure.set_primitive_matrix([[1.0, 0.0, 0.0],
 #                                [0.0, 1.0, 0.0],
@@ -47,7 +48,7 @@ structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'
 
 structure.set_super_cell_phonon([[4, 0, 0],
                                  [0, 4, 0],
-                                 [0, 0, 2]])
+                                 [0, 0, 4]])
 
 
 
@@ -61,35 +62,39 @@ structure.set_super_cell_phonon([[4, 0, 0],
 #print(structure.get_masses(super_cell=[4,4,2]))
 #print(structure.get_number_of_atom_types())
 
-reading.write_xsf_file("test.xfs",structure)
+reading.write_xsf_file("test.xfs", structure)
 
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
-#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,limit_number_steps=5000000)
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=50000)
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,limit_number_steps=5000)
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_600/RUN2/OUTCAR',structure,last_steps=50000)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
-#trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.5],super_cell=[2,2,2])
+#trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.0],super_cell=[2,2,2])
 
-#trajectory = reading.initialize_from_file('test.hdf5', structure)
+trajectory = reading.initialize_from_file('test.hdf5', structure)
 
 from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 #obtain_velocity_from_positions(structure.get_cell(),trajectory.trajectory,trajectory.get_time())
 
 #exit()
 
-calculation = controller.Calculation(trajectory, last_steps=80000, save_hfd5='test.hdf5')
+calculation = controller.Calculation(trajectory, last_steps=80000, save_hfd5="test.hdf5")
 
 calculation.set_reduced_q_vector([0.5, 0.0, 0.0])
 
-modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
+#modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
 #calculation.plot_eigenvectors()
+
 
 calculation.set_frequency_range(np.linspace(0, 25, 1000))
 calculation.select_power_spectra_algorithm(4)
 #calculation.set_NAC(True)
+
+#calculation.get_phonon_dispersion_spectra()
+
 
 #print(calculation.get_frequencies())
 #print(calculation.get_q_vector())
@@ -110,12 +115,11 @@ calculation.select_power_spectra_algorithm(4)
 
 #exit()
 
-
 #################################### GET PROPERTIES #########################################
 #calculation.plot_trajectory()
 #calculation.plot_energy()
-#calculation.plot_trajectory(atoms=[0,1,2,3])
-calculation.plot_velocity(atoms=[0,1,2,3])
+calculation.plot_trajectory(atoms=[0, 1, 2, 3])
+calculation.plot_velocity(atoms=[0,1, 2, 3])
 
 #calculation.plot_vc(atoms=[0,1])
 #calculation.plot_vq(modes=[0,1,2,3,4])
