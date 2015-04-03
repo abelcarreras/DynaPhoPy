@@ -15,7 +15,7 @@ class Parameters:
                  reduced_q_vector=(0, 0, 0),  # default reduced wave vector
 
                  #Maximum Entropy Method
-                 number_of_coefficients_mem=300,
+                 number_of_coefficients_mem=1000,
                  mem_scan_range=np.array(np.linspace(40, 2000, 100), dtype=int),
 
                  #Correlation Method

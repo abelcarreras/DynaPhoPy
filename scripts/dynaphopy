@@ -56,7 +56,7 @@ parser.add_argument('-sv', '--save_velocity', metavar='file', type=str, nargs=1,
                     help='save velocity into hdf5 file')
 
 parser.add_argument('-psm', '--power_spectrum_algorithm',metavar='N', type=int, nargs=1,
-                   help='Select power spectrum calculation algorithm (default 0)')
+                   help='Select power spectrum calculation algorithm (default 4)')
 
 parser.add_argument('-cf', '--number_of_mem_coefficients',metavar='N', type=int, nargs=1,
                    help='Number of coefficients to use in MEM algorithm (default 300)')
