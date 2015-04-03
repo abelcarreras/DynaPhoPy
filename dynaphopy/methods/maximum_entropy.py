@@ -249,7 +249,7 @@ def phonon_width_scan_analysis(vq, trajectory, parameters):
 
         print "Position:", scan_params[best_index][0], "THz"
         print "Optimum coefficients num:", fit_data[0][best_index]
-        print "Fitting Error:", np.min(fit_data[2])
+        print "Fitting Error(RMS):", np.min(fit_data[2])
         print ("\n")
 
         plt.figure(0)
