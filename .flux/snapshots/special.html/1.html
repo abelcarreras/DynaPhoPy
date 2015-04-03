@@ -1,190 +1,0 @@
-<!DOCTYPE html>
-<html>
-
-  <head>
-    <script type="text/javascript"
-            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Dynaphopy : Phonon Analysis from Dynamical Data">
-
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Dynaphopy</title>
-  </head>
-
-  <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <h2 id="project_tagline">Special options</h2>
-
-        </header>
-    </div>
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-    	<section id="main_content" class="inner">
-
-
-<h3>Big data</h3>
-<p>
-In order to obtain well converged results in the calculation of anharmonic phonon properties, specially in phonon linewidths, 
-usually it becomes necessary to use very long MD simulations. This usually requires long calculation times and imply very large 
-files. Fortunatelly, in canonical ensemble the velocity time correlation decreases relativelly fast as the time advances. That means that
-it becomes possible to join several independent MD trajectories to obtain a larger one with a negliglible added error. That allows to
-calculate many independent MD simulations at the same time and join them later to obtain a larger trajectory and increase the accuracy of
-the results significantly.
-To help with this task Dynaphopy can save the MD information into a hdf5 file to be read afterwards. Additionally I provide an independent
-script called concath5 which allows join several hdf5 files into one.</p>
-
-<UL>
-<LI><h5>Save data into hdf5 file </h5>
-<p>Saving data into hdf5 file is a good practice in order to save space in the hard drive. Since only the necessary information for dynaphopy
-is stored, this hdf5 file size can be arounf 5 times smaller than the original OUTCAR. To request to save MD trajectory into hdf5 file use 
-<strong>-sv</strong> flag follower by the file name. 
-<br>This option can be used alone  or together with other flags but all the information is always stored in the file (<strong>-n</strong> 
-flag has no effect in the stored data).</p>
-
-<pre><code>$ ./dynaphopy input_file OUTCAR -sv filename.h5</code></pre>
-
-<LI><h5>Load data into hdf5 file </h5>
-<p> Once saved into a hdf5 file, MD data can be load to dynaphopy using <strong>-lv</strong> flag. Loading data from hdf5 is much faster
-than using OUTCAR file, if several calculation using the same data have to be done, is highly recomended to use this method.
-<br><em>Notice that when loading data this way, OUTCAR file has to not be put.</em>
-
-<pre><code>$ ./dynaphopy input_file -lv filename.h5</code></pre>
-
-<LI><h5>Manipulating data</h5>
-<p>
-The structure of the htm5 is pretty simple. With a minimum knowledge of programming it can be manipulated by third parties software.
-In dynaphopy script directory a simple script for joining data ins provided named <strong>concath5</strong>. It can be used as example 
-for more complex ones. To use this script is only to call it followed by the name of all the hdf5 files to be joined and the last one 
-the name of the new hdf5 file that will contain all the joined data. 
-</p>
-<pre><code>$ ./concath5 source1.h5 source2.h5 source3.h5 ··· joined.h5</code></pre>
-<p>
-By default <strong>concath5</strong> removes the first 20000 time steps of each source MD trajectory. This is done to ensure that the MD
-is totally converged in each file. To change this behavior this script can be easily edited changing the value of <strong>"first=20000"</strong> variable. 
-</p>
-</UL>
-
-<h3>MEM coeficient analysis</h3>
-<p>
-The correct setting of the number of coefficents in MEM algorithm to calculate the power spectrum is one of the crucial point to take in account.
-Depending on the number of coefficents the peak width of the peaks may significantly change, which directly affects the phonon linewidths results.
-<br>From my experience, if the MD simulations are long enough, as the number of coefficents increase the peak width become to stabilize while keeping the peaks shape smooth. Is to be expected than this stabilized width is more reliable even if the peaks become a little more uglyer.
-<br>In order to check the evolution of the power spectra peaks width with the number of coefficents dynaphopy provides option <strong>-csa</strong>
-which performs a scan for all peaks anf fits each one to Lorentzian function to extract width information.
-All this information is plotted in 3 matplotlib windows for each phonon. Additionally, it shows the number of parameters that has the best
-fit with a Lorentzian function and estimates the peak width value taking a average for all coefficents ponderated by the fit error.
-</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -csa</code></pre>
-
-<UL>
-<LI>0: Fourier transform algorithm using parallel python module
-<LI>1: Maximum Entropy Method using parallel python module
-<LI>2: Fourier transform algorithm serial
-<LI>3: Fourier transform algorithm parallel using OpenMP.
-<LI>4: Maximum Entropy mMthod algorithm parallel using OpenMP.
-</UL>
-<em>Algorithms 0 and 1 and are essencially for testing purposes, algorithms 2, 3 and 4 are <strong>strongly</strong> recomended. 
-If not specified algorithm 4 is used.</em>
-
-<pre><code>$ ./dynaphopy input_file OUTCAR -psm 4</code></pre>
-<p> Fourier methods do not require additional parameters but Maximum Entropy Method (MEM) does. MEM allows to obtain smoother and faster 
-power spectra interpolating the velocity using a polynomia which depends on a certain number of coefficents. The higher this number is, heavier becomes the calculation and closer to Fourier transfom solution. However the convergence of the paeks shape in MEM can be found much ealier 
-obtaining very good performance. By default the number of coefficents used is 300 but it can be changed using <strong>-cf</strong> followed by
-an integer number wich indicates the number of coeficients.</p>
-
-<pre><code>$ ./dynaphopy input_file OUTCAR -cf 800</code></pre>
-
-<UL>
-<LI><h5>Full power spectra</h5>
-<p> 
-This option calculates the power spectra directlly from cartessian coordinates velocity without any projection. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps limit, this power spectrum tends to the vibrational density of states (VDoS).
-</p>
-<p>Plot spectrum using matplotlib:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -pd</code></pre>
-<p>Save to file:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -sd filename</code></pre>
-
-<LI><h5>Wave vector projection power spectra</h5>
-<p>This option requests the atoms velocity to be projected into a point in the reciprocal space (wave vector) and display the power spectrum.
-<p>Plot spectrum using matplotlib:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -pw</code></pre>
-<p>Save to file:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -sw filename</code></pre>
-
-<LI><h5>Phonon modes projection power spectra</h5>
-<p>This option requests the atoms velocity to be projected into a point in the reciprocal space (wave vector) and additionally
-project it into each of the harmonic phonon modes in this point. This option requieres phonopy to be correctlly installed and 
-<strong>FORCE_SETS</strong> file has to be calculated first. The result is a set of phonon mode projections (one for each phonon)
-wich are either displayed in the screen in diferent windows or stored in a file (one column for each phonon) ordered from lower 
-to higher frequency.
-
-<p>Plot spectrum using matplotlib:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -pp</code></pre>
-<p>Save to file:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -sp filename</code></pre>
-
-<LI><h5>Additional options</h5>
-<p>Use <strong>-r</strong> option to change the power spectrum range and resolution (start, end, number of points).</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -r 0 25 100</code></pre>
-<p>Use <strong>-q</strong> Change the recirpocal space point (wave vector) in wich the velocity is projected. This option
-takes 3 real numbers (wave vector in reduced coordinates).
-<br><em>This option has effect only in wave vector and phonon modes projections</em></p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -q 0.5 0 0.5</code></pre>
-
-<p>The number of time steps used to calculate the power spectra may have great influence in the final result. By default 
-it takes the <strong>last 2000</strong> time steps but using <strong>-n</strong> flag this value changed. This flag requires
-a integer number indicating the number of last time steps to be used in the calculation. I is recomended to leave some 
-stabilitzation time steps in the begining to ensure that the MD is totally converged. In interactive mode, using this flag is the
-only way to define the number of time steps to be used.
-<br><em>If the OUTCAR file contains less time steps than the especified in <strong>-n</strong> flag, all time steps will be used.</em></p>
-
-<pre><code>$ ./dynaphopy input_file OUTCAR -n 5000</code></pre>
-
-<p>All these option can be combined to obtain the desired results. In interactive mode these options can also be used and
-are read as a initial paramters that can be later changed inside interactive menus. The only exception is <strong>-n</strong>
-flag that cannot be changed. For very long MD the amount of RAM memory needed to do the calculations can be huge so only 
-the discarted time steps are erased from memory at the begining of the execution.
-</UL>
-
-<h3>Obtaining anharmonic phonon properties</h5>
-<p> 
-Phonon linewidhts and frequency shifts can be obtained by the direct analysis of power spectra. Using phonon modes projections
-are the best way to analize the individual phonons since the are separated. Dynaphopy offers a tool to automatically fit the
-obtained spectra to lorentzian functions and displayed the results on the screen. This tool is called peak analysis and is
-requested through flag <strong>-pa</strong>.
-<br><em>This option works better with MEM method since the obtained sprectra are smoother.</em>
-
-<pre><code>$ ./dynaphopy input_file OUTCAR -pa</code></pre>
-<p> 
-When the calculation is finished individual information for each phonon is displayed in the screen. Position and widht correspond directly
-to the phonon linewidths and peak anharmonic frequency. Frequency shift is calculated from the diference between harmonic frequency
-and calculated anharmonic frequency (position) for each peak.
-</p>
-<pre><code>Peak # 4------------------------------------Width (FWHM): 0.942807095508 THzPosition: 16.2166860349 THzArea: 4250.53142961 THzFrequency shift: 0.956759285644 THzFitting Error (RMS): 690.223340187</code></pre><p>
-Additionally for each peak, a matplotlib window apear in the screen showing the result of the fitting for visual observation.
-For new systems is strongly recomended to check for each phonon spectrum fitting to ensure that it has been succesfully performed.
-For calculations in batch calculations option <strong>--silent</strong> may be used. This option avoids matplotlib displays to be showed displaying only the text
-information wich can be stored in a file redirecting the output.   
-</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -pa --silent > output.log</code></pre>
-<p> 
-
-    </section>
-    </div>
-    
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Dynaphopy maintained by <a href="https://github.com/abelcarreras">abelcarreras</a></p>
-        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-    
-  </body>
-</html>

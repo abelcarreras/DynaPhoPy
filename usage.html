@@ -39,17 +39,15 @@ You can follow the instruction in phonopy <a href="http://phonopy.sourceforge.ne
 
 <LI><h5>Prepare Molecular Dynamics calculation</h5>
 <p>Obtain an <strong>OUTCAR</strong> output file containing a MD calculation from VASP.
-<br>Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/vasp.html"> online manual</a> for detailed information to how to perform a MD simulation.
-<br>Warning: The supercell used to calculate VASP MD has to be an integer multiple of the cell used in phonopy calculation.
-The order of the atoms within the cell has to be kept in both cells to work properly.
-<br>A safe way is to use phonopy to generate the supercell that is going to be used in MD calculation (SPOSCAR). 
+<br>Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/vasp.html"> online manual</a> for detailed information to how to calculate a MD simulation.
+<br><strong>Warning!:</strong><em> The supercell used to calculate VASP MD has to be an integer multiple of the cell used in phonopy calculation.
+The order of the atoms within the cell has to be kept in both cells to work properly. A safe way is to use Phonopy to generate the supercell used in MD calculation (SPOSCAR)</em>. 
 </p>
 </UL>
 <h3>Dynaphopy input file</h3>
-<p>To run Dynaphopy needs an input file. The input file is an plain text that contains infromation about the input data.
-<br> All these parameters are optional, in case of not explicit especification dynaphopy will use the default parameters.
-<br> Each parameter is preceded by a label line which indicates wich kind of parameter is. Altering this line may result in
-an unrecognition of the parameter.</p>
+<p>To run Dynaphopy needs an input file. The input file is an plain text that contains basic information about files location, estructural data and other parameters that Dynaphopy may requiere to work.
+<br> All these parameters are optional, in case of not beeing explicitly especificated dynaphopy will use default ones.
+<br> Each parameter is preceded by a label which indicates the kind of parameter it is. Altering this label may prevent the parameters to be recognized correctly, be carefull. The order of the parameters inside input file is not important, neither the blank lines used between them. The only requisite is to not leave any blank line between labels and parameters. Comments can be added to the input file while not interfearing with the parameters labels. To avoid future inconvenients it is recomended to start each comment line with some special character.</p>
 
 <UL><LI><h5>POSCAR and FORCE_SETS files location</h5>
 <p>Define the file name and path in wich the POSCAR containing the crystal unit cell and FORCE_SETS containing atom forces files are stored. If not specified working directory is taken.</p>
@@ -61,22 +59,21 @@ an unrecognition of the parameter.</p>
 <pre><code>STRUCTURE FILE OUTCAR/home/user/phonopy/calculation/OUTCAR_unitcell</code></pre>
 
 <LI><h5>Primitive matrix definition</h5>
-<p>This matrix defines the primitive cell respect to the unit cell. If not defined it takes identity matrix meaning that primitive cell and unit cell are equivalent.
+<p>This matrix defines the primitive cell size respect to the unit cell. If not defined it takes identity matrix meaning that primitive cell and unit cell are equivalent.
 </p><pre><code>PRIMITIVE MATRIX0.0 0.5 0.50.5 0.0 0.50.5 0.5 0.0
 </code></pre>
 
 <LI><h5>Supercell matrix used in lattice dynamics calculation</h5>
-<p>In order to interface correctly with Phonopy, Dynaphopy needs to knwow the size of the supercell used to calculate the forces in Phonopy. This is usually specified with the 
-flag <strong>--dim</strong> in Phonopy calculation. For further information, please refere to Phonopy <a href="http://phonopy.sourceforge.net/procedure.html">manual</a>.
-<br>This matrix is usually integer and diagonal. As in primitive matrix case, by default it takes identity matrix.
+<p>In order to interface correctly with Phonopy, Dynaphopy needs to know the size of the supercell used to calculate the forces in Phonopy. 
+This is specified with  <strong>--dim</strong> flag in Phonopy. For further information, please check Phonopy online<a href="http://phonopy.sourceforge.net/procedure.html"> tutorial</a> .
+<br>This matrix is integer and diagonal. As in primitive matrix case, if not especified, by default it takes identity matrix.
 </p><pre><code>SUPERCELL MATRIX PHONOPY4 0 00 3 00 0 3
 </code></pre>
 
 <LI><h5>Phonon dispersion bands</h5>
-<p>Interfacing with phonopy, dynaphopy can get the phonon dispersion diagram. This command is used to define the path in the reciprocal space to calculate. Each line represent a linear piece of the path. The first 3 values indicate the origin point in reduced coordinates while
-tha last 3 indicate the destination. There is no limit for the number of lines used to build the path. 
-This feature is mean to be used as 
-reference so the resolution of the bands cannot be changed. For more options please use phonopy directly.
+<p>Interfacing with Phonopy, Dynaphopy can obtain the phonon dispersion diagram. This parameter defines the path in the reciprocal space used to calculate the bands. This path is defined small linear segments. Each segment is written in a diferent input line. The first 3 values indicate the origin point in reduced coordinates while tha last 3 indicate the destination. There is no limit for the number of segments used to define the 
+path. 
+<br><em>This feature is mean to be used as reference so the resolution of the bands cannot be changed. For more options please use phonopy directly.</em>
 </p><pre><code>SUPERCELL MATRIX PHONOPY4 0 00 3 00 0 3
 </code></pre>
 
@@ -84,15 +81,16 @@ reference so the resolution of the bands cannot be changed. For more options ple
 
 <h3>Execute Dynaphopy</h3>
 <p>Phonopy can be used in two different ways: from command line flags or using interactive user interface.
-Interactive interface offere the most simple way to work with dynaphopy, but command line flag interface 
-has more options. Some options not direclly editables in interactive interface can be set loading dynaphopy with additional flags.
+Interactive interface is the most simple way to work with dynaphopy, however command line flag interface 
+has more options and becomes very usefull to calculate in batch. Some options that are not directly editables in interactive interface 
+can be set when loading dynaphopy using additional flags.
 <UL><LI><h5>Command line flag interface</h5>
-<p>To run dynaphopy only requires to call dynaphopy script with the input file and OUTCAR file as arguments. Input file defines where the FORCE_SETS and POSCAR are and OUTCAR file contain the MD trajectory.</p>
-</p><pre><code>$ ./dynaphopy input_file OUTCAR
+<p>To run Dynaphopy only is nedeed to call dynaphopy script (places in script folder) with Dynaphonpy input file and VASP OUTCAR file as arguments. Input file defines where the FORCE_SETS and POSCAR are and OUTCAR file contain the MD trajectory.</p>
+</p><pre><code>$ dynaphopy input_file OUTCAR
 </code></pre>
-<p>This command does essentially nothing, since no calculation has been requested. It just checks that all the necessary files can be loaded correctlly.
-<br>To request a calculation, additional flags have to be set. Using <strong>-h</strong> flag a list of all available options is shown.</p>
-</p><pre><code>$ ./dynaphopy -h
+<p>This command does essentially nothing, since no calculation has been requested. It just checks that all the necessary files exists and can be loaded correctly.
+<br>To request a calculation, additional flags have to be set. Using <strong>-h</strong> flag shows all available options.</p>
+</p><pre><code>$ dynaphopy -h
 usage: dynaphopy [-h] [-lv file] [-i] [-q N N N] [-r N N N] [-n N] [-pw] 
                  [-pp] [-sw file] [-sp file] [-sv file] [-psm N] [-cf N] 
                  [-pa] [-pi] [--silent] [-ds] data_file [OUTCAR]DynaPhonoPy optionspositional arguments:  data_file             input file containing structure related data  OUTCAR                VASP Output file containing MD calculation 
@@ -104,16 +102,12 @@ usage: dynaphopy [-h] [-lv file] [-i] [-q N N N] [-r N N N] [-n N] [-pw]
 
 
 <LI><h5>Interactive interface</h5>
-<p>Interactive interface is the easiest way to run dynaphopy. To enter to interactive interaface the <strong><nobr>-i</nobr></strong> flag has to be set.
-Additional flags may be used to set different initial parameters but direct calculations requests are not recomended.</p>
+<p>Interactive interface is the easiest way to run Dynaphopy. The interface show a menu screen which can be used to navigate through the different
+options. To start interactive interaface  <strong><nobr>-i</nobr></strong> flag has to be added. Additional flags may be used to set different initial parameters but direct calculations requests (such as power spectra calculations) are not recomended.</p>
 </p><pre><code>$ ./dynaphopy input_file OUTCAR -i 
 </code></pre>
 <img src="images/dynaphopy_inter.png" alt="Interactive" style="width:605px">
 </UL>
-
-
-
-
 
 
     </section>

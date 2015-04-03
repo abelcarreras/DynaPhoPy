@@ -19,7 +19,7 @@
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
         <header class="inner">
-          <h2 id="project_tagline">Special options</h2>
+          <h2 id="project_tagline">Advanced options</h2>
 
         </header>
     </div>
@@ -31,44 +31,48 @@
 <h3>Big data</h3>
 <p>
 In order to obtain well converged results in the calculation of anharmonic phonon properties, specially in phonon linewidths, 
-usually it becomes necessary to use very long MD simulations. This usually requires long calculation times and imply very large 
+usually it becomes necessary to use very long MD simulations. This requires long calculation times and imply to hadle very large 
 files. Fortunatelly, in canonical ensemble the velocity time correlation decreases relativelly fast as the time advances. That means that
-it becomes possible to join several independent MD trajectories to obtain a larger one with a negliglible added error. That allows to
-calculate many independent MD simulations at the same time and join them later to obtain a larger trajectory and increase the accuracy of
-the results significantly.
+it becomes possible to join several independent MD trajectories to obtain a larger one with almost negligible added error. That allows to
+calculate many independent MD simulations at the same time and join them later to obtain a larger MD trajectory and increase the accuracy of
+the results.
 <br>To support this task Dynaphopy can save the MD information into a hdf5 file to be read afterwards. Additionally I provide an independent
-script called concath5 which allows join several hdf5 files into one.
-<br><em>Note: VASP code has to be compiled with advanced features in order to start MD from random velocities and generate diferent trajectories each run. Plase, refere
-to VASP <a href=http://cms.mpi.univie.ac.at/vasp/vasp/Advanced_MD_techniques.html">documantation</a> for further information.</em></p>
+script called <strong>concath5</strong> which allows join several hdf5 files into one.
+<br><em>Note: VASP code has to be compiled with advanced features in order to start MD from random velocities and generate different 
+trajectories each run. Please, refere to VASP <a href=http://cms.mpi.univie.ac.at/vasp/vasp/Advanced_MD_techniques.html">documentation</a> 
+for further information.</em></p>
 <UL>
 <LI><h5>Save data into hdf5 file </h5>
-<p>Saving data into hdf5 file is a good practice in order to save space in the hard drive. Since only the necessary information for dynaphopy
-is stored, this hdf5 file size can be arounf 5 times smaller than the original OUTCAR. To request to save MD trajectory into hdf5 file use 
+<p>Saving data into hdf5 file can be usefull in order to save space in the hard drive. Since only the necessary information for dynaphopy
+is stored, this hdf5 file size can be around 5 times smaller than the original OUTCAR. Besides it allows to manipulate this information as
+an intermediate step using concath5 or other third party software. To request to save MD trajectory into hdf5 file use 
 <strong>-sv</strong> flag follower by the file name. 
-<br>This option can be used alone  or together with other flags but all the information is always stored in the file (<strong>-n</strong> 
-flag has no effect in the stored data).</p>
+<br>This option can be used alone  or together with other flags but, in any case, all time steps in OUTCAR file will be stored in the hdf5 file (<strong>-n</strong> 
+flag has no effect in the number of time steps stored).</p>
 
 <pre><code>$ ./dynaphopy input_file OUTCAR -sv filename.h5</code></pre>
 
 <LI><h5>Load data into hdf5 file </h5>
 <p> Once saved into a hdf5 file, MD data can be load to dynaphopy using <strong>-lv</strong> flag. Loading data from hdf5 is much faster
-than using OUTCAR file, if several calculation using the same data have to be done, is highly recomended to use this method.
-<br><em>Notice that when loading data this way, OUTCAR file has to not be put.</em>
+than using OUTCAR file, if several calculation using the same data have to be done, it is highly recomended to use this option.
+<br><em>Notice that when loading data this way, OUTCAR file has to not be set.</em></p>
 
 <pre><code>$ ./dynaphopy input_file -lv filename.h5</code></pre>
 
 <LI><h5>Manipulating data</h5>
 <p>
-The structure of the htm5 is pretty simple. With a minimum knowledge of programming it can be manipulated by third parties software.
-In dynaphopy script directory a simple script for joining data ins provided named <strong>concath5</strong>. It can be used as example 
-for more complex ones. To use this script is only to call it followed by the name of all the hdf5 files to be joined and the last one 
+The structure of the hdf5 file is quite simple. With a minimum knowledge of programming it can be easly manipulated by third parties software.
+In dynaphopy script directory a simple script for joining data is provided named <strong>concath5</strong>. It can be used as example 
+for more complex ones. To use this script just call it followed by the name of all the hdf5 files to be joined and the last one 
 the name of the new hdf5 file that will contain all the joined data. 
 </p>
 <pre><code>$ ./concath5 source1.h5 source2.h5 source3.h5 ··· joined.h5</code></pre>
 <p>
-By default <strong>concath5</strong> removes the first 20000 time steps of each source MD trajectory. This is done to ensure that the MD
-is totally converged in each file. To change this behavior this script can be easily edited changing the value of <strong>"first=20000"</strong> variable. 
+By default <strong>concath5</strong> skips the first 20000 time steps of each source MD trajectory. This is done to ensure that the MD
+is totally converged in each file. Using <strong>-f</strong> flag, is possible to define the number of time steps to be skipped.
 </p>
+
+<pre><code>$ ./concath5 -f 30000 source1.h5 source2.h5 ··· joined.h5</code></pre>
 </UL>
 
 <h3>MEM coeficient analysis</h3>
@@ -78,13 +82,19 @@ Depending on the number of coefficents the peak width of the peaks may significa
 <br>From my experience, if the MD simulations are long enough, as the number of coefficents increase the peak width become to stabilize while keeping the peaks shape smooth. Is to be expected than this stabilized width is more reliable even if the peaks become a little more uglyer.
 <br>In order to check the evolution of the power spectra peaks width with the number of coefficents dynaphopy provides option <strong>-csa</strong>
 which performs a scan for all peaks anf fits each one to Lorentzian function to extract width information.
-All this information is plotted in 3 matplotlib windows for each phonon. Additionally, it shows the number of parameters that has the best
-fit with a Lorentzian function and estimates the peak width value taking a average for all coefficents ponderated by the fit error.
+All this information is plotted in 3 matplotlib windows for each phonon. 
 </p>
 <pre><code>$ ./dynaphopy input_file OUTCAR -csa</code></pre>
 
+<img src="images/coef_ana_2.png" alt="Interactive" style="width:605px">
+<img src="images/coef_ana_1.png" alt="Interactive" style="width:605px">
+<img src="images/coef_ana_3.png" alt="Interactive" style="width:605px">
 
-    </section>
+<p>Additionally, it shows the optimum number of coeficients that has the best
+fit with a Lorentzian function and estimates the peak width value taking a average for all coefficents ponderated by the inverse of fit error.</p>
+
+<pre><code>Peak # 5------------------------------------Estimated width(FWHM): 0.579539438413 THzPosition: 3.84799537133 THzOptimum coefficients num: 455.0Fitting Error(RMS): 0.257002329288</pre></code>
+    </section>
     </div>
     
     <!-- FOOTER  -->

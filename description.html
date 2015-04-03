@@ -32,14 +32,14 @@
 
 <h3>Introduction</h3>
 <p>
-Dynaphopy calculates the phonon linewidths and frequency shifts analizing the power spectrum of the velocity projection into the
-phonon modes. As a first step the velocity has to be projected into the wave vector in which the harmonic phonon modes are defined.
-To calculate this power spectrum dynaphopy can use Fourier transform or Maximum entropy Method. Dynaphopy can show these spectra if
-requested. 
+Dynaphopy calculates the phonon linewidths and frequency shifts analizing the power spectrum of the velocity projected into the
+phonon modes coordinates. As a first step the velocity is be projected into the point in thereciprocal space (wave vector) in which 
+the harmonic phonon modes are defined.
+To calculate this power spectrum dynaphopy can use either <a href="http://mathworld.wolfram.com/FourierTransform.html">Fourier transform</a>, or <a href="http://cmm.cit.nih.gov/maxent/letsgo.html">Maximum Entropy Method</a>(MEM). Fourier transform is a robust method widely used in many fields 
+of physics to descompose signals into elemental frequencies without information loss. On the other hand, MEM is a very fast method that approximates the whole signal into a much simpler function made by the most representative frequencies. This way it allows to separate the noise from the important data showing smoother spectra that becomes easier to analize. For this reason MEM is highly recomended when working with very long MD. Fourier transform algorith can be used in short MD simulations and eventually to corroborate the results obtained using MEM.  
 
-<h3>Power spectra </h3>
-<p>The power spectrum calculated by Phonopy can be either displayed in a matplotlib window or stored in a file (<a href="http://gnuplot.sourceforge.net"> gnuplot</a> format). The selection of the algorithm used to calculate the power spectra is defined by 
-flag <strong>-psm</strong> followed by the algorithm number.
+<h3>Power spectra</h3>
+<p>The power spectrum calculated by Dynaphopy can be either displayed in a matplotlib X window or stored in a file. The selection of the algorithm used to calculate the power spectra is defined by <strong>-psm</strong> flag followed by algorithm number.
 <br>At the present time there are 5 algorithms available:</p>
 <UL>
 <LI>0: Fourier transform algorithm using parallel python module
@@ -48,88 +48,86 @@ flag <strong>-psm</strong> followed by the algorithm number.
 <LI>3: Fourier transform algorithm parallel using OpenMP.
 <LI>4: Maximum Entropy mMthod algorithm parallel using OpenMP.
 </UL>
-<em>Algorithms 0 and 1 and are essencially for testing purposes, algorithms 2, 3 and 4 are <strong>strongly</strong> recomended. 
+<em>Algorithms 0 and 1 and are essencially for testing purposes so algorithms 2, 3 and 4 are <strong>strongly</strong> recomended. 
 If not specified algorithm 4 is used.</em>
 
 <pre><code>$ ./dynaphopy input_file OUTCAR -psm 4</code></pre>
 <p> Fourier methods do not require additional parameters but Maximum Entropy Method (MEM) does. MEM allows to obtain smoother and faster 
-power spectra interpolating the velocity using a polynomia which depends on a certain number of coefficents. The higher this number is, heavier becomes the calculation and closer to Fourier transfom solution. However the convergence of the paeks shape in MEM can be found much ealier 
-obtaining very good performance. By default the number of coefficents used is 300 but it can be changed using <strong>-cf</strong> followed by
-an integer number wich indicates the number of coeficients.</p>
+power spectra interpolating the velocity using a polynomia which depends on a certain number of coefficents. The higher this number is, the heavier the calculation becomes and the result becomes closer to Fourier transfom solution. Fortunatelly, usually the convergence of the peaks shape in MEM can be found with 1000-3000 coeficients obtaining a very good performance. By default the number of coefficents used is 1000 but it can be changed using <strong>-cf</strong> followed by the number of coeficients.</p>
 
-<pre><code>$ ./dynaphopy input_file OUTCAR -cf 800</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -cf 2000</code></pre>
 
 <UL>
 <LI><h5>Full power spectra</h5>
 <p> 
-This option calculates the power spectra directlly from cartessian coordinates velocity without any projection. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps limit, this power spectrum tends to the vibrational density of states (VDoS).
+This options calculate the power spectra directly from cartesian coordinates velocity without peforming any projection. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps limit, this power spectrum tends to the vibrational density of states (VDoS).
 </p>
-<p>Plot spectrum using matplotlib:</p>
+<p>Plot spectrum in a matplotlib X window:</p>
 <pre><code>$ ./dynaphopy input_file OUTCAR -pd</code></pre>
-<p>Save to file:</p>
+<p>Save spectrum to file:</p>
 <pre><code>$ ./dynaphopy input_file OUTCAR -sd filename</code></pre>
 
 <LI><h5>Wave vector projection power spectra</h5>
-<p>This option requests the atoms velocity to be projected into a point in the reciprocal space (wave vector) and display the power spectrum.
-<p>Plot spectrum using matplotlib:</p>
+<p>This options request the  velocity to be projected into a point in the reciprocal space (wave vector) and obtain the power spectrum.
+<p>Plot spectrum in a matplotlib X window:</p>
 <pre><code>$ ./dynaphopy input_file OUTCAR -pw</code></pre>
-<p>Save to file:</p>
+<p>Save spectrum to file:</p>
 <pre><code>$ ./dynaphopy input_file OUTCAR -sw filename</code></pre>
 
 <LI><h5>Phonon modes projection power spectra</h5>
-<p>This option requests the atoms velocity to be projected into a point in the reciprocal space (wave vector) and additionally
-project it into each of the harmonic phonon modes in this point. This option requieres phonopy to be correctlly installed and 
+<p>This option requests the velocity to be projected into a point in the reciprocal space (wave vector) and additionally
+projected it into each of the harmonic phonon modes defined in this point. This option requieres phonopy to be correctlly installed and 
 <strong>FORCE_SETS</strong> file has to be calculated first. The result is a set of phonon mode projections (one for each phonon)
-wich are either displayed in the screen in diferent windows or stored in a file (one column for each phonon) ordered from lower 
+which are either displayed in the screen in diferent windows or stored in a file (one column for each phonon) sorted from lower 
 to higher frequency.
 
-<p>Plot spectrum using matplotlib:</p>
+<p>Plot spectrum in a matplotlib X window:</p>
 <pre><code>$ ./dynaphopy input_file OUTCAR -pp</code></pre>
-<p>Save to file:</p>
+<p>Save spectrum to file:</p>
 <pre><code>$ ./dynaphopy input_file OUTCAR -sp filename</code></pre>
 
 <LI><h5>Additional options</h5>
 <p>Use <strong>-r</strong> option to change the power spectrum range and resolution (start, end, number of points).</p>
 <pre><code>$ ./dynaphopy input_file OUTCAR -r 0 25 100</code></pre>
-<p>Use <strong>-q</strong> Change the recirpocal space point (wave vector) in wich the velocity is projected. This option
+<p>Use <strong>-q</strong> to change the recirpocal space point (wave vector) into which the velocity is projected. This option
 takes 3 real numbers (wave vector in reduced coordinates).
-<br><em>This option has effect only in wave vector and phonon modes projections</em></p>
 <pre><code>$ ./dynaphopy input_file OUTCAR -q 0.5 0 0.5</code></pre>
 
 <p>The number of time steps used to calculate the power spectra may have great influence in the final result. By default 
-it takes the <strong>last 2000</strong> time steps but using <strong>-n</strong> flag this value changed. This flag requires
-a integer number indicating the number of last time steps to be used in the calculation. I is recomended to leave some 
-stabilitzation time steps in the begining to ensure that the MD is totally converged. In interactive mode, using this flag is the
-only way to define the number of time steps to be used.
+it takes the <strong>last 2000</strong> time steps but <strong>-n</strong> flag allows to change this value. This flag is followed by
+ the number of last time steps to be used in the calculation. It is recomended to leave some 
+stabilitzation time steps in the begining to ensure that the MD is totally converged. In interactive mode, using this flag is also
+used to define the number of time steps to use.
 <br><em>If the OUTCAR file contains less time steps than the especified in <strong>-n</strong> flag, all time steps will be used.</em></p>
 
 <pre><code>$ ./dynaphopy input_file OUTCAR -n 5000</code></pre>
 
-<p>All these option can be combined to obtain the desired results. In interactive mode these options can also be used and
-are read as a initial paramters that can be later changed inside interactive menus. The only exception is <strong>-n</strong>
-flag that cannot be changed. For very long MD the amount of RAM memory needed to do the calculations can be huge so only 
-the discarted time steps are erased from memory at the begining of the execution.
+<p>All these option can be combined to obtain the desired results. In interactive mode these options can also be used as initial 
+paramters that can be changed inside interactive menus. The only exception is <strong>-n</strong> flag that cannot be changed. 
+For very long MD the amount of RAM memory needed to do the calculations can be huge so the initial discarted time steps are erased 
+from memory at the begining of the execution.
 </UL>
 
 <h3>Obtaining anharmonic phonon properties</h5>
 <p> 
-Phonon linewidhts and frequency shifts can be obtained by the direct analysis of power spectra. Using phonon modes projections
-are the best way to analize the individual phonons since the are separated. Dynaphopy offers a tool to automatically fit the
-obtained spectra to lorentzian functions and displayed the results on the screen. This tool is called peak analysis and is
+Phonon linewidhts and frequency shifts can be obtained by direct analysis of power spectra. Using phonon modes projections
+are the best way to analize the individual phonons since they are completly separated in individual power spectra containing only
+one peak. Dynaphopy offers a tool to automatically fit the
+obtained spectra to lorentzian functions and display the results on the screen. This tool is called peak analysis and is
 requested through flag <strong>-pa</strong>.
 <br><em>This option works better with MEM method since the obtained sprectra are smoother. In case of Fourier trasform calculations
 some smoothing methods may be used before fitting.</em>
 
 <pre><code>$ ./dynaphopy input_file OUTCAR -pa</code></pre>
 <p> 
-When the calculation is finished individual information for each phonon is displayed in the screen. Position and widht correspond directly
-to the phonon linewidths and peak anharmonic frequency. Frequency shift is calculated from the diference between harmonic frequency
+When the calculation is finished individual information for each phonon is displayed on the screen. Widht and position correspond directly
+to the phonon linewidths and peak anharmonic frequency. Frequency shifts are calculated from the diference between the harmonic frequency
 and calculated anharmonic frequency (position) for each peak.
 </p>
 <pre><code>Peak # 4------------------------------------Width (FWHM): 0.942807095508 THzPosition: 16.2166860349 THzArea: 4250.53142961 THzFrequency shift: 0.956759285644 THzFitting Error (RMS): 690.223340187</code></pre><p>
-Additionally for each peak, a matplotlib window apear in the screen showing the result of the fitting for visual observation.
+When the calculation is finished, for each peak a matplotlib X window apear in the screen showing the result of the fitting for visual analysis.
 For new systems is strongly recomended to check for each phonon spectrum fitting to ensure that it has been succesfully performed.
-For calculations in batch calculations option <strong>--silent</strong> may be used. This option avoids matplotlib displays to be showed displaying only the text
+To do calculations in batch, flag <strong>--silent</strong> may be used. With this flag only the text data is shown.
 information wich can be stored in a file redirecting the output.   
 </p>
 <pre><code>$ ./dynaphopy input_file OUTCAR -pa --silent > output.log</code></pre>
