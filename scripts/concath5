@@ -11,17 +11,14 @@ parser.add_argument('input', metavar='input_files', type=str, nargs='+',
 parser.add_argument('output', metavar='output_file', type=str, nargs=1,
                    help='joined file')
 
-parser.add_argument('-f', metavar='N', type=int, nargs=1, default=20000,
+parser.add_argument('-f', metavar='N', type=int, nargs=1, default=[20000],
                    help='first steps')
 
 args = parser.parse_args()
 
-
 #print(args.n)
 #print(args.input)
 #print(args.output)
-
-
 
 def read_file_hdf5(file_name):
 
@@ -50,7 +47,7 @@ if len(sys.argv) == 1:
 
 
 first = args.f[0]
-
+print("skipping first {0} steps".format(first))
 velocity, time, super_cell = read_file_hdf5(args.input[0])
 velocity = velocity[first:]
 print(args.input[0])
