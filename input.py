@@ -37,13 +37,13 @@ structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS
 #                                [0.0, 0.5, 0.0],
 #                                [0.0, 0.0, 0.5]])
 
-structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-                                [0.5, 0.0, 0.5],
-                                [0.5, 0.5, 0.0]])
+#structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+#                                [0.5, 0.0, 0.5],
+#                                [0.5, 0.5, 0.0]])
 
-#structure.set_primitive_matrix([[1.0, 0.0, 0.0],
-#                                [0.0, 1.0, 0.0],
-#                                [0.0, 0.0, 1.0]])
+structure.set_primitive_matrix([[1.0, 0.0, 0.0],
+                                [0.0, 1.0, 0.0],
+                                [0.0, 0.0, 1.0]])
 
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements
@@ -51,8 +51,6 @@ structure.set_primitive_matrix([[0.0, 0.5, 0.5],
 structure.set_super_cell_phonon([[6, 0, 0],
                                  [0, 6, 0],
                                  [0, 0, 3]])
-
-
 
 
 
@@ -85,9 +83,9 @@ from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 
 #exit()
 
-calculation = controller.Calculation(trajectory, last_steps=8000, save_hfd5="test.hdf5")
+calculation = controller.Calculation(trajectory, last_steps=8000)#, save_hfd5="test.hdf5")
 
-calculation.set_reduced_q_vector([0.5, 0.0, 0.0])
+calculation.set_reduced_q_vector([1/2.,0., 0])
 
 #modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
 #calculation.plot_eigenvectors()
@@ -118,6 +116,13 @@ calculation.select_power_spectra_algorithm(4)
 #calculation.save_vc("vc.out")
 
 #exit()
+
+print(structure.get_cell())
+structure.__dict__['_'+'cell'] = [2]
+print(structure.__dict__['_'+'cell'])
+
+exit()
+
 
 #################################### GET PROPERTIES #########################################
 #calculation.plot_trajectory()

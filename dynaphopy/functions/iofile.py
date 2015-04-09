@@ -474,7 +474,7 @@ def read_parameters_from_input_file(file_name):
             primitive_matrix = [input_file[i+1].replace('\n','').split(),
                                 input_file[i+2].replace('\n','').split(),
                                 input_file[i+3].replace('\n','').split()]
-            input_parameters.update({'primitive_matrix': np.array(primitive_matrix, dtype=float)})
+            input_parameters.update({'_primitive_matrix': np.array(primitive_matrix, dtype=float)})
 
 
         if "SUPERCELL MATRIX PHONOPY" in line:
@@ -483,7 +483,7 @@ def read_parameters_from_input_file(file_name):
                                  input_file[i+3].replace('\n','').split()]
 
             super_cell_matrix = np.array(super_cell_matrix, dtype=int)
-            input_parameters.update({'super_cell_matrix': np.array(super_cell_matrix, dtype=int)})
+            input_parameters.update({'_super_cell_phonon': np.array(super_cell_matrix, dtype=int)})
 
 
         if "BANDS" in line:

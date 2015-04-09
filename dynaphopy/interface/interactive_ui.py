@@ -101,8 +101,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     screen.clear()
                     screen.border()
 
-                    screen.addstr(2,4,"Frequencies")
-                    screen.addstr(3,4,"------------")
+                    screen.addstr(2,4,"Frequencies (THz)")
+                    screen.addstr(3,4,"-----------------")
 
                     list_on_screen(screen,freq,5,4)
 

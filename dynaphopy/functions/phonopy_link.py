@@ -22,6 +22,7 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
 #   Checking data
     force_atoms_file = structure.get_force_set().item(0)['natom']
     force_atoms_input = np.product(np.diagonal(structure.get_super_cell_phonon()))*structure.get_number_of_atoms()
+
     if force_atoms_file != force_atoms_input:
         print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
         exit()

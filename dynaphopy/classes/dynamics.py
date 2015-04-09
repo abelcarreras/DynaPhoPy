@@ -72,6 +72,7 @@ class Dynamics:
     def get_energy(self):
         return  self._energy
 
+
     def get_time_step_average(self):
 
         if not self._time_step_average :
