@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import dynaphopy.analysis.fitting as fitting
-#from scipy import linalg
-
-
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 
 def lowess(x, y, f=2./3., iter=3):
     """lowess(x, y, f=2./3., iter=3) -> yest
@@ -42,54 +39,44 @@ def lowess(x, y, f=2./3., iter=3):
     return yest
 
 
-
-
 input_file = open("/Users/abel/VASP_TESTS/correlation.out", "r")
-#input_file = open("wave-X-320k.out","r")
+degeneracy =[[4, 5, 6],[4, 5, 6]]
+
 
 initial_data = []
-
 for line in input_file:
     initial_data.append(line.split())
 initial_data = np.array(initial_data,dtype=float)
 
-degeneracy =[[4, 5, 6]]
 
 test_frequencies_range = np.array(initial_data[:,0])
 data = []
 for phonon in degeneracy:
     data_temp = np.zeros_like(test_frequencies_range)
     for degenerate in phonon:
-        data_temp += initial_data[:, degenerate]
+        data_temp += initial_data[:, degenerate]/len(phonon)
     data.append(data_temp)
 
-data = np.array(data).T
 
-
-print(data.T[0])
-
-n = 100
-x = np.linspace(0, 2 * np.pi, n)
-y = np.sin(x) + 0.3*np.random.randn(n)
-
-print(x)
 f = 0.02
+yest = []
+for i, datum in enumerate(data):
 
-y=data.T[0]
-x=test_frequencies_range
-yest = lowess(x, y, f=f, iter=1)
+    y2 = lowess(test_frequencies_range, datum, f=f, iter=1)
+    plt.figure(i+1)
+ #   plt.clf()
+    plt.title('Band '+str(i+1))
+    plt.suptitle('Smoothing LOWESS')
 
-import pylab as pl
-pl.clf()
-pl.plot(x, y, label='y noisy')
-pl.plot(x, yest, label='y pred')
-pl.legend()
-pl.show()
+    plt.plot(test_frequencies_range, data[0], label='Original')
+    plt.plot(test_frequencies_range, y2, label='Smooth', linewidth=3)
+    plt.legend()
 
+    yest.append(y2)
 
-data=np.array(yest[None]).T
+plt.show()
 
-
+data=np.array(yest).T
 
 fitting.phonon_fitting_analysis(data, test_frequencies_range)
 
