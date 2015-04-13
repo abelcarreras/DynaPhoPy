@@ -3,24 +3,42 @@ import numpy as np
 import dynaphopy.analysis.fitting as fitting
 import matplotlib.pyplot as plt
 
+import argparse
+
+
+#Arguments definition
+parser = argparse.ArgumentParser(description='fitdata')
+parser.add_argument('file', metavar='file', type=str,
+                   help='File containing power spectra information')
+
+parser.add_argument('-bi', metavar='indices', type=str, default=None,
+                   help='Band indices (ex: "1,2 3 4, 5')
+
+parser.add_argument('-sm', '--smooth', action='store_true',
+                   help='Smooth before fitting (LOWESS method)')
+
+parser.add_argument('-iter', metavar='N', type=int, nargs=1, default=1,
+                   help='Order')
+
+parser.add_argument('-f', metavar='N', type=float, nargs=1, default=0.02,
+                   help='smooth factor')
+
+parser.add_argument('--silent', action='store_true',
+                   help='Do not show plots')
+
+args = parser.parse_args()
+
+
+
+#LOWESS method definition
 def lowess(x, y, f=2./3., iter=3):
-    """lowess(x, y, f=2./3., iter=3) -> yest
 
-    Lowess smoother: Robust locally weighted regression.
-    The lowess function fits a nonparametric regression curve to a scatterplot.
-    The arrays x and y contain an equal number of elements; each pair
-    (x[i], y[i]) defines a data point in the scatterplot. The function returns
-    the estimated (smooth) values of y.
-
-    The smoothing span is given by f. A larger value for f will result in a
-    smoother curve. The number of robustifying iterations is given by iter. The
-    function will run faster with a smaller number of iterations."""
     n = len(x)
     r = int(np.ceil(f*n))
     h = [np.sort(np.abs(x - x[i]))[r] for i in range(n)]
     w = np.clip(np.abs((x[:,None] - x[None,:]) / h), 0.0, 1.0)
     w = (1.0 - w**3)**3
-    yest = np.zeros(n)
+    y_smooth = np.zeros(n)
     delta = np.ones(n)
     for iteration in range(iter):
         for i in range(n):
@@ -29,18 +47,27 @@ def lowess(x, y, f=2./3., iter=3):
             A = np.array([[np.sum(weights), np.sum(weights*x)],
                    [np.sum(weights*x), np.sum(weights*x*x)]])
             beta = np.linalg.solve(A, b)
-            yest[i] = beta[0] + beta[1]*x[i]
+            y_smooth[i] = beta[0] + beta[1]*x[i]
 
-        residuals = y - yest
+        residuals = y - y_smooth
         s = np.median(np.abs(residuals))
         delta = np.clip(residuals / (6.0 * s), -1, 1)
         delta = (1 - delta**2)**2
 
-    return yest
+    return y_smooth
 
+#Process input data
+try:
+    input_file = open(args.file, "r")
+except IOError:
+    print("File not found")
+    exit()
 
-input_file = open("/Users/abel/VASP_TESTS/correlation.out", "r")
-degeneracy =[[4, 5, 6],[4, 5, 6]]
+if args.bi is None:
+    data_num = len(input_file.readline().split())
+    degeneracy = [[i] for i in range(1, data_num)]
+else:
+    degeneracy = [[int(j) for j in i.split()] for i in args.bi.split(',')]
 
 
 initial_data = []
@@ -58,26 +85,34 @@ for phonon in degeneracy:
     data.append(data_temp)
 
 
-f = 0.02
-yest = []
-for i, datum in enumerate(data):
 
-    y2 = lowess(test_frequencies_range, datum, f=f, iter=1)
-    plt.figure(i+1)
- #   plt.clf()
-    plt.title('Band '+str(i+1))
-    plt.suptitle('Smoothing LOWESS')
+#Smoothing using LOWESS method
+if args.smooth:
 
-    plt.plot(test_frequencies_range, data[0], label='Original')
-    plt.plot(test_frequencies_range, y2, label='Smooth', linewidth=3)
-    plt.legend()
+    y_smooth = []
+    for i, datum in enumerate(data):
 
-    yest.append(y2)
+        y2 = lowess(test_frequencies_range, datum, f=args.f, iter=args.iter)
 
-plt.show()
+        if not(args.silent):
+            plt.figure(i+1)
+            plt.title('Band '+str(i+1))
+            plt.suptitle('Smoothing LOWESS')
 
-data=np.array(yest).T
+            plt.plot(test_frequencies_range, datum, label='Original')
+            plt.plot(test_frequencies_range, y2, label='Smooth', linewidth=3)
+            plt.legend()
 
-fitting.phonon_fitting_analysis(data, test_frequencies_range)
+        y_smooth.append(y2)
+
+    if not(args.silent):
+        plt.show()
+
+    data=np.array(y_smooth).T
+else:
+    data=np.array(data).T
+
+#Analysis using Dynaphopy functions
+fitting.phonon_fitting_analysis(data, test_frequencies_range, show_plots=not(args.silent))
 
 

@@ -7,12 +7,12 @@ import argparse
 
 parser = argparse.ArgumentParser(description='concath5')
 parser.add_argument('input', metavar='input_files', type=str, nargs='+',
-                   help='files to be joint')
+                   help='files to be joined')
 parser.add_argument('output', metavar='output_file', type=str, nargs=1,
                    help='joined file')
 
 parser.add_argument('-f', metavar='N', type=int, nargs=1, default=[20000],
-                   help='first steps')
+                   help='first steps to be skipped')
 
 args = parser.parse_args()
 
