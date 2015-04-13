@@ -26,6 +26,8 @@ structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 
 structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS'))
 
+
+
 ############################### PHONOPY CELL INFORMATION ####################################
 # 2. Set primitive matrix, this matrix fulfills that:
 #    Primitive_cell = Unit_cell x Primitive_matrix
@@ -35,13 +37,13 @@ structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS
 #                                [0.0, 0.5, 0.0],
 #                                [0.0, 0.0, 0.5]])
 
-structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-                                [0.5, 0.0, 0.5],
-                                [0.5, 0.5, 0.0]])
+#structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+#                                [0.5, 0.0, 0.5],
+#                                [0.5, 0.5, 0.0]])
 
-#structure.set_primitive_matrix([[1.0, 0.0, 0.0],
-#                                [0.0, 1.0, 0.0],
-#                                [0.0, 0.0, 1.0]])
+structure.set_primitive_matrix([[1.0, 0.0, 0.0],
+                                [0.0, 1.0, 0.0],
+                                [0.0, 0.0, 1.0]])
 
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements
@@ -81,9 +83,9 @@ from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 
 #exit()
 
-calculation = controller.Calculation(trajectory, last_steps=80000, save_hfd5="test.hdf5")
+calculation = controller.Calculation(trajectory, last_steps=8000)#, save_hfd5="test.hdf5")
 
-calculation.set_reduced_q_vector([0.5, 0.0, 0.0])
+calculation.set_reduced_q_vector([1/2.,0., 0])
 
 #modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
 #calculation.plot_eigenvectors()
@@ -115,6 +117,13 @@ calculation.select_power_spectra_algorithm(4)
 
 #exit()
 
+print(structure.get_cell())
+structure.__dict__['_'+'cell'] = [2]
+print(structure.__dict__['_'+'cell'])
+
+exit()
+
+
 #################################### GET PROPERTIES #########################################
 #calculation.plot_trajectory()
 #calculation.plot_energy()
@@ -134,7 +143,7 @@ calculation.plot_velocity(atoms=[3], coordinates=[2])
 
 #pl.plot(spectrum)
 #pl.show()
-calculation.phonon_width_individual_analysis()
+#calculation.phonon_width_individual_analysis()
 #exit()
 
 ############################## DEFINE CALCULATION REQUESTS #####################################
@@ -150,7 +159,7 @@ calculation.phonon_width_individual_analysis()
 #calculation.set_frequency_range(np.linspace(0,40,200))
 
 # 5c. Request Boltzmann distribution trajectory analysis
-#calculation.show_bolzmann_distribution()
+calculation.show_boltzmann_distribution()
 
 # 5d. Request calculate plot of direct velocity correlation function (without projection)
 #calculation.plot_correlation_direct()

@@ -78,7 +78,7 @@ parser.add_argument('-ds', '--display_spectrum', action='store_true',
 args = parser.parse_args()
 
 
-#Get data from input file
+#Get data from input file & process parameters
 input_parameters = reading.read_parameters_from_input_file(args.input_file[0])
 
 if 'structure_file_name_outcar' in input_parameters:
@@ -91,12 +91,7 @@ else:
 if 'force_constants_file_name' in input_parameters:
     structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_constants_file_name']))
 
-
-if 'primitive_matrix' in input_parameters:
-    structure.set_primitive_matrix(input_parameters['primitive_matrix'])
-
-if 'super_cell_matrix' in input_parameters:
-    structure.set_super_cell_phonon(input_parameters['super_cell_matrix'])
+    structure.get_data_from_dict(input_parameters)
 
 
 if args.load_velocity:
@@ -109,6 +104,8 @@ calculation = controller.Calculation(trajectory, last_steps=args.n, save_hfd5=ar
 
 if 'bands' in input_parameters:
     calculation.set_band_ranges(input_parameters['bands'])
+
+
 
 #Set Parameters
 calculation.parameters.silent = args.silent

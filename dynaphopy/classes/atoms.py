@@ -70,6 +70,14 @@ class Structure:
         else:
             self._masses = masses
 
+    #Getting data
+    def get_data_from_dict(self, data_dictionary):
+        for data in self.__dict__:
+            try:
+                self.__dict__[data] = data_dictionary[data]
+            except KeyError:
+                continue
+
 
     # Cell related methods
     def set_cell(self, cell):

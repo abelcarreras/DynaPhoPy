@@ -52,7 +52,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         positions.append(fit_params[0])
         widths.append(width)
 
-
+        plt.figure()
         if show_plots:
             plt.figure(i+1)
 

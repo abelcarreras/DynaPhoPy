@@ -3,6 +3,8 @@ import sys
 import curses
 import numpy as np
 import phonopy.file_IO as file_IO
+from fractions import Fraction
+from  os.path import isfile
 
 def list_on_screen(screen, pile, posx, posy):
 
@@ -99,8 +101,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     screen.clear()
                     screen.border()
 
-                    screen.addstr(2,4,"Frequencies")
-                    screen.addstr(3,4,"------------")
+                    screen.addstr(2,4,"Frequencies (THz)")
+                    screen.addstr(3,4,"-----------------")
 
                     list_on_screen(screen,freq,5,4)
 
@@ -120,15 +122,15 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
 ######## OPTION 2 :  DEFINE WAVE VECTOR
         if x == ord('2'):
-            q_vector = np.array(get_param(screen, "Insert reduced wave vector (values separated by comma)").split(','),
-                                dtype=float)
+            q_vector = np.array([float(Fraction(s)) for s in
+                                 get_param(screen, "Insert reduced wave vector (values separated by comma)").split(',')])
             calculation.set_reduced_q_vector(q_vector)
             curses.endwin()
 
 ######## OPTION 3 :  DEFINE FREQUENCY RANGE
         if x == ord('3'):
-            frequency_limits = np.array(get_param(screen, "Insert frequency range (min, max, number of points)").split(','),
-                                        dtype=float)
+            frequency_limits = np.array([float(Fraction(s)) for s in
+                                         get_param(screen, "Insert frequency range (min, max, number of points)").split(',')])
             print(frequency_limits)
             calculation.set_frequency_range(np.linspace(*frequency_limits))
             curses.endwin()
@@ -259,11 +261,14 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                         screen.border(0)
 
                         screen.addstr(2, 2, "Non analytical corrections...")
-                        screen.addstr(4, 4, "1 - On  (BORN file is needed in work directory)")
+                        if isfile("BORN"):
+                            screen.addstr(4, 4, "1 - On  (BORN file found)")
+                        else:
+                            screen.addstr(4, 4, "1 - On  (Warning: BORN file not found)")
                         screen.addstr(5, 4, "2 - Off")
 
 
-                        if  calculation.parameters.use_NAC:
+                        if calculation.parameters.use_NAC:
                             screen.addstr(4, 3, ">")
                         else:
                             screen.addstr(5, 3, ">")
@@ -271,7 +276,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                         screen.refresh()
                         x3 = screen.getch()
-                    calculation.set_NAC(bool(int(chr(int(x3)))-2))
+                    if isfile("BORN"):
+                        calculation.set_NAC(bool(int(chr(int(x3)))-2))
 
                     curses.endwin()
 
