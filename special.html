@@ -104,13 +104,13 @@ be noisy and a post processing may be needed.
 <br>In dynaphopy package,  fitdata script is included in scripts folder to extract the anharmonic information from a power spectrum file obtained
 with Dynaphopy throught <strong>-sw</strong> or <strong>-sp</strong> options. This allows to first calculate the power spectrum using DYnaphopy
 in a cluster computer and latter extract the information in a local machine.
-Additionally this script allows to perform a smoothing of the spectrum using the LOWESS method before fitting it with a Lorentzian function.
+Additionally this script allows to perform a smoothing of the spectrum using the <a href="http://en.wikipedia.org/wiki/Local_regression">LOWESS</a> method before fitting it with a Lorentzian function.
 <br>During the execution it shows the smoothing result and the fitting result for each spectrum present in the spectrum file allowing to test
 different smoothing parameters to obtain the best results.
 </p>
 <UL>
 <LI><h5>Simple execution</h5>
-<p> By default the script takes all the spectra present in the file and fits them to lorentzian function (equivalent to Dynaphopy Peak analysis).
+<p> By default the script takes all the spectra present in the file and fits them to a Lorentzian function (equivalent to Dynaphopy peak analysis).
 </p>
 <pre><code>$ fitdata file</code></pre>
 <img src="images/fitting.png" alt="Interactive" style="width:605px">
@@ -122,7 +122,7 @@ it becomes indispensable in order to get a meaningful fit. In this part, the vis
 <img src="images/smooth.png" alt="Interactive" style="width:605px">
 <img src="images/fit_smooth.png" alt="Interactive" style="width:605px">
 <LI><h5>Changing smoothing parameters</h5>
-<p> In case that the smoothing process is not succesfull, the LOWESS method can be ajusted via two parameters: <strong>-f</strong> (Default: 0.2) and <strong>-iter</strong> (Default: 1 [always integer]). Increasing their values will make the strectra smoother but will differ more from the original spectrum. 
+<p> In case that the smoothing process is not succesfull, the LOWESS method can be ajusted via two parameters: smoothing span <strong>-f</strong> (Default: 0.2) and robustifying iterations number <strong>-iter</strong> (Default: 1 [always integer]). Increasing their values will make the strectra smoother but will differ more from the original spectrum. 
 </p>
 <pre><code>$ fitdata -sm -f 0.4 -iter 2 file</code></pre>
 <LI><h5>Combining spectra</h5>
