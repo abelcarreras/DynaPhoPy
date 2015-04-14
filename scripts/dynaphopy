@@ -102,9 +102,8 @@ else:
 
 calculation = controller.Calculation(trajectory, last_steps=args.n, save_hfd5=args.save_velocity[0])
 
-if 'bands' in input_parameters:
-    calculation.set_band_ranges(input_parameters['bands'])
-
+if '_band_ranges' in input_parameters:
+    calculation.set_band_ranges(input_parameters['_band_ranges'])
 
 
 #Set Parameters

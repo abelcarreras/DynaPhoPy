@@ -497,7 +497,7 @@ def read_parameters_from_input_file(file_name):
                     break
                 i += 1
                 bands.append(band)
-            input_parameters.update ({'bands':bands})
+            input_parameters.update ({'_band_ranges':bands})
 
 
     return input_parameters

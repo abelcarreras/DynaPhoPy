@@ -70,6 +70,8 @@ class Structure:
         else:
             self._masses = masses
 
+# -------- Methods start here -----------
+
     #Getting data
     def get_data_from_dict(self, data_dictionary):
         for data in self.__dict__:

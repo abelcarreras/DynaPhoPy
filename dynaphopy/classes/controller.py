@@ -105,6 +105,7 @@ class Calculation:
        #Frequency ranges related methods  (To be deprecated)
 
     def set_frequency_range(self,frequency_range):
+        self.correlation_clear()
         self.parameters.frequency_range = frequency_range
 
     def get_frequency_range(self):
