@@ -127,10 +127,12 @@ it becomes indispensable in order to get a meaningful fit. In this part, the vis
 <pre><code>$ fitdata -sm -f 0.4 -iter 2 file</code></pre>
 <LI><h5>Combining spectra</h5>
 <p> In high symmetry points in the reciprocal space (wave vector), it may happen that two or more phonon are degenerated. In that case the projection into this wave vector and consequantlly, the power spectra should present the same properties (Width and position). In order to
-increase the precision these equivalent spectra can be conbined into one reducing the random error. This can be done using <strong>-bi</strong> flag. Following this flag it must be introduced a string containing the number of the spectra to be combined separated by spaces (equivalent spectra) and the non equivalent spectra separated by comma.
+increase the precision these equivalent spectra can be conbined into one reducing the random error. This can be done using <strong>-bi</strong> flag. Following this flag it must be introduced a string containing the number of the spectra to be combined (equivalent spectra) separated by spaces and the non equivalent spectra separated by comma.
 </p>
-<pre><code>$ fitdata -bi "1 2, 3 4, 5 6"</code></pre>
-
+<pre><code>$ fitdata -bi "1 2, 3 4 5"</code></pre>
+<p> in this example, the script will fit two phonon power spectra. The first one using the avarage of the spectra 1 and 2. The second one
+using the average of spectra 3, 4 and 5.
+</p>
 
 
 
