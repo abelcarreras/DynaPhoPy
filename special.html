@@ -94,18 +94,18 @@ All this information is plotted in 3 matplotlib windows for each phonon.
 <p>Additionally, it shows the optimum number of coeficients that has the best
 fit with a Lorentzian function and estimates the peak width value taking a average for all coefficents ponderated by the inverse of fit error.</p>
 
-<pre><code>Peak # 5------------------------------------Estimated width(FWHM): 0.579539438413 THzPosition: 3.84799537133 THzOptimum coefficients num: 455.0Fitting Error(RMS): 0.257002329288</pre></code>
+<pre><code>Peak # 5------------------------------------Estimated width(FWHM): 0.0570242354113 THzPosition: 3.8546680966 THzOptimum coefficients num: 336.0Fitting Error: 2.31991499922e-07</pre></code>
 
 <h3>External power spectra analysis</h3>
 <p>
 The calculation of the power spectra, specially using Fourier transform method, can take a lot of time (maybe few days). For this reason the
-calculation of these spectra may be done in a cluster computer in which may have no acces through graphical interface. This makes the fitting
-analysis difficult since there is no way to evaluate visually if the fitting has been done properlly. Besides, the power spectrum obtained may
-be noisy and a post processing may be needed.
-<br>In dynaphopy package,  fitdata script is included in scripts folder to extract the anharmonic information from a power spectrum file obtained
-with Dynaphopy throught <strong>-sw</strong> or <strong>-sp</strong> options. This allows to first calculate the power spectrum using DYnaphopy
-in a cluster computer and latter extract the information in a local machine.
-Additionally this script allows to perform a smoothing of the spectrum using the <a href="http://en.wikipedia.org/wiki/Local_regression">LOWESS</a> method before fitting it with a Lorentzian function.
+calculation of these spectra may be done in a cluster computer in which may not have acces through graphical interface. This makes the fitting
+analysis difficult since there is no way to evaluate visually if the fitting has been correctly done. Besides, the power spectrum obtained may
+be noisy and a post processing may be needed to improve the fitting quality.
+<br>In dynaphopy package, <strong>fitdata</strong> script is included in scripts folder to extract the anharmonic information from a power 
+spectrum file obtained with Dynaphopy throught <strong>-sw</strong> or <strong>-sp</strong> options. This allows to first calculate the 
+power spectrum using Dynaphopy in a cluster computer, saving it in a file and later extract the information in a local machine.
+Additionally this script allows to smooth the spectrum using <a href="http://en.wikipedia.org/wiki/Local_regression">LOWESS</a> method before fitting it with a Lorentzian function.
 <br>During the execution it shows the smoothing result and the fitting result for each spectrum present in the spectrum file allowing to test
 different smoothing parameters to obtain the best results.
 </p>
@@ -116,8 +116,7 @@ different smoothing parameters to obtain the best results.
 <pre><code>$ fitdata file</code></pre>
 <img src="images/fitting.png" alt="Interactive" style="width:605px">
 <LI><h5>Smoothing spectra using LOWESS method</h5>
-<p>LOWESS method works very well removing the noise in very noisy spectra. This allows to obtain much better results in the fit and in many cases
-it becomes indispensable in order to get a meaningful fit. In this part, the visual anlysisi becomes necessary to compare the original noisy spectrum and the smoothed one to make sure that the essetial peak shape is kept. To request the smooth methos use <strong>-sm</strong> flag.
+<p>LOWESS method works very well removing the noise in very noisy spectra. This allows to obtain much better results in the fitting and, in many cases, it becomes indispensable in order to get a meaningful result. To do this, the visual analysis becomes crucial to compare the original noisy spectrum and the smoothed one to make sure that the essetial peak shape is kept. To request the smooth methos use <strong>-sm</strong> flag.
 </p>
 <pre><code>$ fitdata -sm file</code></pre>
 <img src="images/smooth.png" alt="Interactive" style="width:605px">
@@ -127,8 +126,8 @@ it becomes indispensable in order to get a meaningful fit. In this part, the vis
 </p>
 <pre><code>$ fitdata -sm -f 0.4 -iter 2 file</code></pre>
 <LI><h5>Combining spectra</h5>
-<p> In high symmetry points in the reciprocal space (wave vector), it may happen that two or more phonon are degenerated. In that case the projection into this wave vector and consequantlly, the power spectra should present the same properties (Width and position). In order to
-increase the precision these equivalent spectra can be conbined into one reducing the random error. This can be done using <strong>-bi</strong> flag. Following this flag it must be introduced a string containing the number of the spectra to be combined (equivalent spectra) separated by spaces and the non equivalent spectra separated by comma.
+<p> In high symmetry points in the reciprocal space (wave vector), it may happen that two or more phonon are degenerated. In that case the projection into this wave vector and, consecutively, the power spectra should present the same properties (Width and position). In order to
+increase the fitting precision these equivalent spectra can be conbined into one reducing the random error. This can be done using <strong>-bi</strong> flag. Following this flag it is nedeed to introduce a string containing the number of the spectra to be combined (equivalent spectra) separated by spaces and the non equivalent spectra separated by comma like in the following example:
 </p>
 <pre><code>$ fitdata -bi "1 2, 3 4 5"</code></pre>
 <p> in this example, the script will fit two phonon power spectra. The first one using the avarage of the spectra 1 and 2. The second one
