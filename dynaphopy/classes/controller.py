@@ -267,7 +267,7 @@ class Calculation:
 
     def phonon_width_scan_analysis(self):
         print("Phonon coefficient scan analysis(Maximum Entropy Method Only)")
-        self._correlation_phonon =  mem.phonon_width_scan_analysis_openmp(self.get_vq(),
+        self._correlation_phonon =  mem.mem_coefficient_scan_analysis(self.get_vq(),
                                                                    self.dynamic,
                                                                    self.parameters)
 
