@@ -4,7 +4,7 @@ import curses
 import numpy as np
 import phonopy.file_IO as file_IO
 from fractions import Fraction
-from  os.path import isfile
+from os.path import isfile
 
 def list_on_screen(screen, pile, posx, posy):
 

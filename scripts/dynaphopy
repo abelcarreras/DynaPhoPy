@@ -7,7 +7,7 @@ import dynaphopy.classes.controller as controller
 import dynaphopy.interface.interactive_ui as interactive_ui
 
 from dynaphopy.functions.phonopy_link import get_force_sets_from_file
-
+from fractions import Fraction
 
 #Define arguments
 parser = argparse.ArgumentParser(description='DynaPhonoPy options')
@@ -25,7 +25,7 @@ group.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
 parser.add_argument('-i', '--interactive', action='store_true',
                     help='enter interactive mode')
 
-parser.add_argument('-q', metavar='N', type=float, nargs=3,
+parser.add_argument('-q', metavar='N', type=str, nargs=3,
                    help='wave vector used to calculate projections (default: 0 0 0)')
 
 parser.add_argument('-r', '--frequency_range',metavar='N', type=float, nargs=3,
@@ -111,7 +111,7 @@ calculation.parameters.silent = args.silent
 
 #Process properties arguments
 if args.q:
-    calculation.set_reduced_q_vector(np.array(args.q))
+    calculation.set_reduced_q_vector(np.array([float(Fraction(s)) for s in args.q]))
 
 if args.power_spectrum_algorithm:
     calculation.select_power_spectra_algorithm(args.power_spectrum_algorithm[0])

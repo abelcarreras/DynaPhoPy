@@ -115,4 +115,3 @@ else:
 #Analysis using Dynaphopy functions
 fitting.phonon_fitting_analysis(data, test_frequencies_range, show_plots=not(args.silent))
 
-

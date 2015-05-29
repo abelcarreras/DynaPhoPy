@@ -19,7 +19,7 @@ class Arrow3D(FancyArrowPatch):
 def plot_phonon_modes(structure, eigenvectors,
                       super_cell=(1, 1, 1),
                       draw_primitive=False,
-                      vectors_scale=3):
+                      vectors_scale=1):
 
     atom_type = structure.get_atom_type_index(super_cell=super_cell)
     positions = structure.get_positions(super_cell=super_cell)
@@ -34,6 +34,13 @@ def plot_phonon_modes(structure, eigenvectors,
     for i_phonon in range(eigenvectors.shape[0]):
 
         fig = plt.figure(i_phonon+1)
+  #      if draw_primitive:
+   #         fig.title("Test")
+   #     else:
+   #         fig.title()
+
+
+
         ax = fig.add_subplot(111, projection='3d')
 
         color_atom=['g','b','m','c','y','k','w']
@@ -61,7 +68,9 @@ def plot_phonon_modes(structure, eigenvectors,
 
         #Atom positions
         for i, position in enumerate(positions):
-            vector = np.array(eigenvectors[i_phonon, atom_type[i], :].real) * vectors_scale #/ np.sqrt(masses[i])
+            vector = np.array(eigenvectors[i_phonon, atom_type[i], :]).real  #/ np.sqrt(masses[i])
+            vector = np.dot(structure.get_primitive_cell(), vector).real * vectors_scale
+
             a = Arrow3D([position[0],position[0]+ vector[0]], [position[1], position[1]+vector[1]],
                         [position[2], position[2]+ vector[2]], mutation_scale=20, lw=3, arrowstyle="-|>", color="r")
             ax.add_artist(a)

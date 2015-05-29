@@ -73,8 +73,6 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             plt.legend()
 
 
-
-
     if show_plots:
         plt.show()
 
