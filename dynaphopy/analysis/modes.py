@@ -34,12 +34,10 @@ def plot_phonon_modes(structure, eigenvectors,
     for i_phonon in range(eigenvectors.shape[0]):
 
         fig = plt.figure(i_phonon+1)
-  #      if draw_primitive:
-   #         fig.title("Test")
-   #     else:
-   #         fig.title()
-
-
+        if draw_primitive:
+            fig.suptitle('Primitive cell')
+        else:
+            fig.suptitle('Unit cell')
 
         ax = fig.add_subplot(111, projection='3d')
 
