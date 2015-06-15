@@ -6,7 +6,7 @@ import numpy as np
 
 class Arrow3D(FancyArrowPatch):
     def __init__(self, xs, ys, zs, *args, **kwargs):
-        FancyArrowPatch.__init__(self, (0, 0), (0, 0), *args, **kwargs)
+        FancyArrowPatch.__init__(self, (0.0, 0.0), (0.0, 0.0), *args, **kwargs)
         self._verts3d = xs, ys, zs
 
     def draw(self, renderer):
@@ -18,7 +18,7 @@ class Arrow3D(FancyArrowPatch):
 
 def plot_phonon_modes(structure, eigenvectors,
                       super_cell=(1, 1, 1),
-                      draw_primitive=False,
+                      draw_primitive=True,
                       vectors_scale=1):
 
     atom_type = structure.get_atom_type_index(super_cell=super_cell)

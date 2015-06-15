@@ -17,9 +17,6 @@ parser.add_argument('-bi', metavar='indices', type=str, default=None,
 parser.add_argument('-sm', '--smooth', action='store_true',
                    help='Smooth before fitting (LOWESS method)')
 
-parser.add_argument('-iter', metavar='N', type=int, nargs=1, default=1,
-                   help='Order')
-
 parser.add_argument('-f', metavar='N', type=float, nargs=1, default=0.02,
                    help='smooth factor')
 
@@ -31,28 +28,27 @@ args = parser.parse_args()
 
 
 #LOWESS method definition
-def lowess(x, y, f=2./3., iter=3):
+def lowess(x, y, f=2./3.):
 
     n = len(x)
     r = int(np.ceil(f*n))
     h = [np.sort(np.abs(x - x[i]))[r] for i in range(n)]
-    w = np.clip(np.abs((x[:,None] - x[None,:]) / h), 0.0, 1.0)
+    w = np.clip(np.abs((x[:, None] - x[None, :]) / h), 0.0, 1.0)
     w = (1.0 - w**3)**3
     y_smooth = np.zeros(n)
     delta = np.ones(n)
-    for iteration in range(iter):
-        for i in range(n):
-            weights = delta * w[:,i]
+    for i in range(n):
+            weights = delta * w[:, i]
             b = np.array([np.sum(weights*y), np.sum(weights*y*x)])
             A = np.array([[np.sum(weights), np.sum(weights*x)],
-                   [np.sum(weights*x), np.sum(weights*x*x)]])
+                          [np.sum(weights*x), np.sum(weights*x*x)]])
             beta = np.linalg.solve(A, b)
             y_smooth[i] = beta[0] + beta[1]*x[i]
 
-        residuals = y - y_smooth
-        s = np.median(np.abs(residuals))
-        delta = np.clip(residuals / (6.0 * s), -1, 1)
-        delta = (1 - delta**2)**2
+    residuals = y - y_smooth
+    s = np.median(np.abs(residuals))
+    delta = np.clip(residuals / (6.0 * s), -1, 1)
+    delta = (1 - delta**2)**2
 
     return y_smooth
 
@@ -92,7 +88,7 @@ if args.smooth:
     y_smooth = []
     for i, datum in enumerate(data):
 
-        y2 = lowess(test_frequencies_range, datum, f=args.f, iter=args.iter)
+        y2 = lowess(test_frequencies_range, datum, f=args.f)
 
         if not(args.silent):
             plt.figure(i+1)
