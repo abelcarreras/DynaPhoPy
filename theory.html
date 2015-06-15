@@ -29,7 +29,60 @@
 
 
 <h3>Phonon modes descomposition technique</h3>
-<p>Under construction</p>
+<p>The theoretical calculation of phonon properties can be done using different approaches. A usual way os to obtain the phonon 
+frequencies and modes from the atom forces. Using the harmonic approximation the dynamical matrix can be build and through the 
+diagonalization of this matrix the phonon frequencies and phonon modes are obtained as eigenvalvues and eigenvectors.
+This approximation usually works very well at low temperatures were the displacement of the atoms respect to the equilibrium positions 
+is very small. However as the temperature increase, the non parabolic shape of the potential around atoms produce a desviation from harmonic behavior known as anharmonic effects.
+
+<br>To overcome this problem, many tecniques apeared which include the anharmonicity to the harmonic result via perturbations. This is is known as
+ perturbation theory (PT) method. This tecnique provides a good results while the perturbatiosn are relativelly small, but at high temperatures,
+ in which the interaction phonon-phonon becomes very important this thecnique becomes less reliable.
+
+<br>Phonon modes descomposition technique deals with this problem  from a diferent approach using Molecular Dynamics (MD) symulation to obtain the anharmonic phonon properties. MD calculations include naturally the full anharmonicity wich means that potentialy can provide the 
+most precise calcualtion of the phonon anharmonic frequencies and other anrharmonic effects allowed by the modelling method.
+
+The analysis of the MD calculations is carried out by projecting the atoms velocity into each of the phonon modes coordinates and subsequentlly
+calculate its power spectrum to extract the frequency.
+As long as the phonon quasi-particles can be considered to exist, the projections into these modes results in a simple vibration that can be 
+analized by calculating its power spectrum.
+
+<br>The phonon quasi-particcles aproximation can be interpreted that for a given crystal, there exists a set of coordinates (phonon modes) than describes a single phonon and can be caracterized by a single frequency. That means that if we describe the movements of the whole crystal in terms 
+of these coordinates, each one will show a simple vibration in a single frequency. In the harmonic appriximation this goes a little further an
+says that all this vibrations will be independent and can be calculated diagonalizing the dynamical matrix. The main issue, then, is how to obtain these phonon modes (if exists) that define the phonons present in the crystal. 
+
+<br>As a first appriximation, these modes can be calculated using the harmonic approximation. Since the symmetry of these modes will follow the 
+symmetry of the crystal, as well as the harmonic approximation calculation, is to be expected that the will change very little. 
+
+</p>
+<p style="text-align:center">
+$$ 	   P(f) = \int_0^\infty  {\left\langle {{V^*}\left( 0 \right) V\left( t \right)} \right\rangle {e^{2\pi ift}}dt} $$
+</p>
+
+<UL>
+
+<LI><h5>Wave vector projection</h5>
+<p>The projection into the wave vector is made in only to simplify the number of frequencis present in the crystal. This way the dynamic berhavior
+ can be analized easily since phor a determinate wave vector only exsists a few number of frequencies allowed.</p>
+
+<p style="text-align:center">
+$$ 	   P(f) = \int_0^\infty  {\left\langle {{V^*}\left( 0 \right) V\left( t \right)} \right\rangle {e^{2\pi ift}}dt} $$
+</p>
+
+<LI><h5>Phonon modes change of basis</h5>
+<p>The projection into the wave vector is made in only to simplify the number of frequencis present in the crystal. This way the dynamic berhavior
+ can be analized easily since phor a determinate wave vector only exsists a few number of frequencies allowed.
+</p>
+
+<p style="text-align:center">
+$$ 	   P(f) = \int_0^\infty  {\left\langle {{V^*}\left( 0 \right) V\left( t \right)} \right\rangle {e^{2\pi ift}}dt} $$
+</p>
+
+
+
+</UL>
+
+
 
     </section>
     </div>
