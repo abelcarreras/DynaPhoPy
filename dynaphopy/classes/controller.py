@@ -49,7 +49,7 @@ class Calculation:
             self._parameters.last_steps = last_steps
 
         self._dynamic.crop_trajectory(self._parameters.last_steps)
-        print("Using ", dynamic.velocity.shape[0], "steps")
+        print("Using {0} steps".format(dynamic.velocity.shape[0]))
 
     #Memory clear methods
     def full_clear(self):
@@ -174,7 +174,7 @@ class Calculation:
             print(str(np.hstack([self._bands[1][i][None].T,self._bands[2][i]])).replace('[','').replace(']',''))
 
     def plot_eigenvectors(self):
-        modes.plot_phonon_modes(self.dynamic.structure, self.get_eigenvectors())
+        modes.plot_phonon_modes(self.dynamic.structure, self.get_eigenvectors(), self.get_q_vector())
 
     #Projections related methods
     def get_vc(self):
@@ -224,7 +224,7 @@ class Calculation:
             if algorithm != self.parameters.power_spectra_algorithm:
                 self.correlation_clear()
                 self.parameters.power_spectra_algorithm = algorithm
-            print("Using ", power_spectrum_functions[algorithm], "Function")
+            print("Using {0} function".format(power_spectrum_functions[algorithm]))
         else:
             print("Algorithm function number not found!\nPlease select:")
             for i in power_spectrum_functions.keys():
@@ -292,7 +292,7 @@ class Calculation:
     def plot_correlation_phonon(self):
         for i in range(self.get_correlation_phonon().shape[1]):
             plt.figure(i)
-            plt.suptitle('Projection onto Phonon ' + str(i+1))
+            plt.suptitle('Projection onto Phonon {0}'.format(i+1))
             plt.plot(self.get_frequency_range(), self.get_correlation_phonon()[:, i])
         plt.show()
 
@@ -322,7 +322,7 @@ class Calculation:
             for coordinate in coordinates:
                 plt.plot(self.dynamic.get_time().real,
                          self.dynamic.trajectory[:,atom,coordinate].real,
-                         label='atom: ' + str(atom) + ' coordinate:' + str(coordinate))
+                         label='atom: {0}  coordinate: {1}'.format(atom,coordinate))
         plt.legend()
         plt.show()
 
@@ -335,7 +335,7 @@ class Calculation:
             for coordinate in coordinates:
                 plt.plot(self.dynamic.get_time().real,
                          self.dynamic.velocity[:, atom, coordinate].real,
-                         label='atom: '+str(atom) + ' coordinate:' + str(coordinate))
+                         label='atom: {0}  coordinate: {1}'.format(atom,coordinate))
         plt.legend()
         plt.show()
 

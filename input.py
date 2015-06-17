@@ -17,7 +17,7 @@ import analysis.modes as modes
 #directory = '/home/abel/VASP/MgO-phonon/4x4x4/'
 #directory = '/home/abel/VASP/Bi2O3-phonon/'
 #directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
-directory = '/home/abel/VASP/GaN-phonon/6x6x3_GGA/'
+directory = '/home/abel/VASP/GaN/GaN-phonon/6x6x3_GGA/'
 #structure = reading.read_from_file_structure_outcar(directory+'OUTCAR')
 structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_scaled_positions())
@@ -98,7 +98,7 @@ calculation.select_power_spectra_algorithm(4)
 #calculation.get_phonon_dispersion_spectra()
 
 
-#print(calculation.get_frequencies())
+print(calculation.get_frequencies())
 #print(calculation.get_q_vector())
 #print(structure.get_primitive_cell())
 
@@ -121,7 +121,6 @@ print(structure.get_cell())
 structure.__dict__['_'+'cell'] = [2]
 print(structure.__dict__['_'+'cell'])
 
-exit()
 
 
 #################################### GET PROPERTIES #########################################
@@ -129,7 +128,7 @@ exit()
 #calculation.plot_energy()
 calculation.plot_trajectory(atoms=[3], coordinates=[2])
 calculation.plot_velocity(atoms=[3], coordinates=[2])
-
+exit()
 #calculation.plot_vc(atoms=[0,1])
 #calculation.plot_vq(modes=[0,1,2,3,4])
 

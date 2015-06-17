@@ -16,7 +16,7 @@ class Arrow3D(FancyArrowPatch):
         FancyArrowPatch.draw(self, renderer)
 
 
-def plot_phonon_modes(structure, eigenvectors,
+def plot_phonon_modes(structure, eigenvectors, q_vector,
                       super_cell=(1, 1, 1),
                       draw_primitive=True,
                       vectors_scale=1):
@@ -66,8 +66,9 @@ def plot_phonon_modes(structure, eigenvectors,
 
         #Atom positions
         for i, position in enumerate(positions):
-            vector = np.array(eigenvectors[i_phonon, atom_type[i], :]).real  #/ np.sqrt(masses[i])
-            vector = np.dot(structure.get_primitive_cell(), vector).real * vectors_scale
+            eigenvector = np.array(eigenvectors[i_phonon, atom_type[i], :]).conjugate()  #/ np.sqrt(masses[i])
+            vector = (np.dot(eigenvector, structure.get_primitive_cell()) * vectors_scale
+                     * np.exp(np.complex(0,-1) * np.dot(q_vector, position))).real
 
             a = Arrow3D([position[0],position[0]+ vector[0]], [position[1], position[1]+vector[1]],
                         [position[2], position[2]+ vector[2]], mutation_scale=20, lw=3, arrowstyle="-|>", color="r")
