@@ -11,6 +11,7 @@ import dynaphopy.functions.iofile as reading
 import dynaphopy.analysis.energy as energy
 import dynaphopy.analysis.fitting as fitting
 import dynaphopy.analysis.modes as modes
+import dynaphopy.analysis.coordinates as trajdist
 
 power_spectrum_functions = {
     0: correlate.get_correlation_spectra_par_python,
@@ -45,11 +46,8 @@ class Calculation:
         if save_hfd5:
             self.save_velocity(save_hfd5)
 
-        if last_steps:
-            self._parameters.last_steps = last_steps
-
-        self._dynamic.crop_trajectory(self._parameters.last_steps)
-        print("Using ", dynamic.velocity.shape[0], "steps")
+        self._dynamic.crop_trajectory(last_steps)
+        print("Using {0} steps".format(dynamic.velocity.shape[0]))
 
     #Memory clear methods
     def full_clear(self):
@@ -174,7 +172,7 @@ class Calculation:
             print(str(np.hstack([self._bands[1][i][None].T,self._bands[2][i]])).replace('[','').replace(']',''))
 
     def plot_eigenvectors(self):
-        modes.plot_phonon_modes(self.dynamic.structure, self.get_eigenvectors())
+        modes.plot_phonon_modes(self.dynamic.structure, self.get_eigenvectors(), self.get_q_vector())
 
     #Projections related methods
     def get_vc(self):
@@ -224,7 +222,7 @@ class Calculation:
             if algorithm != self.parameters.power_spectra_algorithm:
                 self.correlation_clear()
                 self.parameters.power_spectra_algorithm = algorithm
-            print("Using ", power_spectrum_functions[algorithm], "Function")
+            print("Using {0} function".format(power_spectrum_functions[algorithm]))
         else:
             print("Algorithm function number not found!\nPlease select:")
             for i in power_spectrum_functions.keys():
@@ -262,12 +260,13 @@ class Calculation:
                     self.dynamic.get_velocity_mass_average()[:, i, :],
                     self.dynamic,
                     self.parameters)
+
         self._correlation_direct = np.sum(self._correlation_direct, axis=1)
         return self._correlation_direct
 
     def phonon_width_scan_analysis(self):
         print("Phonon coefficient scan analysis(Maximum Entropy Method Only)")
-        self._correlation_phonon =  mem.phonon_width_scan_analysis_openmp(self.get_vq(),
+        self._correlation_phonon =  mem.mem_coefficient_scan_analysis(self.get_vq(),
                                                                    self.dynamic,
                                                                    self.parameters)
 
@@ -292,7 +291,7 @@ class Calculation:
     def plot_correlation_phonon(self):
         for i in range(self.get_correlation_phonon().shape[1]):
             plt.figure(i)
-            plt.suptitle('Projection onto Phonon ' + str(i+1))
+            plt.suptitle('Projection onto Phonon {0}'.format(i+1))
             plt.plot(self.get_frequency_range(), self.get_correlation_phonon()[:, i])
         plt.show()
 
@@ -314,16 +313,21 @@ class Calculation:
 
     #Plot dynamical properties related methods
     def plot_trajectory(self, atoms=None, coordinates=None):
-        if not atoms: atoms = [0]
-        if not coordinates: coordinates = [0]
+        if atoms is None : atoms = [0]
+        if coordinates is None : coordinates = [0]
+
 
         plt.suptitle('Trajectory')
+        time = np.linspace(0, self.dynamic.trajectory.shape[0]*self.dynamic.get_time_step_average(),
+                           num=self.dynamic.trajectory.shape[0])
         for atom in atoms:
             for coordinate in coordinates:
-                plt.plot(self.dynamic.get_time().real,
-                         self.dynamic.trajectory[:,atom,coordinate].real,
-                         label='atom: ' + str(atom) + ' coordinate:' + str(coordinate))
+                plt.plot(time, self.dynamic.trajectory[:, atom, coordinate].real,
+                         label='atom: {0}  coordinate: {1}'.format(atom,coordinate))
+
         plt.legend()
+        plt.xlabel('Femtoseconds')
+        plt.ylabel('Angstroms')
         plt.show()
 
     def plot_velocity(self, atoms=None, coordinates=None):
@@ -331,12 +335,17 @@ class Calculation:
         if not coordinates: coordinates = [0]
 
         plt.suptitle('Velocity')
+        time = np.linspace(0, self.dynamic.velocity.shape[0]*self.dynamic.get_time_step_average(),
+                           num=self.dynamic.velocity.shape[0])
+
         for atom in atoms:
             for coordinate in coordinates:
-                plt.plot(self.dynamic.get_time().real,
-                         self.dynamic.velocity[:, atom, coordinate].real,
-                         label='atom: '+str(atom) + ' coordinate:' + str(coordinate))
+                 plt.plot(time, self.dynamic.velocity[:, atom, coordinate].real,
+                         label='atom: {0}  coordinate: {1}'.format(atom,coordinate))
+
         plt.legend()
+        plt.xlabel('Femtoseconds')
+        plt.ylabel('Angstroms/femtosecond')
         plt.show()
 
     def plot_energy(self):
@@ -345,13 +354,38 @@ class Calculation:
                  self.dynamic.get_energy().real)
         plt.show()
 
+    def plot_trajectory_distribution(self, direction):
+
+        atomic_types = self.dynamic.structure.get_atomic_types()
+        atom_type_index_unique = np.unique(self.dynamic.structure.get_atom_type_index(), return_index=True)[1]
+        atomic_types_unique = [atomic_types[i] for i in atom_type_index_unique]
+
+        direction = np.array(direction)
+
+        distributions, distance = self.get_trajectory_distribution(direction)
+
+        plt.figure()
+        for atom in range(distributions.shape[0]):
+            width = (distance[1] - distance[0])
+            center = (distance[:-1] + distance[1:]) / 2
+
+            plt.figure(atom+1)
+            plt.title('Trajectory distribution')
+            plt.suptitle('Atom {0}, Element {1}'.format(atom, atomic_types_unique[atom]))
+            plt.bar(center, distributions[atom], align='center', width=width)
+            plt.xlabel('Direction: ' + ' '.join(np.array(direction, dtype=str)) + ' [Angstrom]')
+            plt.xlim([distance[0], distance[-1]])
+
+        plt.show()
+
+
     #Printing data to files
-    def write_correlation_direct(self,file_name):
+    def write_correlation_direct(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_correlation_direct()[None].T,
                                           file_name)
 
-    def write_correlation_wave_vector(self,file_name):
+    def write_correlation_wave_vector(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_correlation_wave_vector()[None].T,
                                           file_name)
@@ -360,6 +394,36 @@ class Calculation:
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_correlation_phonon(),
                                           file_name)
+
+    def get_trajectory_distribution(self, direction):
+
+        number_of_bins=self.parameters.number_of_bins_histogram
+        direction = np.array(direction)
+
+        projections = trajdist.trajectory_projection(self.dynamic, direction)
+
+        min_val = np.amin(projections)
+        max_val = np.amax(projections)
+
+        bins = None
+        distributions = []
+        for atom in range(projections.shape[0]):
+            distribution, bins = np.histogram(projections[atom],
+                                              bins=number_of_bins,
+                                              range=(min_val, max_val),
+                                              normed=True)
+
+            distributions.append(distribution)
+
+        return np.array(distributions), bins
+
+    def write_trajectory_distribution(self, direction, file_name):
+
+        distributions, distance = self.get_trajectory_distribution(direction)
+
+        reading.write_correlation_to_file(distance, distributions.T, file_name)
+
+
 
     #Molecular dynamics analysis related methods
     def show_boltzmann_distribution(self):

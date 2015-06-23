@@ -22,7 +22,7 @@ mem = Extension('dynaphopy.mem',
 
 
 setup(name='dynaphopy',
-      version='1.2',
+      version='1.3',
       description='dynaphopy module',
       author='Abel Carreras',
       url='https://github.com/abelcarreras/DynaPhoPy',

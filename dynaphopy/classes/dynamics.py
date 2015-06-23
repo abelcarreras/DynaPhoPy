@@ -1,6 +1,8 @@
 import numpy as np
 from dynaphopy.classes import atoms
 from dynaphopy.derivative import derivative as derivative
+from dynaphopy.analysis.coordinates import relativize_trajectory
+
 #import matplotlib.pyplot as plt
 
 
@@ -32,6 +34,7 @@ class Dynamics:
 
         self._time_step_average = None
         self._velocity_mass_average = None
+        self._relative_trajectory = None
         self._super_cell_matrix = None
         self._number_of_atoms = None
 
@@ -41,12 +44,18 @@ class Dynamics:
             print('Warning: Initialization without structure (not recommended)')
             self._structure = None
 
+# A bit messy, has to be fixed
     def crop_trajectory(self, last_steps):
+        if last_steps is None or last_steps < 0:
+            return
+
         if last_steps > self.velocity.shape[0]:
             print("Warning: specified step number larger than available")
 
         self.velocity = self.velocity[-last_steps:, :, :]
+
         self._velocity_mass_average = None
+        self._relative_trajectory = None
 
         if self._trajectory is not None: self._trajectory = self._trajectory[-last_steps:, :, :]
         if self._energy is not  None: self._energy = self._energy[-last_steps:]
@@ -94,6 +103,12 @@ class Dynamics:
 
         return np.array(self._velocity_mass_average)
 
+    def get_relative_trajectory(self):
+        if self._relative_trajectory is None:
+                self._relative_trajectory = relativize_trajectory(self)
+
+        return self._relative_trajectory
+
     def get_super_cell_matrix(self,tolerance=0.1):
         if self._super_cell_matrix is None:
             super_cell_matrix_real = np.diagonal(np.dot(self.get_super_cell(),np.linalg.inv(self.structure.get_cell())))
@@ -112,7 +127,11 @@ class Dynamics:
 
     @property
     def trajectory(self):
-        return self._trajectory
+        if self._trajectory is None:
+            print('No trajectory loaded')
+            exit()
+        else:
+            return self._trajectory
 
     @property
     def velocity(self):

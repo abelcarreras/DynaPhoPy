@@ -37,7 +37,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         except:
             print('Warning: Fitting error, phonon',i)
             continue
-
+        maximum = fit_params[2]/(fit_params[1]*np.pi)
         error = get_error_from_covariance(fit_covariances)
         width = 2.0*fit_params[1]
 
@@ -46,9 +46,10 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print 'Width (FWHM):', width, 'THz'
         print 'Position:', fit_params[0], 'THz'
         print 'Area:', fit_params[2], 'THz'
+        print 'Maximum:', maximum
         if harmonic_frequencies is not None:
             print 'Frequency shift:', fit_params[0] - harmonic_frequencies[i], 'THz'
-        print 'Fitting Error (RMS):', error
+        print 'Fit Error/Max (RMS):', error/maximum
         positions.append(fit_params[0])
         widths.append(width)
 
@@ -70,8 +71,6 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
                      linewidth=3)
 
             plt.legend()
-
-
 
 
     if show_plots:

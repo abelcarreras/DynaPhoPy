@@ -488,7 +488,7 @@ static double **CoFactor(double  **a,int n)
 
 };
 
-//  Calculate the matrix multiplication
+//  Calculate the matrix multiplication creating new memory allocation
 static double  **matrix_multiplication ( double   **a, double   **b, int n, int l, int m ){
 
 	double **c = malloc(n*sizeof(double *));
@@ -507,6 +507,8 @@ static double  **matrix_multiplication ( double   **a, double   **b, int n, int 
 	return c;
 };
 
+
+// Alternative matrix multiplication function using preexisting allocated memory
 static void  matrix_multiplication2 (double  **a, double  **b, double  **c, int n, int l, int m){
 
 	for (int i = 0 ; i< n ;i++) {

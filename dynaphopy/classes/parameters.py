@@ -8,9 +8,6 @@ class Parameters:
                  #General
                  silent=False,
 
-                 #Cutting
-                 last_steps=2000,  # default number of last steps used to perform the calculations
-
                  #Projections
                  reduced_q_vector=(0, 0, 0),  # default reduced wave vector
 
@@ -34,10 +31,10 @@ class Parameters:
                  #Phonon dispersion diagram
                  use_NAC = False,
                  band_ranges=([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]]),
+                 number_of_bins_histogram = 50
                  ):
 
         self._silent = silent
-        self._last_steps = last_steps
         self._number_of_coefficients_mem=number_of_coefficients_mem
         self._mem_scan_range=mem_scan_range
         self._correlation_function_step = correlation_function_step
@@ -47,6 +44,7 @@ class Parameters:
         self._reduced_q_vector = reduced_q_vector
         self._use_NAC = use_NAC
         self._band_ranges = band_ranges
+        self._number_of_bins_histogram = number_of_bins_histogram
 
     #Properties
     @property
@@ -56,14 +54,6 @@ class Parameters:
     @silent.setter
     def silent(self, silent):
         self._silent = silent
-
-    @property
-    def last_steps(self):
-        return self._last_steps
-
-    @last_steps.setter
-    def last_steps(self, last_steps):
-        self._last_steps = last_steps
 
     @property
     def reduced_q_vector(self):
@@ -137,6 +127,13 @@ class Parameters:
     def band_ranges(self,band_ranges):
         self._band_ranges = band_ranges
 
+    @property
+    def number_of_bins_histogram(self):
+        return self._number_of_bins_histogram
+
+    @number_of_bins_histogram.setter
+    def number_of_bins_histogram(self, number_of_bins_histogram):
+        self._number_of_bins_histogram = number_of_bins_histogram
 
 
 

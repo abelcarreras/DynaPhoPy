@@ -140,7 +140,7 @@ class Structure:
         self._scaled_positions = np.dot(cart_positions, np.linalg.inv(self.get_cell().T))
 
 
-    def get_positions(self,super_cell=None):
+    def get_positions(self, super_cell=None):
         if self._positions is None:
             if self._scaled_positions is None:
                 print('No positions provided')
@@ -207,7 +207,7 @@ class Structure:
 
 
     def get_number_of_dimensions(self):
-        return self._cell.shape[0]
+        return self.get_cell().shape[0]
 
 
     def get_atomic_numbers(self,super_cell=None):
