@@ -7,9 +7,6 @@ def boltzmann_distribution(trajectory):
 
 
     print("\n***Velocity distribution analysis***")
-#    unit_factor = 1.03642653457E-10 # (A/ps)^2*uma -> eV
-#    Energy = 1/2 * m * V^2
-#    energy = unit_factor/2 * np.reshape(np.multiply(masses, np.linalg.norm(velocity, axis=2)),-1)
 
     velocity_unit = 3.335640951981E-7 # 1E^-2/c (A/ps -> c)
     velocity = velocity_unit * np.reshape(np.linalg.norm(trajectory.get_velocity_mass_average(), axis=2),-1)

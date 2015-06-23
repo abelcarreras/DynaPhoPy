@@ -17,7 +17,9 @@ import analysis.modes as modes
 #directory = '/home/abel/VASP/MgO-phonon/4x4x4/'
 #directory = '/home/abel/VASP/Bi2O3-phonon/'
 #directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
-directory = '/home/abel/VASP/GaN/GaN-phonon/6x6x3_GGA/'
+#directory = '/home/abel/VASP/GaN/GaN-phonon/6x6x3_GGA/'
+directory = '/home/abel/VASP/CaSioO3/PHONON/4x4x4/'
+
 #structure = reading.read_from_file_structure_outcar(directory+'OUTCAR')
 structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_scaled_positions())
@@ -48,9 +50,9 @@ structure.set_primitive_matrix([[1.0, 0.0, 0.0],
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements
 
-structure.set_super_cell_phonon([[6, 0, 0],
-                                 [0, 6, 0],
-                                 [0, 0, 3]])
+structure.set_super_cell_phonon([[4, 0, 0],
+                                 [0, 4, 0],
+                                 [0, 0, 4]])
 
 
 
@@ -71,19 +73,21 @@ reading.write_xsf_file("test.xfs", structure)
 
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_600/RUN6/OUTCAR',structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/MgO-dynamic_1200/RUN2/OUTCAR',structure,limit_number_steps=5000)
-#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN-dynamic_900/RUN4/OUTCAR',structure)
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN/GaN-dynamic_900/RUN4/OUTCAR',structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.0],super_cell=[2,2,2])
+#trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
-trajectory = reading.initialize_from_file('test.hdf5', structure)
+#trajectory = reading.initialize_from_file('test.hdf5', structure)
+trajectory = reading.initialize_from_file('/home/abel/VASP/CaSioO3/VELOCITY2/velocity_500', structure)
 
 from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 #obtain_velocity_from_positions(structure.get_cell(),trajectory.trajectory,trajectory.get_time())
 
 #exit()
 
-calculation = controller.Calculation(trajectory, last_steps=8000)#, save_hfd5="test.hdf5")
+calculation = controller.Calculation(trajectory, last_steps=80000)#, save_hfd5="test.hdf5")
 
 calculation.set_reduced_q_vector([1/2.,0., 0])
 
@@ -118,17 +122,36 @@ print(calculation.get_frequencies())
 #exit()
 
 print(structure.get_cell())
-structure.__dict__['_'+'cell'] = [2]
-print(structure.__dict__['_'+'cell'])
+#structure.__dict__['_'+'cell'] = [2]
+#print(structure.__dict__['_'+'cell'])
 
 
 
 #################################### GET PROPERTIES #########################################
 #calculation.plot_trajectory()
 #calculation.plot_energy()
-calculation.plot_trajectory(atoms=[3], coordinates=[2])
-calculation.plot_velocity(atoms=[3], coordinates=[2])
+calculation.plot_trajectory(atoms=[0], coordinates=[2])
+calculation.plot_velocity(atoms=[0], coordinates=[2])
+
+#print(structure.get_cell())
+#exit()
+
+calculation.write_trajectory_distribution([0, 0, 1], 'distribution.out')
+
+calculation.plot_trajectory_distribution([1, 0, 0])
+calculation.plot_trajectory_distribution([0, 1, 0])
+calculation.plot_trajectory_distribution([0, 0, 1])
+
 exit()
+import dynaphopy.analysis.coordinates as coortest
+
+relative_trajectory = coortest.relativize_trajectory(trajectory)
+coortest.trajectory_projection(relative_trajectory, trajectory, np.array([1,0,0]))
+coortest.trajectory_projection(relative_trajectory, trajectory, np.array([0,1,0]))
+coortest.trajectory_projection(relative_trajectory, trajectory, np.array([0,0,1]))
+
+exit()
+
 #calculation.plot_vc(atoms=[0,1])
 #calculation.plot_vq(modes=[0,1,2,3,4])
 

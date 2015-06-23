@@ -1,52 +1,67 @@
-from matplotlib import pyplot as plt
 import numpy as np
+import sys
 
-def coordinates_distribution(coordinates, cell):
+def progress_bar(progress):
+    bar_length = 30
+    status = ""
+    if isinstance(progress, int):
+        progress = float(progress)
+    if not isinstance(progress, float):
+        progress = 0
+        status = "Progress error\r\n"
+    if progress < 0:
+        progress = 0
+        status = "Halt ...\r\n"
+    if progress >= 1:
+        progress = 1
+        status = "Done...\r\n"
+    block = int(round(bar_length*progress))
+    text = "\rTrajectory: [{0}] {1:.2f}% {2}".format("#"*block + "-"*(bar_length-block),
+                                                      progress*100, status)
+    sys.stdout.write(text)
+    sys.stdout.flush()
 
-    cell = np.array([[1, 0.5],[0.5, 1]])
-    position = np.array([0.0, 0.0])
-    coordinate = np.array([1.0, 0])
+def relativize_trajectory(dynamic):
 
+    cell = dynamic.structure.get_cell()
+    number_of_atoms = dynamic.trajectory.shape[1]
+    super_cell = dynamic.get_super_cell_matrix()
+    position = dynamic.structure.get_positions(super_cell=super_cell)
+    normalized_trajectory = dynamic.trajectory.real.copy()
 
+    progress_bar(0)
 
-    IniSep = coordinate-position
-    print(IniSep)
+    for j in range(number_of_atoms):
+        for i in range(0, normalized_trajectory.shape[0]):
 
-    print("Initial:",np.linalg.norm(IniSep))
+            difference = normalized_trajectory[i, j, :] - position[j]
 
+         #   difference_matrix = np.array(np.dot(np.linalg.inv(cell),(IniSep)),dtype=int)
+            difference_matrix = np.around(np.dot(np.linalg.inv(cell), difference), decimals=0)
 
-    Separacio = np.array(np.dot(np.linalg.inv(cell),(coordinate-position)),dtype=int)
-    Separacio = np.around(np.dot(np.linalg.inv(cell), (coordinate - position)), decimals=0)
-    print(IniSep-np.dot(Separacio, cell))
+            normalized_trajectory[i, j, :] -= np.dot(difference_matrix, cell) + position[j]
 
-    print("final:",np.linalg.norm(IniSep-np.dot(Separacio, cell)))
+        progress_bar(float(j+1)/number_of_atoms)
 
+    return normalized_trajectory
 
+def trajectory_projection(dynamic, direction):
 
-    return 0
+    direction = np.array(direction)
+    super_cell = dynamic.get_super_cell_matrix()
+    trajectory = dynamic.get_relative_trajectory()
 
-"""
-		Separacio = matrix_multiplication(Cell_i, Point_diff);
+    atom_type_index = dynamic.structure.get_atom_type_index(super_cell=super_cell)
+    number_of_atom_types = dynamic.structure.get_number_of_atom_types()
 
-			for (int k = 0; k < NumberOfDimensions; k++)
-            Separacio[k][0] = (double )(int)Separacio[k][0];
+    projections = []
 
+    for j in range(number_of_atom_types):
+        projection = np.array([])
+        for i in range(0, trajectory.shape[1]):
+            if atom_type_index[i] == j:
+                projection = np.append(projection, np.dot(trajectory[:, i, :], direction/np.linalg.norm(direction)))
 
-//		for (int k =0; k < NumberOfDimensions; k++)
-            Separacio[0][k]= (double _Complex)(int)(Diferencia[k][0] / NormalizedCellVector[k]);
+        projections.append(projection)
 
-		double  ** SeparacioProjectada = matrix_multiplication(Cell_c, Separacio, NumberOfDimensions, NumberOfDimensions, 1);
-//		printf("SepProj: %f %f %f\n",SeparacioProjectada[0][0],SeparacioProjectada[1][0],SeparacioProjectada[2][0]);
-
-		for (int k = 0; k < NumberOfDimensions; k++) Point_final[k]= Point_final[k]-SeparacioProjectada[k][0];
-//		printf("Proper: %f %f %f\n",Point_final[0],Point_final[1],Point_final[2]);
-
-		for (int j = 0; j < NumberOfDimensions; j++) {
-			Derivative[i][j] = (Point_final[j]-Point_initial[j])/ (Time[i+Order]-Time[i-Order]);
-		}
-	}
-"""
-
-
-if __name__ == '__main__':
-    coordinates_distribution(2,3)
+    return np.array(projections)

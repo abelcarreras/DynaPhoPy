@@ -32,7 +32,7 @@ parser.add_argument('-r', '--frequency_range',metavar='N', type=float, nargs=3,
                    help='Frequency range for correlation function calculation (min, max, number of points)')
 
 parser.add_argument('-n', metavar='N', type=int, default=0,
-                   help='number of MD last steps to take (default: 2000)')
+                   help='number of MD last steps to take (default: All)')
 
 parser.add_argument('-pd', '--plot_direct', action='store_true',
                     help='Plot direct power spectrum')
@@ -70,7 +70,13 @@ parser.add_argument('-pa', '--peak_analysis', action='store_true',
 parser.add_argument('--silent', action='store_true',
                     help='Executes without showing plots')
 
-#Under development
+parser.add_argument('-pad', '--plot_atomic_distribution',metavar='N', type=str, nargs=3,
+                   help='Plot atomic distribution respect to specified direction [N N N]')
+
+parser.add_argument('-sad', '--save_atomic_distribution',metavar='X', type=str, nargs=4,
+                    help='save atomic distribution into a file [ N N N filename ]')
+
+#For development
 parser.add_argument('-ds', '--display_spectrum', action='store_true',
                     help='display phonon dispersion spectrum data in screen (just for test: not recommended)')
 
@@ -143,6 +149,13 @@ if args.plot_phonon_mode:
 
 if args.interactive:
     interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
+
+if args.plot_atomic_distribution:
+    calculation.plot_trajectory_distribution([float(Fraction(i)) for i in args.plot_atomic_distribution])
+
+if args.save_atomic_distribution:
+    calculation.write_trajectory_distribution([float(Fraction(i)) for i in args.save_atomic_distribution[0:3]],
+                                              args.save_atomic_distribution[3])
 
 #On development methods (not recommended)
 if args.display_spectrum:
