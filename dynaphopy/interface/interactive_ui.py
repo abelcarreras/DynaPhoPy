@@ -5,6 +5,7 @@ import numpy as np
 import phonopy.file_IO as file_IO
 from fractions import Fraction
 from os.path import isfile
+import textwrap
 
 def list_on_screen(screen, pile, posx, posy):
 
@@ -18,9 +19,14 @@ def list_on_screen(screen, pile, posx, posy):
 # Get parametres from text ui
 def get_param(screen,prompt_string):
 
+    screen_width = 80
+    prompt_string = textwrap.fill(prompt_string, width=screen_width)
+
     screen.clear()
     screen.border(0)
-    screen.addstr(2, 2, prompt_string)
+
+    for i,line in enumerate(prompt_string.splitlines()):
+        screen.addstr(2+i, 2, line)
     screen.refresh()
     input_data = screen.getstr(10, 10, 60)
 
@@ -68,8 +74,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(8, 4, "5 - Plot power spectrum")
         screen.addstr(9, 4, "6 - Save power spectrum")
         screen.addstr(10, 4, "7 - Peak analysis")
-        screen.addstr(11, 4, "9 - Preferences")
-        screen.addstr(13, 4, "0 - Exit")
+        screen.addstr(11, 4, "8 - Trajectory distribution")
+        screen.addstr(12, 4, "9 - Preferences")
+        screen.addstr(14, 4, "0 - Exit")
 
         screen.refresh()
 
@@ -212,6 +219,13 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             calculation.phonon_width_individual_analysis()
             screen.getch()
             curses.endwin()
+
+######## OPTION 8 :  TRAJECTORY DISTRIBUTION
+        if x == ord('8'):
+            direction = np.array([float(Fraction(s)) for s in
+                                 get_param(screen, "Insert the direction into which the distribution will be calculated (values separated by comma)").split(',')])
+            curses.endwin()
+            calculation.plot_trajectory_distribution(direction)
 
 
 ######## OPTION 9 :  PREFERENCES  (UNDER DEVELOPMENT)
