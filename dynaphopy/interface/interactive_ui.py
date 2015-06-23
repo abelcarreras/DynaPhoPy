@@ -17,7 +17,7 @@ def list_on_screen(screen, pile, posx, posy):
 
 
 # Get parametres from text ui
-def get_param(screen,prompt_string):
+def get_param(screen, prompt_string):
 
     screen_width = 80
     prompt_string = textwrap.fill(prompt_string, width=screen_width)
@@ -223,7 +223,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 ######## OPTION 8 :  TRAJECTORY DISTRIBUTION
         if x == ord('8'):
             direction = np.array([float(Fraction(s)) for s in
-                                 get_param(screen, "Insert the direction into which the distribution will be calculated (values separated by comma)").split(',')])
+                                 get_param(screen, "Insert the vector that defines direction in which the "
+                                                   "distribution will be calculated (values separated by comma)").split(',')])
             curses.endwin()
             calculation.plot_trajectory_distribution(direction)
 
