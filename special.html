@@ -78,6 +78,16 @@ is totally converged in each file. Using <strong>-f</strong> flag, is possible t
 
 <pre><code>$ ./concath5 -f 30000 source1.h5 source2.h5 ··· joined.h5
 </code></pre>
+
+<p>
+Depending on the processed MD simulation the size of the resulting hdf5 file could be huge. In the lastest version, by default 
+concath5 stores all the velocity  as well as the trajectory coordinates at each timestep. To calculate the phonon related
+properties using DynPhoPy only the velocity is needed. So if no atomic displacement calculation is needed option <nobr><strong>--velocity_only</strong></nobr>
+can be used. This option makes concath5 script to not store the trajectory in the final hdf5 file saving HD space.
+</p>
+<pre><code>$ ./concath5 --velocity_only source1.h5 source2.h5 ··· joined.h5
+</code></pre>
+
 </UL>
 
 <h3>MEM coeficient analysis</h3>
@@ -153,9 +163,40 @@ increase the fitting precision these equivalent spectra can be conbined into one
 using the average of spectra 3, 4 and 5.
 </p>
 
-
-
 </UL>
+
+<h3>Atomic displacements calculation</h3>
+<p>
+DynaPhoPy allows to calculate the atomic displacements from the MD trajectory respect to a desired direction. 
+The calculation of the atomic displacements requires (obviously) the previous load of the trajectory coordinates
+information. In previous versions of DynaPhoPy, this trajectory was not stored in the hdf5 files, so if you load
+the MD information from a hdf5 file, please make sure that contains also the trajectory coordinates. If not, you 
+can use the lastest version of DynaPhoPy to extract the information from the OUTCAR file. The same can be applied 
+for the use of <strong>concath5</strong> script.
+<br>DynaPhoPy will still be compatible with hdf5 files which does not contain the trajectory and <strong>concath5</strong>
+is able to create hdf5 files which contains only the velocity information using <strong>--velocity_only</strong> flag in 
+order to reduce HD space.
+<br>To request a atomic displacements calculation flags <strong>-pad</strong> and <strong>-sad</strong> are used,
+<strong>pad</strong> will calculate the displacements and show the data in a matplolib plot:
+</p>
+<pre><code>$ dynaphopy input_file OUTCAR -pad  0 0 1
+</code></pre>
+<img src="images/atomic_displacements.png" alt="Interactive" style="width:605px">
+<p>
+this flag requires a set of three float numbers that compose the vector that indicates the direction into which
+the atomic displacements will be analyzed.
+<br>On the other hand, <strong>-sad</strong> flag does the same calculation as  <strong>-pad</strong> but instead of
+showing the plot on the screen stores the information in a defined file:
+</p>
+<pre><code>$ dynaphopy input_file OUTCAR -sad  0 0 1 displacements_file.out
+</code></pre>
+<p>
+The file contains a column for each nonequivalent atom in the unit cell. The first column correspond to the displacement
+coordinate.
+</p>
+
+
+
 
 
 
