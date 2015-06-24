@@ -370,7 +370,7 @@ class Calculation:
             center = (distance[:-1] + distance[1:]) / 2
 
             plt.figure(atom+1)
-            plt.title('Trajectory distribution')
+            plt.title('Atomic displacements')
             plt.suptitle('Atom {0}, Element {1}'.format(atom, atomic_types_unique[atom]))
             plt.bar(center, distributions[atom], align='center', width=width)
             plt.xlabel('Direction: ' + ' '.join(np.array(direction, dtype=str)) + ' [Angstrom]')
