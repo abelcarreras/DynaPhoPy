@@ -13,12 +13,12 @@ import analysis.modes as modes
 # FORCE_SETS : force set file obtained from PHONOPY calculation
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
-#directory ='/home/abel/VASP/Si-phonon/3x3x3/'
+directory ='/home/abel/VASP/Si/Si-FINAL3/PHONON/2x2x2/'
 #directory = '/home/abel/VASP/MgO-phonon/4x4x4/'
 #directory = '/home/abel/VASP/Bi2O3-phonon/'
 #directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
 #directory = '/home/abel/VASP/GaN/GaN-phonon/6x6x3_GGA/'
-directory = '/home/abel/VASP/CaSioO3/PHONON/4x4x4/'
+#directory = '/home/abel/VASP/CaSioO3/PHONON/4x4x4/'
 
 #structure = reading.read_from_file_structure_outcar(directory+'OUTCAR')
 structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
@@ -39,20 +39,20 @@ structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS
 #                                [0.0, 0.5, 0.0],
 #                                [0.0, 0.0, 0.5]])
 
-#structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-#                                [0.5, 0.0, 0.5],
-#                                [0.5, 0.5, 0.0]])
+structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+                                [0.5, 0.0, 0.5],
+                                [0.5, 0.5, 0.0]])
 
-structure.set_primitive_matrix([[1.0, 0.0, 0.0],
-                                [0.0, 1.0, 0.0],
-                                [0.0, 0.0, 1.0]])
+#structure.set_primitive_matrix([[1.0, 0.0, 0.0],
+#                                [0.0, 1.0, 0.0],
+#                                [0.0, 0.0, 1.0]])
 
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements
 
-structure.set_super_cell_phonon([[4, 0, 0],
-                                 [0, 4, 0],
-                                 [0, 0, 4]])
+structure.set_super_cell_phonon([[2, 0, 0],
+                                 [0, 2, 0],
+                                 [0, 0, 2]])
 
 
 
@@ -80,7 +80,12 @@ reading.write_xsf_file("test.xfs", structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
 #trajectory = reading.initialize_from_file('test.hdf5', structure)
-trajectory = reading.initialize_from_file('/home/abel/VASP/CaSioO3/VELOCITY2/velocity_500', structure)
+#trajectory = reading.initialize_from_file('/home/abel/VASP/CaSioO3/VELOCITY2/velocity_500', structure)
+print(reading.check_file_type('/home/abel/VASP/Si/Si-dynamic_600/RUN6/OUTCAR'))
+print(reading.check_file_type('/home/abel/LAMMPS/eim/dump.lammpstrj'))
+
+#exit()
+trajectory = reading.read_lammps_trajectory('/home/abel/LAMMPS/eim/dump.lammpstrj', structure=structure, time_step=0.001, last_steps=50000)
 
 from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 #obtain_velocity_from_positions(structure.get_cell(),trajectory.trajectory,trajectory.get_time())
@@ -89,7 +94,7 @@ from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 
 calculation = controller.Calculation(trajectory, last_steps=80000)#, save_hfd5="test.hdf5")
 
-calculation.set_reduced_q_vector([1/2.,0., 0])
+calculation.set_reduced_q_vector([1/2., 1/2., 1/2.])
 
 #modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
 #calculation.plot_eigenvectors()
@@ -136,21 +141,13 @@ calculation.plot_velocity(atoms=[0], coordinates=[2])
 #print(structure.get_cell())
 #exit()
 
-calculation.write_trajectory_distribution([0, 0, 1], 'distribution.out')
+#calculation.write_trajectory_distribution([0, 0, 1], 'distribution.out')
 
-calculation.plot_trajectory_distribution([1, 0, 0])
-calculation.plot_trajectory_distribution([0, 1, 0])
-calculation.plot_trajectory_distribution([0, 0, 1])
+#calculation.plot_trajectory_distribution([1, 0, 0])
+#calculation.plot_trajectory_distribution([0, 1, 0])
+#calculation.plot_trajectory_distribution([0, 0, 1])
 
-exit()
-import dynaphopy.analysis.coordinates as coortest
-
-relative_trajectory = coortest.relativize_trajectory(trajectory)
-coortest.trajectory_projection(relative_trajectory, trajectory, np.array([1,0,0]))
-coortest.trajectory_projection(relative_trajectory, trajectory, np.array([0,1,0]))
-coortest.trajectory_projection(relative_trajectory, trajectory, np.array([0,0,1]))
-
-exit()
+#exit()
 
 #calculation.plot_vc(atoms=[0,1])
 #calculation.plot_vq(modes=[0,1,2,3,4])

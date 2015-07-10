@@ -3,10 +3,49 @@ import mmap
 import pickle
 import os
 import h5py
+import resource
 
 import dynaphopy.classes.dynamics as dyn
 import dynaphopy.classes.atoms as atomtest
 import dynaphopy.functions.phonopy_link as pho_interface
+
+
+
+def check_file_type(file_name, bytes_to_check=1000000):
+
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print file_name + ' file does not exists'
+        exit()
+
+    #Check if LAMMPS file
+    with open (file_name, "r+") as f:
+        file_map = mmap.mmap(f.fileno(), bytes_to_check)
+        num_test = [file_map.find('ITEM: TIMESTEP'),
+                    file_map.find('ITEM: NUMBER OF ATOMS'),
+                    file_map.find('ITEM: BOX BOUNDS')]
+
+    file_map.close()
+
+    if not -1 in num_test:
+            return read_lammps_trajectory
+
+    #Check if VASP file
+
+    with open (file_name, "r+") as f:
+        file_map = mmap.mmap(f.fileno(), bytes_to_check)
+        num_test = [file_map.find('NIONS'),
+                    file_map.find('POMASS'),
+                    file_map.find('direct lattice vectors')]
+
+    file_map.close()
+
+    if not -1 in num_test:
+            return read_vasp_trajectory
+
+    print('Trajectory file not recognized')
+    exit()
+    return None
 
 
 def read_from_file_structure_outcar(file_name):
@@ -17,7 +56,7 @@ def read_from_file_structure_outcar(file_name):
         exit()
 
     #Read from VASP OUTCAR file
-    print("Reading VASP structure")
+    print('Reading VASP structure')
 
     with open(file_name, "r+") as f:
         # memory-map the file
@@ -134,7 +173,7 @@ def read_from_file_structure_poscar(file_name):
                             for i in range(2,5)],dtype=float).T
     try:
         number_of_types = np.array(data_lines[6].split(),dtype=int)
-        scaled_positions = np.array([data_lines[8+k].split()
+        scaled_positions = np.array([data_lines[8+k].split()[0:3]
                                      for k in range(np.sum(number_of_types))],dtype=float)
         atomic_types = []
 
@@ -147,8 +186,8 @@ def read_from_file_structure_poscar(file_name):
     #Old style poscar format
     except ValueError:
         print "Reading old style POSCAR"
-        number_of_types = np.array(data_lines[5].split(),dtype=int)
-        scaled_positions = np.array([data_lines[7+k].split()
+        number_of_types = np.array(data_lines[5].split(), dtype=int)
+        scaled_positions = np.array([data_lines[7+k].split()[0:3]
                                      for k in range(np.sum(number_of_types))],dtype=float)
         atomic_types = []
         for i,j in enumerate(data_lines[0].split()):
@@ -163,7 +202,7 @@ def read_from_file_structure_poscar(file_name):
                               )
 
 
-def read_from_file_trajectory(file_name, structure=None,
+def read_vasp_trajectory(file_name, structure=None, time_step=None,
                               limit_number_steps=10000000,  #Maximum number of steps read
                               last_steps=None):         #Total number of read steps (deprecated)
 
@@ -175,6 +214,7 @@ def read_from_file_trajectory(file_name, structure=None,
     #Starting reading
     print("Reading VASP trajectory")
     print("This could take long, please wait..")
+
 
     #Dimensionality of VASP calculation
     number_of_dimensions = 3
@@ -189,7 +229,13 @@ def read_from_file_trajectory(file_name, structure=None,
         #Read time step
         position_number=file_map.find('POTIM  =')
         file_map.seek(position_number+8)
-        time_step = float(file_map.readline().split()[0])* 1E-3 # in picoseconds
+        if time_step is not None:
+            print('Warning! Time step manually defined for VASP trajectory.\nIt is strongly '
+                  'recommended to leave DynaPhoPy to read time step directly from OUTCAR file')
+            if float(file_map.readline().split()[0])* 1E-3 != time_step:
+                print('Warning!! Time step defined does not match with the one found in OUTCAR file')
+        else:
+            time_step = float(file_map.readline().split()[0])* 1E-3 # in picoseconds
 
         #Reading super cell
         position_number = file_map.find('direct lattice vectors')
@@ -227,7 +273,7 @@ def read_from_file_trajectory(file_name, structure=None,
             file_map.seek(position_number)
             read_energy = file_map.readline().split()[2]
             trajectory.append(np.array(read_coordinates,dtype=float).flatten()) #in angstrom
-            energy.append(np.array(read_energy,dtype=float))
+            energy.append(np.array(read_energy, dtype=float))
 
             #security routine to limit maximum of steps to read and put in memory
             limit_number_steps -= 1
@@ -248,11 +294,11 @@ def read_from_file_trajectory(file_name, structure=None,
             energy = energy[-last_steps:]
 
         print('Number of total steps read: {0}'.format(trajectory.shape[0]))
-        time = np.array([ i*time_step for i in range(trajectory.shape[0])],dtype=float)
+        time = np.array([i*time_step for i in range(trajectory.shape[0])], dtype=float)
 
         print('Trajectory file read')
         return dyn.Dynamics(structure=structure,
-                            trajectory=np.array(trajectory,dtype=complex),
+                            trajectory=np.array(trajectory, dtype=complex),
                             energy=np.array(energy),
                             time=time,
                             super_cell=super_cell)
@@ -387,7 +433,7 @@ def read_from_file_test():
         for i in range(len(row)): row[i] = float(row[i])
         positions.append(row)
 
-    atom_type = np.array(positions,dtype=int)[:,2]
+    atom_type = np.array(positions,dtype=int)[:, 2]
     positions = np.array(positions)[:,:number_of_dimensions]
     print('Coordinates reading complete')
 
@@ -439,6 +485,125 @@ def read_from_file_test():
                         #velocity=velocity,
                         time=time,
                         structure=structure)
+
+
+
+def read_lammps_trajectory(file_name=None, structure=None, time_step=None,
+                           limit_number_steps=10000000,
+                           last_steps=None):
+
+ #Time in picoseconds
+ #Coordinates in Angstroms
+
+    number_of_atoms = None
+    bounds = None
+
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print('Trajectory file does not exist!')
+        exit()
+
+    #Check time step
+    if time_step == None:
+        print('Warning! LAMMPS trajectory file does not contain time step information')
+        print('Using default: 0.001 ps')
+        time_step = 0.001
+
+    #Starting reading
+    print("Reading LAMMPS trajectory")
+    print("This could take long, please wait..")
+
+    #Dimensionality of LAMMP calculation
+    number_of_dimensions = 3
+
+    time = []
+    trajectory = []
+
+    with open(file_name, "r+") as f:
+
+
+        file_map = mmap.mmap(f.fileno(), 0)
+
+        while True:
+
+            #Read time steps
+            position_number=file_map.find('TIMESTEP')
+            if position_number < 0: break
+
+            file_map.seek(position_number)
+            file_map.readline()
+            time.append(float(file_map.readline()))
+
+
+            if number_of_atoms is None:
+                #Read number of atoms
+                file_map = mmap.mmap(f.fileno(), 0)
+                position_number=file_map.find('NUMBER OF ATOMS')
+                file_map.seek(position_number)
+                file_map.readline()
+                number_of_atoms = int(file_map.readline())
+
+                # Check if number of atoms is multiple of cell atoms
+                if structure:
+                    if number_of_atoms % structure.get_number_of_cell_atoms() != 0:
+                        print('Warning: Number of atoms not matching, check LAMMPS output file')
+
+            if bounds is None:
+                #Read cell
+                file_map = mmap.mmap(f.fileno(), 0)
+                position_number=file_map.find('BOX BOUNDS')
+                file_map.seek(position_number)
+                file_map.readline()
+
+
+                bounds = []
+                for i in range(3):
+                    bounds.append(file_map.readline().split())
+
+                bounds = np.array(bounds, dtype=float)
+                if bounds.shape[1] == 2:
+                    bounds = np.append(bounds, np.array([0, 0, 0])[None].T ,axis=1)
+
+                super_cell = np.array([[bounds[0, 1] - bounds[0, 0], 0,                           0],
+                                       [bounds[0, 2],                bounds[1, 1] - bounds[1, 0], 0],
+                                       [bounds[1, 2],                bounds[2, 2],                bounds[2, 1] - bounds[2, 0]]])
+
+
+
+
+            position_number = file_map.find('ITEM: ATOMS')
+
+            file_map.seek(position_number)
+            file_map.readline()
+
+            read_coordinates = []
+
+            for i in range (number_of_atoms):
+                read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
+
+            trajectory.append(np.array(read_coordinates, dtype=float)) #in angstroms
+
+            #security routine to limit maximum of steps to read and put in memory
+            limit_number_steps -= 1
+            if limit_number_steps < 0:
+                print("Warning! maximum number of steps reached! No more steps will be read")
+                break
+
+
+    file_map.close()
+
+    time = np.array(time) * time_step
+    trajectory = np.array(trajectory, dtype=complex)
+    if last_steps is not None:
+        trajectory = trajectory[-last_steps:, :, :]
+        time = time[-last_steps:]
+
+    return dyn.Dynamics(structure=structure,
+                        trajectory=trajectory,
+                        time=time,
+                        super_cell=super_cell)
+
+
 
 
 def write_correlation_to_file(frequency_range,correlation_vector,file_name):

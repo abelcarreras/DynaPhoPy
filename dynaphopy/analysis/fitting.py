@@ -21,7 +21,6 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
     positions = []
     shifts = []
 
-    print(range(original.shape[1]), " phonons")
     for i in range(original.shape[1]):
 
         power_spectrum = original[:, i]

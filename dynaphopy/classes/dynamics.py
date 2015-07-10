@@ -49,6 +49,16 @@ class Dynamics:
         if last_steps is None or last_steps < 0:
             return
 
+        if self._trajectory is not None:
+            if last_steps > self._trajectory.shape[0]:
+                print("Warning: specified step number larger than available")
+            self._trajectory = self._trajectory[-last_steps:, :, :]
+
+        if self._energy is not None:
+            self._energy = self._energy[-last_steps:]
+        if self._time is not None:
+            self._time = self._time[-last_steps:]
+
         if last_steps > self.velocity.shape[0]:
             print("Warning: specified step number larger than available")
 
@@ -57,9 +67,6 @@ class Dynamics:
         self._velocity_mass_average = None
         self._relative_trajectory = None
 
-        if self._trajectory is not None: self._trajectory = self._trajectory[-last_steps:, :, :]
-        if self._energy is not  None: self._energy = self._energy[-last_steps:]
-        if self._time is not  None: self._time = self._time[-last_steps:]
 
     def get_number_of_atoms(self):
         if self._number_of_atoms is None:
@@ -136,7 +143,7 @@ class Dynamics:
     @property
     def velocity(self):
         if self._velocity is None:
-            print('No velocity provided! calculating it!')
+            print('No velocity provided! calculating...')
             self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time_step_average())
  #           self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time())
 
