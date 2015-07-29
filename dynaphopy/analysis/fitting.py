@@ -60,11 +60,11 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print 'Area: (tot)', total_integral, 'Angstrom^2 * THz / ps'
         print '<|Q|2> (lor):', Q2_lor, 'Angstrom^2'
         print '<|Q|2> (tot):', Q2_tot, 'Angstrom^2'
-        print 'Occupancy:', occupancy
+        print 'Occupation number:', occupancy
         print 'Phonon temperature (lor)', Q2_lor * pow(frequency,2) / kb_bolzman, 'K'
         print 'Phonon temperature (tot)', Q2_tot * pow(frequency,2) / kb_bolzman, 'K'
 
-        print 'Maximum height:', maximum, 'Angstrom'
+        print 'Maximum height:', maximum, 'Angstrom^2 / ps'
         if harmonic_frequencies is not None:
             print 'Frequency shift:', frequency - harmonic_frequencies[i], 'THz'
         print 'Fit Error/Max^2 (RMS):', error/pow(maximum,2)
