@@ -190,6 +190,7 @@ class Calculation:
     def plot_vq(self,modes=None):
         if not modes: modes = [0]
         plt.suptitle('Phonon mode projection')
+        plt.xlabel('picoseconds')
         for mode in modes:
             plt.plot(self.dynamic.get_time().real,self.get_vq()[:,mode].real,label='mode: '+str(mode))
         plt.legend()
@@ -200,6 +201,7 @@ class Calculation:
         if not coordinates: coordinates = [0]
 
         plt.suptitle('Wave vector projection')
+        plt.xlabel('picoseconds')
         for atom in atoms:
             for coordinate in coordinates:
                 plt.plot(self.dynamic.get_time().real,
@@ -326,7 +328,7 @@ class Calculation:
                          label='atom: {0}  coordinate: {1}'.format(atom,coordinate))
 
         plt.legend()
-        plt.xlabel('Femtoseconds')
+        plt.xlabel('picosecond')
         plt.ylabel('Angstroms')
         plt.show()
 
@@ -344,8 +346,8 @@ class Calculation:
                          label='atom: {0}  coordinate: {1}'.format(atom,coordinate))
 
         plt.legend()
-        plt.xlabel('Femtoseconds')
-        plt.ylabel('Angstroms/femtosecond')
+        plt.xlabel('picosecond')
+        plt.ylabel('Angstroms/picosecond')
         plt.show()
 
     def plot_energy(self):

@@ -47,35 +47,37 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         total_integral = np.trapz(power_spectrum, x=test_frequencies_range)
 
         #Calculated properties
-
         Q2_lor = area / pow(frequency,2) / (2*np.pi)
         Q2_tot = total_integral / frequency / (frequency*2*np.pi)
         occupancy = Q2_lor * frequency * pow(2 * np.pi, 2) / h_planck - 1/2
 
+        #Print section
         print '\nPeak #', i+1
         print('------------------------------------')
         print 'Width (FWHM):', width, 'THz'
-        print 'Position:', fit_params[0], 'THz'
-        print 'Area: (lor)', area, '(THz * Angstrom)^2'
-        print 'Area: (tot)', total_integral, '(THz * Angstrom)^2'
+        print 'Position:', frequency, 'THz'
+        print 'Area: (lor)', area, 'Angstrom^2 * THz / ps'
+        print 'Area: (tot)', total_integral, 'Angstrom^2 * THz / ps'
         print '<|Q|2> (lor):', Q2_lor, 'Angstrom^2'
         print '<|Q|2> (tot):', Q2_tot, 'Angstrom^2'
         print 'Occupancy:', occupancy
         print 'Phonon temperature (lor)', Q2_lor * pow(frequency,2) / kb_bolzman, 'K'
         print 'Phonon temperature (tot)', Q2_tot * pow(frequency,2) / kb_bolzman, 'K'
 
-        print 'Maximum height:', maximum , 'Angstrom'
+        print 'Maximum height:', maximum, 'Angstrom'
         if harmonic_frequencies is not None:
-            print 'Frequency shift:', fit_params[0] - harmonic_frequencies[i], 'THz'
+            print 'Frequency shift:', frequency - harmonic_frequencies[i], 'THz'
         print 'Fit Error/Max^2 (RMS):', error/pow(maximum,2)
-        positions.append(fit_params[0])
-        widths.append(width)
 
+        positions.append(frequency)
+        widths.append(width)
 
         if show_plots:
             plt.figure(i+1)
 
             plt.xlabel('Frequency [THz]')
+            plt.ylabel('Angstrom^2 / ps')
+
             plt.title('Curve fitting')
 
             plt.suptitle('Phonon '+str(i+1))
