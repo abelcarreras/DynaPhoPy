@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
 h_planck = 39.90310 # A^2 * u / ps
+kb_bolzman = 0.831446 # u * A^2 / ( ps^2 * K )
 
 def lorentzian(x, a, b, c, d):
     return c/(np.pi*b*(1.0+((x-a)/b)**2))+d
@@ -55,13 +56,15 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print('------------------------------------')
         print 'Width (FWHM):', width, 'THz'
         print 'Position:', fit_params[0], 'THz'
-        print 'Area:', area, 'THz'
-        print '<|Q|2> (lor):', Q2_lor, 'Angstroms^2'
-        print '<|Q|2> (tot):', Q2_tot, 'Angstroms^2'
+        print 'Area: (lor)', area, '(THz * Angstrom)^2'
+        print 'Area: (tot)', total_integral, '(THz * Angstrom)^2'
+        print '<|Q|2> (lor):', Q2_lor, 'Angstrom^2'
+        print '<|Q|2> (tot):', Q2_tot, 'Angstrom^2'
         print 'Occupancy:', occupancy
+        print 'Phonon temperature (lor)', Q2_lor * pow(frequency,2) / kb_bolzman, 'K'
+        print 'Phonon temperature (tot)', Q2_tot * pow(frequency,2) / kb_bolzman, 'K'
 
-
-        print 'Maximum:', maximum
+        print 'Maximum height:', maximum , 'Angstrom'
         if harmonic_frequencies is not None:
             print 'Frequency shift:', fit_params[0] - harmonic_frequencies[i], 'THz'
         print 'Fit Error/Max (RMS):', error/maximum
