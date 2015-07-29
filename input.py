@@ -16,7 +16,7 @@ import analysis.modes as modes
 directory ='/home/abel/VASP/Si/Si-FINAL3/PHONON/2x2x2/'
 #directory = '/home/abel/VASP/MgO-phonon/4x4x4/'
 #directory = '/home/abel/VASP/Bi2O3-phonon/'
-#directory = '/home/abel/VASP/GaN-phonon/2x2x2/'
+#directory = '/home/abel/VASP/GaN/GaN-phonon/2x2x2/'
 #directory = '/home/abel/VASP/GaN/GaN-phonon/6x6x3_GGA/'
 #directory = '/home/abel/VASP/CaSioO3/PHONON/4x4x4/'
 
@@ -35,13 +35,13 @@ structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS
 #    Primitive_cell = Unit_cell x Primitive_matrix
 #    This matrix is the same needed for PHONOPY calculation
 
-#structure.set_primitive_matrix([[0.5, 0.0, 0.0],
-#                                [0.0, 0.5, 0.0],
-#                                [0.0, 0.0, 0.5]])
+structure.set_primitive_matrix([[0.5, 0.0, 0.0],
+                                [0.0, 0.5, 0.0],
+                                [0.0, 0.0, 0.5]])
 
-structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-                                [0.5, 0.0, 0.5],
-                                [0.5, 0.5, 0.0]])
+#structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+#                                [0.5, 0.0, 0.5],
+#                                [0.5, 0.5, 0.0]])
 
 #structure.set_primitive_matrix([[1.0, 0.0, 0.0],
 #                                [0.0, 1.0, 0.0],
@@ -76,16 +76,16 @@ reading.write_xsf_file("test.xfs", structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN/GaN-dynamic_900/RUN4/OUTCAR',structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
-#trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.0],super_cell=[2,2,2])
+trajectory = reading.generate_test_trajectory(structure,[0.5, 0.0, 0.5],super_cell=[2, 1,1])
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
 #trajectory = reading.initialize_from_file('test.hdf5', structure)
 #trajectory = reading.initialize_from_file('/home/abel/VASP/CaSioO3/VELOCITY2/velocity_500', structure)
-print(reading.check_file_type('/home/abel/VASP/Si/Si-dynamic_600/RUN6/OUTCAR'))
-print(reading.check_file_type('/home/abel/LAMMPS/eim/dump.lammpstrj'))
+#print(reading.check_file_type('/home/abel/VASP/Si/Si-dynamic_600/RUN6/OUTCAR'))
+#print(reading.check_file_type('/home/abel/LAMMPS/eim/dump.lammpstrj'))
 
 #exit()
-trajectory = reading.read_lammps_trajectory('/home/abel/LAMMPS/eim/dump.lammpstrj', structure=structure, time_step=0.001, last_steps=50000)
+#trajectory = reading.read_lammps_trajectory('/home/abel/LAMMPS/eim/dump.lammpstrj', structure=structure, time_step=0.001, last_steps=50000)
 
 from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 #obtain_velocity_from_positions(structure.get_cell(),trajectory.trajectory,trajectory.get_time())
@@ -94,14 +94,14 @@ from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 
 calculation = controller.Calculation(trajectory, last_steps=80000)#, save_hfd5="test.hdf5")
 
-calculation.set_reduced_q_vector([1/2., 1/2., 1/2.])
+calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
 
 #modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
 #calculation.plot_eigenvectors()
 
 
 calculation.set_frequency_range(np.linspace(0, 25, 1000))
-calculation.select_power_spectra_algorithm(4)
+calculation.select_power_spectra_algorithm(3)
 #calculation.set_NAC(True)
 
 #calculation.get_phonon_dispersion_spectra()
@@ -126,7 +126,7 @@ print(calculation.get_frequencies())
 
 #exit()
 
-print(structure.get_cell())
+#print(structure.get_cell())
 #structure.__dict__['_'+'cell'] = [2]
 #print(structure.__dict__['_'+'cell'])
 
@@ -143,14 +143,14 @@ calculation.plot_velocity(atoms=[0], coordinates=[2])
 
 #calculation.write_trajectory_distribution([0, 0, 1], 'distribution.out')
 
-#calculation.plot_trajectory_distribution([1, 0, 0])
+#calculation.plot_trajectory_distribution([0, 1, 1])
 #calculation.plot_trajectory_distribution([0, 1, 0])
 #calculation.plot_trajectory_distribution([0, 0, 1])
 
 #exit()
 
-#calculation.plot_vc(atoms=[0,1])
-#calculation.plot_vq(modes=[0,1,2,3,4])
+calculation.plot_vc(atoms=[0, 1])
+calculation.plot_vq(modes=[0, 1, 2, 3, 4])
 
 #print(structure.get_number_of_atoms())
 
@@ -178,25 +178,28 @@ calculation.plot_velocity(atoms=[0], coordinates=[2])
 #calculation.set_frequency_range(np.linspace(0,40,200))
 
 # 5c. Request Boltzmann distribution trajectory analysis
-calculation.show_boltzmann_distribution()
+#calculation.show_boltzmann_distribution()
 
 # 5d. Request calculate plot of direct velocity correlation function (without projection)
 #calculation.plot_correlation_direct()
 
 # 5e. Request calculate plot of wave vector projected velocity correlation function
-calculation.plot_correlation_wave_vector()
+#calculation.plot_correlation_wave_vector()
 
 #exit()
 # 5f. Request calculate plot of phonon mode projected velocity correlation function
-calculation.plot_correlation_phonon()
+#calculation.plot_correlation_phonon()
 
 # 5g. Request save direct velocity correlation function into file
 #calculation.write_correlation_direct('Data Files/correlation_d.out')
 
 # 5h. Request save wave vector projected velocity correlation function into file
-calculation.write_correlation_wave_vector('Data Files/correlation_w.out')
+#calculation.write_correlation_wave_vector('Data Files/correlation_w.out')
 
 # 5i. Request save phonon projected velocity correlation function into file
-calculation.write_correlation_phonon('correlation_p.out')
+#calculation.write_correlation_phonon('correlation_p.out')
+
+# 5j. Peak analysis
+calculation.phonon_width_individual_analysis()
 
 exit()

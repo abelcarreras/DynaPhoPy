@@ -74,7 +74,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(8, 4, "5 - Plot power spectrum")
         screen.addstr(9, 4, "6 - Save power spectrum")
         screen.addstr(10, 4, "7 - Peak analysis")
-        screen.addstr(11, 4, "8 - Trajectory distribution")
+        screen.addstr(11, 4, "8 - Atomic displacements")
         screen.addstr(12, 4, "9 - Preferences")
         screen.addstr(14, 4, "0 - Exit")
 

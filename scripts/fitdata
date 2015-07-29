@@ -40,15 +40,10 @@ def lowess(x, y, f=2./3.):
     for i in range(n):
             weights = delta * w[:, i]
             b = np.array([np.sum(weights*y), np.sum(weights*y*x)])
-            A = np.array([[np.sum(weights), np.sum(weights*x)],
+            a = np.array([[np.sum(weights), np.sum(weights*x)],
                           [np.sum(weights*x), np.sum(weights*x*x)]])
-            beta = np.linalg.solve(A, b)
+            beta = np.linalg.solve(a, b)
             y_smooth[i] = beta[0] + beta[1]*x[i]
-
-    residuals = y - y_smooth
-    s = np.median(np.abs(residuals))
-    delta = np.clip(residuals / (6.0 * s), -1, 1)
-    delta = (1 - delta**2)**2
 
     return y_smooth
 

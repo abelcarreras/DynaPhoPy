@@ -73,11 +73,15 @@ parser.add_argument('-pa', '--peak_analysis', action='store_true',
 parser.add_argument('--silent', action='store_true',
                     help='executes without showing plots')
 
-parser.add_argument('-pad', '--plot_atomic_distribution',metavar='N', type=str, nargs=3,
-                   help='plot atomic distribution respect to specified direction [N N N]')
+parser.add_argument('--velocity_only', action='store_true',
+                    help='loads only velocity data from hdf5 file')
 
-parser.add_argument('-sad', '--save_atomic_distribution',metavar='X', type=str, nargs=4,
-                    help='save atomic distribution into a file [ N N N filename ]')
+
+parser.add_argument('-pad', '--plot_atomic_displacements',metavar='N', type=str, nargs=3,
+                   help='plot atomic displacements respect to specified direction [N N N]')
+
+parser.add_argument('-sad', '--save_atomic_displacements',metavar='X', type=str, nargs=4,
+                    help='save atomic displacements into a file [ N N N filename ]')
 
 #For development
 parser.add_argument('-ds', '--display_spectrum', action='store_true',
@@ -104,13 +108,14 @@ if 'force_constants_file_name' in input_parameters:
 
 
 if args.load_velocity:
-    trajectory = reading.initialize_from_file(args.load_velocity[0], structure)
+    trajectory = reading.initialize_from_file(args.load_velocity[0], structure, read_trajectory=not(args.velocity_only))
     structure_file = args.load_velocity[0]
 else:
     trajectory_reading_function = reading.check_file_type(args.md_file)
     trajectory = trajectory_reading_function(args.md_file, structure, args.time_step)
 
 calculation = controller.Calculation(trajectory, last_steps=args.n, save_hfd5=args.save_velocity[0])
+
 
 if '_band_ranges' in input_parameters:
     calculation.set_band_ranges(input_parameters['_band_ranges'])
@@ -153,12 +158,12 @@ if args.plot_phonon_mode:
 if args.interactive:
     interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
 
-if args.plot_atomic_distribution:
-    calculation.plot_trajectory_distribution([float(Fraction(i)) for i in args.plot_atomic_distribution])
+if args.plot_atomic_displacements:
+    calculation.plot_trajectory_distribution([float(Fraction(i)) for i in args.plot_atomic_displacements])
 
-if args.save_atomic_distribution:
-    calculation.write_trajectory_distribution([float(Fraction(i)) for i in args.save_atomic_distribution[0:3]],
-                                              args.save_atomic_distribution[3])
+if args.save_atomic_displacements:
+    calculation.write_trajectory_distribution([float(Fraction(i)) for i in args.save_atomic_displacements[0:3]],
+                                              args.save_atomic_displacements[3])
 
 #On development methods (not recommended)
 if args.display_spectrum:

@@ -19,17 +19,17 @@ class Arrow3D(FancyArrowPatch):
 def plot_phonon_modes(structure, eigenvectors, q_vector,
                       super_cell=(1, 1, 1),
                       draw_primitive=True,
-                      vectors_scale=3):
+                      vectors_scale=30):
 
     atom_type = structure.get_atom_type_index(super_cell=super_cell)
     positions = structure.get_positions(super_cell=super_cell)
     masses = structure.get_masses(super_cell=super_cell)
     elements = structure.get_atomic_types(super_cell=super_cell)
-   # print(element)
+    np.set_printoptions(precision=8, suppress=True)
 
-    cell = structure.get_cell().T
+    cell_t = structure.get_cell().T
     if draw_primitive:
-        cell = structure.get_primitive_cell().T
+        cell_t = structure.get_primitive_cell().T
 
     for i_phonon in range(eigenvectors.shape[0]):
 
@@ -49,29 +49,37 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
 
         #Cell frame
         for i in range(3):
-            cell_side = [(0, cell[i, 0]), (0, cell[i, 1]), (0, cell[i, 2])]
+            cell_side = [(0, cell_t[i, 0]), (0, cell_t[i, 1]), (0, cell_t[i, 2])]
             ax.plot3D(*cell_side, color="b")
             for j in range(3):
                 if i != j:
-                    cell_side = [(cell[i, l],
-                                  cell[i, l]+cell[j, l]) for l in range(3)]
+                    cell_side = [(cell_t[i, l],
+                                  cell_t[i, l]+cell_t[j, l]) for l in range(3)]
 
                     ax.plot3D(*cell_side, color="b")
                     for k in range(3):
                         if k != i and k != j and j > i:
-                            cell_side = [(cell[i, l]+cell[j, l],
-                                          cell[i, l]+cell[j, l]+cell[k, l]) for l in range(3)]
+                            cell_side = [(cell_t[i, l]+cell_t[j, l],
+                                          cell_t[i, l]+cell_t[j, l]+cell_t[k, l]) for l in range(3)]
 
                             ax.plot3D(*cell_side, color="b")
 
+
         #Atom positions
+        u = []
         for i, position in enumerate(positions):
-            eigenvector_atom = np.array(eigenvectors[i_phonon, atom_type[i], :]).conj()  #/ np.sqrt(masses[i])
-            vector =(eigenvector_atom * vectors_scale * np.exp(np.complex(0,-1) * np.dot(q_vector, position))).real
-            vector = np.dot(structure.get_primitive_cell(),vector)
-            a = Arrow3D([position[0],position[0]+ vector[0]], [position[1], position[1]+vector[1]],
-                        [position[2], position[2]+ vector[2]], mutation_scale=20, lw=3, arrowstyle="-|>", color="r")
+            eigenvector_atom = np.array(eigenvectors[i_phonon, atom_type[i], :])
+            phase = np.complex(0, 1) * np.dot(position, q_vector)
+            vector = (eigenvector_atom / np.sqrt(masses[atom_type[i]]) * np.exp(phase) * vectors_scale).real
+
+            a = Arrow3D([position[0], position[0]+vector[0]], [position[1], position[1]+vector[1]],
+                        [position[2], position[2]+vector[2]], mutation_scale=20, lw=3, arrowstyle="-|>", color="r")
             ax.add_artist(a)
+
+            u.append(vector)
+
+        u = np.array(u) * get_phase_factor(u, vectors_scale)
+        #print(u)
 
  #       ax.set_axis_off()
         ax.set_xlabel('X')
@@ -83,6 +91,18 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
     plt.show()
 
     return
+
+def get_phase_factor(modulation, argument):
+    u = np.ravel(modulation)
+    index_max_elem = np.argmax(abs(u))
+    max_elem = u[index_max_elem]
+    phase_for_zero = max_elem / abs(max_elem)
+    phase_factor = np.exp(1j * np.pi * argument / 180) / phase_for_zero
+
+    return phase_factor
+
+
+
 
 atom_radius = {
     'H':0.32,

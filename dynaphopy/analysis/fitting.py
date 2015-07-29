@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
+h_planck = 39.90310 # A^2 * u / ps
 
 def lorentzian(x, a, b, c, d):
     return c/(np.pi*b*(1.0+((x-a)/b)**2))+d
@@ -39,12 +40,27 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         maximum = fit_params[2]/(fit_params[1]*np.pi)
         error = get_error_from_covariance(fit_covariances)
         width = 2.0*fit_params[1]
+        area = fit_params[2]
+        frequency = fit_params[0]
+
+        total_integral = np.trapz(power_spectrum, x=test_frequencies_range)
+
+        #Calculated properties
+
+        Q2_lor = area / pow(frequency,2) / (2*np.pi)
+        Q2_tot = total_integral / frequency / (frequency*2*np.pi)
+        occupancy = Q2_lor * frequency * pow(2 * np.pi, 2) / h_planck - 1/2
 
         print '\nPeak #', i+1
         print('------------------------------------')
         print 'Width (FWHM):', width, 'THz'
         print 'Position:', fit_params[0], 'THz'
-        print 'Area:', fit_params[2], 'THz'
+        print 'Area:', area, 'THz'
+        print '<|Q|2> (lor):', Q2_lor, 'Angstroms^2'
+        print '<|Q|2> (tot):', Q2_tot, 'Angstroms^2'
+        print 'Occupancy:', occupancy
+
+
         print 'Maximum:', maximum
         if harmonic_frequencies is not None:
             print 'Frequency shift:', fit_params[0] - harmonic_frequencies[i], 'THz'
@@ -52,7 +68,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         positions.append(fit_params[0])
         widths.append(width)
 
-        plt.figure()
+
         if show_plots:
             plt.figure(i+1)
 

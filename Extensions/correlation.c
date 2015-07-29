@@ -150,9 +150,9 @@ static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywo
 double EvaluateCorrelation (double Frequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod) {
 
 	double _Complex Correl = 0;
-	for (int i = 0; i < NumberOfData; i += Increment) {
+	for (int i = 0; i < NumberOfData-Increment; i += Increment) {
 		for (int j = 0; j < (NumberOfData-i-Increment); j++) {
-			Correl += conj(Velocity[j]) * Velocity[j+i] * cexp(_Complex_I*Frequency*(i*TimeStep));
+//			Correl += conj(Velocity[j]) * Velocity[j+i] * cexp(_Complex_I*Frequency*(i*TimeStep));
 
             switch (IntMethod) {
                 case 0: //	Trapezoid Integration
@@ -165,7 +165,7 @@ double EvaluateCorrelation (double Frequency, double _Complex Velocity[], int Nu
             }
 		}
 	}
-    return  creal(Correl) * TimeStep/(NumberOfData/Increment);
+    return  creal(Correl)  * TimeStep/(NumberOfData/Increment);
 }
 
 

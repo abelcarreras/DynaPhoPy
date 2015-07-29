@@ -397,7 +397,7 @@ class Calculation:
 
     def get_trajectory_distribution(self, direction):
 
-        number_of_bins=self.parameters.number_of_bins_histogram
+        number_of_bins = self.parameters.number_of_bins_histogram
         direction = np.array(direction)
 
         projections = trajdist.trajectory_projection(self.dynamic, direction)
@@ -415,7 +415,10 @@ class Calculation:
 
             distributions.append(distribution)
 
-        return np.array(distributions), bins
+
+        distance = bins - (bins[1]-bins[0])/2
+
+        return np.array(distributions), distance
 
     def write_trajectory_distribution(self, direction, file_name):
 

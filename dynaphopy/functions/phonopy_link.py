@@ -37,6 +37,7 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
                      primitive_matrix=structure.get_primitive_matrix(),
                      is_auto_displacements=False)
 
+    #print(phonon.get_primitive().get_cell())
     #Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
     if NAC:
         print("Phonopy warning: Using Non Analytical Corrections")
@@ -50,6 +51,9 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
 
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
+    print('Eigenvectors')
+    print(eigenvectors)
+
     #Making sure eigenvectors are orthonormal (can be omitted)
     if True:
         eigenvectors = eigenvectors_normalization(eigenvectors)
@@ -62,10 +66,13 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
     number_of_dimensions = structure.get_number_of_dimensions()
     number_of_primitive_atoms = structure.get_number_of_primitive_atoms()
 
-    arranged_ev = np.array([[[eigenvectors [j*number_of_dimensions+k,i]
+
+    arranged_ev = np.array([[[eigenvectors [j*number_of_dimensions+k, i]
                                     for k in range(number_of_dimensions)]
                                     for j in range(number_of_primitive_atoms)]
                                     for i in range(number_of_primitive_atoms*number_of_dimensions)])
+
+
 
     return arranged_ev, frequencies
 

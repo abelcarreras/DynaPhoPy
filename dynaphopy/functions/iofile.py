@@ -10,7 +10,6 @@ import dynaphopy.classes.atoms as atomtest
 import dynaphopy.functions.phonopy_link as pho_interface
 
 
-
 def check_file_type(file_name, bytes_to_check=1000000):
 
     #Check file exists
@@ -153,7 +152,6 @@ def read_from_file_structure_outcar(file_name):
     return atomtest.Structure(cell= direct_cell,
                               positions=positions,
                               masses=atomic_mass,
-#                              primitive_cell=primitive_cell
                               )
 
 
@@ -194,7 +192,6 @@ def read_from_file_structure_poscar(file_name):
             atomic_types.append([j]*number_of_types[i])
         atomic_types = [item for sublist in atomic_types for item in sublist]
        # atomic_types = np.array(atomic_types).flatten().tolist()
-
     return atomtest.Structure(cell= direct_cell,
                               scaled_positions=scaled_positions,
                               atomic_types=atomic_types,
@@ -305,7 +302,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
 
 
 #Just for testing
-def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
+def generate_test_trajectory(structure, reduced_q_vector, super_cell=(1,1,1)):
 
     print('Generating ideal harmonic data for testing')
 
@@ -313,7 +310,7 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
     if False:
         dump_file = open( "trajectory.save", "r" )
         trajectory = pickle.load(dump_file)
-        return  trajectory
+        return trajectory
 
     number_of_atoms = structure.get_number_of_cell_atoms()
     positions = structure.get_positions(super_cell=super_cell)
@@ -321,9 +318,9 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
 
 
     #Parameters used to generate harmonic trajectory
-    total_time = 2.0
+    total_time = 2
     time_step = 0.001
-    amplitude = 50.0
+    amplitude = 6.0
 #    print('Freq Num',number_of_frequencies)
 
     for i in range(structure.get_number_of_dimensions()):
@@ -339,25 +336,23 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
     xyz_file = open('test.xyz','w')
 
     #Generate additional random wave vectors sample for further testing
-    number_of_wave_vectors = 0
-    q_vector_r=np.random.random([number_of_wave_vectors, 3])
-  #  np.random.random(number_of_wave_vectors,3)
-    q_vector_r=np.concatenate((q_vector_r,[q_vector_o]),axis=0)
+    number_of_additional_wave_vectors = 0
+    q_vector_list=np.random.random([number_of_additional_wave_vectors, 3])
+    q_vector_list=np.concatenate((q_vector_list, [reduced_q_vector]),axis=0)
     print('test wave vectors')
-    print(q_vector_r)
+    print(q_vector_list)
 
     #Generate frequencies and eigenvectors for the testing wave vector samples
     eigenvectors_r = []
     frequencies_r = []
-    for i in range(len(q_vector_r)):
-        print(q_vector_r[i])
-        eigenvectors, frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure,q_vector_r[i])
+    for i in range(len(q_vector_list)):
+        print(q_vector_list[i])
+        eigenvectors, frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure,q_vector_list[i])
         eigenvectors_r.append(eigenvectors)
         frequencies_r.append(frequencies)
     number_of_frequencies = len(frequencies_r[0])
     print('obtained frequencies')
     print(frequencies_r)
-
 
     print(np.pi*2.0*np.linalg.inv(structure.get_primitive_cell()).T)
     #Generating trajectory
@@ -368,16 +363,20 @@ def generate_test_trajectory(structure,q_vector_o,super_cell=(1,1,1)):
         coordinates = []
         for i_atom in range(number_of_atoms):
        #     coordinate = map(complex,positions[i_atom])
-            coordinate = np.array(positions[i_atom,:],dtype=complex)
+            coordinate = np.array(positions[i_atom,:], dtype=complex)
             for i_freq in range(number_of_frequencies):
-                for i_long in range(q_vector_r.shape[0]):
-                    q_vector = np.dot(q_vector_r[i_long,:], 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
+                for i_long in range(q_vector_list.shape[0]):
+                    q_vector = np.dot(q_vector_list[i_long,:], 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
                     # Beware in the testing amplitude!! Normalized for all phonons to have the same height!!
                     if abs(frequencies_r[i_long][i_freq]) > 0.01: #Prevent dividing by 0
-                        coordinate += amplitude / (np.sqrt(masses[i_atom]) * frequencies_r[i_long][i_freq]) * (
-                                      eigenvectors_r[i_long][i_freq,atom_type[i_atom]] *
-                                      np.exp(np.complex(0,-1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time) *
-                                      np.exp(np.complex(0,1) * np.dot(q_vector,positions[i_atom,:])))
+
+                        normal_mode_coordinate = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
+                        phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions[i_atom, :]))
+                        coordinate += (1.0 / np.sqrt(masses[i_atom]) *
+                                       eigenvectors_r[i_long][i_freq, atom_type[i_atom]] *
+                                       phase *
+                                       normal_mode_coordinate)
+                        coordinate = coordinate.real
 
             xyz_file.write(structure.get_atomic_types(super_cell=super_cell)[i_atom]+'\t' +
                            '\t'.join([str(item) for item in coordinate.real]) + '\n')
@@ -504,7 +503,7 @@ def read_lammps_trajectory(file_name=None, structure=None, time_step=None,
         exit()
 
     #Check time step
-    if time_step == None:
+    if time_step is None:
         print('Warning! LAMMPS trajectory file does not contain time step information')
         print('Using default: 0.001 ps')
         time_step = 0.001
@@ -709,7 +708,7 @@ def save_data_hdf5(file_name, velocity, time, super_cell, trajectory=None):
     hdf5_file.close()
 
 
-def initialize_from_file(file_name, structure):
+def initialize_from_file(file_name, structure, read_trajectory=True):
     print("Reading data from hdf5 file: " + file_name)
 
     trajectory = None
@@ -719,7 +718,7 @@ def initialize_from_file(file_name, structure):
         exit()
 
     hdf5_file = h5py.File(file_name, "r")
-    if "trajectory" in hdf5_file:
+    if "trajectory" in hdf5_file and read_trajectory is True:
         trajectory = hdf5_file['trajectory'][:]
 
     velocity = hdf5_file['velocity'][:]
