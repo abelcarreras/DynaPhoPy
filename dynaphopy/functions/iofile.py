@@ -318,9 +318,9 @@ def generate_test_trajectory(structure, reduced_q_vector, super_cell=(1,1,1)):
 
 
     #Parameters used to generate harmonic trajectory
-    total_time = 2
+    total_time = 2.5
     time_step = 0.001
-    amplitude = 6.0
+    amplitude = 1.0
 #    print('Freq Num',number_of_frequencies)
 
     for i in range(structure.get_number_of_dimensions()):

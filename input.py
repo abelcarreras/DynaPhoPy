@@ -101,7 +101,8 @@ calculation.set_reduced_q_vector([0.5, 0.0, 0.5])
 
 
 calculation.set_frequency_range(np.linspace(0, 25, 1000))
-calculation.select_power_spectra_algorithm(3)
+calculation.select_power_spectra_algorithm(4)
+calculation.set_number_of_mem_coefficients(50)
 #calculation.set_NAC(True)
 
 #calculation.get_phonon_dispersion_spectra()
@@ -200,6 +201,6 @@ calculation.plot_vq(modes=[0, 1, 2, 3, 4])
 #calculation.write_correlation_phonon('correlation_p.out')
 
 # 5j. Peak analysis
-calculation.phonon_width_individual_analysis()
+calculation.phonon_individual_analysis()
 
 exit()

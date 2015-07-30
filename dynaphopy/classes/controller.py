@@ -272,8 +272,8 @@ class Calculation:
                                                                    self.dynamic,
                                                                    self.parameters)
 
-    def phonon_width_individual_analysis(self):
-        print("Phonon width analysis")
+    def phonon_individual_analysis(self):
+        print("Peak analysis analysis")
         fitting.phonon_fitting_analysis(self.get_correlation_phonon(),
                                         self.parameters.frequency_range,
                                         harmonic_frequencies=self.get_frequencies(),

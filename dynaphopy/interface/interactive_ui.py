@@ -216,7 +216,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 ######## OPTION 7 :  PEAK ANALYSIS
         if x == ord('7'):
             curses.endwin()
-            calculation.phonon_width_individual_analysis()
+            calculation.phonon_individual_analysis()
             screen.getch()
             curses.endwin()
 

@@ -69,6 +69,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             print 'Frequency shift:', frequency - harmonic_frequencies[i], 'THz'
         print 'Fit Error/Max^2 (RMS):', error/pow(maximum,2)
 
+        print 'Area/Max', area/maximum
         positions.append(frequency)
         widths.append(width)
 
