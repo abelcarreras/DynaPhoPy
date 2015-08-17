@@ -10,7 +10,7 @@ def obtain_velocity_from_positions(cell, trajectory, time):
     velocity = np.empty_like(trajectory)
     for i in range(trajectory.shape[1]):
      #   velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time)
-         velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=8)
+        velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=8)
 
     print('Velocity obtained from trajectory derivative')
     return velocity

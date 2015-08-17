@@ -47,29 +47,29 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         total_integral = np.trapz(power_spectrum, x=test_frequencies_range)
 
         #Calculated properties
-        Q2_lor = area / pow(frequency,2) / (2*np.pi)
-        Q2_tot = total_integral / frequency / (frequency*2*np.pi)
+        Q2_lor = 2 * area / pow(frequency * 2 * np.pi, 2)
+        Q2_tot = 2 * total_integral / pow(frequency * 2 * np.pi,2)
         occupancy = Q2_lor * frequency * pow(2 * np.pi, 2) / h_planck - 1/2
 
         #Print section
         print '\nPeak #', i+1
         print('------------------------------------')
-        print 'Width (FWHM):', width, 'THz'
-        print 'Position:', frequency, 'THz'
-        print 'Area: (lor)', area, 'Angstrom^2 * THz / ps'
-        print 'Area: (tot)', total_integral, 'Angstrom^2 * THz / ps'
-        print '<|Q|2> (lor):', Q2_lor, 'Angstrom^2'
-        print '<|Q|2> (tot):', Q2_tot, 'Angstrom^2'
-        print 'Occupation number:', occupancy
-        print 'Phonon temperature (lor)', Q2_lor * pow(frequency,2) / kb_bolzman, 'K'
-        print 'Phonon temperature (tot)', Q2_tot * pow(frequency,2) / kb_bolzman, 'K'
+        print 'Width (FWHM):           ', width, 'THz'
+        print 'Position:               ', frequency, 'THz'
+        print 'Area: (lor)             ', area, 'Angstrom^2 * THz^2'
+        print 'Area: (tot)             ', total_integral, 'Angstrom^2 * THz^2'
+        print '<|Q|2> (lor):           ', Q2_lor, 'Angstrom^2'
+        print '<|Q|2> (tot):           ', Q2_tot, 'Angstrom^2'
+        print 'Occupation number:      ', occupancy
+        print 'Phonon temperature (lor)', Q2_lor * pow(frequency * 2 * np.pi,2) / kb_bolzman, 'K'
+        print 'Phonon temperature (tot)', Q2_tot * pow(frequency * 2 * np.pi,2) / kb_bolzman, 'K'
 
-        print 'Maximum height:', maximum, 'Angstrom^2 / ps'
+        print 'Maximum height:         ', maximum, 'Angstrom^2 * THz'
         if harmonic_frequencies is not None:
-            print 'Frequency shift:', frequency - harmonic_frequencies[i], 'THz'
-        print 'Fit Error/Max^2 (RMS):', error/pow(maximum,2)
+            print 'Frequency shift:        ', frequency - harmonic_frequencies[i], 'THz'
+        print 'Fit Error/Max^2 (RMS):  ', error/pow(maximum,2)
 
-        print 'Area/Max', area/maximum
+        print 'Area/Max                ', area/maximum
         positions.append(frequency)
         widths.append(width)
 

@@ -147,25 +147,33 @@ static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywo
 }
 
 
-double EvaluateCorrelation (double Frequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod) {
+double EvaluateCorrelation (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod) {
 
-	double _Complex Correl = 0;
-	for (int i = 0; i < NumberOfData-Increment; i += Increment) {
-		for (int j = 0; j < (NumberOfData-i-Increment); j++) {
-//			Correl += conj(Velocity[j]) * Velocity[j+i] * cexp(_Complex_I*Frequency*(i*TimeStep));
+    double _Complex Correl;
+    double _Complex Integral = 0;
+    for (int i = 0; i < NumberOfData-Increment-1; i += Increment) {
+        Correl = 0;
+        for (int j = 0; j < (NumberOfData-i-Increment); j++) {
+
 
             switch (IntMethod) {
-                case 0: //	Trapezoid Integration
-                    Correl += (conj(Velocity[j]) * Velocity[j+i+Increment] * cexp(_Complex_I*Frequency * ((i+Increment)*TimeStep))
-                           +   conj(Velocity[j]) * Velocity[j+i]           * cexp(_Complex_I*Frequency * (i*TimeStep) ))/2.0 ;
+                    case 0: //	Trapezoid Integration
+                    Correl += (conj(Velocity[j]) * Velocity[j+i+Increment] * cexp(_Complex_I*AngularFrequency * ((i+Increment)*TimeStep))
+                               +   conj(Velocity[j]) * Velocity[j+i]           * cexp(_Complex_I*AngularFrequency * (i*TimeStep) ))/2.0 ;
                     break;
-                case 1: //	Rectangular Integration
-                     Correl +=  conj(Velocity[j]) * Velocity[j+i]          * cexp(_Complex_I*Frequency * (i*TimeStep));
+                    case 1: //	Rectangular Integration
+                    Correl +=  conj(Velocity[j]) * Velocity[j+i]          * cexp(_Complex_I*AngularFrequency * (i*TimeStep));
                     break;
             }
-		}
-	}
-    return  creal(Correl)  * TimeStep/(NumberOfData/Increment);
+         //   printf("\nDins %f",creal(Correl));
+
+        }
+        Integral += Correl/(NumberOfData -i -Increment);
+      //  printf("\n%i %f",i, creal(Correl/(NumberOfData -i -Increment)));
+
+    }
+
+    return  creal(Integral)* TimeStep * Increment;
 }
 
 

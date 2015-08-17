@@ -191,20 +191,26 @@ class Calculation:
         if not modes: modes = [0]
         plt.suptitle('Phonon mode projection')
         plt.xlabel('picoseconds')
+
+        time = np.linspace(0, self.dynamic.velocity.shape[0]*self.dynamic.get_time_step_average(),
+                   num=self.dynamic.velocity.shape[0])
+
         for mode in modes:
-            plt.plot(self.dynamic.get_time().real,self.get_vq()[:,mode].real,label='mode: '+str(mode))
+            plt.plot(time,self.get_vq()[:,mode].real,label='mode: '+str(mode))
         plt.legend()
         plt.show()
 
     def plot_vc(self,atoms=None,coordinates=None):
         if not atoms: atoms = [0]
         if not coordinates: coordinates = [0]
+        time = np.linspace(0, self.dynamic.velocity.shape[0]*self.dynamic.get_time_step_average(),
+                           num=self.dynamic.velocity.shape[0])
 
         plt.suptitle('Wave vector projection')
         plt.xlabel('picoseconds')
         for atom in atoms:
             for coordinate in coordinates:
-                plt.plot(self.dynamic.get_time().real,
+                plt.plot(time,
                          self.get_vc()[:, atom,coordinate].real,
                          label='atom: ' + str(atom) + ' coordinate:' + str(coordinate))
         plt.legend()

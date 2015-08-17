@@ -27,11 +27,12 @@ def project_onto_wave_vector(trajectory, q_vector):
             velocity_projected[:,atom_type[i],k] += velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector, coordinates[i,:]))
 
 
-    #Normalize velocities
-#    for i in range(number_of_atomic_types):
-#        velocity_projected[:,i,:] /= atom_type.count(i)
+   #Normalize velocities
+    for i in range(velocity_projected.shape[1]):
+        velocity_projected[:,i,:] /= atom_type.count(i)
 
-    velocity_projected = velocity_projected/(number_of_atoms/number_of_primitive_atoms)
+    #number_of_primitive_cells = number_of_atoms/number_of_primitive_atoms
+    #velocity_projected = velocity_projected/number_of_primitive_cells
 
     return velocity_projected
 
@@ -46,7 +47,6 @@ def project_onto_phonon(vc, eigenvectors):
     for k in range(number_of_frequencies):
         for i in range(number_of_cell_atoms):
             velocity_projected[:, k] += np.dot(vc[:,i,:],eigenvectors[k,i,:].conj())
-
 
     return velocity_projected
 

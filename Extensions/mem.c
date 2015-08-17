@@ -8,8 +8,8 @@
 
 #undef I
 
-static float FrequencyEvaluation(float Delta, float Coefficients[], int m, float xms);
-static double GetCoefficients( double data[], int n, int m, float d[]);
+static double FrequencyEvaluation(double Delta, double  Coefficients[], int m, double xms);
+static double GetCoefficients( double  data[], int n, int m, double  d[]);
 
 
 static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *keywords)
@@ -46,22 +46,23 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     float *PowerSpectrum  = (float*)PyArray_DATA(PowerSpectrum_object);
 
     //Declare internal variables
-    float coefficients[NumberOfCoefficients];
+    double Coefficients[NumberOfCoefficients];
 
     // Maximum Entropy Method Algorithm
-    double MeanSquareDiscrepancy = GetCoefficients((double *)Velocity, NumberOfData, NumberOfCoefficients, coefficients);
+    double  MeanSquareDiscrepancy = GetCoefficients((double *)Velocity, NumberOfData, NumberOfCoefficients, Coefficients);
+
 
 # pragma omp parallel for default(shared) private(AngularFrequency)
     for (int i=0;i<NumberOfFrequencies;i++) {
         AngularFrequency = Frequency[i]*2.0*M_PI;
-        PowerSpectrum[i] = FrequencyEvaluation(AngularFrequency*TimeStep/2.0, coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep * 1000/2.0;
+        PowerSpectrum[i] = (float)FrequencyEvaluation(AngularFrequency*TimeStep/2.0, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep;
     }
     //Returning Python array
     return(PyArray_Return(PowerSpectrum_object));
 }
 
 
-static float FrequencyEvaluation(float Delta, float Coefficients[], int NumberOfCoefficients, float MeanSquareDiscrepancy) {
+static double FrequencyEvaluation(double Delta, double  Coefficients[], int NumberOfCoefficients, double MeanSquareDiscrepancy) {
 
     double _Complex z = cexp(_Complex_I * Delta);
     double _Complex sum = 1.0 + 0.0 * _Complex_I;
@@ -69,19 +70,19 @@ static float FrequencyEvaluation(float Delta, float Coefficients[], int NumberOf
     for (int i=1;i<=NumberOfCoefficients;i++) {
         sum -= Coefficients[i] * cpow(z,i);
     }
-    return MeanSquareDiscrepancy/(sum*conj(sum));
+    return (double)MeanSquareDiscrepancy/(sum*conj(sum));
 }
 
 
-static double GetCoefficients(double Data[], int NumberOfData, int NumberOfCoefficients, float Coefficients[]) {
+static double  GetCoefficients(double  Data[], int NumberOfData, int NumberOfCoefficients, double  Coefficients[]) {
 
     int k,j,i;
-    float p=0.0;
+    double  p=0.0;
 
-    double MeanSquareDiscrepancy;
-    double wk1 [NumberOfData];
-    double wk2 [NumberOfData];
-    double wkm [NumberOfCoefficients];
+    double  MeanSquareDiscrepancy;
+    double  wk1 [NumberOfData];
+    double  wk2 [NumberOfData];
+    double  wkm [NumberOfCoefficients];
 
     for (j=1;j<=NumberOfData;j++) p += pow(Data[j],2);
     MeanSquareDiscrepancy=p/NumberOfData;
@@ -97,7 +98,7 @@ static double GetCoefficients(double Data[], int NumberOfData, int NumberOfCoeff
 
     for (k=1;k<=NumberOfCoefficients;k++) {
 
-        float Numerator=0.0,Denominator=0.0;
+        double  Numerator=0.0,Denominator=0.0;
 
         for (j=1;j<=(NumberOfData-k);j++) {
             Numerator += wk1[j]*wk2[j];
