@@ -376,7 +376,7 @@ def generate_test_trajectory(structure, reduced_q_vector, super_cell=(4,4,4)):
 
                         amplitude = np.sqrt(2 * kb_boltzmann * temperature / (pow(frequencies_r[i_long][i_freq] * 2 * np.pi,2))) + random.uniform(-1,1)*0.1
                       #  normal_mode_coordinate = 1/(2*np.pi*frequencies_r[i_long][i_freq]) *amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
-                        normal_mode_coordinate =  amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
+                        normal_mode_coordinate = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
 
                         phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions[i_atom, :]))
                         coordinate += (1.0 / np.sqrt(masses[i_atom]) *

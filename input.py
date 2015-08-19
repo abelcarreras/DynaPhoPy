@@ -35,13 +35,13 @@ structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS
 #    Primitive_cell = Unit_cell x Primitive_matrix
 #    This matrix is the same needed for PHONOPY calculation
 
-structure.set_primitive_matrix([[0.5, 0.0, 0.0],
-                                [0.0, 0.5, 0.0],
-                                [0.0, 0.0, 0.5]])
+#structure.set_primitive_matrix([[0.5, 0.0, 0.0],
+#                                [0.0, 0.5, 0.0],
+#                                [0.0, 0.0, 0.5]])
 
-#structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-#                                [0.5, 0.0, 0.5],
-#                                [0.5, 0.5, 0.0]])
+structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+                                [0.5, 0.0, 0.5],
+                                [0.5, 0.5, 0.0]])
 
 #structure.set_primitive_matrix([[1.0, 0.0, 0.0],
 #                                [0.0, 1.0, 0.0],
@@ -76,7 +76,7 @@ reading.write_xsf_file("test.xfs", structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN/GaN-dynamic_900/RUN4/OUTCAR',structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
-trajectory = reading.generate_test_trajectory(structure,[0.5, 0.5, 0.5],super_cell=[1, 1 ,1])
+trajectory = reading.generate_test_trajectory(structure,[0.5, 0.5, 0.5],super_cell=[2, 2 ,2])
 
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 

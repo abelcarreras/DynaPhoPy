@@ -21,18 +21,19 @@ def project_onto_wave_vector(trajectory, q_vector):
         print("Warning!! Q-vector and coordinates dimension do not match")
         exit()
 
+
+
+
     #Projection into wave vector
     for i in range(number_of_atoms):
         for k in range(number_of_dimensions):
             velocity_projected[:,atom_type[i],k] += velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector, coordinates[i,:]))
 
 
-   #Normalize velocities
-    for i in range(velocity_projected.shape[1]):
-        velocity_projected[:,i,:] /= atom_type.count(i)
 
-    #number_of_primitive_cells = number_of_atoms/number_of_primitive_atoms
-    #velocity_projected = velocity_projected/number_of_primitive_cells
+   #Normalize velocities
+    number_of_primitive_cells = number_of_atoms/number_of_primitive_atoms
+    velocity_projected /= number_of_primitive_cells
 
     return velocity_projected
 

@@ -67,7 +67,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print 'Maximum height:         ', maximum, 'Angstrom^2 * THz'
         if harmonic_frequencies is not None:
             print 'Frequency shift:        ', frequency - harmonic_frequencies[i], 'THz'
-        print 'Fit Error/Max^2 (RMS):  ', error/pow(maximum,2)
+        print 'Fit Error/Max (RMS):  ', error/maximum
 
         print 'Area/Max                ', area/maximum
         positions.append(frequency)

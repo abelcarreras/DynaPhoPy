@@ -70,7 +70,7 @@ class Structure:
         else:
             self._masses = masses
 
-# -------- Methods start here -----------
+    #-------- Methods start here -----------
 
     #Getting data
     def get_data_from_dict(self, data_dictionary):
@@ -234,7 +234,7 @@ class Structure:
     def get_number_of_atom_types(self):
         if self._number_of_atom_types is None:
             self._number_of_atom_types = len(set(self.get_atom_type_index()))
-   #         print(self._number_of_atom_types)
+    #         print(self._number_of_atom_types)
         return  self._number_of_atom_types
 
     def get_number_of_primitive_atoms(self):
@@ -268,7 +268,9 @@ class Structure:
 
 
     def get_atom_type_index(self,super_cell=None):
+
 #       Tolerance for accepting equivalent atoms in super cell
+        masses = self.get_masses(super_cell=super_cell)
         tolerance = 0.001
         if self._atom_type_index is None:
             primitive_cell_inverse = np.linalg.inv(self.get_primitive_cell())
@@ -279,7 +281,6 @@ class Structure:
                 if self._atom_type_index[i] is None:
                     self._atom_type_index[i] = counter
                     counter += 1
-
                 for j in range(i+1, self.get_number_of_cell_atoms()):
                     coordinates_atom_i = self.get_positions()[i]
                     coordinates_atom_j = self.get_positions()[j]
@@ -288,7 +289,7 @@ class Structure:
                     projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_primitive_cell(), difference_in_cell_coordinates)
                     separation = pow(np.linalg.norm(projected_coordinates_atom_j - coordinates_atom_i),2)
 
-                    if separation < tolerance:
+                    if separation < tolerance and  masses[i] == masses[j]:
                         self._atom_type_index[j] = self._atom_type_index[i]
         self._atom_type_index = np.array(self._atom_type_index,dtype=int)
 
@@ -299,7 +300,6 @@ class Structure:
         for j in range(self.get_number_of_cell_atoms()):
             atom_type_index_super_cell += [self._atom_type_index[j] ] * np.prod(super_cell)
         return  atom_type_index_super_cell
-
 
 atom_data = [
     [  0, "X", "X", 0], # 0
