@@ -22,18 +22,19 @@ def project_onto_wave_vector(trajectory, q_vector):
         exit()
 
 
-
-
     #Projection into wave vector
     for i in range(number_of_atoms):
         for k in range(number_of_dimensions):
             velocity_projected[:,atom_type[i],k] += velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector, coordinates[i,:]))
 
 
+   #Normalize velocities (method 1)
+  #  for i in range(velocity_projected.shape[1]):
+  #      velocity_projected[:,i,:] /= atom_type.count(i)
 
-   #Normalize velocities
+   #Normalize velocities (method 2)
     number_of_primitive_cells = number_of_atoms/number_of_primitive_atoms
-    velocity_projected /= number_of_primitive_cells
+    velocity_projected /= np.sqrt(number_of_primitive_cells)
 
     return velocity_projected
 

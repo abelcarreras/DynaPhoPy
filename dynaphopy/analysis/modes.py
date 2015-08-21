@@ -18,8 +18,8 @@ class Arrow3D(FancyArrowPatch):
 
 def plot_phonon_modes(structure, eigenvectors, q_vector,
                       super_cell=(1, 1, 1),
-                      draw_primitive=True,
-                      vectors_scale=30):
+                      draw_primitive=False,
+                      vectors_scale=10):
 
     atom_type = structure.get_atom_type_index(super_cell=super_cell)
     positions = structure.get_positions(super_cell=super_cell)
