@@ -56,20 +56,19 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print('------------------------------------')
         print 'Width (FWHM):           ', width, 'THz'
         print 'Position:               ', frequency, 'THz'
-        print 'Area: (lor)             ', area, 'Angstrom^2 * THz^2'
-        print 'Area: (tot)             ', total_integral, 'Angstrom^2 * THz^2'
-        print '<|Q|2> (lor):           ', Q2_lor, 'Angstrom^2'
-        print '<|Q|2> (tot):           ', Q2_tot, 'Angstrom^2'
+        print 'Area: (lor)             ', area, 'u * Angstrom^2 / ps^2'
+        print 'Area: (tot)             ', total_integral, 'u * Angstrom^2 / ps^2'
+        print '<|Q|2> (lor):           ', Q2_lor, 'u * Angstrom^2'
+        print '<|Q|2> (tot):           ', Q2_tot, 'u * Angstrom^2'
         print 'Occupation number:      ', occupancy
-        print 'Phonon temperature (lor)', Q2_lor * pow(frequency * 2 * np.pi,2) / kb_bolzman, 'K'
-        print 'Phonon temperature (tot)', Q2_tot * pow(frequency * 2 * np.pi,2) / kb_bolzman, 'K'
+        print 'Phonon fit temperature (lor)', Q2_lor * pow(frequency * 2 * np.pi,2) / kb_bolzman, 'K'
+        print 'Phonon fit temperature (tot)', Q2_tot * pow(frequency * 2 * np.pi,2) / kb_bolzman, 'K'
 
-        print 'Maximum height:         ', maximum, 'Angstrom^2 * THz'
+        print 'Maximum height:         ', maximum, 'u * Angstrom^2 / ( ps^2 * THz)'
         if harmonic_frequencies is not None:
             print 'Frequency shift:        ', frequency - harmonic_frequencies[i], 'THz'
         print 'Fit Error/Max (RMS):  ', error/maximum
 
-        print 'Area/Max                ', area/maximum
         positions.append(frequency)
         widths.append(width)
 
@@ -77,7 +76,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             plt.figure(i+1)
 
             plt.xlabel('Frequency [THz]')
-            plt.ylabel('Angstrom^2 / ps')
+            plt.ylabel('u * Angstrom^2 / ( ps^2 * THz)')
 
             plt.title('Curve fitting')
 
