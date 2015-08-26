@@ -301,6 +301,32 @@ class Structure:
             atom_type_index_super_cell += [self._atom_type_index[j] ] * np.prod(super_cell)
         return  atom_type_index_super_cell
 
+
+    def get_commensurate_points(self, super_cell=None):
+
+        if super_cell is None:
+            super_cell = self.get_number_of_dimensions() * [1]
+
+        primitive_matrix = self.get_primitive_matrix()
+
+        commensurate_points = []
+        for k1 in np.arange(-0.5, 0.5, 1./(super_cell[0]*2)):
+            for k2 in np.arange(-0.5, 0.5, 1./(super_cell[1]*2)):
+                for k3 in np.arange(-0.5, 0.5, 1./(super_cell[2]*2)):
+    
+                    q_point = [np.around(k1,decimals=5), np.around(k2,decimals=5), np.around(k3,decimals=5)]
+    
+                    q_point_unit_cell = np.dot(q_point, np.linalg.inv(primitive_matrix))
+                    q_point_unit_cell = np.multiply(q_point_unit_cell, super_cell)
+    
+                    if np.all(np.equal(np.mod(q_point_unit_cell, 1), 0)):
+                        commensurate_points.append(q_point)
+                        
+        return commensurate_points
+
+
+
+
 atom_data = [
     [  0, "X", "X", 0], # 0
     [  1, "H", "Hydrogen", 1.00794], # 1

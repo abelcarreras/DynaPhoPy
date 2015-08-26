@@ -64,10 +64,10 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print 'Phonon fit temperature (lor)', Q2_lor * pow(frequency * 2 * np.pi,2) / kb_bolzman, 'K'
         print 'Phonon fit temperature (tot)', Q2_tot * pow(frequency * 2 * np.pi,2) / kb_bolzman, 'K'
 
-        print 'Maximum height:         ', maximum, 'u * Angstrom^2 / ( ps^2 * THz)'
+        print 'Maximum height:         ', maximum, 'u * Angstrom^2 * 2 pi / ps'
         if harmonic_frequencies is not None:
             print 'Frequency shift:        ', frequency - harmonic_frequencies[i], 'THz'
-        print 'Fit Error/Max (RMS):  ', error/maximum
+        print 'Fit Error/Max (RMS):    ', error/maximum
 
         positions.append(frequency)
         widths.append(width)
@@ -76,7 +76,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             plt.figure(i+1)
 
             plt.xlabel('Frequency [THz]')
-            plt.ylabel('u * Angstrom^2 / ( ps^2 * THz)')
+            plt.ylabel('$u * \AA^2 \pi/ ps$')
 
             plt.title('Curve fitting')
 

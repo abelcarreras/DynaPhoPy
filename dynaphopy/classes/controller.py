@@ -21,7 +21,6 @@ power_spectrum_functions = {
     4: mem.get_mem_spectra_par_openmp
 }
 
-
 class Calculation:
 
     def __init__(self,
@@ -100,7 +99,7 @@ class Calculation:
         self.correlation_clear()
         self.parameters.number_of_coefficients_mem = coefficients
 
-       #Frequency ranges related methods  (To be deprecated)
+    #Frequency ranges related methods  (To be deprecated)
 
     def set_frequency_range(self,frequency_range):
         self.correlation_clear()
@@ -120,6 +119,7 @@ class Calculation:
     def get_q_vector(self):
         return np.dot(self.parameters.reduced_q_vector,
                       2.0*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
+
 
     #Phonopy harmonic calculation related methods
     def get_eigenvectors(self):
@@ -174,11 +174,30 @@ class Calculation:
     def plot_eigenvectors(self):
         modes.plot_phonon_modes(self.dynamic.structure, self.get_eigenvectors(), self.get_q_vector())
 
+
+    def check_commensurate(self, q_vector):
+        super_cell= self.dynamic.get_super_cell_matrix()
+
+
+        commensurate = False
+        for vector in self.dynamic.structure.get_commensurate_points(super_cell=super_cell):
+            if vector == [0, 0, 0]:
+                vector = [1, 1, 1]
+
+            if  (np.all(np.equal(np.mod(q_vector/vector, 1), 0)) and np.unique(q_vector/vector).shape[0] == 1):
+                commensurate = True
+
+        return commensurate
+
     #Projections related methods
     def get_vc(self):
         if self._vc is None:
             print("Projecting into wave vector")
-            self._vc = projection.project_onto_wave_vector(self._dynamic,self.get_q_vector())
+            #Check if commensurate point
+            if self.check_commensurate(self.get_reduced_q_vector()) == False:
+                print("warning! Defined wave vector is not a commensurate point in this MD super cell")
+
+            self._vc = projection.project_onto_wave_vector(self.dynamic,self.get_q_vector())
         return self._vc
 
     def get_vq(self):
@@ -262,7 +281,10 @@ class Calculation:
     def get_correlation_direct(self):
         if self._correlation_direct is None:
             print("Calculation direct power spectrum")
-            self._correlation_direct = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
+
+            Number_of_dimensions = self.dynamic.get_velocity_mass_average().shape[2]
+
+            self._correlation_direct = np.zeros((len(self.get_frequency_range()),Number_of_dimensions))
             for i in range(self.dynamic.get_velocity_mass_average().shape[1]):
                 self._correlation_direct += (power_spectrum_functions[self.parameters.power_spectra_algorithm])(
                     self.dynamic.get_velocity_mass_average()[:, i, :],
@@ -289,11 +311,16 @@ class Calculation:
     def plot_correlation_direct(self):
         plt.suptitle('Direct correlation')
         plt.plot(self.get_frequency_range(), self.get_correlation_direct(), 'r-')
+        plt.xlabel('Frequency [THz]')
+        plt.ylabel('$u * \AA^2 \pi/ ps$')
         plt.show()
 
     def plot_correlation_wave_vector(self):
         plt.suptitle('Projection onto wave vector')
         plt.plot(self.get_frequency_range(),self.get_correlation_wave_vector(), 'r-')
+        plt.xlabel('Frequency [THz]')
+        plt.ylabel('$u * \AA^2 \pi/ ps$')
+
         plt.show()
 
     def plot_correlation_phonon(self):
@@ -301,6 +328,9 @@ class Calculation:
             plt.figure(i)
             plt.suptitle('Projection onto Phonon {0}'.format(i+1))
             plt.plot(self.get_frequency_range(), self.get_correlation_phonon()[:, i])
+            plt.xlabel('Frequency [THz]')
+            plt.ylabel('$u * \AA^2 \pi/ ps$')
+
         plt.show()
 
     def get_anharmonic_dispersion_spectra(self, band_resolution=30):

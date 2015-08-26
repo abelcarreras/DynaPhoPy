@@ -127,6 +127,7 @@ class Dynamics:
                 exit()
         return self._super_cell_matrix
 
+
     #Properties
     @property
     def structure(self):

@@ -99,6 +99,13 @@ from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 calculation = controller.Calculation(trajectory, last_steps=80000)#, save_hfd5="test.hdf5")
 
 calculation.set_reduced_q_vector([0.5, 0.5, 0.5])
+print(structure.get_commensurate_points(super_cell=[2, 2, 2]))
+
+
+print(calculation.check_commensurate(np.array([0.5, 0.5, 0.5])))
+
+
+
 
 #modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
 #calculation.plot_eigenvectors()
@@ -110,6 +117,7 @@ calculation.set_number_of_mem_coefficients(200)
 #calculation.set_NAC(True)
 
 #calculation.get_phonon_dispersion_spectra()
+
 
 
 print(calculation.get_frequencies())
@@ -140,6 +148,8 @@ print(calculation.get_frequencies())
 #################################### GET PROPERTIES #########################################
 #calculation.plot_trajectory()
 #calculation.plot_energy()
+calculation.plot_correlation_direct()
+
 calculation.plot_trajectory(atoms=[0], coordinates=[2])
 calculation.plot_velocity(atoms=[0, 1], coordinates=[0,1,2])
 
