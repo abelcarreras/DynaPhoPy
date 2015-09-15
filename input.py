@@ -13,8 +13,8 @@ import analysis.modes as modes
 # FORCE_SETS : force set file obtained from PHONOPY calculation
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
-#directory ='/home/abel/VASP/Si/Si-FINAL3/PHONON/2x2x2/'
-directory ='/home/abel/VASP/ZrO2/PHONON/2x2x2_k3/'
+directory ='/home/abel/VASP/Si/Si-FINAL3/PHONON/2x2x2/'
+#directory ='/home/abel/VASP/ZrO2/PHONON/2x2x2_k3/'
 
 #directory = '/home/abel/VASP/MgO-phonon/4x4x4/'
 #directory = '/home/abel/VASP/Bi2O3-phonon/'

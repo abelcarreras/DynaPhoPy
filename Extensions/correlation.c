@@ -8,7 +8,8 @@
 
 #undef I
 
-static double EvaluateCorrelation (double Frequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod);
+static double EvaluateCorrelation (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod);
+static double EvaluateCorrelation2 (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod);
 
 
 
@@ -146,8 +147,26 @@ static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywo
     return(PyArray_Return(PowerSpectrum_object));
 }
 
+double EvaluateCorrelation (double Frequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod) {
+    double _Complex Correl = 0;
+    for (int i = 0; i < NumberOfData; i += Increment) {
+        for (int j = 0; j < (NumberOfData-i-Increment); j++) {
+            Correl += conj(Velocity[j]) * Velocity[j+i] * cexp(_Complex_I*Frequency*(i*TimeStep));
+            switch (IntMethod) {
+                case 0: //	Trapezoid Integration
+                    Correl += (conj(Velocity[j]) * Velocity[j+i+Increment] * cexp(_Complex_I*Frequency * ((i+Increment)*TimeStep))
+                               +   conj(Velocity[j]) * Velocity[j+i]           * cexp(_Complex_I*Frequency * (i*TimeStep) ))/2.0 ;
+                    break;
+                case 1: //	Rectangular Integration
+                    Correl +=  conj(Velocity[j]) * Velocity[j+i]          * cexp(_Complex_I*Frequency * (i*TimeStep));
+                    break;
+            }
+        }
+    }
+    return  creal(Correl) * TimeStep/(NumberOfData/Increment)/2.0;
+}
 
-double EvaluateCorrelation (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod) {
+double EvaluateCorrelation2 (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod) {
 
     double _Complex Correl;
     double _Complex Integral = 0;
