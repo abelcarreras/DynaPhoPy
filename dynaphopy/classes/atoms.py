@@ -175,14 +175,14 @@ class Structure:
 
 
     def set_force_set(self, force_set):
-        self._force_set = np.array(force_set)
+        self._force_set = force_set
 
 
     def get_force_set(self):
         if self._force_set is None:
             print('No force sets specified!')
             exit()
-        return np.array(self._force_set)
+        return self._force_set
 
 
     def set_masses(self, masses):

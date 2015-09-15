@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 import numpy as np
-import phonopy.file_IO as file_IO
-from dynaphopy.functions.phonopy_link import get_force_sets_from_file
+from  dynaphopy.functions.phonopy_link import get_force_sets_from_file
 import dynaphopy.functions.iofile as reading
 import dynaphopy.classes.controller as controller
 import matplotlib.pyplot as pl
-import analysis.modes as modes
+import dynaphopy.analysis.modes as modes
 
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure OUTCAR are placed
@@ -28,6 +27,10 @@ structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 #print(structure.get_positions())
 
 structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS'))
+a=get_force_sets_from_file(file_name=directory+'FORCE_SETS')
+print(a['first_atoms'])
+print(structure.get_force_set()['first_atoms'])
+
 
 
 ############################### PHONOPY CELL INFORMATION ####################################

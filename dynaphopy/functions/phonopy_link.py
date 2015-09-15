@@ -20,7 +20,7 @@ def get_force_sets_from_file(file_name='FORCE_SETS'):
 def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
 
 #   Checking data
-    force_atoms_file = structure.get_force_set().item(0)['natom']
+    force_atoms_file = structure.get_force_set()['natom']
     force_atoms_input = np.product(np.diagonal(structure.get_super_cell_phonon()))*structure.get_number_of_atoms()
 
     if force_atoms_file != force_atoms_input:
@@ -45,6 +45,7 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
         primitive = phonon.get_primitive()
         nac_params = parse_BORN(primitive, get_is_symmetry)
         phonon.set_nac_params(nac_params=nac_params)
+
 
     phonon.set_displacement_dataset(copy.deepcopy(structure.get_force_set()))
     phonon.produce_force_constants()

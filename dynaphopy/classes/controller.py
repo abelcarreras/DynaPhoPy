@@ -184,6 +184,7 @@ class Calculation:
             if vector == [0, 0, 0]:
                 vector = [1, 1, 1]
 
+
             if  (np.all(np.equal(np.mod(q_vector/vector, 1), 0)) and np.unique(q_vector/vector).shape[0] == 1):
                 commensurate = True
 

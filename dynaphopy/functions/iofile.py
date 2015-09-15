@@ -351,7 +351,7 @@ def generate_test_trajectory(structure, reduced_q_vector, super_cell=(4,4,4)):
     frequencies_r = []
     for i in range(len(q_vector_list)):
         print(q_vector_list[i])
-        eigenvectors, frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure,q_vector_list[i])
+        eigenvectors, frequencies = pho_interface.obtain_eigenvectors_from_phonopy(structure, q_vector_list[i])
         eigenvectors_r.append(eigenvectors)
         frequencies_r.append(frequencies)
     number_of_frequencies = len(frequencies_r[0])
