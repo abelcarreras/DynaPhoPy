@@ -3,6 +3,7 @@ from dynaphopy.classes import atoms
 from dynaphopy.derivative import derivative as derivative
 from dynaphopy.analysis.coordinates import relativize_trajectory
 
+
 #import matplotlib.pyplot as plt
 
 
@@ -112,7 +113,9 @@ class Dynamics:
 
     def get_relative_trajectory(self):
         if self._relative_trajectory is None:
+                #self._relative_trajectory = relativize_trajectory(self)
                 self._relative_trajectory = relativize_trajectory(self)
+
 
         return self._relative_trajectory
 

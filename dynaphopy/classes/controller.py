@@ -178,14 +178,12 @@ class Calculation:
     def check_commensurate(self, q_vector):
         super_cell= self.dynamic.get_super_cell_matrix()
 
-
         commensurate = False
         for vector in self.dynamic.structure.get_commensurate_points(super_cell=super_cell):
             if vector == [0, 0, 0]:
                 vector = [1, 1, 1]
 
-
-            if  (np.all(np.equal(np.mod(q_vector/vector, 1), 0)) and np.unique(q_vector/vector).shape[0] == 1):
+            if np.all(np.equal(np.mod(q_vector/vector, 1), 0)) and np.unique(q_vector/vector).shape[0] == 1:
                 commensurate = True
 
         return commensurate

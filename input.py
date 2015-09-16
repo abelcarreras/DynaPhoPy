@@ -7,6 +7,19 @@ import dynaphopy.classes.controller as controller
 import matplotlib.pyplot as pl
 import dynaphopy.analysis.modes as modes
 
+
+#import dynaphopy.displacements as disp
+
+
+#cell = np.array([[10,0,0],[0,10,0],[0,0,10]])
+#traj = np.array([[0,0],[1,2],[2,4],[3,8],[4,16]])
+#pos  = [5,5]
+
+
+#print(disp.relative_trajectory(cell, traj ,pos))
+
+#exit()
+
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure OUTCAR are placed
 # FORCE_SETS : force set file obtained from PHONOPY calculation
@@ -28,8 +41,6 @@ structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 
 structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS'))
 a=get_force_sets_from_file(file_name=directory+'FORCE_SETS')
-print(a['first_atoms'])
-print(structure.get_force_set()['first_atoms'])
 
 
 
@@ -81,6 +92,7 @@ reading.write_xsf_file("test.xfs", structure)
 
 trajectory = reading.generate_test_trajectory(structure,[0.5, 0.5, 0.5],super_cell=[2, 2 ,2])
 
+print(trajectory)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
 #trajectory = reading.initialize_from_file('/home/abel/VASP/ZrO2/DYNAMICS/VELOCITY_PRELIMINARY/velocity_1200', structure)
@@ -108,8 +120,6 @@ print(structure.get_commensurate_points(super_cell=[2, 2, 2]))
 print(calculation.check_commensurate(np.array([0.5, 0.5, 0.5])))
 
 
-
-
 #modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
 #calculation.plot_eigenvectors()
 
@@ -127,6 +137,8 @@ print(calculation.get_frequencies())
 #print(calculation.get_q_vector())
 #print(structure.get_primitive_cell())
 
+
+calculation.plot_trajectory_distribution([0,0,1])
 #Show phonon dispersion spectra
 #calculation.print_phonon_dispersion_spectrum()
 #calculation.get_phonon_dispersion_spectra()
@@ -151,7 +163,7 @@ print(calculation.get_frequencies())
 #################################### GET PROPERTIES #########################################
 #calculation.plot_trajectory()
 #calculation.plot_energy()
-calculation.plot_correlation_direct()
+#calculation.plot_correlation_direct()
 
 calculation.plot_trajectory(atoms=[0], coordinates=[2])
 calculation.plot_velocity(atoms=[0, 1], coordinates=[0,1,2])

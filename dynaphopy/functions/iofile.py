@@ -320,8 +320,8 @@ def generate_test_trajectory(structure, reduced_q_vector, super_cell=(4,4,4)):
 
 
     #Parameters used to generate harmonic trajectory
-    total_time = 0.1
-    time_step = 0.001
+    total_time = 0.5
+    time_step = 0.002
     amplitude = 7.0
     temperature = 1200
 
