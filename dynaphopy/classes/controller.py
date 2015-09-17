@@ -34,9 +34,9 @@ class Calculation:
         self._reduced_q_vector = None
         self._vc = None
         self._vq = None
-        self._correlation_phonon = None
-        self._correlation_wave_vector = None
-        self._correlation_direct = None
+        self._power_spectrum_phonon = None
+        self._power_spectrum_wave_vector = None
+        self._power_spectrum_direct = None
         self._bands = None
         self._anharmonic_bands = None
 
@@ -54,14 +54,14 @@ class Calculation:
         self._frequencies = None
         self._vc = None
         self._vq = None
-        self._correlation_direct = None
-        self._correlation_wave_vector = None
-        self._correlation_phonon = None
+        self._power_spectrum_direct = None
+        self._power_spectrum_wave_vector = None
+        self._power_spectrum_phonon = None
 
     def correlation_clear(self):
-        self._correlation_phonon = None
-        self._correlation_wave_vector = None
-        self._correlation_direct = None
+        self._power_spectrum_phonon = None
+        self._power_spectrum_wave_vector = None
+        self._power_spectrum_direct = None
 
     #Properties
     @property
@@ -208,7 +208,9 @@ class Calculation:
     def plot_vq(self,modes=None):
         if not modes: modes = [0]
         plt.suptitle('Phonon mode projection')
-        plt.xlabel('picoseconds')
+        plt.xlabel('Time [ps]')
+        plt.ylabel('$u^{1/2}\AA/ps$')
+
 
         time = np.linspace(0, self.dynamic.velocity.shape[0]*self.dynamic.get_time_step_average(),
                    num=self.dynamic.velocity.shape[0])
@@ -225,7 +227,9 @@ class Calculation:
                            num=self.dynamic.velocity.shape[0])
 
         plt.suptitle('Wave vector projection')
-        plt.xlabel('picoseconds')
+        plt.xlabel('Time [ps]')
+        plt.ylabel('$u^{1/2}\AA/ps$')
+
         for atom in atoms:
             for coordinate in coordinates:
                 plt.plot(time,
@@ -255,78 +259,83 @@ class Calculation:
                 print(i,power_spectrum_functions[i])
             exit()
 
-    def get_correlation_phonon(self):
-        if self._correlation_phonon is None:
+    def get_power_spectrum_phonon(self):
+        if self._power_spectrum_phonon is None:
             print("Calculating phonon projection power spectrum")
-            self._correlation_phonon = (
+            self._power_spectrum_phonon = (
                 power_spectrum_functions[self.parameters.power_spectra_algorithm])(self.get_vq(),
                                                                                    self.dynamic,
                                                                                    self.parameters)
 
-        return self._correlation_phonon
+        return self._power_spectrum_phonon
 
-    def get_correlation_wave_vector(self):
-        if self._correlation_wave_vector is None:
+    def get_power_spectrum_wave_vector(self):
+        if self._power_spectrum_wave_vector is None:
             print("Calculating wave vector projection power spectrum")
-            self._correlation_wave_vector = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
+            self._power_spectrum_wave_vector = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.get_vc().shape[1]):
-                self._correlation_wave_vector += (
+                self._power_spectrum_wave_vector += (
                     power_spectrum_functions[self.parameters.power_spectra_algorithm])(self.get_vc()[:,i,:],
                                                                                        self.dynamic,
                                                                                        self.parameters)
 
-        return np.sum(self._correlation_wave_vector,axis=1)
+        return np.sum(self._power_spectrum_wave_vector,axis=1)
 
-    def get_correlation_direct(self):
-        if self._correlation_direct is None:
+    def get_power_spectrum_direct(self):
+        if self._power_spectrum_direct is None:
             print("Calculation direct power spectrum")
 
             Number_of_dimensions = self.dynamic.get_velocity_mass_average().shape[2]
 
-            self._correlation_direct = np.zeros((len(self.get_frequency_range()),Number_of_dimensions))
+            self._power_spectrum_direct = np.zeros((len(self.get_frequency_range()),Number_of_dimensions))
             for i in range(self.dynamic.get_velocity_mass_average().shape[1]):
-                self._correlation_direct += (power_spectrum_functions[self.parameters.power_spectra_algorithm])(
+                self._power_spectrum_direct += (power_spectrum_functions[self.parameters.power_spectra_algorithm])(
                     self.dynamic.get_velocity_mass_average()[:, i, :],
                     self.dynamic,
                     self.parameters)
 
-        self._correlation_direct = np.sum(self._correlation_direct, axis=1)
-        return self._correlation_direct
+            self._power_spectrum_direct = np.sum(self._power_spectrum_direct, axis=1)
+        return self._power_spectrum_direct
 
     def phonon_width_scan_analysis(self):
         print("Phonon coefficient scan analysis(Maximum Entropy Method Only)")
-        self._correlation_phonon =  mem.mem_coefficient_scan_analysis(self.get_vq(),
+        self._power_spectrum_phonon =  mem.mem_coefficient_scan_analysis(self.get_vq(),
                                                                    self.dynamic,
                                                                    self.parameters)
 
     def phonon_individual_analysis(self):
         print("Peak analysis analysis")
-        fitting.phonon_fitting_analysis(self.get_correlation_phonon(),
+        fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                         self.parameters.frequency_range,
                                         harmonic_frequencies=self.get_frequencies(),
                                         show_plots=not self.parameters.silent)
         return
 
-    def plot_correlation_direct(self):
-        plt.suptitle('Direct correlation')
-        plt.plot(self.get_frequency_range(), self.get_correlation_direct(), 'r-')
+    def plot_power_spectrum_direct(self):
+        plt.suptitle('Direct power spectrum')
+        plt.plot(self.get_frequency_range(), self.get_power_spectrum_direct(), 'r-')
         plt.xlabel('Frequency [THz]')
         plt.ylabel('$u * \AA^2 \pi/ ps$')
         plt.show()
 
-    def plot_correlation_wave_vector(self):
+        total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())
+        print ("Total Area: {0} u * Angstrom^2 / ps^2".format(total_integral))
+
+    def plot_power_spectrum_wave_vector(self):
         plt.suptitle('Projection onto wave vector')
-        plt.plot(self.get_frequency_range(),self.get_correlation_wave_vector(), 'r-')
+        plt.plot(self.get_frequency_range(),self.get_power_spectrum_wave_vector(), 'r-')
         plt.xlabel('Frequency [THz]')
         plt.ylabel('$u * \AA^2 \pi/ ps$')
-
         plt.show()
+        total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
+        print ("Total Area: {0} u * Angstrom^2 / ps^2".format(total_integral))
 
-    def plot_correlation_phonon(self):
-        for i in range(self.get_correlation_phonon().shape[1]):
+
+    def plot_power_spectrum_phonon(self):
+        for i in range(self.get_power_spectrum_phonon().shape[1]):
             plt.figure(i)
             plt.suptitle('Projection onto Phonon {0}'.format(i+1))
-            plt.plot(self.get_frequency_range(), self.get_correlation_phonon()[:, i])
+            plt.plot(self.get_frequency_range(), self.get_power_spectrum_phonon()[:, i])
             plt.xlabel('Frequency [THz]')
             plt.ylabel('$u * \AA^2 \pi/ ps$')
 
@@ -341,7 +350,7 @@ class Calculation:
                     q_vector = np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i
 
                     self.set_reduced_q_vector(q_vector)
-                    phonon_frequencies = fitting.phonon_fitting_analysis(self.get_correlation_phonon(),
+                    phonon_frequencies = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                                                      self.parameters.frequency_range,
                                                                      show_plots=False)[0]
                     anharmonic_bands.append(phonon_frequencies)
@@ -363,8 +372,8 @@ class Calculation:
                          label='atom: {0}  coordinate: {1}'.format(atom,coordinate))
 
         plt.legend()
-        plt.xlabel('picosecond')
-        plt.ylabel('Angstroms')
+        plt.xlabel('Time [ps]')
+        plt.ylabel('Angstrom')
         plt.show()
 
     def plot_velocity(self, atoms=None, coordinates=None):
@@ -381,8 +390,8 @@ class Calculation:
                          label='atom: {0}  coordinate: {1}'.format(atom,coordinate))
 
         plt.legend()
-        plt.xlabel('picosecond')
-        plt.ylabel('Angstroms/picosecond')
+        plt.xlabel('Time [ps]')
+        plt.ylabel('$\AA/ps$')
         plt.show()
 
     def plot_energy(self):
@@ -399,7 +408,7 @@ class Calculation:
 
         direction = np.array(direction)
 
-        distributions, distance = self.get_trajectory_distribution(direction)
+        distributions, distance = self.get_atomic_displacements(direction)
 
         plt.figure()
         for atom in range(distributions.shape[0]):
@@ -417,22 +426,22 @@ class Calculation:
 
 
     #Printing data to files
-    def write_correlation_direct(self, file_name):
+    def write_power_spectrum_direct(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_correlation_direct()[None].T,
+                                          self.get_power_spectrum_direct()[None].T,
                                           file_name)
 
-    def write_correlation_wave_vector(self, file_name):
+    def write_power_spectrum_wave_vector(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_correlation_wave_vector()[None].T,
+                                          self.get_power_spectrum_wave_vector()[None].T,
                                           file_name)
 
-    def write_correlation_phonon(self,file_name):
+    def write_power_spectrum_phonon(self,file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_correlation_phonon(),
+                                          self.get_power_spectrum_phonon(),
                                           file_name)
 
-    def get_trajectory_distribution(self, direction):
+    def get_atomic_displacements(self, direction):
 
         number_of_bins = self.parameters.number_of_bins_histogram
         direction = np.array(direction)
@@ -457,9 +466,9 @@ class Calculation:
 
         return np.array(distributions), distance
 
-    def write_trajectory_distribution(self, direction, file_name):
+    def write_atomic_displacements(self, direction, file_name):
 
-        distributions, distance = self.get_trajectory_distribution(direction)
+        distributions, distance = self.get_atomic_displacements(direction)
 
         reading.write_correlation_to_file(distance, distributions.T, file_name)
 

@@ -138,22 +138,22 @@ if args.frequency_range:
     calculation.set_frequency_range(np.linspace(*args.frequency_range))
 
 if args.save_direct:
-    calculation.write_correlation_direct(args.save_direct[0])
+    calculation.write_power_spectrum_direct(args.save_direct[0])
 
 if args.save_wave_vector:
-    calculation.write_correlation_wave_vector(args.save_wave_vector[0])
+    calculation.write_power_spectrum_wave_vector(args.save_wave_vector[0])
 
 if args.save_phonon_mode:
-    calculation.write_correlation_phonon(args.save_phonon_mode[0])
+    calculation.write_power_spectrum_phonon(args.save_phonon_mode[0])
 
 if args.plot_direct:
-    calculation.plot_correlation_direct()
+    calculation.plot_power_spectrum_direct()
 
 if args.plot_wave_vector:
-    calculation.plot_correlation_wave_vector()
+    calculation.plot_power_spectrum_wave_vector()
 
 if args.plot_phonon_mode:
-    calculation.plot_correlation_phonon()
+    calculation.plot_power_spectrum_phonon()
 
 if args.interactive:
     interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
@@ -162,7 +162,7 @@ if args.plot_atomic_displacements:
     calculation.plot_trajectory_distribution([float(Fraction(i)) for i in args.plot_atomic_displacements])
 
 if args.save_atomic_displacements:
-    calculation.write_trajectory_distribution([float(Fraction(i)) for i in args.save_atomic_displacements[0:3]],
+    calculation.write_atomic_displacements([float(Fraction(i)) for i in args.save_atomic_displacements[0:3]],
                                               args.save_atomic_displacements[3])
 
 #On development methods (not recommended)

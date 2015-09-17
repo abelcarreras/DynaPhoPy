@@ -169,15 +169,15 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 if x2 == ord('1'):
                     curses.endwin()
-                    calculation.plot_correlation_direct()
+                    calculation.plot_power_spectrum_direct()
 
                 if x2 == ord('2'):
                     curses.endwin()
-                    calculation.plot_correlation_wave_vector()
+                    calculation.plot_power_spectrum_wave_vector()
 
                 if x2 == ord('3'):
                     curses.endwin()
-                    calculation.plot_correlation_phonon()
+                    calculation.plot_power_spectrum_phonon()
 
 ######## OPTION 6 :  SAVING POWER SPECTRA
         if x == ord('6'):
@@ -200,17 +200,17 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 if x2 == ord('1'):
                     save_file = get_param(screen,'Insert file name')
                     curses.endwin()
-                    calculation.write_correlation_direct(save_file)
+                    calculation.write_power_spectrum_direct(save_file)
 
                 if x2 == ord('2'):
                     save_file = get_param(screen,'Insert file name')
                     curses.endwin()
-                    calculation.write_correlation_wave_vector(save_file)
+                    calculation.write_power_spectrum_wave_vector(save_file)
 
                 if x2 == ord('3'):
                     save_file = get_param(screen,'Insert file name')
                     curses.endwin()
-                    calculation.write_correlation_phonon(save_file)
+                    calculation.write_power_spectrum_phonon(save_file)
 
 
 ######## OPTION 7 :  PEAK ANALYSIS

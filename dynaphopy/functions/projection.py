@@ -48,7 +48,7 @@ def project_onto_phonon(vc, eigenvectors):
     velocity_projected=np.zeros((vc.shape[0],number_of_frequencies),dtype=complex)
     for k in range(number_of_frequencies):
         for i in range(number_of_cell_atoms):
-            velocity_projected[:, k] += np.dot(vc[:,i,:],eigenvectors[k,i,:].conj())
+            velocity_projected[:, k] += np.dot(vc[:,i,:], eigenvectors[k,i,:].conj())
 
     return velocity_projected
 
@@ -62,11 +62,9 @@ def project_onto_phonon2(vc,eigenvectors):
     #Projection in phonon coordinate
     velocity_projected=np.zeros((vc.shape[0],number_of_frequencies),dtype=complex)
 
-
-    print(number_of_frequencies)
     for i in range (vc.shape[0]):
         for k in range(number_of_frequencies):
-            velocity_projected[i,k] = np.trace(np.dot(vc[i,:,:],eigenvectors[k,:,:].T.conj()))
+            velocity_projected[i,k] = np.trace(np.dot(vc[i,:,:], eigenvectors[k,:,:].T.conj()))
 #            velocity_projected[i,k] = np.sum(np.linalg.eigvals(np.dot(vc[i,:,:],eigenvectors[k,:,:].T.conj())))
     return velocity_projected
 

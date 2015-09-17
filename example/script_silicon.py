@@ -70,7 +70,7 @@ calculation.show_boltzmann_distribution()
 #calculation.plot_correlation_wave_vector()
 
 # 5f. Request calculate plot of phonon mode projected velocity correlation function
-calculation.plot_correlation_phonon()
+calculation.plot_power_spectrum_phonon()
 
 # 5g. Request save direct velocity correlation function into file
 #calculation.write_correlation_direct('Data Files/correlation_direct.out')
@@ -79,6 +79,6 @@ calculation.plot_correlation_phonon()
 #calculation.write_correlation_wave_vector('Data Files/correlation_wave_vector.out')
 
 # 5i. Request save phonon projected velocity correlation function into file
-calculation.write_correlation_phonon('Data Files/correlation_phonon.out')
+calculation.write_power_spectrum_phonon('Data Files/correlation_phonon.out')
 
 exit()

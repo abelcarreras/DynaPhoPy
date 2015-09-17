@@ -90,58 +90,26 @@ static PyObject* relative_trajectory (PyObject* self, PyObject *arg) {
     double ** Difference          = malloc(sizeof(double *));
     for (int k = 0; k < NumberOfDimensions; k++) Difference[k] = (double *) malloc(sizeof(double));
 
-
     double ** DifferenceMatrix          = malloc(sizeof(double *));
     for (int k = 0; k < NumberOfDimensions; k++) DifferenceMatrix[k] = (double *) malloc(sizeof(double));
 
-
- //   printf ("Dim:%d Data:%d\n", NumberOfDimensions, NumberOfData);
-
     # pragma omp parallel for default(shared), firstprivate(Difference, DifferenceMatrix), schedule(dynamic, 20000)
 	for (int i=0; i<NumberOfData; i++) {
-
 
      		for (int k = 0; k < NumberOfDimensions; k++) Difference[k][0] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - Positions[k];
 
 		    DifferenceMatrix = matrix_multiplication(Cell_i, Difference, NumberOfDimensions, NumberOfDimensions, 1);
 
-           // for (int k = 0; k < NumberOfDimensions; k++) printf("%d %d %f\n",i,k,DifferenceMatrix[k][0]);
-
-
 		    for (int k = 0; k < NumberOfDimensions; k++) DifferenceMatrix[k][0] = round(DifferenceMatrix[k][0]);
 
-	//	    for (int k = 0; k < NumberOfDimensions; k++) printf("%f ",DifferenceMatrix[k][0]);
-      //      printf("\n");
-
-		    //for (int k = 0; k < NumberOfDimensions; k++) printf("%d %d %f\n",i,k,DifferenceMatrix[0][k]);
-
 		    double  ** NormalizedVector = matrix_multiplication(Cell_c, DifferenceMatrix, NumberOfDimensions, NumberOfDimensions, 1);
-//		    for (int k = 0; k < NumberOfDimensions; k++) printf("%d %d %f\n",i,k,NormalizedVector[k][0]);
 
-         //   for (int k = 0; k < NumberOfDimensions; k++) NormalizedTrajectory[i][k] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - NormalizedVector[k][0] - Positions[k];
             for (int k = 0; k < NumberOfDimensions; k++) NormalizedTrajectory[i][k] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - NormalizedVector[k][0] - Positions[k];
 
     }
 
     free (Difference);
     free (DifferenceMatrix);
- /*
-
-    for j in range(number_of_atoms):
-        for i in range(0, normalized_trajectory.shape[0]):
-
-            difference = normalized_trajectory[i, j, :] - position[j]
-
-            difference_matrix = np.around(np.dot(np.linalg.inv(cell), difference), decimals=0)
-
-            normalized_trajectory[i, j, :] -= np.dot(difference_matrix, cell) + position[j]
-
-        progress_bar(float(j+1)/number_of_atoms)
-
-    return normalized_trajectory
-
-*/
-
 
 //  Returning python array
     return(PyArray_Return(NormalizedTrajectory_object));

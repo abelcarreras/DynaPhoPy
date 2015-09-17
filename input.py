@@ -124,7 +124,7 @@ print(calculation.check_commensurate(np.array([0.5, 0.5, 0.5])))
 #calculation.plot_eigenvectors()
 
 
-calculation.set_frequency_range(np.linspace(0, 40, 1000))
+calculation.set_frequency_range(np.linspace(0, 20, 1000))
 calculation.select_power_spectra_algorithm(3)
 calculation.set_number_of_mem_coefficients(200)
 #calculation.set_NAC(True)
@@ -212,14 +212,14 @@ calculation.plot_vq(modes=[2, 3, 4])
 #calculation.show_boltzmann_distribution()
 
 # 5d. Request calculate plot of direct velocity correlation function (without projection)
-#calculation.plot_correlation_direct()
+calculation.plot_power_spectrum_direct()
 
 # 5e. Request calculate plot of wave vector projected velocity correlation function
-#calculation.plot_correlation_wave_vector()
+calculation.plot_power_spectrum_wave_vector()
 
 #exit()
 # 5f. Request calculate plot of phonon mode projected velocity correlation function
-#calculation.plot_correlation_phonon()
+calculation.plot_power_spectrum_phonon()
 
 # 5g. Request save direct velocity correlation function into file
 #calculation.write_correlation_direct('Data Files/correlation_d.out')
