@@ -6,7 +6,7 @@ import dynaphopy.functions.iofile as reading
 import dynaphopy.classes.controller as controller
 import matplotlib.pyplot as pl
 import dynaphopy.analysis.modes as modes
-
+import dynaphopy.functions.onthefly as onthefly
 
 #import dynaphopy.displacements as disp
 
@@ -90,9 +90,16 @@ reading.write_xsf_file("test.xfs", structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/GaN/GaN-dynamic_900/RUN4/OUTCAR',structure)
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
-trajectory = reading.generate_test_trajectory(structure,[0.5, 0.5, 0.5],super_cell=[2, 2 ,2])
+#trajectory = reading.generate_test_trajectory(structure,[0.5, 0.5, 0.5],super_cell=[3, 3 ,3])
 
-print(trajectory)
+#trajectory = reading.read_lammps_trajectory('/home/abel/VASP/Si/TEST/dump_si_64_400.lammpstrj', structure, initial_cut=5000, limit_number_steps=6000)
+
+vc_temp, reduced_q_vector, trajectory = reading.initialize_from_hdf5_file('/home/abel/VASP/Si/TEST/test_vc.h5', structure)
+
+
+
+#print(trajectory.get_time_step_average())
+
 #trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Bi2O3-dynamic_1100/OUTCAR',structure,limit_number_steps=20000)
 
 #trajectory = reading.initialize_from_file('/home/abel/VASP/ZrO2/DYNAMICS/VELOCITY_PRELIMINARY/velocity_1200', structure)
@@ -111,11 +118,16 @@ from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 
 #exit()
 
-calculation = controller.Calculation(trajectory, last_steps=80000)#, save_hfd5="test.hdf5")
+calculation = controller.Calculation(trajectory, vc=vc_temp)#, save_hfd5="test.hdf5")
+calculation.parameters.reduced_q_vector = reduced_q_vector
 
-calculation.set_reduced_q_vector([0.5, 0.5, 0.5])
+#calculation.set_reduced_q_vector([0.5, 0.5, 0.5])
+
+
+#reading.save_vc_hdf5('/home/abel/VASP/Si/TEST/vc.h5', calculation.get_vc(), trajectory.get_time(), trajectory.get_super_cell_matrix())
+
+
 print(structure.get_commensurate_points(super_cell=[2, 2, 2]))
-
 
 print(calculation.check_commensurate(np.array([0.5, 0.5, 0.5])))
 
@@ -125,20 +137,19 @@ print(calculation.check_commensurate(np.array([0.5, 0.5, 0.5])))
 
 
 calculation.set_frequency_range(np.linspace(0, 20, 1000))
-calculation.select_power_spectra_algorithm(3)
+calculation.select_power_spectra_algorithm(4)
 calculation.set_number_of_mem_coefficients(200)
 #calculation.set_NAC(True)
 
 #calculation.get_phonon_dispersion_spectra()
 
 
-
-print(calculation.get_frequencies())
+#print(calculation.get_frequencies())
 #print(calculation.get_q_vector())
 #print(structure.get_primitive_cell())
 
 
-calculation.plot_trajectory_distribution([0,0,1])
+#calculation.plot_trajectory_distribution([0,0,1])
 #Show phonon dispersion spectra
 #calculation.print_phonon_dispersion_spectrum()
 #calculation.get_phonon_dispersion_spectra()
@@ -165,8 +176,11 @@ calculation.plot_trajectory_distribution([0,0,1])
 #calculation.plot_energy()
 #calculation.plot_correlation_direct()
 
-calculation.plot_trajectory(atoms=[0], coordinates=[2])
-calculation.plot_velocity(atoms=[0, 1], coordinates=[0,1,2])
+#calculation.plot_trajectory(atoms=[0], coordinates=[2])
+#calculation.plot_velocity(atoms=[0, 1], coordinates=[0,1,2])
+
+calculation.plot_vc()
+calculation.plot_vq()
 
 #print(structure.get_cell())
 #exit()
@@ -179,8 +193,8 @@ calculation.plot_velocity(atoms=[0, 1], coordinates=[0,1,2])
 
 #exit()
 
-calculation.plot_vc(atoms=[0, 1],coordinates=[0, 1, 2])
-calculation.plot_vq(modes=[2, 3, 4])
+#calculation.plot_vc(atoms=[0, 1],coordinates=[0, 1, 2])
+#calculation.plot_vq(modes=[2, 3, 4])
 
 #exit()
 #print(structure.get_number_of_atoms())
@@ -212,7 +226,7 @@ calculation.plot_vq(modes=[2, 3, 4])
 #calculation.show_boltzmann_distribution()
 
 # 5d. Request calculate plot of direct velocity correlation function (without projection)
-calculation.plot_power_spectrum_direct()
+#calculation.plot_power_spectrum_direct()
 
 # 5e. Request calculate plot of wave vector projected velocity correlation function
 calculation.plot_power_spectrum_wave_vector()
@@ -220,6 +234,7 @@ calculation.plot_power_spectrum_wave_vector()
 #exit()
 # 5f. Request calculate plot of phonon mode projected velocity correlation function
 calculation.plot_power_spectrum_phonon()
+calculation.write_power_spectrum_phonon("/home/abel/phonon.test")
 
 # 5g. Request save direct velocity correlation function into file
 #calculation.write_correlation_direct('Data Files/correlation_d.out')

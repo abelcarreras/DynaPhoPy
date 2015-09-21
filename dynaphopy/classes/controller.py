@@ -26,13 +26,13 @@ class Calculation:
     def __init__(self,
                  dynamic,
                  last_steps=None,
-                 save_hfd5=None):
+                 vc=None):
 
         self._dynamic = dynamic
+        self._vc = vc
+
         self._eigenvectors = None
         self._frequencies = None
-        self._reduced_q_vector = None
-        self._vc = None
         self._vq = None
         self._power_spectrum_phonon = None
         self._power_spectrum_wave_vector = None
@@ -42,11 +42,16 @@ class Calculation:
 
         self._parameters = parameters.Parameters()
 
-        if save_hfd5:
-            self.save_velocity(save_hfd5)
+        self.crop_trajectory(last_steps)
 
-        self._dynamic.crop_trajectory(last_steps)
-        print("Using {0} steps".format(dynamic.velocity.shape[0]))
+
+    #Crop trajectory
+    def crop_trajectory(self, last_steps):
+        if self._vc is None:
+            self._dynamic.crop_trajectory(last_steps)
+        else:
+            if last_steps is not None:
+                self._vc = self._vc[-last_steps:, :, :]
 
     #Memory clear methods
     def full_clear(self):
@@ -58,7 +63,7 @@ class Calculation:
         self._power_spectrum_wave_vector = None
         self._power_spectrum_phonon = None
 
-    def correlation_clear(self):
+    def power_spectra_clear(self):
         self._power_spectrum_phonon = None
         self._power_spectrum_wave_vector = None
         self._power_spectrum_direct = None
@@ -80,29 +85,39 @@ class Calculation:
     def write_to_xfs_file(self,file_name):
         reading.write_xsf_file(file_name,self.dynamic.structure)
 
-    def save_velocity(self, file_name, save_trajectory=True):
+    def save_velocity_hdf5(self, file_name, save_trajectory=True):
         if save_trajectory:
             trajectory = self.dynamic.trajectory
         else:
             trajectory = ()
 
         reading.save_data_hdf5(file_name,
-                               self.dynamic.velocity,
                                self.dynamic.get_time(),
                                self.dynamic.get_super_cell_matrix(),
+                               velocity=self.dynamic.velocity,
                                trajectory=trajectory)
 
         print("Velocity saved in file " + file_name)
 
 
+    def save_vc_hdf5(self, file_name):
+
+        reading.save_data_hdf5(file_name,
+                               self.dynamic.get_time(),
+                               self.dynamic.get_super_cell_matrix(),
+                               vc=self.get_vc(),
+                               reduced_q_vector=self.get_reduced_q_vector())
+
+        print("Projected velocity saved in file " + file_name)
+
     def set_number_of_mem_coefficients(self,coefficients):
-        self.correlation_clear()
+        self.power_spectra_clear()
         self.parameters.number_of_coefficients_mem = coefficients
 
     #Frequency ranges related methods  (To be deprecated)
 
     def set_frequency_range(self,frequency_range):
-        self.correlation_clear()
+        self.power_spectra_clear()
         self.parameters.frequency_range = frequency_range
 
     def get_frequency_range(self):
@@ -143,7 +158,7 @@ class Calculation:
         return self._frequencies
 
     def set_band_ranges(self,band_ranges):
-        self.correlation_clear()
+        self.power_spectra_clear()
         self.parameters.band_ranges = band_ranges
 
     def get_band_ranges(self):
@@ -183,6 +198,8 @@ class Calculation:
             if vector == [0, 0, 0]:
                 vector = [1, 1, 1]
 
+            vector = np.array(vector)
+            q_vector = np.array(q_vector)
             if np.all(np.equal(np.mod(q_vector/vector, 1), 0)) and np.unique(q_vector/vector).shape[0] == 1:
                 commensurate = True
 
@@ -212,8 +229,8 @@ class Calculation:
         plt.ylabel('$u^{1/2}\AA/ps$')
 
 
-        time = np.linspace(0, self.dynamic.velocity.shape[0]*self.dynamic.get_time_step_average(),
-                   num=self.dynamic.velocity.shape[0])
+        time = np.linspace(0, self.get_vc().shape[0]*self.dynamic.get_time_step_average(),
+                   num=self.get_vc().shape[0])
 
         for mode in modes:
             plt.plot(time,self.get_vq()[:,mode].real,label='mode: '+str(mode))
@@ -223,8 +240,8 @@ class Calculation:
     def plot_vc(self,atoms=None,coordinates=None):
         if not atoms: atoms = [0]
         if not coordinates: coordinates = [0]
-        time = np.linspace(0, self.dynamic.velocity.shape[0]*self.dynamic.get_time_step_average(),
-                           num=self.dynamic.velocity.shape[0])
+        time = np.linspace(0, self.get_vc().shape[0]*self.dynamic.get_time_step_average(),
+                           num=self.get_vc().shape[0])
 
         plt.suptitle('Wave vector projection')
         plt.xlabel('Time [ps]')
@@ -250,7 +267,7 @@ class Calculation:
     def select_power_spectra_algorithm(self,algorithm):
         if algorithm in power_spectrum_functions.keys():
             if algorithm != self.parameters.power_spectra_algorithm:
-                self.correlation_clear()
+                self.power_spectra_clear()
                 self.parameters.power_spectra_algorithm = algorithm
             print("Using {0} function".format(power_spectrum_functions[algorithm]))
         else:

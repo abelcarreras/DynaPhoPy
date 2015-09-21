@@ -53,7 +53,7 @@ def project_onto_phonon(vc, eigenvectors):
     return velocity_projected
 
 
-#Just for testing
+#Just for testing (slower implementation) [but equivalent]
 def project_onto_phonon2(vc,eigenvectors):
 
     number_of_cell_atoms = vc.shape[1]

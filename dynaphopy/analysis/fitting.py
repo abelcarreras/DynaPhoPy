@@ -47,9 +47,13 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         total_integral = np.trapz(power_spectrum, x=test_frequencies_range)
 
         #Calculated properties
+        dt_Q2_lor = 2 * area
+        dt_Q2_tot = 2 * total_integral
+
         Q2_lor = 2 * area / pow(frequency * 2 * np.pi, 2)
         Q2_tot = 2 * total_integral / pow(frequency * 2 * np.pi,2)
-        occupancy = Q2_lor * frequency * pow(2 * np.pi, 2) / h_planck - 1/2
+
+        occupancy = dt_Q2_lor * frequency / h_planck - 0.5
 
         #Print section
         print '\nPeak #', i+1
@@ -58,11 +62,13 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print 'Position:               ', frequency, 'THz'
         print 'Area: (lor)             ', area, 'u * Angstrom^2 / ps^2'
         print 'Area: (tot)             ', total_integral, 'u * Angstrom^2 / ps^2'
-        print '<|Q|2> (lor):           ', Q2_lor, 'u * Angstrom^2'
-        print '<|Q|2> (tot):           ', Q2_tot, 'u * Angstrom^2'
+        print '<|dQ/dt|^2> (lor):      ', dt_Q2_lor, 'u * Angstrom^2 / ps^2'
+        print '<|dQ/dt|^2> (tot):      ', dt_Q2_tot, 'u * Angstrom^2 / ps^2'
+ #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
+ #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
         print 'Occupation number:      ', occupancy
-        print 'Phonon fit temperature (lor)', Q2_lor * pow(frequency * 2 * np.pi,2) / kb_bolzman, 'K'
-        print 'Phonon fit temperature (tot)', Q2_tot * pow(frequency * 2 * np.pi,2) / kb_bolzman, 'K'
+        print 'Phonon fit temperature (lor)', dt_Q2_lor / kb_bolzman, 'K'
+        print 'Phonon fit temperature (tot)', dt_Q2_tot / kb_bolzman, 'K'
 
         print 'Maximum height:         ', maximum, 'u * Angstrom^2 * 2 pi / ps'
         if harmonic_frequencies is not None:

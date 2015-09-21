@@ -11,7 +11,7 @@ import dynaphopy.classes.atoms as atomtest
 import dynaphopy.functions.phonopy_link as pho_interface
 
 
-def check_file_type(file_name, bytes_to_check=1000000):
+def check_trajectory_file_type(file_name, bytes_to_check=1000000):
 
     #Check file exists
     if not os.path.isfile(file_name):
@@ -31,7 +31,6 @@ def check_file_type(file_name, bytes_to_check=1000000):
             return read_lammps_trajectory
 
     #Check if VASP file
-
     with open (file_name, "r+") as f:
         file_map = mmap.mmap(f.fileno(), bytes_to_check)
         num_test = [file_map.find('NIONS'),
@@ -182,7 +181,7 @@ def read_from_file_structure_poscar(file_name):
 #        atomic_types = np.array(atomic_types).flatten().tolist()
 
 
-    #Old style poscar format
+    #Old style POSCAR format
     except ValueError:
         print "Reading old style POSCAR"
         number_of_types = np.array(data_lines[5].split(), dtype=int)
@@ -201,13 +200,24 @@ def read_from_file_structure_poscar(file_name):
 
 
 def read_vasp_trajectory(file_name, structure=None, time_step=None,
-                              limit_number_steps=10000000,  #Maximum number of steps read
-                              last_steps=None):         #Total number of read steps (deprecated)
+                         limit_number_steps=10000000,  #Maximum number of steps read
+                         last_steps=None,
+                         initial_cut=0,  #Not enabled yet
+                         end_cut=None):  #Not enabled yet
+
+    # Provisional cut
+    if initial_cut != 0 or end_cut is not None:
+        print('Warning! interval reading not enabled for VASP OUTCAR yet')
+
 
     #Check file exists
     if not os.path.isfile(file_name):
         print('Trajectory file does not exist!')
         exit()
+
+    #Check time step
+    if time_step is not None:
+        print('Warning! Time step flag has no effect reading VASP OUTCAR file (time step will be read from OUTCAR)')
 
     #Starting reading
     print("Reading VASP trajectory")
@@ -227,13 +237,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
         #Read time step
         position_number=file_map.find('POTIM  =')
         file_map.seek(position_number+8)
-        if time_step is not None:
-            print('Warning! Time step manually defined for VASP trajectory.\nIt is strongly '
-                  'recommended to leave DynaPhoPy to read time step directly from OUTCAR file')
-            if float(file_map.readline().split()[0])* 1E-3 != time_step:
-                print('Warning!! Time step defined does not match with the one found in OUTCAR file')
-        else:
-            time_step = float(file_map.readline().split()[0])* 1E-3 # in picoseconds
+        time_step = float(file_map.readline().split()[0])* 1E-3 # in picoseconds
 
         #Reading super cell
         position_number = file_map.find('direct lattice vectors')
@@ -315,12 +319,14 @@ def generate_test_trajectory(structure, reduced_q_vector, super_cell=(4,4,4)):
         return trajectory
 
     number_of_atoms = structure.get_number_of_cell_atoms()
+    number_of_primitive_atoms = structure.get_number_of_primitive_atoms()
+
     positions = structure.get_positions(super_cell=super_cell)
     masses = structure.get_masses(super_cell=super_cell)
 
 
     #Parameters used to generate harmonic trajectory
-    total_time = 0.5
+    total_time = 2
     time_step = 0.002
     amplitude = 7.0
     temperature = 1200
@@ -330,6 +336,8 @@ def generate_test_trajectory(structure, reduced_q_vector, super_cell=(4,4,4)):
     for i in range(structure.get_number_of_dimensions()):
         number_of_atoms *= super_cell[i]
 #    print('At Num',number_of_atoms)
+
+    number_of_primitive_cells = number_of_atoms/number_of_primitive_atoms
 
     atom_type = structure.get_atom_type_index(super_cell=super_cell)
 #    print('At type',atom_type)
@@ -374,7 +382,7 @@ def generate_test_trajectory(structure, reduced_q_vector, super_cell=(4,4,4)):
                     # Beware in the testing amplitude!! Normalized for all phonons to have the same height!!
                     if abs(frequencies_r[i_long][i_freq]) > 0.01: #Prevent dividing by 0
 
-                        amplitude = np.sqrt(2 * kb_boltzmann * temperature / (pow(frequencies_r[i_long][i_freq] * 2 * np.pi,2))) + random.uniform(-1,1)*0.1
+                        amplitude = 2 * np.sqrt(kb_boltzmann * temperature / (pow(frequencies_r[i_long][i_freq] * 2 * np.pi,2)) / number_of_primitive_cells) + random.uniform(-1,1)*0.05
                       #  normal_mode_coordinate = 1/(2*np.pi*frequencies_r[i_long][i_freq]) *amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
                         normal_mode_coordinate = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
 
@@ -494,9 +502,11 @@ def read_from_file_test():
 
 
 
-def read_lammps_trajectory(file_name=None, structure=None, time_step=None,
+def read_lammps_trajectory(file_name, structure=None, time_step=None,
                            limit_number_steps=10000000,
-                           last_steps=None):
+                           last_steps=None,
+                           initial_cut=0,
+                           end_cut=None):
 
  #Time in picoseconds
  #Coordinates in Angstroms
@@ -524,13 +534,17 @@ def read_lammps_trajectory(file_name=None, structure=None, time_step=None,
 
     time = []
     trajectory = []
+    counter = 0
 
     with open(file_name, "r+") as f:
-
 
         file_map = mmap.mmap(f.fileno(), 0)
 
         while True:
+
+            counter += 1
+            if initial_cut > counter:
+                continue
 
             #Read time steps
             position_number=file_map.find('TIMESTEP')
@@ -574,9 +588,6 @@ def read_lammps_trajectory(file_name=None, structure=None, time_step=None,
                                        [bounds[0, 2],                bounds[1, 1] - bounds[1, 0], 0],
                                        [bounds[1, 2],                bounds[2, 2],                bounds[2, 1] - bounds[2, 0]]])
 
-
-
-
             position_number = file_map.find('ITEM: ATOMS')
 
             file_map.seek(position_number)
@@ -590,9 +601,12 @@ def read_lammps_trajectory(file_name=None, structure=None, time_step=None,
             trajectory.append(np.array(read_coordinates, dtype=float)) #in angstroms
 
             #security routine to limit maximum of steps to read and put in memory
-            limit_number_steps -= 1
-            if limit_number_steps < 0:
+
+            if limit_number_steps < counter:
                 print("Warning! maximum number of steps reached! No more steps will be read")
+                break
+
+            if end_cut is not None and end_cut < counter:
                 break
 
 
@@ -608,7 +622,6 @@ def read_lammps_trajectory(file_name=None, structure=None, time_step=None,
                         trajectory=trajectory,
                         time=time,
                         super_cell=super_cell)
-
 
 
 
@@ -700,14 +713,24 @@ def write_xsf_file(file_name,structure):
                 break
     xsf_file.close()
 
+# Save & load HDF5 data file
 
-def save_data_hdf5(file_name, velocity, time, super_cell, trajectory=None):
+def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, vc=None, reduced_q_vector=None):
     hdf5_file = h5py.File(file_name, "w")
 
     if trajectory is not None:
         hdf5_file.create_dataset('trajectory', data=trajectory)
 
-    hdf5_file.create_dataset('velocity', data=velocity)
+    if velocity is not None:
+        hdf5_file.create_dataset('velocity', data=velocity)
+
+    if vc is not None:
+        hdf5_file.create_dataset('vc', data=vc)
+
+    if reduced_q_vector is not None:
+        hdf5_file.create_dataset('reduced_q_vector', data=reduced_q_vector)
+
+
     hdf5_file.create_dataset('time', data=time)
     hdf5_file.create_dataset('super_cell', data=super_cell)
 
@@ -715,10 +738,14 @@ def save_data_hdf5(file_name, velocity, time, super_cell, trajectory=None):
     hdf5_file.close()
 
 
-def initialize_from_file(file_name, structure, read_trajectory=True):
+def initialize_from_hdf5_file(file_name, structure, read_trajectory=True):
     print("Reading data from hdf5 file: " + file_name)
 
     trajectory = None
+    velocity = None
+    vc = None
+    reduced_q_vector = None
+
     #Check file exists
     if not os.path.isfile(file_name):
         print(file_name + ' file does not exist!')
@@ -728,13 +755,29 @@ def initialize_from_file(file_name, structure, read_trajectory=True):
     if "trajectory" in hdf5_file and read_trajectory is True:
         trajectory = hdf5_file['trajectory'][:]
 
-    velocity = hdf5_file['velocity'][:]
+    if "velocity" in hdf5_file:
+        velocity = hdf5_file['velocity'][:]
+
+    if "vc" in hdf5_file:
+        vc = hdf5_file['vc'][:]
+
+    if "reduced_q_vector" in hdf5_file:
+        reduced_q_vector = hdf5_file['reduced_q_vector'][:]
+        print("Load trajectory projected onto {0}".format(reduced_q_vector))
+
     time = hdf5_file['time'][:]
     super_cell = hdf5_file['super_cell'][:]
     hdf5_file.close()
 
-    return dyn.Dynamics(structure = structure,
-                        trajectory=trajectory,
-                        velocity = velocity,
-                        time=time,
-                        super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()))
+    if vc is None:
+        return dyn.Dynamics(structure=structure,
+                            trajectory=trajectory,
+                            velocity=velocity,
+                            time=time,
+                            super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()))
+    else:
+        return vc, reduced_q_vector, dyn.Dynamics(structure=structure,
+                                time=time,
+                                super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()))
+
+

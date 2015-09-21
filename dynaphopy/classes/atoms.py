@@ -1,6 +1,7 @@
 import numpy as np
 import itertools
 
+
 class Structure:
 
     def __init__(self,
@@ -159,6 +160,7 @@ class Structure:
 
         return position_super_cell
 
+
     def get_scaled_positions(self):
         if self._scaled_positions is  None:
             self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self.get_cell().T))
@@ -235,12 +237,13 @@ class Structure:
         if self._number_of_atom_types is None:
             self._number_of_atom_types = len(set(self.get_atom_type_index()))
     #         print(self._number_of_atom_types)
-        return  self._number_of_atom_types
+        return self._number_of_atom_types
+
 
     def get_number_of_primitive_atoms(self):
         if self._number_of_primitive_atoms is None:
-            self._number_of_primitive_atoms =  len(set(self.get_atom_type_index()))
-        return  self._number_of_primitive_atoms
+            self._number_of_primitive_atoms = len(set(self.get_atom_type_index()))
+        return self._number_of_primitive_atoms
 
 
     def set_number_of_primitive_atoms(self,number_of_primitive_atoms):

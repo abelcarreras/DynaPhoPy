@@ -11,7 +11,7 @@ def obtain_velocity_from_positions(cell, trajectory, time):
     velocity = np.empty_like(trajectory)
     for i in range(trajectory.shape[1]):
      #   velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time)
-        velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=8)
+        velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=6)
 
     print('Velocity obtained from trajectory derivative')
     return velocity
@@ -47,6 +47,7 @@ class Dynamics:
 
 # A bit messy, has to be fixed
     def crop_trajectory(self, last_steps):
+
         if last_steps is None or last_steps < 0:
             return
 
@@ -67,6 +68,8 @@ class Dynamics:
 
         self._velocity_mass_average = None
         self._relative_trajectory = None
+
+        print("Using {0} steps".format(self.velocity.shape[0]))
 
 
     def get_number_of_atoms(self):
