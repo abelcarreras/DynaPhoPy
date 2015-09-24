@@ -92,9 +92,9 @@ reading.write_xsf_file("test.xfs", structure)
 
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.5, 0.5],super_cell=[3, 3 ,3])
 
-#trajectory = reading.read_lammps_trajectory('/home/abel/VASP/Si/TEST/dump_si_64_400.lammpstrj', structure, initial_cut=5000, limit_number_steps=6000)
+trajectory = reading.read_lammps_trajectory('/home/abel/VASP/Si/TEST/dump_si_64_400.lammpstrj', structure, initial_cut=20000, end_cut=30000)
 
-vc_temp, reduced_q_vector, trajectory = reading.initialize_from_hdf5_file('/home/abel/VASP/Si/TEST/test_vc.h5', structure)
+#vc_temp, reduced_q_vector, trajectory = reading.initialize_from_hdf5_file('/home/abel/VASP/Si/TEST/test_vc.h5', structure)
 
 
 
@@ -118,8 +118,8 @@ from dynaphopy.classes.dynamics import obtain_velocity_from_positions
 
 #exit()
 
-calculation = controller.Calculation(trajectory, vc=vc_temp)#, save_hfd5="test.hdf5")
-calculation.parameters.reduced_q_vector = reduced_q_vector
+calculation = controller.Calculation(trajectory)#, save_hfd5="test.hdf5")
+#calculation.parameters.reduced_q_vector = reduced_q_vector
 
 #calculation.set_reduced_q_vector([0.5, 0.5, 0.5])
 
@@ -127,9 +127,9 @@ calculation.parameters.reduced_q_vector = reduced_q_vector
 #reading.save_vc_hdf5('/home/abel/VASP/Si/TEST/vc.h5', calculation.get_vc(), trajectory.get_time(), trajectory.get_super_cell_matrix())
 
 
-print(structure.get_commensurate_points(super_cell=[2, 2, 2]))
+#print(structure.get_commensurate_points(super_cell=[2, 2, 2]))
 
-print(calculation.check_commensurate(np.array([0.5, 0.5, 0.5])))
+#print(calculation.check_commensurate(np.array([0.5, 0.5, 0.5])))
 
 
 #modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
@@ -161,9 +161,9 @@ calculation.set_number_of_mem_coefficients(200)
 #calculation.read_velocity('test.h5')
 
 #calculation.save_vq("vq.out")
-#calculation.save_vc("vc.out")
+calculation.save_vc("/home/abel/VASP/Si/TEST/vc_1.out")
 
-#exit()
+exit()
 
 #print(structure.get_cell())
 #structure.__dict__['_'+'cell'] = [2]

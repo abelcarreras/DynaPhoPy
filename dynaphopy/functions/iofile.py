@@ -505,11 +505,13 @@ def read_from_file_test():
 def read_lammps_trajectory(file_name, structure=None, time_step=None,
                            limit_number_steps=10000000,
                            last_steps=None,
-                           initial_cut=0,
+                           initial_cut=1,
                            end_cut=None):
 
  #Time in picoseconds
  #Coordinates in Angstroms
+
+
 
     number_of_atoms = None
     bounds = None
@@ -543,8 +545,6 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
         while True:
 
             counter += 1
-            if initial_cut > counter:
-                continue
 
             #Read time steps
             position_number=file_map.find('TIMESTEP')
@@ -593,20 +593,30 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             file_map.seek(position_number)
             file_map.readline()
 
-            read_coordinates = []
+            #Initial cut control
+            if initial_cut > counter:
+                continue
 
+            #Reading coordinates
+            read_coordinates = []
             for i in range (number_of_atoms):
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
+                if counter == 47340:
+                    print(read_coordinates)
+            try:
+                trajectory.append(np.array(read_coordinates, dtype=float)) #in angstroms
 
-            trajectory.append(np.array(read_coordinates, dtype=float)) #in angstroms
+            except ValueError:
+                print("Error reading step {0}".format(counter))
+                break
+        #        print(read_coordinates)
 
             #security routine to limit maximum of steps to read and put in memory
-
-            if limit_number_steps < counter:
+            if limit_number_steps+initial_cut < counter:
                 print("Warning! maximum number of steps reached! No more steps will be read")
                 break
 
-            if end_cut is not None and end_cut < counter:
+            if end_cut is not None and end_cut <= counter:
                 break
 
 

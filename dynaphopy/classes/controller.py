@@ -210,8 +210,8 @@ class Calculation:
         if self._vc is None:
             print("Projecting into wave vector")
             #Check if commensurate point
-            if self.check_commensurate(self.get_reduced_q_vector()) == False:
-                print("warning! Defined wave vector is not a commensurate point in this MD super cell")
+#            if self.check_commensurate(self.get_reduced_q_vector()) == False:
+#                print("warning! Defined wave vector is not a commensurate point in this MD super cell")
 
             self._vc = projection.project_onto_wave_vector(self.dynamic,self.get_q_vector())
         return self._vc

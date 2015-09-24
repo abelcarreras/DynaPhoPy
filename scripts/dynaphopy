@@ -87,7 +87,7 @@ parser.add_argument('-sad', '--save_atomic_displacements',metavar='X', type=str,
 
 #For development
 parser.add_argument('--read_from', metavar='N', type=int, default=0,
-                   help='define interval of trajectory to read (default: 0)')
+                   help='define interval of trajectory to read (default: 1)')
 
 parser.add_argument('--read_to', metavar='N', type=int, default=None,
                    help='define interval of trajectory to read (default: end)')
@@ -196,4 +196,4 @@ if args.coefficient_scan_analysis:
 
 if args.peak_analysis:
     calculation.phonon_individual_analysis()
-
+    calculation.save_vc('test_vc')
