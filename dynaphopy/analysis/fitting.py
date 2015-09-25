@@ -36,8 +36,9 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
                                                     power_spectrum,
                                                     p0=[position, 0.1, height, 0.0])
         except:
-            print('Warning: Fitting error, phonon',i)
+            print('Warning: Fitting error in phonon {0}. Try increasing the spectrum point density'.format(i))
             continue
+
         maximum = fit_params[2]/(fit_params[1]*np.pi)
         error = get_error_from_covariance(fit_covariances)
         width = 2.0*fit_params[1]
@@ -67,8 +68,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
  #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
  #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
         print 'Occupation number:      ', occupancy
-        print 'Phonon fit temperature (lor)', dt_Q2_lor / kb_bolzman, 'K'
-        print 'Phonon fit temperature (tot)', dt_Q2_tot / kb_bolzman, 'K'
+        print 'Fit temperature (lor)   ', dt_Q2_lor / kb_bolzman, 'K'
+        print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
 
         print 'Maximum height:         ', maximum, 'u * Angstrom^2 * 2 pi / ps'
         if harmonic_frequencies is not None:
