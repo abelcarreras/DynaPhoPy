@@ -1,14 +1,14 @@
-import numpy as np
 import mmap
 import pickle
 import os
-import h5py
-import resource
 import random
+
+import numpy as np
+import h5py
 
 import dynaphopy.classes.dynamics as dyn
 import dynaphopy.classes.atoms as atomtest
-import dynaphopy.functions.phonopy_link as pho_interface
+import phonopy_link as pho_interface
 
 
 def check_trajectory_file_type(file_name, bytes_to_check=1000000):
