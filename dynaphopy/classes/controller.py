@@ -1,12 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import projection as projection
+import dynaphopy.projection as projection
 import dynaphopy.power_spectrum.correlation as correlate
 import dynaphopy.power_spectrum.maximum_entropy as mem
 import dynaphopy.classes.parameters as parameters
-import phonopy_link as pho_interface
-import iofile as reading
+import dynaphopy.phonopy_link as pho_interface
+import dynaphopy.iofile as reading
 import dynaphopy.analysis.energy as energy
 import dynaphopy.analysis.fitting as fitting
 import dynaphopy.analysis.modes as modes
