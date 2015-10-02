@@ -17,7 +17,7 @@ parser.add_argument('-bi', metavar='indices', type=str, default=None,
 parser.add_argument('-sm', '--smooth', action='store_true',
                    help='Smooth before fitting (LOWESS method)')
 
-parser.add_argument('-f', metavar='N', type=float, nargs=1, default=0.02,
+parser.add_argument('-f', metavar='N', type=float, default=0.02,
                    help='smooth factor [Default: 0.02]')
 
 parser.add_argument('--silent', action='store_true',
@@ -83,7 +83,7 @@ if args.smooth:
     y_smooth = []
     for i, datum in enumerate(data):
 
-        y2 = lowess(test_frequencies_range, datum, f=args.f[0])
+        y2 = lowess(test_frequencies_range, datum, f=args.f)
 
         if not(args.silent):
             plt.figure(i+1)
