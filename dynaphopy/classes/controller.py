@@ -336,7 +336,7 @@ class Calculation:
         plt.show()
 
         total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())
-        print ("Total Area (Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral))
+        print ("Total Area (Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral*2))
 
     def plot_power_spectrum_wave_vector(self):
         plt.suptitle('Projection onto wave vector')
@@ -345,7 +345,7 @@ class Calculation:
         plt.ylabel('$u * \AA^2 \pi/ ps$')
         plt.show()
         total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
-        print ("Total Area (Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral))
+        print ("Total Area (Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral*2))
 
 
     def plot_power_spectrum_phonon(self):
