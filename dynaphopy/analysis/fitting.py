@@ -48,11 +48,11 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         total_integral = np.trapz(power_spectrum, x=test_frequencies_range)
 
         #Calculated properties
-        dt_Q2_lor = 2 * area
-        dt_Q2_tot = 2 * total_integral
+        dt_Q2_lor = 2 * 2 * area
+        dt_Q2_tot = 2 * 2 * total_integral
 
-        Q2_lor = 2 * area / pow(frequency * 2 * np.pi, 2)
-        Q2_tot = 2 * total_integral / pow(frequency * 2 * np.pi,2)
+        Q2_lor = dt_Q2_lor / pow(frequency * 2 * np.pi, 2)
+        Q2_tot = dt_Q2_tot / pow(frequency * 2 * np.pi,2)
 
  #       occupancy_lor = Q2_lor * frequency / h_planck * pow(2 * np.pi, 2) - 0.5
         occupancy_lor = dt_Q2_lor / (frequency * h_planck) - 0.5
