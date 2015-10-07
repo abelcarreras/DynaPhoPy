@@ -64,8 +64,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print('------------------------------------')
         print 'Width (FWHM):           ', width, 'THz'
         print 'Position:               ', frequency, 'THz'
-        print 'Area (<K>) (lor):       ', area, 'u * Angstrom^2 / ps^2'             # Kinetic energy
-        print 'Area (<K>) (tot):       ', total_integral, 'u * Angstrom^2 / ps^2'   # Kinetic energy
+        print 'Area (1/2<K>) (lor):    ', area, 'u * Angstrom^2 / ps^2'             # Kinetic energy
+        print 'Area (1/2<K>) (tot):    ', total_integral, 'u * Angstrom^2 / ps^2'   # Kinetic energy
         print '<|dQ/dt|^2> (lor):      ', dt_Q2_lor, 'u * Angstrom^2 / ps^2'        # Total energy
         print '<|dQ/dt|^2> (tot):      ', dt_Q2_tot, 'u * Angstrom^2 / ps^2'        # Total energy
  #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
