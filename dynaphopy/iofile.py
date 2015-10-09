@@ -601,8 +601,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             read_coordinates = []
             for i in range (number_of_atoms):
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
-                if counter == 47340:
-                    print(read_coordinates)
+
             try:
                 trajectory.append(np.array(read_coordinates, dtype=float)) #in angstroms
 

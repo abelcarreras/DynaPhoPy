@@ -498,3 +498,33 @@ class Calculation:
     #Other
     def get_algorithm_list(self):
         return power_spectrum_functions.values()
+
+    def get_normalized_constants(self):
+        com_points, dynmat2fc, phonon = pho_interface.get_commensurate_points(self.dynamic.structure)
+
+        normalized_frequencies = []
+        for i, reduced_q_point in enumerate(com_points):
+
+            print ("Qpoint: {0} / {1}".format(i,reduced_q_point))
+
+            self.set_reduced_q_vector(reduced_q_point)
+
+            positions, widths = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
+                                self.parameters.frequency_range,
+                                harmonic_frequencies=self.get_frequencies(),
+                                show_plots=False)
+
+
+            if (reduced_q_point == [0, 0, 0]).all():
+                print('Fixing gamma point frequencies')
+                positions[0] = 0
+                positions[1] = 0
+                positions[2] = 0
+
+            normalized_frequencies.append(positions)
+
+        normalized_frequencies = np.array(normalized_frequencies)
+
+        pho_interface.get_normalized_forces(normalized_frequencies, dynmat2fc, phonon)
+
+
