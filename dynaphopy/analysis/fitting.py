@@ -64,23 +64,23 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         #Print section
         print '\nPeak #', i+1
         print('------------------------------------')
-        print 'Width (FWHM):           ', width, 'THz'
-        print 'Position:               ', frequency, 'THz'
-        print 'Area (1/2<K>) (lor):    ', area, 'u * Angstrom^2 / ps^2'             # Kinetic energy
-        print 'Area (1/2<K>) (tot):    ', total_integral, 'u * Angstrom^2 / ps^2'   # Kinetic energy
-        print '<|dQ/dt|^2> (lor):      ', dt_Q2_lor, 'u * Angstrom^2 / ps^2'        # Total energy
-        print '<|dQ/dt|^2> (tot):      ', dt_Q2_tot, 'u * Angstrom^2 / ps^2'        # Total energy
+        print 'Width (FWHM):             ', width, 'THz'
+        print 'Position:                 ', frequency, 'THz'
+        print 'Area (1/2<K>) (Loretzian):', area, 'u * Angstrom^2 / ps^2'             # Kinetic energy
+        print 'Area (1/2<K>) (Total):    ', total_integral, 'u * Angstrom^2 / ps^2'   # Kinetic energy
+        print '<|dQ/dt|^2>:              ', dt_Q2_lor, 'u * Angstrom^2 / ps^2'        # Total energy
+#        print '<|dQ/dt|^2> (tot):      ', dt_Q2_tot, 'u * Angstrom^2 / ps^2'        # Total energy
  #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
  #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
-        print 'Occupation number(lor): ', occupancy_lor
-        print 'Occupation number(tot): ', occupancy_tot
-        print 'Fit temperature (lor)   ', dt_Q2_lor / kb_bolzman, 'K'
-        print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
+        print 'Occupation number:        ', occupancy_lor
+ #       print 'Occupation number(tot): ', occupancy_tot
+        print 'Fit temperature           ', dt_Q2_lor / kb_bolzman, 'K'
+#        print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
 
-        print 'Maximum height:         ', maximum, 'u * Angstrom^2 * 2 pi / ps'
+        print 'Maximum height:           ', maximum, 'u * Angstrom^2 * 2 pi / ps'
         if harmonic_frequencies is not None:
-            print 'Frequency shift:        ', frequency - harmonic_frequencies[i], 'THz'
-        print 'Fit Error/Max. (RMS):   ', error/maximum
+            print 'Frequency shift:          ', frequency - harmonic_frequencies[i], 'THz'
+        print 'Fit Error/Max. (RMS):     ', error/maximum
 
         positions.append(frequency)
         widths.append(width)
