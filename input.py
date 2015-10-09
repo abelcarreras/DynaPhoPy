@@ -6,7 +6,7 @@ from dynaphopy.phonopy_link import get_force_sets_from_file, get_weights_from_in
 import dynaphopy.iofile as reading
 import dynaphopy.classes.controller as controller
 
-print(get_weights_from_index_list(6,  [ [0,1,2],[3,4],[5] ]))
+print(get_weights_from_index_list(6,  [ [0,1,2],[3,4],[5]]))
 
 exit()
 
@@ -45,7 +45,6 @@ structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS
 a=get_force_sets_from_file(file_name=directory+'FORCE_SETS')
 
 
-
 ############################### PHONOPY CELL INFORMATION ####################################
 # 2. Set primitive matrix, this matrix fulfills that:
 #    Primitive_cell = Unit_cell x Primitive_matrix
@@ -82,7 +81,7 @@ structure.set_super_cell_phonon([[2, 0, 0],
 #print(structure.get_masses(super_cell=[4,4,2]))
 #print(structure.get_number_of_atom_types())
 
-reading.write_xsf_file("test.xfs", structure)
+reading.write_xsf_file("test.xfs",structure)
 
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
@@ -235,7 +234,7 @@ calculation.plot_power_spectrum_wave_vector()
 #exit()
 # 5f. Request calculate plot of phonon mode projected velocity correlation function
 calculation.plot_power_spectrum_phonon()
-calculation.write_power_spectrum_phonon("/home/abel/phonon.test")
+#calculation.write_power_spectrum_phonon("/home/abel/phonon.test")
 
 # 5g. Request save direct velocity correlation function into file
 #calculation.write_correlation_direct('Data Files/correlation_d.out')
