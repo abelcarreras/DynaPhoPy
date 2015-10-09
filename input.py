@@ -91,7 +91,7 @@ reading.write_xsf_file("test.xfs", structure)
 
 #trajectory = reading.generate_test_trajectory(structure,[0.5, 0.5, 0.5],super_cell=[3, 3 ,3])
 
-trajectory = reading.read_lammps_trajectory('/home/abel/VASP/Si/TEST/dump_si_64_400.lammpstrj', structure, initial_cut=20000, end_cut=80000)
+trajectory = reading.read_lammps_trajectory('/home/abel/VASP/Si/TEST/dump_si_64_400.lammpstrj', structure, initial_cut=20000, end_cut=30000)
 
 #vc_temp, reduced_q_vector, trajectory = reading.initialize_from_hdf5_file('/home/abel/VASP/Si/TEST/test_vc.h5', structure)
 
@@ -133,14 +133,14 @@ calculation = controller.Calculation(trajectory)#, save_hfd5="test.hdf5")
 #modes.plot_phonon_modes(structure, calculation.get_eigenvectors(), draw_primitive=True, super_cell=[1, 1, 1])
 #calculation.plot_eigenvectors()
 
-calculation.set_frequency_range(np.linspace(0, 20, 1000))
+calculation.set_frequency_range(np.linspace(0, 20, 2000))
 calculation.select_power_spectra_algorithm(4)
-calculation.set_number_of_mem_coefficients(200)
+calculation.set_number_of_mem_coefficients(1000)
 #calculation.set_NAC(True)
 
 #calculation.get_phonon_dispersion_spectra()
 
-calculation.get_normalized_constants()
+calculation.save_renormalized_constants()
 
 print(calculation.get_frequencies())
 #print(calculation.get_q_vector())

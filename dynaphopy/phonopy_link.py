@@ -155,12 +155,9 @@ def get_commensurate_points(structure):
     return com_points, dynmat2fc, phonon
 
 
-def get_normalized_forces(normalized_frequencies, dynmat2fc, phonon, filename="FORCE_CONSTANTS"):
+def get_renormalized_forces_and_save_to_file(normalized_frequencies, dynmat2fc, phonon, filename):
 
-    frequencies, eigenvectors = phonon.get_qpoints_phonon()
-
-    print(frequencies)
-    print(normalized_frequencies)
+    eigenvectors = phonon.get_qpoints_phonon()[1]
 
     dynmat2fc.set_dynamical_matrices(normalized_frequencies / VaspToTHz, eigenvectors)
     dynmat2fc.run()

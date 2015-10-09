@@ -85,6 +85,7 @@ parser.add_argument('-pad', '--plot_atomic_displacements',metavar='N', type=str,
 parser.add_argument('-sad', '--save_atomic_displacements',metavar='X', type=str, nargs=4,
                     help='save atomic displacements into a file [ N N N filename ]')
 
+
 #For development
 parser.add_argument('--read_from', metavar='N', type=int, default=0,
                    help='define interval of trajectory to read (default: 1)')
@@ -95,6 +96,8 @@ parser.add_argument('--read_to', metavar='N', type=int, default=None,
 parser.add_argument('-ds', '--display_spectrum', action='store_true',
                     help='display phonon dispersion spectrum data in screen (just for test: not recommended)')
 
+parser.add_argument('-sfc', '--save_force_constants', metavar='file', type=str, nargs=1, default=False,
+                    help='save the renormalized force constants to a file')
 
 args = parser.parse_args()
 
@@ -186,6 +189,9 @@ if args.plot_atomic_displacements:
 if args.save_atomic_displacements:
     calculation.write_atomic_displacements([float(Fraction(i)) for i in args.save_atomic_displacements[0:3]],
                                               args.save_atomic_displacements[3])
+if args.save_force_constants:
+    calculation.save_renormalized_constants(args.save_force_constants[0])
+
 
 #On development methods (not recommended)
 if args.display_spectrum:

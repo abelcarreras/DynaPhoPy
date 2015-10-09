@@ -499,7 +499,8 @@ class Calculation:
     def get_algorithm_list(self):
         return power_spectrum_functions.values()
 
-    def get_normalized_constants(self):
+    def save_renormalized_constants(self, filename="FORCE_CONSTANTS"):
+
         com_points, dynmat2fc, phonon = pho_interface.get_commensurate_points(self.dynamic.structure)
 
         normalized_frequencies = []
@@ -514,7 +515,6 @@ class Calculation:
                                 harmonic_frequencies=self.get_frequencies(),
                                 show_plots=False)
 
-
             if (reduced_q_point == [0, 0, 0]).all():
                 print('Fixing gamma point frequencies')
                 positions[0] = 0
@@ -525,6 +525,5 @@ class Calculation:
 
         normalized_frequencies = np.array(normalized_frequencies)
 
-        pho_interface.get_normalized_forces(normalized_frequencies, dynmat2fc, phonon)
-
+        pho_interface.get_renormalized_forces_and_save_to_file(normalized_frequencies, dynmat2fc, phonon, filename)
 

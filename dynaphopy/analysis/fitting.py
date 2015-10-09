@@ -37,6 +37,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
                                                     p0=[position, 0.1, height, 0.0])
         except:
             print('Warning: Fitting error in phonon {0}. Try increasing the spectrum point density'.format(i))
+            positions.append(0)
+            widths.append(0)
             continue
 
         maximum = fit_params[2]/(fit_params[1]*np.pi)
