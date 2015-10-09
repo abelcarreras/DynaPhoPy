@@ -4,7 +4,7 @@ from phonopy.structure.atoms import Atoms as PhonopyAtoms
 from phonopy.file_IO import parse_BORN, parse_FORCE_SETS, write_FORCE_CONSTANTS
 from phonopy.harmonic.dynmat_to_fc import DynmatToForceConstants
 from phonopy.units import VaspToTHz
-
+from phonopy.phonon.degeneracy import degenerate_sets
 
 def eigenvectors_normalization(eigenvector):
     for i in range(eigenvector.shape[0]):
@@ -142,22 +142,19 @@ def get_commensurate_points(structure):
     primitive = phonon.get_primitive()
     supercell = phonon.get_supercell()
 
-
     dynmat2fc = DynmatToForceConstants(primitive, supercell)
     com_points = dynmat2fc.get_commensurate_points()
 
-    phonon.set_qpoints_phonon(com_points,
-                          is_eigenvectors=True)
-
     phonon.set_qpoints_phonon(com_points, is_eigenvectors=True)
-
 
     return com_points, dynmat2fc, phonon
 
+def get_renormalized_forces_and_save_to_file(normalized_frequencies, dynmat2fc, phonon, filename, degenerate=True):
 
-def get_renormalized_forces_and_save_to_file(normalized_frequencies, dynmat2fc, phonon, filename):
+    frequencies, eigenvectors = phonon.get_qpoints_phonon()
 
-    eigenvectors = phonon.get_qpoints_phonon()[1]
+    if degenerate:
+        normalized_frequencies = get_degenerated_frequencies(frequencies, normalized_frequencies)
 
     dynmat2fc.set_dynamical_matrices(normalized_frequencies / VaspToTHz, eigenvectors)
     dynmat2fc.run()
@@ -165,3 +162,28 @@ def get_renormalized_forces_and_save_to_file(normalized_frequencies, dynmat2fc, 
     fc = dynmat2fc.get_force_constants()
 
     write_FORCE_CONSTANTS(fc, filename=filename)
+
+def get_degenerated_frequencies(frequencies, normalized_frequencies):
+
+    num_phonons = frequencies.shape[1]
+    normalized_frequencies_degenerated = np.zeros_like(normalized_frequencies)
+
+    for i, q_frequencies in enumerate(frequencies):
+        degenerate_index = degenerate_sets(q_frequencies)
+        weight_matrix = get_weights_from_index_list(num_phonons, degenerate_index)
+
+        for j, weight in enumerate(weight_matrix):
+            normalized_frequencies_degenerated[i, j]= np.average(normalized_frequencies[i, :], weights=weight)
+
+    return normalized_frequencies_degenerated
+
+def get_weights_from_index_list(size, index_list):
+
+    weight = np.zeros([size, size])
+    for i in range(size):
+        for group in index_list:
+            if i in group:
+                for j in group:
+                    weight[i, j] = 1
+
+    return weight

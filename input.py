@@ -2,10 +2,13 @@
 
 import numpy as np
 
-from dynaphopy.phonopy_link import get_force_sets_from_file
+from dynaphopy.phonopy_link import get_force_sets_from_file, get_weights_from_index_list
 import dynaphopy.iofile as reading
 import dynaphopy.classes.controller as controller
 
+print(get_weights_from_index_list(6,  [ [0,1,2],[3,4],[5] ]))
+
+exit()
 
 #import dynaphopy.displacements as disp
 
