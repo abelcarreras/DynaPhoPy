@@ -37,7 +37,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
     screen = curses.initscr()
     screen.border(0)
-    screen.addstr(5, 7, "Welcome   to   DynaPhoPy 1.4")
+    screen.addstr(5, 7, "Welcome   to   DynaPhoPy 1.5")
     screen.refresh()
     sleep(3)
     curses.endwin()
@@ -74,7 +74,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(8, 4, "5 - Plot power spectrum")
         screen.addstr(9, 4, "6 - Save power spectrum")
         screen.addstr(10, 4, "7 - Peak analysis")
-        screen.addstr(11, 4, "8 - Trajectory distribution")
+        screen.addstr(11, 4, "8 - Atomic displacements")
         screen.addstr(12, 4, "9 - Preferences")
         screen.addstr(14, 4, "0 - Exit")
 
@@ -169,15 +169,15 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 if x2 == ord('1'):
                     curses.endwin()
-                    calculation.plot_correlation_direct()
+                    calculation.plot_power_spectrum_direct()
 
                 if x2 == ord('2'):
                     curses.endwin()
-                    calculation.plot_correlation_wave_vector()
+                    calculation.plot_power_spectrum_wave_vector()
 
                 if x2 == ord('3'):
                     curses.endwin()
-                    calculation.plot_correlation_phonon()
+                    calculation.plot_power_spectrum_phonon()
 
 ######## OPTION 6 :  SAVING POWER SPECTRA
         if x == ord('6'):
@@ -200,23 +200,23 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 if x2 == ord('1'):
                     save_file = get_param(screen,'Insert file name')
                     curses.endwin()
-                    calculation.write_correlation_direct(save_file)
+                    calculation.write_power_spectrum_direct(save_file)
 
                 if x2 == ord('2'):
                     save_file = get_param(screen,'Insert file name')
                     curses.endwin()
-                    calculation.write_correlation_wave_vector(save_file)
+                    calculation.write_power_spectrum_wave_vector(save_file)
 
                 if x2 == ord('3'):
                     save_file = get_param(screen,'Insert file name')
                     curses.endwin()
-                    calculation.write_correlation_phonon(save_file)
+                    calculation.write_power_spectrum_phonon(save_file)
 
 
 ######## OPTION 7 :  PEAK ANALYSIS
         if x == ord('7'):
             curses.endwin()
-            calculation.phonon_width_individual_analysis()
+            calculation.phonon_individual_analysis()
             screen.getch()
             curses.endwin()
 

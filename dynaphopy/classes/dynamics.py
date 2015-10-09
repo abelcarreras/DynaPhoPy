@@ -3,6 +3,7 @@ from dynaphopy.classes import atoms
 from dynaphopy.derivative import derivative as derivative
 from dynaphopy.analysis.coordinates import relativize_trajectory
 
+
 #import matplotlib.pyplot as plt
 
 
@@ -10,7 +11,7 @@ def obtain_velocity_from_positions(cell, trajectory, time):
     velocity = np.empty_like(trajectory)
     for i in range(trajectory.shape[1]):
      #   velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time)
-         velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=8)
+        velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=6)
 
     print('Velocity obtained from trajectory derivative')
     return velocity
@@ -46,8 +47,19 @@ class Dynamics:
 
 # A bit messy, has to be fixed
     def crop_trajectory(self, last_steps):
+
         if last_steps is None or last_steps < 0:
             return
+
+        if self._trajectory is not None:
+            if last_steps > self._trajectory.shape[0]:
+                print("Warning: specified step number larger than available")
+            self._trajectory = self._trajectory[-last_steps:, :, :]
+
+        if self._energy is not None:
+            self._energy = self._energy[-last_steps:]
+        if self._time is not None:
+            self._time = self._time[-last_steps:]
 
         if last_steps > self.velocity.shape[0]:
             print("Warning: specified step number larger than available")
@@ -57,9 +69,8 @@ class Dynamics:
         self._velocity_mass_average = None
         self._relative_trajectory = None
 
-        if self._trajectory is not None: self._trajectory = self._trajectory[-last_steps:, :, :]
-        if self._energy is not  None: self._energy = self._energy[-last_steps:]
-        if self._time is not  None: self._time = self._time[-last_steps:]
+        print("Using {0} steps".format(self.velocity.shape[0]))
+
 
     def get_number_of_atoms(self):
         if self._number_of_atoms is None:
@@ -105,7 +116,9 @@ class Dynamics:
 
     def get_relative_trajectory(self):
         if self._relative_trajectory is None:
+                #self._relative_trajectory = relativize_trajectory(self)
                 self._relative_trajectory = relativize_trajectory(self)
+
 
         return self._relative_trajectory
 
@@ -119,6 +132,7 @@ class Dynamics:
                 print('Cell size relation is not integer:',super_cell_matrix_real)
                 exit()
         return self._super_cell_matrix
+
 
     #Properties
     @property
@@ -136,7 +150,7 @@ class Dynamics:
     @property
     def velocity(self):
         if self._velocity is None:
-            print('No velocity provided! calculating it!')
+            print('No velocity provided! calculating...')
             self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time_step_average())
  #           self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time())
 

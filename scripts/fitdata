@@ -17,8 +17,8 @@ parser.add_argument('-bi', metavar='indices', type=str, default=None,
 parser.add_argument('-sm', '--smooth', action='store_true',
                    help='Smooth before fitting (LOWESS method)')
 
-parser.add_argument('-f', metavar='N', type=float, nargs=1, default=0.02,
-                   help='smooth factor')
+parser.add_argument('-f', metavar='N', type=float, default=0.02,
+                   help='smooth factor [Default: 0.02]')
 
 parser.add_argument('--silent', action='store_true',
                    help='Do not show plots')
@@ -40,15 +40,10 @@ def lowess(x, y, f=2./3.):
     for i in range(n):
             weights = delta * w[:, i]
             b = np.array([np.sum(weights*y), np.sum(weights*y*x)])
-            A = np.array([[np.sum(weights), np.sum(weights*x)],
+            a = np.array([[np.sum(weights), np.sum(weights*x)],
                           [np.sum(weights*x), np.sum(weights*x*x)]])
-            beta = np.linalg.solve(A, b)
+            beta = np.linalg.solve(a, b)
             y_smooth[i] = beta[0] + beta[1]*x[i]
-
-    residuals = y - y_smooth
-    s = np.median(np.abs(residuals))
-    delta = np.clip(residuals / (6.0 * s), -1, 1)
-    delta = (1 - delta**2)**2
 
     return y_smooth
 

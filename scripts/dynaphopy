@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import argparse
+from fractions import Fraction
 import numpy as np
 
-import dynaphopy.functions.iofile as reading
+import dynaphopy.iofile as reading
 import dynaphopy.classes.controller as controller
 import dynaphopy.interface.interactive_ui as interactive_ui
+from dynaphopy.phonopy_link import get_force_sets_from_file
 
-from dynaphopy.functions.phonopy_link import get_force_sets_from_file
-from fractions import Fraction
 
 #Define arguments
 parser = argparse.ArgumentParser(description='DynaPhonoPy options')
@@ -28,17 +28,20 @@ parser.add_argument('-i', '--interactive', action='store_true',
 parser.add_argument('-q', metavar='N', type=str, nargs=3,
                    help='wave vector used to calculate projections (default: 0 0 0)')
 
-parser.add_argument('-r', '--frequency_range',metavar='N', type=float, nargs=3,
-                   help='Frequency range for correlation function calculation (min, max, number of points)')
+parser.add_argument('-r', '--frequency_range', metavar='N', type=float, nargs=3,
+                   help='frequency range for correlation function calculation (min, max, number of points)')
 
 parser.add_argument('-n', metavar='N', type=int, default=0,
                    help='number of MD last steps to take (default: All)')
 
+parser.add_argument('-ts', '--time_step', metavar='step', type=float, default=None,
+                   help='time step in ps (default: 0 [Read from trajectory file])')
+
 parser.add_argument('-pd', '--plot_direct', action='store_true',
-                    help='Plot direct power spectrum')
+                    help='plot direct power spectrum')
 
 parser.add_argument('-pw', '--plot_wave_vector', action='store_true',
-                    help='Plot projection into wave vector')
+                    help='plot projection into wave vector')
 
 parser.add_argument('-pp', '--plot_phonon_mode', action='store_true',
                     help='plot projection into phonon modes')
@@ -52,34 +55,49 @@ parser.add_argument('-sw', '--save_wave_vector', metavar='file', type=str, nargs
 parser.add_argument('-sp', '--save_phonon_mode', metavar='file', type=str, nargs=1,
                     help='save projection into phonon modes to file')
 
-parser.add_argument('-sv', '--save_velocity', metavar='file', type=str, nargs=1, default=[None],
+parser.add_argument('-sv', '--save_velocity', metavar='file', type=str, nargs=1, default=False,
                     help='save velocity into hdf5 file')
 
+parser.add_argument('-svc', '--save_vc', metavar='file', type=str, nargs=1, default=False,
+                    help='save wave vector projected velocity into hdf5 file')
+
 parser.add_argument('-psm', '--power_spectrum_algorithm',metavar='N', type=int, nargs=1,
-                   help='Select power spectrum calculation algorithm (default 4)')
+                   help='select power spectrum calculation algorithm (default 4)')
 
 parser.add_argument('-cf', '--number_of_mem_coefficients',metavar='N', type=int, nargs=1,
-                   help='Number of coefficients to use in MEM algorithm (default 300)')
+                   help='number of coefficients to use in MEM algorithm (default 300)')
 
 parser.add_argument('-csa', '--coefficient_scan_analysis', action='store_true',
-                    help='Request coefficient scan analysis')
+                    help='request coefficient scan analysis')
 
 parser.add_argument('-pa', '--peak_analysis', action='store_true',
-                    help='Request a peak analysis')
+                    help='request a peak analysis')
 
 parser.add_argument('--silent', action='store_true',
-                    help='Executes without showing plots')
+                    help='executes without showing plots')
 
-parser.add_argument('-pad', '--plot_atomic_distribution',metavar='N', type=str, nargs=3,
-                   help='Plot atomic distribution respect to specified direction [N N N]')
+parser.add_argument('--velocity_only', action='store_true',
+                    help='loads only velocity data from hdf5 file')
 
-parser.add_argument('-sad', '--save_atomic_distribution',metavar='X', type=str, nargs=4,
-                    help='save atomic distribution into a file [ N N N filename ]')
+parser.add_argument('-pad', '--plot_atomic_displacements',metavar='N', type=str, nargs=3,
+                   help='plot atomic displacements respect to specified direction [N N N]')
+
+parser.add_argument('-sad', '--save_atomic_displacements',metavar='X', type=str, nargs=4,
+                    help='save atomic displacements into a file [ N N N filename ]')
+
 
 #For development
+parser.add_argument('--read_from', metavar='N', type=int, default=0,
+                   help='define interval of trajectory to read (default: 1)')
+
+parser.add_argument('--read_to', metavar='N', type=int, default=None,
+                   help='define interval of trajectory to read (default: end)')
+
 parser.add_argument('-ds', '--display_spectrum', action='store_true',
                     help='display phonon dispersion spectrum data in screen (just for test: not recommended)')
 
+parser.add_argument('-sfc', '--save_force_constants', metavar='file', type=str, nargs=1, default=False,
+                    help='save the renormalized force constants to a file')
 
 args = parser.parse_args()
 
@@ -101,16 +119,24 @@ if 'force_constants_file_name' in input_parameters:
 
 
 if args.load_velocity:
-    trajectory = reading.initialize_from_file(args.load_velocity[0], structure)
+    trajectory = reading.initialize_from_hdf5_file(args.load_velocity[0], structure, read_trajectory=not(args.velocity_only))
     structure_file = args.load_velocity[0]
 else:
-    trajectory = reading.read_from_file_trajectory(args.md_file, structure)
+    trajectory_reading_function = reading.check_trajectory_file_type(args.md_file)
+    trajectory = trajectory_reading_function(args.md_file, structure, args.time_step, initial_cut=args.read_from, end_cut=args.read_to)
 
-calculation = controller.Calculation(trajectory, last_steps=args.n, save_hfd5=args.save_velocity[0])
+
+if isinstance(trajectory, list) or isinstance(trajectory, tuple):
+    print('Loading projected velocity only (limited features only)')
+    calculation = controller.Calculation(trajectory[2], vc=trajectory[0], last_steps=args.n)
+    calculation.parameters.reduced_q_vector = trajectory[1]
+
+else:
+    calculation = controller.Calculation(trajectory, last_steps=args.n)
+
 
 if '_band_ranges' in input_parameters:
     calculation.set_band_ranges(input_parameters['_band_ranges'])
-
 
 #Set Parameters
 calculation.parameters.silent = args.silent
@@ -125,37 +151,47 @@ if args.power_spectrum_algorithm:
 if args.number_of_mem_coefficients:
     calculation.parameters.number_of_coefficients_mem = args.number_of_mem_coefficients[0]
 
+#Process save properties
+if args.save_vc:
+    calculation.save_vc_hdf5(args.save_vc[0])
+
+if args.save_velocity:
+    calculation.save_velocity_hdf5(args.save_velocity[0], save_trajectory=not(args.velocity_only))
+
 #Process calculation arguments
 if args.frequency_range:
     calculation.set_frequency_range(np.linspace(*args.frequency_range))
 
 if args.save_direct:
-    calculation.write_correlation_direct(args.save_direct[0])
+    calculation.write_power_spectrum_direct(args.save_direct[0])
 
 if args.save_wave_vector:
-    calculation.write_correlation_wave_vector(args.save_wave_vector[0])
+    calculation.write_power_spectrum_wave_vector(args.save_wave_vector[0])
 
 if args.save_phonon_mode:
-    calculation.write_correlation_phonon(args.save_phonon_mode[0])
+    calculation.write_power_spectrum_phonon(args.save_phonon_mode[0])
 
 if args.plot_direct:
-    calculation.plot_correlation_direct()
+    calculation.plot_power_spectrum_direct()
 
 if args.plot_wave_vector:
-    calculation.plot_correlation_wave_vector()
+    calculation.plot_power_spectrum_wave_vector()
 
 if args.plot_phonon_mode:
-    calculation.plot_correlation_phonon()
+    calculation.plot_power_spectrum_phonon()
 
 if args.interactive:
     interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
 
-if args.plot_atomic_distribution:
-    calculation.plot_trajectory_distribution([float(Fraction(i)) for i in args.plot_atomic_distribution])
+if args.plot_atomic_displacements:
+    calculation.plot_trajectory_distribution([float(Fraction(i)) for i in args.plot_atomic_displacements])
 
-if args.save_atomic_distribution:
-    calculation.write_trajectory_distribution([float(Fraction(i)) for i in args.save_atomic_distribution[0:3]],
-                                              args.save_atomic_distribution[3])
+if args.save_atomic_displacements:
+    calculation.write_atomic_displacements([float(Fraction(i)) for i in args.save_atomic_displacements[0:3]],
+                                              args.save_atomic_displacements[3])
+if args.save_force_constants:
+    calculation.save_renormalized_constants(args.save_force_constants[0])
+
 
 #On development methods (not recommended)
 if args.display_spectrum:
@@ -165,4 +201,5 @@ if args.coefficient_scan_analysis:
     calculation.phonon_width_scan_analysis()
 
 if args.peak_analysis:
-    calculation.phonon_width_individual_analysis()
+    calculation.phonon_individual_analysis()
+    calculation.save_vc('test_vc')

@@ -2,14 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 
+kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
 
 def boltzmann_distribution(trajectory):
 
 
     print("\n***Velocity distribution analysis***")
 
-    velocity_unit = 3.335640951981E-7 # 1E^-2/c (A/ps -> c)
-    velocity = velocity_unit * np.reshape(np.linalg.norm(trajectory.get_velocity_mass_average(), axis=2),-1)
+
+    velocity = np.reshape(np.linalg.norm(trajectory.get_velocity_mass_average(), axis=2), -1)
 
     average = np.average(velocity)
     deviation = np.std(velocity)
@@ -19,14 +20,15 @@ def boltzmann_distribution(trajectory):
 
     params = maxwell.fit(velocity, floc=0)
     print('Fit parameter: {0:3.7e}'.format(params[1]))
-    boltzmann_constant = 8.6173324E-5   #eV/K
-    mass_unit = 931.494061E6 # u(Atomic mass unit) -> eV/c^2
-    temperature = pow(params[1],2)*mass_unit/boltzmann_constant
-    print('Temperature Fit: {0:7.6f}'.format(temperature))
+
+
+    temperature = pow(params[1],2)/kb_boltzmann
+    print('Temperature fit: {0:7.6f}'.format(temperature))
 
     x = np.linspace(0, average+3*deviation, 100)
     fig = plt.figure()
     ax = fig.add_subplot(111)
+    plt.xlabel('Velocity [Angtrom/ps]')
     ax.plot(x, maxwell.pdf(x,*params), lw=3)
     ax.text(0.95, 0.90, 'Temperature: {0:7.1f} K'.format(temperature),
         verticalalignment='bottom', horizontalalignment='right',

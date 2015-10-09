@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import dynaphopy.displacements as disp
 
 def progress_bar(progress):
     bar_length = 30
@@ -21,7 +22,39 @@ def progress_bar(progress):
     sys.stdout.write(text)
     sys.stdout.flush()
 
+#print(disp.relative_trajectory(cell, traj ,pos))
+
 def relativize_trajectory(dynamic):
+
+    cell = dynamic.structure.get_cell()
+    number_of_atoms = dynamic.trajectory.shape[1]
+    super_cell = dynamic.get_super_cell_matrix()
+    position = dynamic.structure.get_positions(super_cell=super_cell)
+    normalized_trajectory = np.zeros_like(dynamic.trajectory.real)
+    trajectory = dynamic.trajectory.real
+
+    progress_bar(0)
+
+
+
+    for j in range(number_of_atoms):
+
+    #    print(trajectory, position, cell)
+    #    print (disp.relative_trajectory(cell, trajectory[:,j,:], position[j]))
+        for i in range(0, normalized_trajectory.shape[0]):
+            difference = trajectory[i, j, :] - position[j]
+            difference_matrix = np.dot(np.linalg.inv(cell), difference)
+#            print(difference_matrix)
+
+        normalized_trajectory[:, j, :] = disp.relative_trajectory(cell, trajectory[:, j, :], position[j])
+
+        progress_bar(float(j+1)/number_of_atoms)
+
+  #  print(normalized_trajectory)
+
+    return normalized_trajectory
+
+def relativize_trajectory_py(dynamic):
 
     cell = dynamic.structure.get_cell()
     number_of_atoms = dynamic.trajectory.shape[1]
@@ -30,6 +63,7 @@ def relativize_trajectory(dynamic):
     normalized_trajectory = dynamic.trajectory.real.copy()
 
     progress_bar(0)
+
 
     for j in range(number_of_atoms):
         for i in range(0, normalized_trajectory.shape[0]):
@@ -43,11 +77,13 @@ def relativize_trajectory(dynamic):
 
         progress_bar(float(j+1)/number_of_atoms)
 
+  #  print(normalized_trajectory)
     return normalized_trajectory
 
 def trajectory_projection(dynamic, direction):
 
-    direction = np.array(direction)
+    direction = np.array(direction)/np.linalg.norm(direction)
+
     super_cell = dynamic.get_super_cell_matrix()
     trajectory = dynamic.get_relative_trajectory()
 
@@ -60,8 +96,8 @@ def trajectory_projection(dynamic, direction):
         projection = np.array([])
         for i in range(0, trajectory.shape[1]):
             if atom_type_index[i] == j:
-                projection = np.append(projection, np.dot(trajectory[:, i, :], direction/np.linalg.norm(direction)))
-
+           #     print('atom:', i, 'type:', atom_type_index[i])
+                projection = np.append(projection, np.dot(trajectory[:, i, :], direction/np.dot(direction, direction)),axis=1)
         projections.append(projection)
 
     return np.array(projections)

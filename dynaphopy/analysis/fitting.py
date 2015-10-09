@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
+h_planck = 39.90310 # A^2 * u / ps
+kb_bolzman = 0.831446 # u * A^2 / ( ps^2 * K )
 
 def lorentzian(x, a, b, c, d):
     return c/(np.pi*b*(1.0+((x-a)/b)**2))+d
@@ -21,7 +23,6 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
     positions = []
     shifts = []
 
-    print(range(original.shape[1]), " phonons")
     for i in range(original.shape[1]):
 
         power_spectrum = original[:, i]
@@ -35,29 +36,61 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
                                                     power_spectrum,
                                                     p0=[position, 0.1, height, 0.0])
         except:
-            print('Warning: Fitting error, phonon',i)
+            print('Warning: Fitting error in phonon {0}. Try increasing the spectrum point density'.format(i))
+            positions.append(0)
+            widths.append(0)
             continue
+
         maximum = fit_params[2]/(fit_params[1]*np.pi)
         error = get_error_from_covariance(fit_covariances)
         width = 2.0*fit_params[1]
+        area = fit_params[2]
+        frequency = fit_params[0]
 
+        total_integral = np.trapz(power_spectrum, x=test_frequencies_range)
+
+        #Calculated properties
+        dt_Q2_lor = 2 * 2 * area
+        dt_Q2_tot = 2 * 2 * total_integral
+
+        Q2_lor = dt_Q2_lor / pow(frequency * 2 * np.pi, 2)
+        Q2_tot = dt_Q2_tot / pow(frequency * 2 * np.pi,2)
+
+ #       occupancy_lor = Q2_lor * frequency / h_planck * pow(2 * np.pi, 2) - 0.5
+        occupancy_lor = dt_Q2_lor / (frequency * h_planck) - 0.5
+        occupancy_tot = dt_Q2_tot / (frequency * h_planck) - 0.5
+
+
+        #Print section
         print '\nPeak #', i+1
         print('------------------------------------')
-        print 'Width (FWHM):', width, 'THz'
-        print 'Position:', fit_params[0], 'THz'
-        print 'Area:', fit_params[2], 'THz'
-        print 'Maximum:', maximum
+        print 'Width (FWHM):             ', width, 'THz'
+        print 'Position:                 ', frequency, 'THz'
+        print 'Area (1/2<K>) (Loretzian):', area, 'u * Angstrom^2 / ps^2'             # Kinetic energy
+        print 'Area (1/2<K>) (Total):    ', total_integral, 'u * Angstrom^2 / ps^2'   # Kinetic energy
+        print '<|dQ/dt|^2>:              ', dt_Q2_lor, 'u * Angstrom^2 / ps^2'        # Total energy
+#        print '<|dQ/dt|^2> (tot):      ', dt_Q2_tot, 'u * Angstrom^2 / ps^2'        # Total energy
+ #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
+ #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
+        print 'Occupation number:        ', occupancy_lor
+ #       print 'Occupation number(tot): ', occupancy_tot
+        print 'Fit temperature           ', dt_Q2_lor / kb_bolzman, 'K'
+#        print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
+
+        print 'Maximum height:           ', maximum, 'u * Angstrom^2 * 2 pi / ps'
         if harmonic_frequencies is not None:
-            print 'Frequency shift:', fit_params[0] - harmonic_frequencies[i], 'THz'
-        print 'Fit Error/Max (RMS):', error/maximum
-        positions.append(fit_params[0])
+            print 'Frequency shift:          ', frequency - harmonic_frequencies[i], 'THz'
+        print 'Fit Error/Max. (RMS):     ', error/maximum
+
+        positions.append(frequency)
         widths.append(width)
 
-        plt.figure()
         if show_plots:
             plt.figure(i+1)
 
             plt.xlabel('Frequency [THz]')
+            plt.ylabel('$u * \AA^2 \pi/ ps$')
+
             plt.title('Curve fitting')
 
             plt.suptitle('Phonon '+str(i+1))

@@ -1,17 +1,17 @@
 import numpy as np
-
 import matplotlib.pyplot as plt
 
-import dynaphopy.functions.projection as projection
-import dynaphopy.methods.correlate as correlate
-import dynaphopy.methods.maximum_entropy as mem
+import dynaphopy.projection as projection
+import dynaphopy.power_spectrum.correlation as correlate
+import dynaphopy.power_spectrum.maximum_entropy as mem
 import dynaphopy.classes.parameters as parameters
-import dynaphopy.functions.phonopy_link as pho_interface
-import dynaphopy.functions.iofile as reading
+import dynaphopy.phonopy_link as pho_interface
+import dynaphopy.iofile as reading
 import dynaphopy.analysis.energy as energy
 import dynaphopy.analysis.fitting as fitting
 import dynaphopy.analysis.modes as modes
 import dynaphopy.analysis.coordinates as trajdist
+
 
 power_spectrum_functions = {
     0: correlate.get_correlation_spectra_par_python,
@@ -21,33 +21,37 @@ power_spectrum_functions = {
     4: mem.get_mem_spectra_par_openmp
 }
 
-
 class Calculation:
 
     def __init__(self,
                  dynamic,
                  last_steps=None,
-                 save_hfd5=None):
+                 vc=None):
 
         self._dynamic = dynamic
+        self._vc = vc
+
         self._eigenvectors = None
         self._frequencies = None
-        self._reduced_q_vector = None
-        self._vc = None
         self._vq = None
-        self._correlation_phonon = None
-        self._correlation_wave_vector = None
-        self._correlation_direct = None
+        self._power_spectrum_phonon = None
+        self._power_spectrum_wave_vector = None
+        self._power_spectrum_direct = None
         self._bands = None
         self._anharmonic_bands = None
 
         self._parameters = parameters.Parameters()
 
-        if save_hfd5:
-            self.save_velocity(save_hfd5)
+        self.crop_trajectory(last_steps)
 
-        self._dynamic.crop_trajectory(last_steps)
-        print("Using {0} steps".format(dynamic.velocity.shape[0]))
+
+    #Crop trajectory
+    def crop_trajectory(self, last_steps):
+        if self._vc is None:
+            self._dynamic.crop_trajectory(last_steps)
+        else:
+            if last_steps is not None:
+                self._vc = self._vc[-last_steps:, :, :]
 
     #Memory clear methods
     def full_clear(self):
@@ -55,14 +59,14 @@ class Calculation:
         self._frequencies = None
         self._vc = None
         self._vq = None
-        self._correlation_direct = None
-        self._correlation_wave_vector = None
-        self._correlation_phonon = None
+        self._power_spectrum_direct = None
+        self._power_spectrum_wave_vector = None
+        self._power_spectrum_phonon = None
 
-    def correlation_clear(self):
-        self._correlation_phonon = None
-        self._correlation_wave_vector = None
-        self._correlation_direct = None
+    def power_spectra_clear(self):
+        self._power_spectrum_phonon = None
+        self._power_spectrum_wave_vector = None
+        self._power_spectrum_direct = None
 
     #Properties
     @property
@@ -81,29 +85,39 @@ class Calculation:
     def write_to_xfs_file(self,file_name):
         reading.write_xsf_file(file_name,self.dynamic.structure)
 
-    def save_velocity(self, file_name, save_trajectory=True):
+    def save_velocity_hdf5(self, file_name, save_trajectory=True):
         if save_trajectory:
             trajectory = self.dynamic.trajectory
         else:
             trajectory = ()
 
         reading.save_data_hdf5(file_name,
-                               self.dynamic.velocity,
                                self.dynamic.get_time(),
                                self.dynamic.get_super_cell_matrix(),
+                               velocity=self.dynamic.velocity,
                                trajectory=trajectory)
 
         print("Velocity saved in file " + file_name)
 
 
+    def save_vc_hdf5(self, file_name):
+
+        reading.save_data_hdf5(file_name,
+                               self.dynamic.get_time(),
+                               self.dynamic.get_super_cell_matrix(),
+                               vc=self.get_vc(),
+                               reduced_q_vector=self.get_reduced_q_vector())
+
+        print("Projected velocity saved in file " + file_name)
+
     def set_number_of_mem_coefficients(self,coefficients):
-        self.correlation_clear()
+        self.power_spectra_clear()
         self.parameters.number_of_coefficients_mem = coefficients
 
-       #Frequency ranges related methods  (To be deprecated)
+    #Frequency ranges related methods  (To be deprecated)
 
     def set_frequency_range(self,frequency_range):
-        self.correlation_clear()
+        self.power_spectra_clear()
         self.parameters.frequency_range = frequency_range
 
     def get_frequency_range(self):
@@ -120,6 +134,7 @@ class Calculation:
     def get_q_vector(self):
         return np.dot(self.parameters.reduced_q_vector,
                       2.0*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
+
 
     #Phonopy harmonic calculation related methods
     def get_eigenvectors(self):
@@ -143,7 +158,7 @@ class Calculation:
         return self._frequencies
 
     def set_band_ranges(self,band_ranges):
-        self.correlation_clear()
+        self.power_spectra_clear()
         self.parameters.band_ranges = band_ranges
 
     def get_band_ranges(self):
@@ -174,11 +189,31 @@ class Calculation:
     def plot_eigenvectors(self):
         modes.plot_phonon_modes(self.dynamic.structure, self.get_eigenvectors(), self.get_q_vector())
 
+
+    def check_commensurate(self, q_vector):
+        super_cell= self.dynamic.get_super_cell_matrix()
+
+        commensurate = False
+        for vector in self.dynamic.structure.get_commensurate_points(super_cell=super_cell):
+            if vector == [0, 0, 0]:
+                vector = [1, 1, 1]
+
+            vector = np.array(vector)
+            q_vector = np.array(q_vector)
+            if np.all(np.equal(np.mod(q_vector/vector, 1), 0)) and np.unique(q_vector/vector).shape[0] == 1:
+                commensurate = True
+
+        return commensurate
+
     #Projections related methods
     def get_vc(self):
         if self._vc is None:
             print("Projecting into wave vector")
-            self._vc = projection.project_onto_wave_vector(self._dynamic,self.get_q_vector())
+            #Check if commensurate point
+#            if self.check_commensurate(self.get_reduced_q_vector()) == False:
+#                print("warning! Defined wave vector is not a commensurate point in this MD super cell")
+
+            self._vc = projection.project_onto_wave_vector(self.dynamic,self.get_q_vector())
         return self._vc
 
     def get_vq(self):
@@ -190,19 +225,31 @@ class Calculation:
     def plot_vq(self,modes=None):
         if not modes: modes = [0]
         plt.suptitle('Phonon mode projection')
+        plt.xlabel('Time [ps]')
+        plt.ylabel('$u^{1/2}\AA/ps$')
+
+
+        time = np.linspace(0, self.get_vc().shape[0]*self.dynamic.get_time_step_average(),
+                   num=self.get_vc().shape[0])
+
         for mode in modes:
-            plt.plot(self.dynamic.get_time().real,self.get_vq()[:,mode].real,label='mode: '+str(mode))
+            plt.plot(time,self.get_vq()[:,mode].real,label='mode: '+str(mode))
         plt.legend()
         plt.show()
 
     def plot_vc(self,atoms=None,coordinates=None):
         if not atoms: atoms = [0]
         if not coordinates: coordinates = [0]
+        time = np.linspace(0, self.get_vc().shape[0]*self.dynamic.get_time_step_average(),
+                           num=self.get_vc().shape[0])
 
         plt.suptitle('Wave vector projection')
+        plt.xlabel('Time [ps]')
+        plt.ylabel('$u^{1/2}\AA/ps$')
+
         for atom in atoms:
             for coordinate in coordinates:
-                plt.plot(self.dynamic.get_time().real,
+                plt.plot(time,
                          self.get_vc()[:, atom,coordinate].real,
                          label='atom: ' + str(atom) + ' coordinate:' + str(coordinate))
         plt.legend()
@@ -220,7 +267,7 @@ class Calculation:
     def select_power_spectra_algorithm(self,algorithm):
         if algorithm in power_spectrum_functions.keys():
             if algorithm != self.parameters.power_spectra_algorithm:
-                self.correlation_clear()
+                self.power_spectra_clear()
                 self.parameters.power_spectra_algorithm = algorithm
             print("Using {0} function".format(power_spectrum_functions[algorithm]))
         else:
@@ -229,70 +276,86 @@ class Calculation:
                 print(i,power_spectrum_functions[i])
             exit()
 
-    def get_correlation_phonon(self):
-        if self._correlation_phonon is None:
+    def get_power_spectrum_phonon(self):
+        if self._power_spectrum_phonon is None:
             print("Calculating phonon projection power spectrum")
-            self._correlation_phonon = (
+            self._power_spectrum_phonon = (
                 power_spectrum_functions[self.parameters.power_spectra_algorithm])(self.get_vq(),
                                                                                    self.dynamic,
                                                                                    self.parameters)
 
-        return self._correlation_phonon
+        return self._power_spectrum_phonon
 
-    def get_correlation_wave_vector(self):
-        if self._correlation_wave_vector is None:
+    def get_power_spectrum_wave_vector(self):
+        if self._power_spectrum_wave_vector is None:
             print("Calculating wave vector projection power spectrum")
-            self._correlation_wave_vector = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
+            self._power_spectrum_wave_vector = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
             for i in range(self.get_vc().shape[1]):
-                self._correlation_wave_vector += (
+                self._power_spectrum_wave_vector += (
                     power_spectrum_functions[self.parameters.power_spectra_algorithm])(self.get_vc()[:,i,:],
                                                                                        self.dynamic,
                                                                                        self.parameters)
 
-        return np.sum(self._correlation_wave_vector,axis=1)
+        return np.sum(self._power_spectrum_wave_vector,axis=1)
 
-    def get_correlation_direct(self):
-        if self._correlation_direct is None:
+    def get_power_spectrum_direct(self):
+        if self._power_spectrum_direct is None:
             print("Calculation direct power spectrum")
-            self._correlation_direct = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
+
+            Number_of_dimensions = self.dynamic.get_velocity_mass_average().shape[2]
+
+            self._power_spectrum_direct = np.zeros((len(self.get_frequency_range()),Number_of_dimensions))
             for i in range(self.dynamic.get_velocity_mass_average().shape[1]):
-                self._correlation_direct += (power_spectrum_functions[self.parameters.power_spectra_algorithm])(
+                self._power_spectrum_direct += (power_spectrum_functions[self.parameters.power_spectra_algorithm])(
                     self.dynamic.get_velocity_mass_average()[:, i, :],
                     self.dynamic,
                     self.parameters)
 
-        self._correlation_direct = np.sum(self._correlation_direct, axis=1)
-        return self._correlation_direct
+            self._power_spectrum_direct = np.sum(self._power_spectrum_direct, axis=1)
+        return self._power_spectrum_direct
 
     def phonon_width_scan_analysis(self):
         print("Phonon coefficient scan analysis(Maximum Entropy Method Only)")
-        self._correlation_phonon =  mem.mem_coefficient_scan_analysis(self.get_vq(),
+        self._power_spectrum_phonon =  mem.mem_coefficient_scan_analysis(self.get_vq(),
                                                                    self.dynamic,
                                                                    self.parameters)
 
-    def phonon_width_individual_analysis(self):
-        print("Phonon width analysis")
-        fitting.phonon_fitting_analysis(self.get_correlation_phonon(),
+    def phonon_individual_analysis(self):
+        print("Peak analysis analysis")
+        fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                         self.parameters.frequency_range,
                                         harmonic_frequencies=self.get_frequencies(),
                                         show_plots=not self.parameters.silent)
         return
 
-    def plot_correlation_direct(self):
-        plt.suptitle('Direct correlation')
-        plt.plot(self.get_frequency_range(), self.get_correlation_direct(), 'r-')
+    def plot_power_spectrum_direct(self):
+        plt.suptitle('Direct power spectrum')
+        plt.plot(self.get_frequency_range(), self.get_power_spectrum_direct(), 'r-')
+        plt.xlabel('Frequency [THz]')
+        plt.ylabel('$u * \AA^2 \pi/ ps$')
         plt.show()
 
-    def plot_correlation_wave_vector(self):
+        total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())
+        print ("Total Area (Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral*2))
+
+    def plot_power_spectrum_wave_vector(self):
         plt.suptitle('Projection onto wave vector')
-        plt.plot(self.get_frequency_range(),self.get_correlation_wave_vector(), 'r-')
+        plt.plot(self.get_frequency_range(),self.get_power_spectrum_wave_vector(), 'r-')
+        plt.xlabel('Frequency [THz]')
+        plt.ylabel('$u * \AA^2 \pi/ ps$')
         plt.show()
+        total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
+        print ("Total Area (Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral*2))
 
-    def plot_correlation_phonon(self):
-        for i in range(self.get_correlation_phonon().shape[1]):
+
+    def plot_power_spectrum_phonon(self):
+        for i in range(self.get_power_spectrum_phonon().shape[1]):
             plt.figure(i)
             plt.suptitle('Projection onto Phonon {0}'.format(i+1))
-            plt.plot(self.get_frequency_range(), self.get_correlation_phonon()[:, i])
+            plt.plot(self.get_frequency_range(), self.get_power_spectrum_phonon()[:, i])
+            plt.xlabel('Frequency [THz]')
+            plt.ylabel('$u * \AA^2 \pi/ ps$')
+
         plt.show()
 
     def get_anharmonic_dispersion_spectra(self, band_resolution=30):
@@ -304,7 +367,7 @@ class Calculation:
                     q_vector = np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i
 
                     self.set_reduced_q_vector(q_vector)
-                    phonon_frequencies = fitting.phonon_fitting_analysis(self.get_correlation_phonon(),
+                    phonon_frequencies = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                                                      self.parameters.frequency_range,
                                                                      show_plots=False)[0]
                     anharmonic_bands.append(phonon_frequencies)
@@ -326,8 +389,8 @@ class Calculation:
                          label='atom: {0}  coordinate: {1}'.format(atom,coordinate))
 
         plt.legend()
-        plt.xlabel('Femtoseconds')
-        plt.ylabel('Angstroms')
+        plt.xlabel('Time [ps]')
+        plt.ylabel('Angstrom')
         plt.show()
 
     def plot_velocity(self, atoms=None, coordinates=None):
@@ -344,8 +407,8 @@ class Calculation:
                          label='atom: {0}  coordinate: {1}'.format(atom,coordinate))
 
         plt.legend()
-        plt.xlabel('Femtoseconds')
-        plt.ylabel('Angstroms/femtosecond')
+        plt.xlabel('Time [ps]')
+        plt.ylabel('$\AA/ps$')
         plt.show()
 
     def plot_energy(self):
@@ -362,7 +425,7 @@ class Calculation:
 
         direction = np.array(direction)
 
-        distributions, distance = self.get_trajectory_distribution(direction)
+        distributions, distance = self.get_atomic_displacements(direction)
 
         plt.figure()
         for atom in range(distributions.shape[0]):
@@ -380,24 +443,24 @@ class Calculation:
 
 
     #Printing data to files
-    def write_correlation_direct(self, file_name):
+    def write_power_spectrum_direct(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_correlation_direct()[None].T,
+                                          self.get_power_spectrum_direct()[None].T,
                                           file_name)
 
-    def write_correlation_wave_vector(self, file_name):
+    def write_power_spectrum_wave_vector(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_correlation_wave_vector()[None].T,
+                                          self.get_power_spectrum_wave_vector()[None].T,
                                           file_name)
 
-    def write_correlation_phonon(self,file_name):
+    def write_power_spectrum_phonon(self,file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_correlation_phonon(),
+                                          self.get_power_spectrum_phonon(),
                                           file_name)
 
-    def get_trajectory_distribution(self, direction):
+    def get_atomic_displacements(self, direction):
 
-        number_of_bins=self.parameters.number_of_bins_histogram
+        number_of_bins = self.parameters.number_of_bins_histogram
         direction = np.array(direction)
 
         projections = trajdist.trajectory_projection(self.dynamic, direction)
@@ -415,11 +478,14 @@ class Calculation:
 
             distributions.append(distribution)
 
-        return np.array(distributions), bins
 
-    def write_trajectory_distribution(self, direction, file_name):
+        distance = bins - (bins[1]-bins[0])/2
 
-        distributions, distance = self.get_trajectory_distribution(direction)
+        return np.array(distributions), distance
+
+    def write_atomic_displacements(self, direction, file_name):
+
+        distributions, distance = self.get_atomic_displacements(direction)
 
         reading.write_correlation_to_file(distance, distributions.T, file_name)
 
@@ -432,3 +498,32 @@ class Calculation:
     #Other
     def get_algorithm_list(self):
         return power_spectrum_functions.values()
+
+    def save_renormalized_constants(self, filename="FORCE_CONSTANTS"):
+
+        com_points, dynmat2fc, phonon = pho_interface.get_commensurate_points(self.dynamic.structure)
+
+        normalized_frequencies = []
+        for i, reduced_q_point in enumerate(com_points):
+
+            print ("Qpoint: {0} / {1}".format(i,reduced_q_point))
+
+            self.set_reduced_q_vector(reduced_q_point)
+
+            positions, widths = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
+                                self.parameters.frequency_range,
+                                harmonic_frequencies=self.get_frequencies(),
+                                show_plots=False)
+
+            if (reduced_q_point == [0, 0, 0]).all():
+                print('Fixing gamma point frequencies')
+                positions[0] = 0
+                positions[1] = 0
+                positions[2] = 0
+
+            normalized_frequencies.append(positions)
+
+        normalized_frequencies = np.array(normalized_frequencies)
+
+        pho_interface.get_renormalized_forces_and_save_to_file(normalized_frequencies, dynmat2fc, phonon, filename)
+

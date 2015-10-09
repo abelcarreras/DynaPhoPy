@@ -1,6 +1,7 @@
 import numpy as np
 import itertools
 
+
 class Structure:
 
     def __init__(self,
@@ -70,7 +71,7 @@ class Structure:
         else:
             self._masses = masses
 
-# -------- Methods start here -----------
+    #-------- Methods start here -----------
 
     #Getting data
     def get_data_from_dict(self, data_dictionary):
@@ -159,6 +160,7 @@ class Structure:
 
         return position_super_cell
 
+
     def get_scaled_positions(self):
         if self._scaled_positions is  None:
             self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self.get_cell().T))
@@ -175,14 +177,14 @@ class Structure:
 
 
     def set_force_set(self, force_set):
-        self._force_set = np.array(force_set)
+        self._force_set = force_set
 
 
     def get_force_set(self):
         if self._force_set is None:
             print('No force sets specified!')
             exit()
-        return np.array(self._force_set)
+        return self._force_set
 
 
     def set_masses(self, masses):
@@ -234,13 +236,14 @@ class Structure:
     def get_number_of_atom_types(self):
         if self._number_of_atom_types is None:
             self._number_of_atom_types = len(set(self.get_atom_type_index()))
-   #         print(self._number_of_atom_types)
-        return  self._number_of_atom_types
+    #         print(self._number_of_atom_types)
+        return self._number_of_atom_types
+
 
     def get_number_of_primitive_atoms(self):
         if self._number_of_primitive_atoms is None:
-            self._number_of_primitive_atoms =  len(set(self.get_atom_type_index()))
-        return  self._number_of_primitive_atoms
+            self._number_of_primitive_atoms = len(set(self.get_atom_type_index()))
+        return self._number_of_primitive_atoms
 
 
     def set_number_of_primitive_atoms(self,number_of_primitive_atoms):
@@ -268,7 +271,9 @@ class Structure:
 
 
     def get_atom_type_index(self,super_cell=None):
+
 #       Tolerance for accepting equivalent atoms in super cell
+        masses = self.get_masses(super_cell=super_cell)
         tolerance = 0.001
         if self._atom_type_index is None:
             primitive_cell_inverse = np.linalg.inv(self.get_primitive_cell())
@@ -279,7 +284,6 @@ class Structure:
                 if self._atom_type_index[i] is None:
                     self._atom_type_index[i] = counter
                     counter += 1
-
                 for j in range(i+1, self.get_number_of_cell_atoms()):
                     coordinates_atom_i = self.get_positions()[i]
                     coordinates_atom_j = self.get_positions()[j]
@@ -288,7 +292,7 @@ class Structure:
                     projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_primitive_cell(), difference_in_cell_coordinates)
                     separation = pow(np.linalg.norm(projected_coordinates_atom_j - coordinates_atom_i),2)
 
-                    if separation < tolerance:
+                    if separation < tolerance and  masses[i] == masses[j]:
                         self._atom_type_index[j] = self._atom_type_index[i]
         self._atom_type_index = np.array(self._atom_type_index,dtype=int)
 
@@ -299,6 +303,31 @@ class Structure:
         for j in range(self.get_number_of_cell_atoms()):
             atom_type_index_super_cell += [self._atom_type_index[j] ] * np.prod(super_cell)
         return  atom_type_index_super_cell
+
+
+    def get_commensurate_points(self, super_cell=None):
+
+        if super_cell is None:
+            super_cell = self.get_number_of_dimensions() * [1]
+
+        primitive_matrix = self.get_primitive_matrix()
+
+        commensurate_points = []
+        for k1 in np.arange(-0.5, 0.5, 1./(super_cell[0]*2)):
+            for k2 in np.arange(-0.5, 0.5, 1./(super_cell[1]*2)):
+                for k3 in np.arange(-0.5, 0.5, 1./(super_cell[2]*2)):
+    
+                    q_point = [np.around(k1,decimals=5), np.around(k2,decimals=5), np.around(k3,decimals=5)]
+    
+                    q_point_unit_cell = np.dot(q_point, np.linalg.inv(primitive_matrix))
+                    q_point_unit_cell = np.multiply(q_point_unit_cell, super_cell)
+    
+                    if np.all(np.equal(np.mod(q_point_unit_cell, 1), 0)):
+                        commensurate_points.append(q_point)
+                        
+        return commensurate_points
+
+
 
 
 atom_data = [
