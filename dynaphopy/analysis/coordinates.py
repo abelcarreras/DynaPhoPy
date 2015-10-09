@@ -64,7 +64,6 @@ def relativize_trajectory_py(dynamic):
 
     progress_bar(0)
 
-
     for j in range(number_of_atoms):
         for i in range(0, normalized_trajectory.shape[0]):
 
