@@ -38,7 +38,7 @@ parser.add_argument('-ts', '--time_step', metavar='step', type=float, default=No
                    help='time step in ps (default: 0 [Read from trajectory file])')
 
 parser.add_argument('-pd', '--plot_direct', action='store_true',
-                    help='plot direct power spectrum')
+                    help='plot full power spectrum')
 
 parser.add_argument('-pw', '--plot_wave_vector', action='store_true',
                     help='plot projection into wave vector')
@@ -47,7 +47,7 @@ parser.add_argument('-pp', '--plot_phonon_mode', action='store_true',
                     help='plot projection into phonon modes')
 
 parser.add_argument('-sd', '--save_direct', metavar='file', type=str, nargs=1,
-                    help='save direct power spectrum to file')
+                    help='save full power spectrum to file')
 
 parser.add_argument('-sw', '--save_wave_vector', metavar='file', type=str, nargs=1,
                     help='save projection into wave vector to file')
