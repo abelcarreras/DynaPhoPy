@@ -13,14 +13,17 @@ def eigenvectors_normalization(eigenvector):
 
 
 def get_force_sets_from_file(file_name='FORCE_SETS'):
-    #Just a wrapper to phonopy own function
+    #Just a wrapper to phonopy function
     force_sets = parse_FORCE_SETS(filename=file_name)
     return force_sets
 
+def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
+    #Just a wrapper to phonopy function
+    write_FORCE_CONSTANTS(force_constants, filename=filename)
 
-def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
 
-#   Checking data
+def get_phonon(structure, NAC=False):
+
     force_atoms_file = structure.get_force_set()['natom']
     force_atoms_input = np.product(np.diagonal(structure.get_super_cell_phonon()))*structure.get_number_of_atoms()
 
@@ -29,7 +32,7 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
         exit()
 
 
-#   Preparing the bulk type object
+    #Preparing the bulk type object
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
                         scaled_positions=structure.get_scaled_positions(),
                         cell=structure.get_cell().T)
@@ -38,7 +41,6 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
                      primitive_matrix=structure.get_primitive_matrix(),
                      is_auto_displacements=False)
 
-    #print(phonon.get_primitive().get_cell())
     #Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
     if NAC:
         print("Phonopy warning: Using Non Analytical Corrections")
@@ -49,7 +51,23 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
 
 
     phonon.set_displacement_dataset(structure.get_force_set())
-    phonon.produce_force_constants()
+    phonon.produce_force_constants(computation_algorithm="svd")
+
+
+    return phonon
+
+
+
+def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
+
+    force_atoms_file = structure.get_force_set()['natom']
+    force_atoms_input = np.product(np.diagonal(structure.get_super_cell_phonon()))*structure.get_number_of_atoms()
+
+    if force_atoms_file != force_atoms_input:
+        print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
+        exit()
+
+    phonon = get_phonon(structure)
 
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
@@ -79,24 +97,23 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
 def obtain_phonon_dispersion_spectra(structure, bands_ranges, NAC=False, band_resolution=30):
 
     print('Calculating phonon dispersion spectra...')
-    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
-                        scaled_positions=structure.get_scaled_positions(),
-                        cell=structure.get_cell().T)
+    phonon = get_phonon(structure, NAC=False)
 
-    phonon = Phonopy(bulk,structure.get_super_cell_phonon(),
-                     primitive_matrix= structure.get_primitive_matrix(),
-                     is_auto_displacements=False)
+    bands =[]
+    for q_start, q_end in bands_ranges:
+        band = []
+        for i in range(band_resolution+1):
+            band.append(np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i)
+        bands.append(band)
+    phonon.set_band_structure(bands)
 
-    if NAC:
-        print("Phonopy warning: Using Non Analitical Corrections")
-        print("BORN file is needed to do this")
-        get_is_symmetry = True  #sfrom phonopy: settings.get_is_symmetry()
-        primitive = phonon.get_primitive()
-        nac_params = parse_BORN(primitive, get_is_symmetry)
-        phonon.set_nac_params(nac_params=nac_params)
+    return phonon.get_band_structure()
 
-    phonon.set_displacement_dataset(structure.get_force_set())
-    phonon.produce_force_constants()
+def obtain_renormalized_phonon_dispersion_spectra(structure, bands_ranges, force_constants, NAC=False, band_resolution=30):
+
+    print('Calculating phonon dispersion spectra...')
+    phonon = get_phonon(structure, NAC=False)
+    phonon.set_force_constants(force_constants)
 
     bands =[]
     for q_start, q_end in bands_ranges:
@@ -109,33 +126,8 @@ def obtain_phonon_dispersion_spectra(structure, bands_ranges, NAC=False, band_re
     return phonon.get_band_structure()
 
 
-def get_phonon(structure):
 
-#   Checking data
-    force_atoms_file = structure.get_force_set()['natom']
-    force_atoms_input = np.product(np.diagonal(structure.get_super_cell_phonon()))*structure.get_number_of_atoms()
-
-    if force_atoms_file != force_atoms_input:
-        print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
-        exit()
-
-
-#   Preparing the bulk type object
-    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
-                        scaled_positions=structure.get_scaled_positions(),
-                        cell=structure.get_cell().T)
-
-    phonon = Phonopy(bulk, structure.get_super_cell_phonon(),
-                     primitive_matrix=structure.get_primitive_matrix(),
-                     is_auto_displacements=False)
-
-    phonon.set_displacement_dataset(structure.get_force_set())
-    phonon.produce_force_constants(computation_algorithm="svd")
-
-
-    return phonon
-
-def get_commensurate_points(structure):
+def get_commensurate_points_info(structure):
 
     phonon = get_phonon(structure)
 
@@ -149,7 +141,7 @@ def get_commensurate_points(structure):
 
     return com_points, dynmat2fc, phonon
 
-def get_renormalized_forces_and_save_to_file(normalized_frequencies, dynmat2fc, phonon, filename, degenerate=True):
+def calculate_renormalized_force_constants(normalized_frequencies, dynmat2fc, phonon, degenerate=True):
 
     frequencies, eigenvectors = phonon.get_qpoints_phonon()
 
@@ -159,9 +151,9 @@ def get_renormalized_forces_and_save_to_file(normalized_frequencies, dynmat2fc, 
     dynmat2fc.set_dynamical_matrices(normalized_frequencies / VaspToTHz, eigenvectors)
     dynmat2fc.run()
 
-    fc = dynmat2fc.get_force_constants()
+    force_constants = dynmat2fc.get_force_constants()
 
-    write_FORCE_CONSTANTS(fc, filename=filename)
+    return force_constants
 
 def get_degenerated_frequencies(frequencies, normalized_frequencies):
 

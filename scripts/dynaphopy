@@ -163,7 +163,7 @@ if args.frequency_range:
     calculation.set_frequency_range(np.linspace(*args.frequency_range))
 
 if args.save_direct:
-    calculation.write_power_spectrum_direct(args.save_direct[0])
+    calculation.write_power_spectrum_full(args.save_direct[0])
 
 if args.save_wave_vector:
     calculation.write_power_spectrum_wave_vector(args.save_wave_vector[0])
@@ -172,7 +172,7 @@ if args.save_phonon_mode:
     calculation.write_power_spectrum_phonon(args.save_phonon_mode[0])
 
 if args.plot_direct:
-    calculation.plot_power_spectrum_direct()
+    calculation.plot_power_spectrum_full()
 
 if args.plot_wave_vector:
     calculation.plot_power_spectrum_wave_vector()
@@ -190,7 +190,7 @@ if args.save_atomic_displacements:
     calculation.write_atomic_displacements([float(Fraction(i)) for i in args.save_atomic_displacements[0:3]],
                                               args.save_atomic_displacements[3])
 if args.save_force_constants:
-    calculation.save_renormalized_constants(args.save_force_constants[0])
+    calculation.write_renormalized_constants(args.save_force_constants[0])
 
 
 #On development methods (not recommended)

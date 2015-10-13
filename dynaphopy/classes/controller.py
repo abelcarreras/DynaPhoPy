@@ -38,7 +38,8 @@ class Calculation:
         self._power_spectrum_wave_vector = None
         self._power_spectrum_direct = None
         self._bands = None
-        self._anharmonic_bands = None
+        self._renormalized_bands = None
+        self._renormalized_force_constants = None
 
         self._parameters = parameters.Parameters()
 
@@ -67,6 +68,8 @@ class Calculation:
         self._power_spectrum_phonon = None
         self._power_spectrum_wave_vector = None
         self._power_spectrum_direct = None
+        self._renormalized_force_constants = None
+        self._renormalized_bands = None
 
     #Properties
     @property
@@ -174,8 +177,23 @@ class Calculation:
             plt.plot(self._bands[1][i],self._bands[2][i],color ='r')
         plt.axes().get_xaxis().set_visible(False)
         plt.ylabel('Frequency (THz)')
+        plt.suptitle('Renormalized phonon dispersion spectra')
+        plt.show()
+
+    def get_renormalized_phonon_dispersion_spectra(self):
+        if self._renormalized_bands is None:
+            self._renormalized_bands = pho_interface.obtain_renormalized_phonon_dispersion_spectra(self.dynamic.structure,
+                                                                                      self.parameters.band_ranges,
+                                                                                      self.get_renormalized_constants(),
+                                                                                      NAC=self.parameters.use_NAC)
+
+        for i,freq in enumerate(self._renormalized_bands[1]):
+            plt.plot(self._renormalized_bands[1][i],self._renormalized_bands[2][i],color ='r')
+        plt.axes().get_xaxis().set_visible(False)
+        plt.ylabel('Frequency (THz)')
         plt.suptitle('Phonon dispersion spectra')
         plt.show()
+
 
     def print_phonon_dispersion_spectrum(self):
         if self._bands is None:
@@ -328,15 +346,15 @@ class Calculation:
                                         show_plots=not self.parameters.silent)
         return
 
-    def plot_power_spectrum_direct(self):
-        plt.suptitle('Direct power spectrum')
+    def plot_power_spectrum_full(self):
+        plt.suptitle('Full power spectrum')
         plt.plot(self.get_frequency_range(), self.get_power_spectrum_direct(), 'r-')
         plt.xlabel('Frequency [THz]')
         plt.ylabel('$u * \AA^2 \pi/ ps$')
         plt.show()
 
         total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())
-        print ("Total Area (Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral*2))
+        print ("Total Area (1/2 Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
         plt.suptitle('Projection onto wave vector')
@@ -345,34 +363,18 @@ class Calculation:
         plt.ylabel('$u * \AA^2 \pi/ ps$')
         plt.show()
         total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
-        print ("Total Area (Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral*2))
+        print ("Total Area (1/2 Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral))
 
 
     def plot_power_spectrum_phonon(self):
         for i in range(self.get_power_spectrum_phonon().shape[1]):
             plt.figure(i)
-            plt.suptitle('Projection onto Phonon {0}'.format(i+1))
+            plt.suptitle('Projection onto phonon {0}'.format(i+1))
             plt.plot(self.get_frequency_range(), self.get_power_spectrum_phonon()[:, i])
             plt.xlabel('Frequency [THz]')
             plt.ylabel('$u * \AA^2 \pi/ ps$')
 
         plt.show()
-
-    def get_anharmonic_dispersion_spectra(self, band_resolution=30):
-        if self._anharmonic_bands is None:
-            anharmonic_bands = []
-            for q_start, q_end in self.parameters.band_ranges:
-                print(q_start)
-                for i in range(band_resolution+1):
-                    q_vector = np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i
-
-                    self.set_reduced_q_vector(q_vector)
-                    phonon_frequencies = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
-                                                                     self.parameters.frequency_range,
-                                                                     show_plots=False)[0]
-                    anharmonic_bands.append(phonon_frequencies)
-            self._anharmonic_bands = np.array(anharmonic_bands)
-        return self._anharmonic_bands
 
     #Plot dynamical properties related methods
     def plot_trajectory(self, atoms=None, coordinates=None):
@@ -443,7 +445,7 @@ class Calculation:
 
 
     #Printing data to files
-    def write_power_spectrum_direct(self, file_name):
+    def write_power_spectrum_full(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_power_spectrum_direct()[None].T,
                                           file_name)
@@ -499,31 +501,44 @@ class Calculation:
     def get_algorithm_list(self):
         return power_spectrum_functions.values()
 
-    def save_renormalized_constants(self, filename="FORCE_CONSTANTS"):
 
-        com_points, dynmat2fc, phonon = pho_interface.get_commensurate_points(self.dynamic.structure)
 
-        normalized_frequencies = []
-        for i, reduced_q_point in enumerate(com_points):
+    def get_renormalized_constants(self):
 
-            print ("Qpoint: {0} / {1}".format(i,reduced_q_point))
+        if self._renormalized_force_constants is None:
+            com_points, dynmat2fc, phonon = pho_interface.get_commensurate_points_info(self.dynamic.structure)
 
-            self.set_reduced_q_vector(reduced_q_point)
+            initial_reduced_q_point = self.get_reduced_q_vector()
 
-            positions, widths = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
-                                self.parameters.frequency_range,
-                                harmonic_frequencies=self.get_frequencies(),
-                                show_plots=False)
+            normalized_frequencies = []
+            for i, reduced_q_point in enumerate(com_points):
 
-            if (reduced_q_point == [0, 0, 0]).all():
-                print('Fixing gamma point frequencies')
-                positions[0] = 0
-                positions[1] = 0
-                positions[2] = 0
+                print ("Qpoint: {0} / {1}".format(i,reduced_q_point))
 
-            normalized_frequencies.append(positions)
+                self.set_reduced_q_vector(reduced_q_point)
 
-        normalized_frequencies = np.array(normalized_frequencies)
+                positions, widths = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
+                                    self.parameters.frequency_range,
+                                    harmonic_frequencies=self.get_frequencies(),
+                                    show_plots=False)
 
-        pho_interface.get_renormalized_forces_and_save_to_file(normalized_frequencies, dynmat2fc, phonon, filename)
+                if (reduced_q_point == [0, 0, 0]).all():
+                    print('Fixing gamma point frequencies')
+                    positions[0] = 0
+                    positions[1] = 0
+                    positions[2] = 0
 
+                normalized_frequencies.append(positions)
+
+            normalized_frequencies = np.array(normalized_frequencies)
+
+            self._renormalized_force_constants = pho_interface.calculate_renormalized_force_constants(normalized_frequencies,
+                                                                                                      dynmat2fc,
+                                                                                                      phonon)
+            self.set_reduced_q_vector(initial_reduced_q_point)
+
+        return self._renormalized_force_constants
+
+    def write_renormalized_constants(self, filename="FORCE_CONSTANTS"):
+        force_constants = self.get_renormalized_constants()
+        pho_interface.save_force_constants_to_file(force_constants, filename)
