@@ -19,7 +19,7 @@
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
         <header class="inner">
-          <h2 id="project_tagline">Options description</h2>
+          <h2 id="project_tagline">Features description</h2>
 
         </header>
     </div>
@@ -36,8 +36,10 @@ Dynaphopy calculates the phonon linewidths and frequency shifts analizing the po
 phonon modes coordinates. As a first step the velocity is be projected into the point in thereciprocal space (wave vector) in which 
 the harmonic phonon modes are defined.
 To calculate this power spectrum dynaphopy can use either <a href="http://mathworld.wolfram.com/FourierTransform.html">Fourier transform</a>, or <a href="http://cmm.cit.nih.gov/maxent/letsgo.html">Maximum Entropy Method</a>(MEM). Fourier transform is a robust method widely used in many fields 
-of physics to descompose signals into elemental frequencies without information loss. On the other hand, MEM is a very fast method that approximates the whole signal into a much simpler function made by the most representative frequencies. This way it allows to separate the noise from the important data showing smoother spectra that becomes easier to analize. For this reason MEM is highly recomended when working with very long MD. Fourier transform algorith can be used in short MD simulations and eventually to corroborate the results obtained using MEM.  
+of physics to descompose signals into elemental frequencies without information loss. On the other hand, MEM is a very fast method that approximates the whole signal into a much simpler function made by the most representative frequencies. This way it allows to separate the noise from the important data showing smoother spectra that becomes easier to analize. For this reason MEM is highly recomended when working with very long MD and is the default option. 
 
+<br>Fourier transform algorith may be used in short MD simulations, or to corroborate the results obtained using MEM. Fourier transform is expected to work better when the number of samples is low, and it will yield better measures of the power spectrum area if the spectra is calculated with high resolution. 
+ 
 <h3>Power spectra</h3>
 <p>The power spectrum calculated by Dynaphopy can be either displayed in a matplotlib X window or stored in a file. The selection of the algorithm used to calculate the power spectra is defined by <strong>-psm</strong> flag followed by algorithm number.
 <br>At the present time there are 5 algorithms available:</p>
@@ -51,61 +53,89 @@ of physics to descompose signals into elemental frequencies without information 
 <em>Algorithms 0 and 1 and are essencially for testing purposes so algorithms 2, 3 and 4 are <strong>strongly</strong> recomended. 
 If not specified algorithm 4 is used.</em>
 
-<pre><code>$ ./dynaphopy input_file OUTCAR -psm 4</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -psm 4
+</code></pre>
 <p> Fourier methods do not require additional parameters but Maximum Entropy Method (MEM) does. MEM allows to obtain smoother and faster 
 power spectra interpolating the velocity using a polynomia which depends on a certain number of coefficents. The higher this number is, the heavier the calculation becomes and the result becomes closer to Fourier transfom solution. Fortunatelly, usually the convergence of the peaks shape in MEM can be found with 1000-3000 coeficients obtaining a very good performance. By default the number of coefficents used is 1000 but it can be changed using <strong>-cf</strong> followed by the number of coeficients.</p>
 
-<pre><code>$ ./dynaphopy input_file OUTCAR -cf 2000</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -cf 2000
+</code></pre>
 
 <UL>
 <LI><h5>Full power spectra</h5>
 <p> 
-This options calculate the power spectra directly from cartesian coordinates velocity without peforming any projection. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps limit, this power spectrum tends to the vibrational density of states (VDoS).
+This options calculate the power spectra directly from cartesian coordinates velocity without peforming any projection. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps and MD cell size limit, this power spectrum tends to the vibrational density of states (VDoS).
+
+<br><em>Notice that the super cell size limit is practically unreachable. This is <strong>not</strong> a good method at all to calculate the VDoS. For this purpose is better to interpolate a larger set of q points within the Brillouin zone. Refere to force renormalization section. </em>
+
+
 </p>
 <p>Plot spectrum in a matplotlib X window:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -pd</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -pd
+</code></pre>
 <p>Save spectrum to file:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -sd filename</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -sd filename
+</code></pre>
+
+When this spectrum is requested, the area bellow the curve is also calculated. This area correspond to one half of the total kinetic energy of the phonon within the MD cell. According to the <a href="https://en.wikipedia.org/wiki/Equipartition_theorem">equipartition theorem</a>, at high temperatures this value can be approximated to:
+
+</p>
+<p style="text-align:center">
+$$ \frac{1}4 N K_bT$$
+</p>
+where <em>N</em> is the number of phonon in the MD cell, <em>Kb</em> the <a href="https://en.wikipedia.org/wiki/Boltzmann_constant">Boltzmann constant</a> and <em>T</em> the temperature.
 
 <LI><h5>Wave vector projection power spectra</h5>
-<p>This options request the  velocity to be projected into a point in the reciprocal space (wave vector) and obtain the power spectrum.
+<p>This options request the  velocity to be projected into a q point (wave vector) and obtain the power spectrum.
 <p>Plot spectrum in a matplotlib X window:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -pw</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -pw
+</code></pre>
 <p>Save spectrum to file:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -sw filename</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -sw filename
+</code></pre>
+
+<br><em>Like in the full power spectrum calculation, this option also calculates the area of this spectrum. In this case, since the velocity has been projected, only contains the contribution of the phonon within the defined primitive cell.</em>
+</p>
 
 <LI><h5>Phonon modes projection power spectra</h5>
-<p>This option requests the velocity to be projected into a point in the reciprocal space (wave vector) and additionally
-projected it into each of the harmonic phonon modes defined in this point. This option requieres phonopy to be correctlly installed and 
+<p>This option requests the velocity to be projected into a q point (wave vector) and additionally
+projected it into each of the harmonic phonon modes defined in this point. This option requieres phonopy to be correctly installed and 
 <strong>FORCE_SETS</strong> file has to be calculated first. The result is a set of phonon mode projections (one for each phonon)
-which are either displayed in the screen in diferent windows or stored in a file (one column for each phonon) sorted from lower 
+which are either displayed in the screen in different windows or stored in a file (one column for each phonon) sorted from lower 
 to higher frequency.
 
 <p>Plot spectrum in a matplotlib X window:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -pp</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -pp
+</code></pre>
 <p>Save spectrum to file:</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -sp filename</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -sp filename
+</code></pre>
 
 <LI><h5>Additional options</h5>
 <p>Use <strong>-r</strong> option to change the power spectrum range and resolution (start, end, number of points).</p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -r 0 25 100</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -r 0 25 100
+</code></pre>
 <p>Use <strong>-q</strong> to change the recirpocal space point (wave vector) into which the velocity is projected. This option
 takes 3 real numbers (wave vector in reduced coordinates).
-<pre><code>$ ./dynaphopy input_file OUTCAR -q 0.5 0 0.5</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -q 0.5 0 0.5
+</code></pre>
 
-<p>The number of time steps used to calculate the power spectra may have great influence in the final result. By default 
-it takes the <strong>last 2000</strong> time steps but <strong>-n</strong> flag allows to change this value. This flag is followed by
- the number of last time steps to be used in the calculation. It is recomended to leave some 
-stabilitzation time steps in the begining to ensure that the MD is totally converged. In interactive mode, using this flag is also
-used to define the number of time steps to use.
+<p>The number of time steps used to calculate the power spectra may have great influence in the final result. Using more time steps will lead to more converged results, however, this will imply a increase of the computational time (specially for Fourier transform method. Additionally, usually the MD simulation will take some time to equilibrate. Those initial time steps cannot be used and must be removed from the calculation. 
+For this purpose DynaPhoPy includes some options to manipulate the input MD data.
+The main one is <strong>-n</strong> flag. This flag defines the number of steps used in the calculations starting from the back. In other words, it will take the last N steps of the MD file.
+
 <br><em>If the OUTCAR file contains less time steps than the especified in <strong>-n</strong> flag, all time steps will be used.</em></p>
 
-<pre><code>$ ./dynaphopy input_file OUTCAR -n 5000</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -n 5000
+</code></pre>
 
 <p>All these option can be combined to obtain the desired results. In interactive mode these options can also be used as initial 
-paramters that can be changed inside interactive menus. The only exception is <strong>-n</strong> flag that cannot be changed. 
-For very long MD the amount of RAM memory needed to do the calculations can be huge so the initial discarted time steps are erased 
-from memory at the begining of the execution.
+parameters that can be changed inside interactive menus. The only exception is <strong>-n</strong> flag that cannot be changed. 
+For very long MD the amount of RAM memory needed to do the calculations can be huge so the initial discarted time steps are erased from memory at the begining of the execution.
+<br><em>However, it is still necessary to keep the full MD trajectory in memory at the beginning before removing the initial steps. For detailed information about to work with huge MD data refere to special features</em>
+</p>
+
+
 </UL>
 
 <h3>Obtaining anharmonic phonon properties</h5>
@@ -118,19 +148,57 @@ requested through flag <strong>-pa</strong>.
 <br><em>This option works better with MEM method since the obtained sprectra are smoother. In case of Fourier trasform calculations
 some smoothing methods may be used before fitting.</em>
 
-<pre><code>$ ./dynaphopy input_file OUTCAR -pa</code></pre>
+<pre><code>$ ./dynaphopy input_file OUTCAR -pa
+</code></pre>
 <p> 
-When the calculation is finished individual information for each phonon is displayed on the screen. Widht and position correspond directly
-to the phonon linewidths and peak anharmonic frequency. Frequency shifts are calculated from the diference between the harmonic frequency
-and calculated anharmonic frequency (position) for each peak.
+When the calculation is finished the individual information of each phonon (sorted from low to high frequency) is displayed on the screen. Position and Width correspond to the anharmonic frequency and linewidth of the corresponding phonon (in this case the 7th phonon) respectively. Frequency shifts are calculated from the diference between the harmonic frequency and calculated anharmonic frequency (Position) of each peak.
 </p>
-<pre><code>Peak # 4------------------------------------Width (FWHM): 0.942807095508 THzPosition: 16.2166860349 THzArea: 4250.53142961 THzFrequency shift: 0.956759285644 THzFitting Error (RMS): 690.223340187</code></pre><p>
-When the calculation is finished, for each peak a matplotlib X window apear in the screen showing the result of the fitting for visual analysis.
-For new systems is strongly recomended to check for each phonon spectrum fitting to ensure that it has been succesfully performed.
-To do calculations in batch, flag <strong>--silent</strong> may be used. With this flag only the text data is shown.
-information wich can be stored in a file redirecting the output.   
+<pre><code>Peak # 7
+------------------------------------
+Width (FWHM):              7.23023622031 THz
+Position:                  14.5432491526 THz
+Area (1/2<K>) (Loretzian): 768.615859207 u * Angstrom^2 / ps^2
+Area (1/2<K>) (Total):     635.398869055 u * Angstrom^2 / ps^2
+<|dQ/dt|^2>:               3074.46343683 u * Angstrom^2 / ps^2
+Occupation number:         4.79786944186
+Fit temperature            3697.73074478 K
+Maximum height:            67.6763577864 u * Angstrom^2 * 2 pi / ps
+Frequency shift:           0.19964818724 THz
+Fit Error/Max. (RMS):      9.14172647357
+</code></pre>
+<p>
+<br><strong>Width:</strong>	Phonon linewidth
+<br><strong>Position:</strong> Anharmonic phonon frequency
+<br><strong>Area:</strong> The integration of the power spectrum. This area is equal to one half of the total kinetic energy of each phonon. At high temperature this area should be close to:
 </p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -pa --silent > output.log</code></pre>
+<p style="text-align:center">
+$$ \frac{1}4 N K_bT$$
+</p>
+However, due to the anharmonicity, the harmonic eigenvectors may not describe correctly the anharmonic phonons and this value may change. This value is calculated fromt he obtained power spectrum (tot) and from the interpolated Lorentzian curve (Lorenzian). As long as the phonon quasi particles approximation is correct, the area obtained from Loretzian curve should be more trustfull. Using MEM method, both areas tend to be equal. However, in the Fourier Transform method, due to the noise these values may differ. For this reason, visual analysis is strongly recommended to ensure a good fitting.
+<br><strong><|dQ/dt|^2>:</strong> Time derivative of the phonon coordinate. Within the harmonic approximation, this value is equal to the double of the kinetic energy and equal to the total energy.</p>
+
+<p style="text-align:center">
+$$ \left\langle E \right\rangle  = \left\langle K \right\rangle  + \left\langle V \right\rangle  = 2 \cdot \left\langle K \right\rangle  = \left\langle {{{\left| {\dot Q} \right|}^2}} \right\rangle  = {K_b}T $$
+</p>
+
+From this equation temperature can be isolated. This value is shown in <strong>Fit Temperature</strong>.
+<br><strong>Occupation number:</strong> Calculated from  <a href="https://en.wikipedia.org/wiki/Bose%E2%80%93Einstein_statistics">Bose-Einstein distribution</a>.</p>
+
+<p style="text-align:center">
+$$n = \frac{{\left\langle E \right\rangle }}{{\hbar \omega }} - \frac{1}{2}$$
+</p>
+where <em>n</em> is the occupation number and <em>&omega;</em> is the phonon frequency (Position).
+<p>
+<br><strong>Frequency shift:</strong> Difference between anharmonic frequency (Position) and harmonic frequency.
+<br><strong>Fit Error/Max. (RMS):</strong> Error of the Lorentzian curve with the power spectrum divided by the peak height. This is another good method to know how good is the phonon decomposition technique approximation for the studied system. For MEM method it is expected to be very low (<1E-5). In the case of Fourier transform method can depend very much on the noise and the temperature so can only be used as relative reference between peaks. 
+<br><em>Using <strong>fitdata</strong> script, these noisy spectra can be smoothed and a similar low fitting error can be obtained (refere to Advanced features section).</em>
+
+<br><p>When the calculation is finished, for each peak a matplotlib X window apear in the screen showing the result of the fitting for visual analysis. This is very convenient for visual analysis of short MD trajectories, but when the calculations are long, specially using Fourier transform, and the calculations are done in cluster computers, xwindows cannot be displayed and the calculation may crash.
+
+<br><p>In this case flag <strong>--silent</strong> may be used. Using this flag only the text data is shown in the screen and the phonon information wich can be stored redirecting the output to a file.   
+</p>
+<pre><code>$ ./dynaphopy input_file OUTCAR -pa --silent > output.log
+</code></pre>
 <p> 
 
     </section>

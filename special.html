@@ -43,6 +43,10 @@ script called <strong>concath5</strong> which allows join several hdf5 files int
 trajectories each run. Please, refere to VASP <a href=http://cms.mpi.univie.ac.at/vasp/vasp/Advanced_MD_techniques.html">documentation</a> 
 for further information.</em></p>
 <UL>
+
+ 
+
+
 <LI><h5>Save data into hdf5 file </h5>
 <p>Saving data into hdf5 file can be usefull in order to save space in the hard drive. Since only the necessary information for dynaphopy
 is stored, this hdf5 file size can be around 5 times smaller than the original OUTCAR. Besides it allows to manipulate this information as
@@ -51,7 +55,7 @@ an intermediate step using concath5 or other third party software. To request to
 <br>This option can be used alone  or together with other flags but, in any case, all time steps in OUTCAR file will be stored in the hdf5 file (<strong>-n</strong> 
 flag has no effect in the number of time steps stored).</p>
 
-<pre><code>$ ./dynaphopy input_file OUTCAR -sv filename.h5
+<pre><code>$ dynaphopy input_file OUTCAR -sv filename.h5
 </code></pre>
 
 <LI><h5>Load data into hdf5 file </h5>
@@ -59,7 +63,7 @@ flag has no effect in the number of time steps stored).</p>
 than using OUTCAR file, if several calculation using the same data have to be done, it is highly recomended to use this option.
 <br><em>Notice that when loading data this way, OUTCAR file has to not be set.</em></p>
 
-<pre><code>$ ./dynaphopy input_file -lv filename.h5
+<pre><code>$ dynaphopy input_file -lv filename.h5
 </code></pre>
 
 <LI><h5>Manipulating data</h5>
@@ -69,14 +73,14 @@ In dynaphopy script directory a simple script for joining data is provided named
 for more complex ones. To use this script just call it followed by the name of all the hdf5 files to be joined and the last one 
 the name of the new hdf5 file that will contain all the joined data. 
 </p>
-<pre><code>$ ./concath5 source1.h5 source2.h5 source3.h5 ··· joined.h5
+<pre><code>$ concath5 source1.h5 source2.h5 source3.h5 ··· joined.h5
 </code></pre>
 <p>
 By default <strong>concath5</strong> skips the first 20000 time steps of each source MD trajectory. This is done to ensure that the MD
 is totally converged in each file. Using <strong>-f</strong> flag, is possible to define the number of time steps to be skipped.
 </p>
 
-<pre><code>$ ./concath5 -f 30000 source1.h5 source2.h5 ··· joined.h5
+<pre><code>$ concath5 source1.h5 source2.h5 ··· joined.h5
 </code></pre>
 
 <p>
@@ -88,7 +92,29 @@ can be used. This option makes concath5 script to not store the trajectory in th
 <pre><code>$ ./concath5 --velocity_only source1.h5 source2.h5 ··· joined.h5
 </code></pre>
 
+<LI><h5>Storing and reading wave vector projected velocity (LAMMPS ONLY)</h5>
+<p>The amount of physical memory available may strongly limit the size of the trajectory that DyanPhopy can read. Specially for LAMMPS files, whose outputfile can weight a few tens of Gb for large MD simulations, the memory can become easily full. This is usually no due to the trajectory size itself but the process of it that
+DynaPhoPy does. To overcome this problem the trajectory can be read by pieces, projected into a wave vector, stored in the disk, joined again and read with DynaPhoPy again to calculate the power spectrum and the phonon properties. 
+<br>Due to the dimensionality of the projected velocity is much lower than the original trajectory the MD length that can be treated if much longer. However, as the velocity is already projected, only can be used to analyze the phonons in the projected wave vector. That means that for each wave vector to be analyzed, this procedure has to be repeated.
+<br><strong>Read data in pieces</strong>
+<br>There are to flags to control the piece of data that DynaPhoPy will read. <strong>--read_from</strong> and <strong>--read_to</strong>. Each flag accept only one integer number that define the interval of data to be read from the output file.
+ 
+<pre><code>$ dynaphopy input_file OUT.lammpstrj --read_from 10000 --read_to 20000
+</code></pre>
+This reads the trajectory in OUT.lammpstrj file from the 10000th time step until 20000th.
+<br>To store the wave vector projected velocity into a file the <strong>-svc</strong> flag is used.  
+<pre><code>$ dynaphopy input_file OUT.lammpstrj -svc projected_velocity.h5
+</code></pre>
+<p>Combining these three flags we can divide a long MD trajectory into smaller wave projected velocity files. These files can be joint using the concath5 script in the save way shown before.
+
+<pre><code>$ concath5 proj_vel1.h5 proj_vel2.h5 ··· proj_vel_joined.h5
+</code></pre>
+In this case <strong>-f</strong> flag should not be since those files are part of the same trajectory and we want the files to match exactly.
+<br> Once joined, the combined proj_vel_joined.h5 file can be read by DynaPhoPy using <strong>-lv</strong> flag.
+<br><em>In has to be pointed that when reading proj_vel_joined.h5 file the wave vector <strong>must not</strong> to be set. This information is already stored in proj_vel_joined.h5 file. Defining a wave vector using <strong>-q</strong> flag will make DynaPhoPy to stop. The number of features available reading from a projected velocity file are limited to <strong>power spectrum calculations and peak analysis</strong></em>
+
 </UL>
+
 
 <h3>MEM coeficient analysis</h3>
 <p>
