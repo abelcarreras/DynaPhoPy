@@ -71,8 +71,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(5, 4, "2 - Change wave vector")
         screen.addstr(6, 4, "3 - Change frequency range")
         screen.addstr(7, 4, "4 - Boltzmann analysis")
-        screen.addstr(8, 4, "5 - Plot power spectrum")
-        screen.addstr(9, 4, "6 - Save power spectrum")
+        screen.addstr(8, 4, "5 - Power spectrum")
+        screen.addstr(9, 4, "6 - Renormalized phonon dispersion")
         screen.addstr(10, 4, "7 - Peak analysis")
         screen.addstr(11, 4, "8 - Atomic displacements")
         screen.addstr(12, 4, "9 - Preferences")
@@ -158,7 +158,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.border(0)
 
                 screen.addstr(2, 2, "Plotting...")
-                screen.addstr(4, 4, "1 - Real space power spectrum")
+                screen.addstr(4, 4, "1 - Full power spectrum")
                 screen.addstr(5, 4, "2 - Wave vector projection power spectrum")
                 screen.addstr(6, 4, "3 - Phonon mode projection power spectrum")
                 screen.addstr(8, 4, "0 - Return")
@@ -169,7 +169,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 if x2 == ord('1'):
                     curses.endwin()
-                    calculation.plot_power_spectrum_direct()
+                    calculation.plot_power_spectrum_full()
 
                 if x2 == ord('2'):
                     curses.endwin()
@@ -179,39 +179,11 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
                     calculation.plot_power_spectrum_phonon()
 
-######## OPTION 6 :  SAVING POWER SPECTRA
+######## OPTION 6 :  Renormalized phonon dispersion
         if x == ord('6'):
-
-            x2 = 0
-            while x2 != ord('0'):
-                screen = curses.initscr()
-                screen.clear()
-                screen.border(0)
-
-                screen.addstr(2, 2, "Saving...")
-                screen.addstr(4, 4, "1 - Real space power spectrum")
-                screen.addstr(5, 4, "2 - Wave vector projection power spectrum")
-                screen.addstr(6, 4, "3 - Phonon mode projection power spectrum")
-                screen.addstr(8, 4, "0 - Return")
-                screen.refresh()
-
-                x2 = screen.getch()
-
-                if x2 == ord('1'):
-                    save_file = get_param(screen,'Insert file name')
-                    curses.endwin()
-                    calculation.write_power_spectrum_direct(save_file)
-
-                if x2 == ord('2'):
-                    save_file = get_param(screen,'Insert file name')
-                    curses.endwin()
-                    calculation.write_power_spectrum_wave_vector(save_file)
-
-                if x2 == ord('3'):
-                    save_file = get_param(screen,'Insert file name')
-                    curses.endwin()
-                    calculation.write_power_spectrum_phonon(save_file)
-
+            curses.endwin()
+            calculation.get_renormalized_phonon_dispersion_spectra()
+            curses.endwin()
 
 ######## OPTION 7 :  PEAK ANALYSIS
         if x == ord('7'):
