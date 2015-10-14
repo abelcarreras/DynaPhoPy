@@ -179,7 +179,7 @@ class Calculation:
         plt.ylabel('Frequency (THz)')
         plt.xlabel('Wave vector')
         plt.xlim([0, self._bands[1][-1][-1]])
-        plt.suptitle('Phonon dispersion spectrum')
+        plt.suptitle('Phonon dispersion')
 
         plt.show()
 
@@ -205,13 +205,13 @@ class Calculation:
         plt.ylabel('Frequency (THz)')
         plt.xlabel('Wave vector')
         plt.xlim([0, self._bands[1][-1][-1]])
-        plt.suptitle('Renormalized phonon dispersion spectrum')
+        plt.suptitle('Renormalized phonon dispersion')
         handles, labels = plt.gca().get_legend_handles_labels()
         plt.legend([handles[0], handles[-1]], ['Harmonic','Renormalized'])
         plt.show()
 
 
-    def print_phonon_dispersion_spectrum(self):
+    def print_phonon_dispersion_bands(self):
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,
                                                                          self.parameters.band_ranges,
