@@ -16,8 +16,8 @@ parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
 
 
 group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument('md_file', metavar='OUTCAR', type=str, nargs='?',
-                   help='VASP Output file containing MD calculation (Super cell)')
+group.add_argument('md_file', metavar='TRAJECTORY', type=str, nargs='?',
+                   help='Output file containing MD trajectory')
 group.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
                    help='load velocity from hdf5 file')
 
@@ -35,10 +35,10 @@ parser.add_argument('-n', metavar='N', type=int, default=0,
                    help='number of MD last steps to take (default: All)')
 
 parser.add_argument('-ts', '--time_step', metavar='step', type=float, default=None,
-                   help='time step in ps (default: 0 [Read from trajectory file])')
+                   help='time step in ps (default: Read from trajectory file)')
 
 parser.add_argument('-pd', '--plot_direct', action='store_true',
-                    help='plot direct power spectrum')
+                    help='plot full power spectrum')
 
 parser.add_argument('-pw', '--plot_wave_vector', action='store_true',
                     help='plot projection into wave vector')
@@ -47,7 +47,7 @@ parser.add_argument('-pp', '--plot_phonon_mode', action='store_true',
                     help='plot projection into phonon modes')
 
 parser.add_argument('-sd', '--save_direct', metavar='file', type=str, nargs=1,
-                    help='save direct power spectrum to file')
+                    help='save full power spectrum to file')
 
 parser.add_argument('-sw', '--save_wave_vector', metavar='file', type=str, nargs=1,
                     help='save projection into wave vector to file')
@@ -94,7 +94,7 @@ parser.add_argument('--read_to', metavar='N', type=int, default=None,
                    help='define interval of trajectory to read (default: end)')
 
 parser.add_argument('-ds', '--display_spectrum', action='store_true',
-                    help='display phonon dispersion spectrum data in screen (just for test: not recommended)')
+                    help='display phonon dispersion data in screen (just for test: not recommended)')
 
 parser.add_argument('-sfc', '--save_force_constants', metavar='file', type=str, nargs=1, default=False,
                     help='save the renormalized force constants to a file')
@@ -195,7 +195,7 @@ if args.save_force_constants:
 
 #On development methods (not recommended)
 if args.display_spectrum:
-    calculation.print_phonon_dispersion_spectrum()
+    calculation.print_phonon_dispersion_bands()
 
 if args.coefficient_scan_analysis:
     calculation.phonon_width_scan_analysis()

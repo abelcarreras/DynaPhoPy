@@ -30,7 +30,6 @@ class Calculation:
 
         self._dynamic = dynamic
         self._vc = vc
-
         self._eigenvectors = None
         self._frequencies = None
         self._vq = None
@@ -42,7 +41,6 @@ class Calculation:
         self._renormalized_force_constants = None
 
         self._parameters = parameters.Parameters()
-
         self.crop_trajectory(last_steps)
 
 
@@ -175,27 +173,45 @@ class Calculation:
 
         for i,freq in enumerate(self._bands[1]):
             plt.plot(self._bands[1][i],self._bands[2][i],color ='r')
-        plt.axes().get_xaxis().set_visible(False)
+       # plt.axes().get_xaxis().set_visible(False)
+        plt.axes().get_xaxis().set_ticks([])
+
         plt.ylabel('Frequency (THz)')
-        plt.suptitle('Renormalized phonon dispersion spectra')
+        plt.xlabel('Wave vector')
+        plt.xlim([0, self._bands[1][-1][-1]])
+        plt.suptitle('Phonon dispersion')
+
         plt.show()
 
     def get_renormalized_phonon_dispersion_spectra(self):
+
+        if self._bands is None:
+            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,
+                                                                         self.parameters.band_ranges,
+                                                                         NAC=self.parameters.use_NAC)
+
         if self._renormalized_bands is None:
             self._renormalized_bands = pho_interface.obtain_renormalized_phonon_dispersion_spectra(self.dynamic.structure,
                                                                                       self.parameters.band_ranges,
                                                                                       self.get_renormalized_constants(),
                                                                                       NAC=self.parameters.use_NAC)
 
+
         for i,freq in enumerate(self._renormalized_bands[1]):
-            plt.plot(self._renormalized_bands[1][i],self._renormalized_bands[2][i],color ='r')
-        plt.axes().get_xaxis().set_visible(False)
+            plt.plot(self._bands[1][i],self._bands[2][i],color ='b', label='Harmonic (0K)')
+            plt.plot(self._renormalized_bands[1][i],self._renormalized_bands[2][i],color ='r', label='Renormalized')
+   #     plt.axes().get_xaxis().set_visible(False)
+        plt.axes().get_xaxis().set_ticks([])
         plt.ylabel('Frequency (THz)')
-        plt.suptitle('Phonon dispersion spectra')
+        plt.xlabel('Wave vector')
+        plt.xlim([0, self._bands[1][-1][-1]])
+        plt.suptitle('Renormalized phonon dispersion')
+        handles, labels = plt.gca().get_legend_handles_labels()
+        plt.legend([handles[0], handles[-1]], ['Harmonic','Renormalized'])
         plt.show()
 
 
-    def print_phonon_dispersion_spectrum(self):
+    def print_phonon_dispersion_bands(self):
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,
                                                                          self.parameters.band_ranges,
@@ -486,11 +502,8 @@ class Calculation:
         return np.array(distributions), distance
 
     def write_atomic_displacements(self, direction, file_name):
-
         distributions, distance = self.get_atomic_displacements(direction)
-
         reading.write_correlation_to_file(distance, distributions.T, file_name)
-
 
 
     #Molecular dynamics analysis related methods
@@ -502,7 +515,6 @@ class Calculation:
         return power_spectrum_functions.values()
 
 
-
     def get_renormalized_constants(self):
 
         if self._renormalized_force_constants is None:
@@ -512,11 +524,8 @@ class Calculation:
 
             normalized_frequencies = []
             for i, reduced_q_point in enumerate(com_points):
-
                 print ("Qpoint: {0} / {1}".format(i,reduced_q_point))
-
                 self.set_reduced_q_vector(reduced_q_point)
-
                 positions, widths = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                     self.parameters.frequency_range,
                                     harmonic_frequencies=self.get_frequencies(),
@@ -531,7 +540,6 @@ class Calculation:
                 normalized_frequencies.append(positions)
 
             normalized_frequencies = np.array(normalized_frequencies)
-
             self._renormalized_force_constants = pho_interface.calculate_renormalized_force_constants(normalized_frequencies,
                                                                                                       dynmat2fc,
                                                                                                       phonon)

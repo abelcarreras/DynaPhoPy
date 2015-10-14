@@ -200,7 +200,7 @@ def read_from_file_structure_poscar(file_name):
 
 
 def read_vasp_trajectory(file_name, structure=None, time_step=None,
-                         limit_number_steps=10000000,  #Maximum number of steps read
+                         limit_number_steps=10000000,  #Maximum number of steps read (for security)
                          last_steps=None,
                          initial_cut=0,  #Not enabled yet
                          end_cut=None):  #Not enabled yet
