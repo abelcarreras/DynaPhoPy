@@ -16,8 +16,8 @@ parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
 
 
 group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument('md_file', metavar='OUTCAR', type=str, nargs='?',
-                   help='VASP Output file containing MD calculation (Super cell)')
+group.add_argument('md_file', metavar='TRAJECTORY', type=str, nargs='?',
+                   help='Output file containing MD trajectory')
 group.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
                    help='load velocity from hdf5 file')
 
@@ -35,7 +35,7 @@ parser.add_argument('-n', metavar='N', type=int, default=0,
                    help='number of MD last steps to take (default: All)')
 
 parser.add_argument('-ts', '--time_step', metavar='step', type=float, default=None,
-                   help='time step in ps (default: 0 [Read from trajectory file])')
+                   help='time step in ps (default: Read from trajectory file)')
 
 parser.add_argument('-pd', '--plot_direct', action='store_true',
                     help='plot full power spectrum')
