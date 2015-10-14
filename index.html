@@ -48,7 +48,10 @@
 
 <h3>Introduction</h3>
 
-<p> Dynaphopy allows to calculate anharmonic phonon linewidhts and frequency shifts using the mode descomposition technique. To do that it uses a <a href="https://www.vasp.at">VASP</a> calculated Molecular Dynamics (MD) output and projects the atoms velocity into a set of harmonic phonon modes obtained by <a href="http://phonopy.sourceforge.net">Phonopy</a>. Afterwards the power spectrum is calculated usign Fourier transform or <a href="http://cmm.cit.nih.gov/maxent/letsgo.html"> Maximum Entropy Method (MEM)</a> and the peaks are fitted to Lorentzian function to extract the phonon anharmonic properties such as phonon <strong>linewidths</strong> and <strong>frequency shifts</strong>. 
+<p> Dynaphopy allows to calculate anharmonic phonon linewidhts and frequency shifts using the mode descomposition technique. To do that it uses a <a href="https://www.vasp.at">VASP</a> 
+or <a href="http://lammps.sandia.gov/">LAMMPS</a>  Molecular Dynamics (MD) trajectory and projects it onto a set of harmonic phonon modes obtained by <a href="http://phonopy.sourceforge.net">Phonopy</a>. 
+Afterwards the power spectrum is calculated usign <a href="https://en.wikipedia.org/wiki/Fourier_transform">Fourier transform</a> or <a href="http://cmm.cit.nih.gov/maxent/letsgo.html"> Maximum Entropy Method (MEM)</a> and the peaks are fitted 
+to <a href="https://en.wikipedia.org/wiki/Cauchy_distribution">Lorentzian functions</a> to extract the phonon anharmonic properties. 
 
 <!-- $$
 Equation Example
