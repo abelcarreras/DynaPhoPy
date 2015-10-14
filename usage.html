@@ -38,27 +38,31 @@ You can follow the instruction in phonopy <a href="http://phonopy.sourceforge.ne
 <br><em>Keep original <strong>POSCAR</strong> file used in the calculation containing the unaltered unit cell (VASP 5.x style prefered)</em></p>
 
 <LI><h5>Prepare Molecular Dynamics calculation</h5>
-<p> At the present time DynaPhoPy can read MD trajectories from VASP and LAMMPS outputs.
+<p> At the present time DynaPhoPy can read MD trajectories from VASP and LAMMPS.
 
-<br><strong>Using VASP</strong>
-VASP is a  popular software to perform first principles calculations of solids.
-Obtain an <strong>OUTCAR</strong> output file containing a MD calculation from VASP.
-<br>Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/vasp.html"> online manual</a> for detailed information to how to calculate a MD simulation.
-<br><strong>Warning!:</strong><em> The supercell used to calculate VASP MD has to be an integer multiple of the cell used in phonopy calculation.
-The order of the atoms within the cell has to be kept in both cells to work properly. <strong>A convenient way is to use Phonopy to generate the supercell used in MD calculation (SPOSCAR)</strong></em>. 
-</p>
+<br><strong>- Using VASP</strong>
+<br>VASP is a  popular software to perform first principles calculations of solids.
+Obtain an <strong>OUTCAR</strong> output file containing a MD calculation from VASP. This file han be read directly by DynaPhoPy.
 <br>Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/vasp.html"> online manual</a> for detailed information to how to calculate a MD simulation.
 
-
-<br><strong>Using LAMMPS</strong>
-LAMMPS is a extremely flexible software that allows to calculate Molecular dynamics of a large variety of systems using empirical potentials.
+<br><strong>- Using LAMMPS</strong>
+<br>LAMMPS is a extremely flexible software that allows to calculate Molecular dynamics of a large variety of systems using empirical potentials.
 LAMMPS outputs may vary depending on the output style you use. DyanPhoPy only can read lammpstrj outputs using the following output style:
 </p><pre><code>dump         dynaphopy all custom 1 output_file_name.lammpstrj x y z
 dump_modify  dynaphopy sort id
 </code></pre>
 <br>Please, refere to LAMMPS <a href="http://lammps.sandia.gov/doc/Manual.html"> online manual</a> for usage and detailed information about output <a href="http://lammps.sandia.gov/doc/dump.html"> formats and styles</a>.
+<br> LAMMPS trajectories do not have information about the time step used in the MD. For this reason the time step has to be introduced manually to DynaPhoPy in order to scale the time correctly. For this purpose <strong>-ts</strong>
+flag is used. This flag accepts a float number that indicated the time step in picoseconds.
+</p><pre><code>$ dynaphopy input_file trajectory_file -ts 0.002 
+</code></pre>
+<br>This flag only work in LAMMPS trajectories, for VASP trajectories it is ignored. 
+Reading LAMMPS file, if not specified 0.001 ps time step is used.
+Take in account that LAMMPS can write data at different intervals (not necessarily every step). This is taken in account in DynaPhoPy. <strong>-ts</strong>
+should contain the time steps specified in <a href="http://lammps.sandia.gov/doc/timestep.html">timestep command</a>.
 
-<br><strong>Important:</strong><em> The supercell used to calculate VASP MD has to be an integer multiple of the cell used in phonopy calculation.
+<p>
+<br><strong>Important:</strong><em> The supercell used to calculate the MD has to be an integer multiple of the cell used in phonopy calculation.
 The order of the atoms within the cell has to be kept in both cells to work properly. <strong>A convenient way is to use Phonopy to <a href="http://phonopy.sourceforge.net/procedure.html">generate</a> the supercell (SPOSCAR) to be used in the MD</strong></em>. 
 </p>
 
@@ -119,21 +123,23 @@ path.
 </UL>
 
 <h3>Execute Dynaphopy</h3>
-<p>Phonopy can be used in two different ways: from command line flags or using interactive user interface.
+<p>Phonopy can be used in two different ways: from command line or using interactive user interface.
 Interactive interface is the most simple way to work with dynaphopy, however command line flag interface 
 has more options and becomes very usefull to calculate in batch. Some options that are not directly editables in interactive interface 
 can be set when loading dynaphopy using additional flags.
-<UL><LI><h5>Command line flag interface</h5>
-<p>To run Dynaphopy only is nedeed to call dynaphopy script (places in script folder) with Dynaphonpy input file and VASP OUTCAR file as arguments. Input file defines where the FORCE_SETS and POSCAR are and OUTCAR file contain the MD trajectory.</p>
-</p><pre><code>$ dynaphopy input_file OUTCAR
+<UL><LI><h5>Command line interface</h5>
+<p>To run Dynaphopy only is nedeed to call dynaphopy script (places in script folder) with Dynaphonpy input file and trajectory file file as arguments. 
+Input file defines where the FORCE_SETS and POSCAR are and OUTCAR/LAMMPStrj file contain the MD trajectory.</p>
+</p><pre><code>$ dynaphopy input_file OUTCAR				(VASP)
+$ dynaphopy input_file LAMMPS.lammpstrj -ts 0.002	(LAMMPS)
 </code></pre>
 <p>This command does essentially nothing, since no calculation has been requested. It just checks that all the necessary files exists and can be loaded correctly.
 <br>To request a calculation, additional flags have to be set. Using <strong>-h</strong> flag shows all available options.</p>
 </p><pre><code>$ dynaphopy -h
 positional arguments:
   data_file             input file containing structure related data
-  OUTCAR                VASP Output file containing MD calculation (Super
-                        cell)
+  TRAJECTORY            Output file containing MD trajectory
+
 
 optional arguments:
   -h, --help            show this help message and exit

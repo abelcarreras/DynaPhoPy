@@ -89,19 +89,19 @@ concath5 stores all the velocity  as well as the trajectory coordinates at each 
 properties using DynPhoPy only the velocity is needed. So if no atomic displacement calculation is needed option <nobr><strong>--velocity_only</strong></nobr>
 can be used. This option makes concath5 script to not store the trajectory in the final hdf5 file saving HD space.
 </p>
-<pre><code>$ ./concath5 --velocity_only source1.h5 source2.h5 ··· joined.h5
+<pre><code>$ concath5 --velocity_only source1.h5 source2.h5 ··· joined.h5
 </code></pre>
 
-<LI><h5>Storing and reading wave vector projected velocity (LAMMPS ONLY)</h5>
-<p>The amount of physical memory available may strongly limit the size of the trajectory that DyanPhopy can read. Specially for LAMMPS files, whose outputfile can weight a few tens of Gb for large MD simulations, the memory can become easily full. This is usually no due to the trajectory size itself but the process of it that
-DynaPhoPy does. To overcome this problem the trajectory can be read by pieces, projected into a wave vector, stored in the disk, joined again and read with DynaPhoPy again to calculate the power spectrum and the phonon properties. 
-<br>Due to the dimensionality of the projected velocity is much lower than the original trajectory the MD length that can be treated if much longer. However, as the velocity is already projected, only can be used to analyze the phonons in the projected wave vector. That means that for each wave vector to be analyzed, this procedure has to be repeated.
+<LI><h5>Working with wave vector projected velocity (Saving RAM memory)</h5>
+<p>The amount of physical RAM memory available may strongly limit the size of the trajectory that DyanPhopy can read. Specially for LAMMPS trajectories, whose output files can weight a few tens of Gb for long MD simulations, the memory can become easily full. This is usually no due to the trajectory size itself but the process of it that DynaPhoPy does. 
+<br>To overcome this problem the trajectory can be read by pieces, projected into a wave vector, stored in the disk (hdf5 files), joined and read with DynaPhoPy again to calculate the power spectrum and the phonon properties. 
+<br>Due to the dimensionality of the projected velocity is much lower than the original trajectory the, MD length that can be used is much longer. However, since the velocity is already projected, it only can be used to analyze the phonons in the projected wave vector. That means that for each wave vector to be analyzed this procedure has to be repeated.
 <br><strong>Read data in pieces</strong>
-<br>There are to flags to control the piece of data that DynaPhoPy will read. <strong>--read_from</strong> and <strong>--read_to</strong>. Each flag accept only one integer number that define the interval of data to be read from the output file.
+<br>There are to flags to control the piece of data that DynaPhoPy will read. <strong>--read_from</strong> and <strong>--read_to</strong>. Each flag accept only one integer number each and define the interval of data to be read from the output file.
  
 <pre><code>$ dynaphopy input_file OUT.lammpstrj --read_from 10000 --read_to 20000
 </code></pre>
-This reads the trajectory in OUT.lammpstrj file from the 10000th time step until 20000th.
+<p>This reads the trajectory in OUT.lammpstrj file from the 10000th until 20000th time step.
 <br>To store the wave vector projected velocity into a file the <strong>-svc</strong> flag is used.  
 <pre><code>$ dynaphopy input_file OUT.lammpstrj -svc projected_velocity.h5
 </code></pre>
@@ -109,12 +109,14 @@ This reads the trajectory in OUT.lammpstrj file from the 10000th time step until
 
 <pre><code>$ concath5 proj_vel1.h5 proj_vel2.h5 ··· proj_vel_joined.h5
 </code></pre>
-In this case <strong>-f</strong> flag should not be since those files are part of the same trajectory and we want the files to match exactly.
-<br> Once joined, the combined proj_vel_joined.h5 file can be read by DynaPhoPy using <strong>-lv</strong> flag.
-<br><em>In has to be pointed that when reading proj_vel_joined.h5 file the wave vector <strong>must not</strong> to be set. This information is already stored in proj_vel_joined.h5 file. Defining a wave vector using <strong>-q</strong> flag will make DynaPhoPy to stop. The number of features available reading from a projected velocity file are limited to <strong>power spectrum calculations and peak analysis</strong></em>
+<p>In this case <strong>-f</strong> flag should not be since those files are part of the same trajectory and we want the files to match exactly.
+<br> Once joined, the combined proj_vel_joined.h5 file can be read by DynaPhoPy using <strong>-lv</strong> flag.</p>
+<pre><code>$ dynaphopy input_file -lv projected_velocity.h5
+</code></pre>
+
+<br><em>It has to be pointed that when reading proj_vel_joined.h5 file the wave vector <strong>must not</strong> to be set. Wave vector is already stored in proj_vel_joined.h5 file. Defining another wave vector using <strong>-q</strong> flag will make DynaPhoPy to stop. Keep in mind that the number of features available reading from a projected velocity file are limited to <strong>power spectrum calculations and peak analysis</strong></em>
 
 </UL>
-
 
 <h3>MEM coeficient analysis</h3>
 <p>
@@ -125,7 +127,7 @@ Depending on the number of coefficents the peak width of the peaks may significa
 which performs a scan for all peaks anf fits each one to Lorentzian function to extract width information.
 All this information is plotted in 3 matplotlib windows for each phonon. 
 </p>
-<pre><code>$ ./dynaphopy input_file OUTCAR -csa
+<pre><code>$ dynaphopy input_file OUTCAR -csa
 </code></pre>
 
 <img src="images/coef_ana_2.png" alt="Interactive" style="width:605px">
@@ -152,7 +154,7 @@ be noisy and a post processing may be needed to improve the fitting quality.
 <br>In dynaphopy package, <strong>fitdata</strong> script is included in scripts folder to extract the anharmonic information from a power 
 spectrum file obtained with Dynaphopy throught <strong>-sw</strong> or <strong>-sp</strong> options. This allows to first calculate the 
 power spectrum using Dynaphopy in a cluster computer, saving it in a file and later extract the information in a local machine.
-Additionally this script allows to smooth the spectrum using <a href="http://en.wikipedia.org/wiki/Local_regression">LOWESS</a> method before fitting it with a Lorentzian function.
+Additionally this script allows to smooth the spectrum using <a href="http://en.wikipedia.org/wiki/Local_regression">LOWSS</a> method before fitting it with a Lorentzian function.
 <br>During the execution it shows the smoothing result and the fitting result for each spectrum present in the spectrum file allowing to test
 different smoothing parameters to obtain the best results.
 </p>
@@ -164,8 +166,8 @@ different smoothing parameters to obtain the best results.
 </code></pre>
 <img src="images/fitting.png" alt="Interactive" style="width:605px">
 
-<LI><h5>Smoothing spectra using LOWESS method</h5>
-<p>LOWESS method works very well removing the noise in very noisy spectra. This allows to obtain much better results in the fitting and, in many cases, it becomes indispensable in order to get a meaningful result. To do this, the visual analysis becomes crucial to compare the original noisy spectrum and the smoothed one to make sure that the essetial peak shape is kept. To request the smooth methos use <strong>-sm</strong> flag.
+<LI><h5>Smoothing spectra using LOESS method</h5>
+<p>LOESS method works very well removing the noise in very noisy spectra. This allows to obtain much better results in the fitting and, in many cases, it becomes indispensable in order to get a meaningful result. To do this, the visual analysis becomes crucial to compare the original noisy spectrum and the smoothed one to make sure that the essetial peak shape is kept. To request the smooth methos use <strong>-sm</strong> flag.
 </p>
 <pre><code>$ fitdata -sm file
 </code></pre>
@@ -173,7 +175,7 @@ different smoothing parameters to obtain the best results.
 <img src="images/smooth.png" alt="Interactive" style="width:605px">
 <img src="images/fit_smooth.png" alt="Interactive" style="width:605px">
 <LI><h5>Changing smoothing parameters</h5>
-<p> In case that the smoothing process is not succesfull, the LOWESS method can be ajusted via smoothing span parameter <strong>-f</strong> (Default: 0.2). Increasing its value will make the strectra smoother but will differ more from the original spectrum. 
+<p> In case that the smoothing process is not succesfull, the LOESS method can be ajusted via smoothing span parameter <strong>-f</strong> (Default: 0.2). Increasing its value will make the strectra smoother but will differ more from the original spectrum. 
 </p>
 <pre><code>$ fitdata -sm -f 0.4 file
 </code></pre>
@@ -191,35 +193,6 @@ using the average of spectra 3, 4 and 5.
 
 </UL>
 
-<h3>Atomic displacements calculation</h3>
-<p>
-DynaPhoPy allows to calculate the atomic displacements from the MD trajectory respect to a desired direction. 
-The calculation of the atomic displacements requires (obviously) the previous load of the trajectory coordinates
-information. In previous versions of DynaPhoPy, this trajectory was not stored in the hdf5 files, so if you load
-the MD information from a hdf5 file, please make sure that contains also the trajectory coordinates. If not, you 
-can use the lastest version of DynaPhoPy to extract the information from the OUTCAR file. The same can be applied 
-for the use of <strong>concath5</strong> script.
-<br>DynaPhoPy will still be compatible with hdf5 files which does not contain the trajectory and <strong>concath5</strong>
-is able to create hdf5 files which contains only the velocity information using <strong>--velocity_only</strong> flag in 
-order to reduce HD space.
-<br>To request a atomic displacements calculation flags <strong>-pad</strong> and <strong>-sad</strong> are used,
-<strong>pad</strong> will calculate the displacements and show the data in a matplolib plot:
-</p>
-<pre><code>$ dynaphopy input_file OUTCAR -pad 0 0 1
-</code></pre>
-<img src="images/atomic_displacements.png" alt="Interactive" style="width:605px">
-<p>
-this flag requires a set of three float numbers that compose the vector that indicates the direction into which
-the atomic displacements will be analyzed.
-<br>On the other hand, <strong>-sad</strong> flag does the same calculation as  <strong>-pad</strong> but instead of
-showing the plot on the screen stores the information in a defined file:
-</p>
-<pre><code>$ dynaphopy input_file OUTCAR -sad 0 0 1 displacements_file.out
-</code></pre>
-<p>
-The file contains a column for each nonequivalent atom in the unit cell. The first column correspond to the displacement
-coordinate.
-</p>
 
 
 

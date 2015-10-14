@@ -201,6 +201,68 @@ where <em>n</em> is the occupation number and <em>&omega;</em> is the phonon fre
 </code></pre>
 <p> 
 
+<h3>Atomic displacements calculation</h3>
+<p>
+DynaPhoPy allows to calculate the atomic displacements from the MD trajectory respect to a desired direction. 
+The calculation of the atomic displacements requires (obviously) the previous load of the trajectory coordinates
+information. In previous versions of DynaPhoPy, this trajectory was not stored in the hdf5 files, so if you load
+the MD information from a hdf5 file, please make sure that contains also the trajectory coordinates. If not, you 
+can use the lastest version of DynaPhoPy to extract the information from the OUTCAR file. The same can be applied 
+for the use of <strong>concath5</strong> script.
+<br>DynaPhoPy will still be compatible with hdf5 files which does not contain the trajectory and <strong>concath5</strong>
+is able to create hdf5 files which contains only the velocity information using <strong>--velocity_only</strong> flag in 
+order to reduce HD space.
+<br>To request a atomic displacements calculation flags <strong>-pad</strong> and <strong>-sad</strong> are used,
+<strong>pad</strong> will calculate the displacements and show the data in a matplolib plot:
+</p>
+<pre><code>$ dynaphopy input_file OUTCAR -pad 0 0 1
+</code></pre>
+<img src="images/atomic_displacements.png" alt="Interactive" style="width:630px">
+<p>
+this flag requires a set of three float numbers that compose the vector that indicates the direction into which
+the atomic displacements will be analyzed.
+<br>On the other hand, <strong>-sad</strong> flag does the same calculation as  <strong>-pad</strong> but instead of
+showing the plot on the screen stores the information in a defined file:
+</p>
+<pre><code>$ dynaphopy input_file OUTCAR -sad 0 0 1 displacements_file.out
+</code></pre>
+<p>
+The file contains a column for each nonequivalent atom in the unit cell. The first column correspond to the displacement
+coordinate.
+</p>
+
+ 
+<h3>Obtaining the renormalized forces</h3>
+<p> The phonon information that can be obtained from MD is limited to the size of the simulation cell.
+DynaPhoPy can only extract the information on the commensurate points so in order to obtain a good sampling
+of the Brillouin zone to calculate crystal macroscopical properties it is necessary to resort to interpolation methods.
+<br>Phonopy now can renormalize the force constants from a set of renormalized frequencies in the commensurate points. 
+DynaPhoPy interfaces with phonopy to provide a new set of renormalized frequencies extracted from MD for all commensurate points and obtain the renormalized force constants from phonopy using <strong>-sfc</strong> flag.</p>
+<pre><code>$ dynaphopy input_file TRAJECTORY --sfc FORCE_CONSTANTS
+</code></pre>
+<p>
+ 
+These force constants are written in a FORCE_CONSTANTS file that can be used in phonopy instead of the FORCE_SETS file by <strong>--readfc</strong> flag.
+
+<pre><code>$ phonopy --readfc FORCE_CONSTANTS
+</code></pre>
+<p>
+Using this new force constants it is possible to calculate all the properties available in phonopy using a set of renormalized forces obtained at finite temperature. One of the most intersting applications is the renormalization of imaginary frequencies in materials that are stable at high temperatures but inestable at 0 K. 
+</p>
+<img src="images/renormalized_phonon_dispersion.png" alt="Interactive" style="width:630px">
+<p style="text-align:center">
+<em>Phonon dispersion bands of cubic zirconia (ZrO2) renormalized at 1000 K </em>
+</p>
+ 
+
+
+
+
+
+
+</p>
+
+
     </section>
     </div>
     
