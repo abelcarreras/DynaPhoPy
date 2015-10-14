@@ -36,44 +36,181 @@ structure becomes very suitable as a working example.</p>
 <h5>Preparations</h5>
 
 <p>In order to calculate the anharmonic effects fist it is necessary to define the unit cell in a VASP POSCAR type file: </p>
-<pre><code> Si                                        1.00000000000000          5.4365330000000000    0.0000000000000000    0.0000000000000000     0.0000000000000000    5.4365330000000000    0.0000000000000000     0.0000000000000000    0.0000000000000000    5.4365330000000000   Si     8Direct  0.8750000000000000  0.8750000000000000  0.8750000000000000  0.8750000000000000  0.3750000000000000  0.3750000000000000  0.3750000000000000  0.8750000000000000  0.3750000000000000  0.3750000000000000  0.3750000000000000  0.8750000000000000  0.1250000000000000  0.1250000000000000  0.1250000000000000  0.1250000000000000  0.6250000000000000  0.6250000000000000  0.6250000000000000  0.1250000000000000  0.6250000000000000  0.6250000000000000  0.6250000000000000  0.1250000000000000</code></pre>
+<pre><code> Si                                     
+   1.00000000000000     
+     5.4365330000000000    0.0000000000000000    0.0000000000000000
+     0.0000000000000000    5.4365330000000000    0.0000000000000000
+     0.0000000000000000    0.0000000000000000    5.4365330000000000
+   Si
+     8
+Direct
+  0.8750000000000000  0.8750000000000000  0.8750000000000000
+  0.8750000000000000  0.3750000000000000  0.3750000000000000
+  0.3750000000000000  0.8750000000000000  0.3750000000000000
+  0.3750000000000000  0.3750000000000000  0.8750000000000000
+  0.1250000000000000  0.1250000000000000  0.1250000000000000
+  0.1250000000000000  0.6250000000000000  0.6250000000000000
+  0.6250000000000000  0.1250000000000000  0.6250000000000000
+  0.6250000000000000  0.6250000000000000  0.1250000000000000
+</code></pre>
 <p>Using <a href="http://phonopy.sourceforge.net">Phonopy</a> the harmonic forces can be calculated as detailed in phonopy <a href="http://phonopy.sourceforge.net/procedure.html">online</a> tutorial. During the calculation, a SPOSCAR file which contains a supercell of the original POSCAR file is generated. This file can be used to calculate the MD in VASP.
 <br><em>Note: The supercell used in Phonopy to calculate the harmonic forces and the one used to calculate the MD in VASP can be different.
 Phonopy can easly generate a supercell with the desired size using the command:</em></p>
 
-<pre><code> $ phonopy -d --dim="2 3 2" -c POSCAR_unitcell                                    
+<pre><code> $ phonopy -d --dim="2 2 2" -c POSCAR_unitcell                                    
+
 </code></pre>
 
-<p>This generates a SPOSCAR file containing a 2x3x2 supercell of POSCAR_unitcell file.
+<p>This generates a SPOSCAR file containing a 2x2x2 supercell of POSCAR_unitcell file.
 <br>VASP MD calculation can be carried out using this supercell (changing its name from SPOSCAR to POSCAR) and defining a regular VASP MD input like this: </p>
   
-<pre><code>      PREC = Normal                  # Normal precision may be necessary    IBRION = 0      ISYM = 0     SMASS = 0                       # Define Thermostat    MDALGO = 0     POTIM = 0.7                     # Step length     TEBEG = 600                     # Temperature       NSW = 200000                  # Number of time steps    NELMIN = 2                             NELM = 100                          ENCUT = 300     EDIFF = 1.000000e-06    ISMEAR = 0     SIGMA = 0.01     IALGO = 38       GGA = PS                           LREAL = .TRUE.   ADDGRID = .TRUE.     LWAVE = .FALSE.    LCHARG = .FALSE.      NPAR = 4</code></pre>
+<pre><code>      PREC = Normal                  # Normal precision may be necessary
+    IBRION = 0
+      ISYM = 0
+     SMASS = 0                       # Define Thermostat
+    MDALGO = 0
+     POTIM = 0.7                     # Step length
+     TEBEG = 800                     # Temperature
+       NSW = 200000                  # Number of time steps
+    NELMIN = 2                       
+      NELM = 100                     
+     ENCUT = 300
+     EDIFF = 1.000000e-06
+    ISMEAR = 0
+     SIGMA = 0.01
+     IALGO = 38
+       GGA = PS                      
+     LREAL = .TRUE.
+   ADDGRID = .TRUE.
+     LWAVE = .FALSE.
+    LCHARG = .FALSE.
+      NPAR = 4
+</code></pre>
 <p> EDIFF may have great influence in the exactitute of the results. Longer time step lenghts are recomended to increase the convergence of
 phonon linewidths but to long could compromise the reliability of the simulation. 
 PREC seems to not affect specially the results in the case of sillicon but be carefull with other materials. </p>
 <p>Once VASP <strong>OUTCAR</strong> and Phonopy <strong>FORCE_SETS</strong> are generated the only thing remaining is create a Dynaphopy input.
 </p>
-<pre><code>STRUCTURE FILE POSCAR/home/user/Si-phonopy/POSCAR_unitcellFORCE CONSTANTS/home/user/Si-phonopy/FORCE_SETSPRIMITIVE MATRIX0.0 0.5 0.50.5 0.0 0.50.5 0.5 0.0SUPERCELL MATRIX PHONOPY2 0 00 3 00 0 2BANDS0.0,   0.0,   0.0         0.5,   0.0,  0.50.5,   0.0,   0.5         0.625  0.25  0.6250.375, 0.375, 0.75        0.0,   0.0,  0.00.0,   0.0,   0.0         0.5,   0.5,  0.5
+<pre><code>STRUCTURE FILE POSCAR
+/home/user/Si-phonopy/POSCAR_unitcell
+
+FORCE CONSTANTS
+/home/user/Si-phonopy/FORCE_SETS
+
+PRIMITIVE MATRIX
+0.0 0.5 0.5
+0.5 0.0 0.5
+0.5 0.5 0.0
+
+SUPERCELL MATRIX PHONOPY
+2 0 0
+0 2 0
+0 0 2
+
+BANDS
+0.0,   0.0,   0.0         0.5,   0.0,  0.5
+0.5,   0.0,   0.5         0.625  0.25  0.625
+0.375, 0.375, 0.75        0.0,   0.0,  0.0
+0.0,   0.0,   0.0         0.5,   0.5,  0.5
 </pre></code>
 <p>At this point all the information needed to run Dynaphopy is complete</p>
 
 <h5>Calculation examples</h5>
 
-<UL><p><LI>Load interactive interface (using last 80000 time steps):</p></UL>
-<pre><code>$ ./dynaphopy input_file OUTCAR -n 800000 -i</code></pre>
 
-<UL><p><LI>Plot wave vector projection power spectrum at <em>L</em> point from 0 to 16 THz:</p></UL>
-<pre><code>$ ./dynaphopy input_file OUTCAR -n 800000 -pw -q 0.5 0.5 0.5 -r 0 16 200</code></pre>
-<img src="images/L_600.pdf" alt="Interactive" style="width:605px">
+<UL><p><LI>Plot wave vector projection power spectrum at <em>L</em> point from 0 to 16 THz (200 samples) using last 500000 time steps in OUTCAR file:</p></UL>
+<pre><code>$ dynaphopy input_file OUTCAR -n 500000 -pw -q 0.5 0.5 0.5 -r 0 16 200
+</code></pre>
+<img src="images/wave_silicon_800.png" alt="Interactive" style="width:630px">
 
 <UL><p><LI>Save phonon mode projection power spectrum at <em>X</em> point to spectrum.dat file :</p></UL>
-<pre><code>$ ./dynaphopy input_file OUTCAR -n 800000 -sw power.dat -q 0.5 0.0 0.5</code></pre>
+<pre><code>$ dynaphopy input_file OUTCAR -n 80000 -sw power.dat -q 0.5 0.0 0.5
+</code></pre>
+</p>
+<p>
+<pre><code>#  frequency	     phonon1    	    phonon2	
+    0.0000	1.6287598014e-01	1.2511061132e-01	3.4403852187e-03	2.3601374123e-03	2.8351033106e-03	2.4230063427e-03	
+    0.0025	1.6287848353e-01	1.2511254847e-01	3.4404392354e-03	2.3601725698e-03	2.8351431247e-03	2.4230438285e-03	
+    0.0050	1.6288599372e-01	1.2511834502e-01	3.4406010527e-03	2.3602771107e-03	2.8352621011e-03	2.4231555872e-03	
+    0.0075	1.6289848089e-01	1.2512798607e-01	3.4408711363e-03	2.3604519665e-03	2.8354602400e-03	2.4233420845e-03	
+    0.0100	1.6291600466e-01	1.2514150143e-01	3.4412494861e-03	2.3606969044e-03	2.8357380070e-03	2.4236030877e-03	
+    0.0125	1.6293852031e-01	1.2515886128e-01	3.4417354036e-03	2.3610112257e-03	2.8360949364e-03	2.4239385966e-03	
+    .....	................	................	................	................	2.8365314938e-03	2.4243488442e-03	
+</code></pre>
+
 
 <UL><p><LI>Peak analysis at <em>&Gamma;</em> point using MEM method (parallel) with 3000 coeficients:</p></UL>
-<pre><code>$ ./dynaphopy input_file OUTCAR -n 2000000 -pa -psm 4 -cf 3000</code></pre>
+<pre><code>$ dynaphopy input_file OUTCAR -n 5000000 -pa -psm 4 -cf 1000
+</code></pre>
 <p></p>
 
-<pre><code>Peak # 4------------------------------------Width (FWHM): 0.840947499447 THzPosition: 15.2067936887 THzFrequency shift: -0.0531330605831 THzFitting Error (MMSE): 175.41060441Peak # 5------------------------------------Width (FWHM): 0.831509855563 THzPosition: 15.2007348236 THzFrequency shift: -0.0591919256555 THzFitting Error (MMSE): 122.527840653Peak # 6------------------------------------Width (FWHM): 0.898610177277 THzPosition: 15.1706635365 THzFrequency shift: -0.08926321275 THzFitting Error (MMSE): 116.735106226</code></pre></UL>
+<pre><code>Peak # 4
+------------------------------------
+Width (FWHM):              0.720976934503 THz
+Position:                  14.7468768482 THz
+Area (1/2<K>) (Loretzian): 172.681967192 u * Angstrom^2 / ps^2
+Area (1/2<K>) (Total):     169.215316253 u * Angstrom^2 / ps^2
+<|dQ/dt|^2>:               690.727868767 u * Angstrom^2 / ps^2
+Occupation number:         0.673816713091
+Fit temperature            830.7549363 K
+Maximum height:            152.477491837 u * Angstrom^2 * 2 pi / ps
+Frequency shift:           -0.390025651715 THz
+Fit Error/Max. (RMS):      0.00341386116228
+
+Peak # 5
+------------------------------------
+Width (FWHM):              0.76070128409 THz
+Position:                  14.788674385 THz
+Area (1/2<K>) (Loretzian): 172.4644258 u * Angstrom^2 / ps^2
+Area (1/2<K>) (Total):     168.395185047 u * Angstrom^2 / ps^2
+<|dQ/dt|^2>:               689.857703198 u * Angstrom^2 / ps^2
+Occupation number:         0.669024558502
+Fit temperature            829.708367348 K
+Maximum height:            144.332954065 u * Angstrom^2 * 2 pi / ps
+Frequency shift:           -0.348228114952 THz
+Fit Error/Max. (RMS):      0.0050309593071
+
+Peak # 6
+------------------------------------
+Width (FWHM):              0.690951963837 THz
+Position:                  14.7118916826 THz
+Area (1/2<K>) (Loretzian): 164.969796197 u * Angstrom^2 / ps^2
+Area (1/2<K>) (Total):     166.063148197 u * Angstrom^2 / ps^2
+<|dQ/dt|^2>:               659.879184787 u * Angstrom^2 / ps^2
+Occupation number:         0.624059431463
+Fit temperature            793.652485895 K
+Maximum height:            151.997591148 u * Angstrom^2 * 2 pi / ps
+Frequency shift:           -0.425010817291 THz
+Fit Error/Max. (RMS):      0.0112552211985
+</code></pre>
+
+<img src="images/analisis_si_6.png" alt="Interactive" style="width:630px">
+
+
+<UL><p><LI>Load interactive interface from hdf5 file:</p></UL>
+<pre><code>$ dynaphopy input_file -lv velocity_800.h5 -n 50000 -i
+</code></pre>
+
+<UL><p><LI>Harmonic eigenvectors representation</p></UL>
+<img src="images/phonon_silicon_g4.png" alt="Interactive" style="width:630px">
+
+<UL><p><LI>Boltzmann analysis</p></UL>
+<pre><code>***Velocity distribution analysis***
+Average: 4.0870549e+01
+Deviation 1.7236406e+01 
+Fit parameter: 2.5609228e+01
+Temperature fit: 788.785519
+***End of velocity analysis***
+</code></pre>
+<img src="images/Boltzmann_silicon.png" alt="Interactive" style="width:630px">
+
+<UL><p><LI>Renormalized phonon bands</p></UL>
+
+<img src="images/silicon_bands.png" alt="Interactive" style="width:630px">
+
+</UL>
+
+
     </section>
     </div>
     
