@@ -63,11 +63,11 @@ Phonopy can easly generate a supercell with the desired size using the command:<
 <p>This generates a SPOSCAR file containing a 2x2x2 supercell of POSCAR_unitcell file.
 <br>VASP MD calculation can be carried out using this supercell (changing its name from SPOSCAR to POSCAR) and defining a regular VASP MD input like this: </p>
   
-<pre><code>      PREC = Normal                  # Normal precision may be necessary
+<pre><code>      PREC = Normal                  # Precision
     IBRION = 0
-      ISYM = 0
+      ISYM = 0						 # Disable symmetry 
      SMASS = 0                       # Define Thermostat
-    MDALGO = 0
+    MDALGO = 2						 # Nose Hoover thermostat
      POTIM = 0.7                     # Step length
      TEBEG = 800                     # Temperature
        NSW = 200000                  # Number of time steps
@@ -83,12 +83,10 @@ Phonopy can easly generate a supercell with the desired size using the command:<
    ADDGRID = .TRUE.
      LWAVE = .FALSE.
     LCHARG = .FALSE.
-      NPAR = 4
 </code></pre>
 <p> EDIFF may have great influence in the exactitute of the results. Longer time step lenghts are recomended to increase the convergence of
 phonon linewidths but to long could compromise the reliability of the simulation. 
-PREC seems to not affect specially the results in the case of sillicon but be carefull with other materials. </p>
-<p>Once VASP <strong>OUTCAR</strong> and Phonopy <strong>FORCE_SETS</strong> are generated the only thing remaining is create a Dynaphopy input.
+<p>Once VASP <strong>OUTCAR</strong> and Phonopy <strong>FORCE_SETS</strong> are generated the only thing left needed to run DynaPhoPY is a DynaPhoPy input.
 </p>
 <pre><code>STRUCTURE FILE POSCAR
 /home/user/Si-phonopy/POSCAR_unitcell
@@ -112,6 +110,9 @@ BANDS
 0.375, 0.375, 0.75        0.0,   0.0,  0.0
 0.0,   0.0,   0.0         0.5,   0.5,  0.5
 </pre></code>
+<br><em>Note: there is no restriction in the input file about the number of blank lines between options. Comments are also allowed. All options are optative and can be omitted to use the default value</em></p>
+
+
 <p>At this point all the information needed to run Dynaphopy is complete</p>
 
 <h5>Calculation examples</h5>
@@ -210,6 +211,100 @@ Temperature fit: 788.785519
 
 </UL>
 
+<h5>LAMMPS calculations</h5>
+LAMMPS input preparation can be a little tricky, since is not possible to automatically generate 
+the simulations cell using create_atoms command. In order to keep consistency with Phonopy calculation 
+and DynaPhoPy the cell has to be defined manually to preserve the same order of atoms. To do this, 
+it is convenient to prepare a separated structure file and read it in the LAMMPS input file.
+</p>
+Structure file  (data.si):
+<pre><code>Start File for LAMMPS
+
+ 64 atoms
+
+ 1 atom types
+
+ 0  10.9323 xlo xhi
+ 0  10.9323 ylo yhi
+ 0  10.9323 zlo zhi
+ 0  0  0  xy xz yz
+
+ Masses
+
+ 1  28.085
+
+ Atoms
+
+ 1 1 4.78289 4.78289 4.78289
+ 2 1 10.2491 4.78289 4.78289
+ 3 1 4.78289 10.2491 4.78289
+ 4 1 10.2491 10.2491 4.78289
+ 5 1 4.78289 4.78289 10.2491
+ 6 1 10.2491 4.78289 10.2491
+ 7 1 4.78289 10.2491 10.2491
+ 8 1 10.2491 10.2491 10.2491
+ 9 1 4.78289 2.04981 2.04981
+ 10 1 10.2491 2.04981 2.04981
+ 11 1 4.78289 7.51598 2.04981
+ 12 1 10.2491 7.51598 2.04981
+ 13 1 4.78289 2.04981 7.51598
+ 14 1 10.2491 2.04981 7.51598
+ 15 1 4.78289 7.51598 7.51598
+ 16 1 10.2491 7.51598 7.51598
+ 17 1 2.04981 4.78289 2.04981
+ 18 1 7.51598 4.78289 2.04981
+ 19 1 2.04981 10.2491 2.04981
+ 20 1 7.51598 10.2491 2.04981
+ 21 1 2.04981 4.78289 7.51598
+ 22 1 7.51598 4.78289 7.51598
+ .. . ....... ....... .......
+</code></pre>
+<p>This file can contain information about the atoms coordinates, simulations cell size and
+atoms masses. This information can be also specified in LAMMPS input, but keeping it together
+in a structure file facilitates the reusability of inputs.
+</p>
+LAMMPS input file:
+<pre><code>units           metal                       #Use this units for DynaPhoPy
+atom_style      atomic
+
+boundary        p p p                       #Periodical conditions
+
+read_data       data.si                     #Structure file
+
+pair_style      tersoff
+pair_coeff      * * SiCGe.tersoff Si(C)     #Empirical potential
+
+variable        t equal 800                 #Define the temperature
+
+neighbor        0.3 bin
+neigh_modify    delay 0
+
+timestep        0.001                       #Define time step
+
+thermo_style    custom step etotal temp vol press
+thermo          10000
+
+velocity        all create $t 3627941 dist gaussian mom yes
+velocity        all scale $t
+
+fix             int all nvt temp $t $t 0.5  #Canonical ensemble
+
+dump             dynaphopy all custom 1 trajectory.lammpstrj x y z
+dump_modify      dynaphopy sort id
+
+run             1000000                      #Number of timesteps
+</code></pre>
+<br><em>Note: The number of timesteps printed in the trajectory file is not necessarily 
+the number specified in <strong>run command</strong>, it will also depend on the format used in
+<strong>dump command</strong>. For further details refere to LAMMPS manual</em></p>
+<p>
+The use of LAMMPS trajectory file is equivalent to VASP output OUTCAR file. DynaPhoPy will automatically recognize 
+the file type. If needed the time step has to be specified.
+
+<pre><code>$ dynaphopy input_file trajectory.lammpstrj -n 500000 -ts 0.001
+</code></pre>
+
+</p>
 
     </section>
     </div>
@@ -224,3 +319,4 @@ Temperature fit: 788.785519
     
   </body>
 </html>
+
