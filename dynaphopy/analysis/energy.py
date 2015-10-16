@@ -14,8 +14,8 @@ def boltzmann_distribution(trajectory):
 
     average = np.average(velocity)
     deviation = np.std(velocity)
-    print('Average: {0:3.7e}'.format(average))
-    print('Deviation {0:3.7e} '.format(deviation))
+    print('Average: {0:3.7e} Amstrong'.format(average))
+    print('Deviation {0:3.7e} Amstrong'.format(deviation))
     maxwell = stats.maxwell
 
     params = maxwell.fit(velocity, floc=0)
@@ -28,7 +28,7 @@ def boltzmann_distribution(trajectory):
     x = np.linspace(0, average+3*deviation, 100)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    plt.xlabel('Velocity [Angtrom/ps]')
+    plt.xlabel('Velocity [Amstrong/ps]')
     ax.plot(x, maxwell.pdf(x,*params), lw=3)
     ax.text(0.95, 0.90, 'Temperature: {0:7.1f} K'.format(temperature),
         verticalalignment='bottom', horizontalalignment='right',
