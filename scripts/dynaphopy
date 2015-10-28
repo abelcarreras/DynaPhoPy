@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 import argparse
 from fractions import Fraction
+
 import numpy as np
 
-import dynaphopy.iofile as reading
+import dynaphopy.interface.iofile as reading
 import dynaphopy.classes.controller as controller
 import dynaphopy.interface.interactive_ui as interactive_ui
-from dynaphopy.phonopy_link import get_force_sets_from_file
+from dynaphopy.interface.phonopy_link import get_force_sets_from_file
+
+
 
 
 #Define arguments
