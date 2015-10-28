@@ -2,11 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import dynaphopy.projection as projection
-import dynaphopy.power_spectrum.correlation as correlate
-import dynaphopy.power_spectrum.maximum_entropy as mem
+import dynaphopy.power_spectrum as power_spectrum
 import dynaphopy.classes.parameters as parameters
-import dynaphopy.phonopy_link as pho_interface
-import dynaphopy.iofile as reading
+import dynaphopy.interface.phonopy_link as pho_interface
+import dynaphopy.interface.iofile as reading
 import dynaphopy.analysis.energy as energy
 import dynaphopy.analysis.fitting as fitting
 import dynaphopy.analysis.modes as modes
@@ -14,11 +13,8 @@ import dynaphopy.analysis.coordinates as trajdist
 
 
 power_spectrum_functions = {
-    0: correlate.get_correlation_spectra_par_python,
-    1: mem.get_mem_spectra_par_python,
-    2: correlate.get_correlation_spectra_serial,
-    3: correlate.get_correlation_spectra_par_openmp,
-    4: mem.get_mem_spectra_par_openmp
+    0: power_spectrum.get_correlation_spectra_par_openmp,
+    1: power_spectrum.get_mem_spectra_par_openmp
 }
 
 class Calculation:
@@ -350,9 +346,7 @@ class Calculation:
 
     def phonon_width_scan_analysis(self):
         print("Phonon coefficient scan analysis(Maximum Entropy Method Only)")
-        self._power_spectrum_phonon =  mem.mem_coefficient_scan_analysis(self.get_vq(),
-                                                                   self.dynamic,
-                                                                   self.parameters)
+        power_spectrum.mem_coefficient_scan_analysis(self.get_vq(), self.dynamic, self.parameters)
 
     def phonon_individual_analysis(self):
         print("Peak analysis analysis")

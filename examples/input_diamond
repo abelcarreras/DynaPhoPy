@@ -1,7 +1,7 @@
 STRUCTURE FILE POSCAR
 /home/abel/VASP/C-phonon/4x4x4/POSCAR
 
-FORCE CONSTANTS
+FORCE SETS
 /home/abel/VASP/C-phonon/4x4x4/FORCE_SETS
 
 

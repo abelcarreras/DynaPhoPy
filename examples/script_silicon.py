@@ -2,7 +2,7 @@
 
 import numpy as np
 import phonopy.file_IO as file_IO
-import dynaphopy.functions.iofunctions as reading
+import dynaphopy.interface.iofile as reading
 import dynaphopy.classes.controller as controller
 
 ##################################  STRUCTURE FILES #######################################
@@ -16,8 +16,6 @@ structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
 
 
-
-
 ############################### PHONOPY CELL INFORMATION ####################################
 # 2. Set primitive matrix, this matrix fulfills that:
 #    Primitive_cell = Unit_cell x Primitive_matrix
@@ -29,7 +27,6 @@ structure.set_primitive_matrix([[0.5, 0.0, 0.0],
 
 
 
-
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements
 
@@ -38,15 +35,11 @@ structure.set_super_cell_phonon([[4, 0, 0],
                                  [0, 0, 4]])
 
 
-
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR file containing the Molecular Dynamics trajectory
 
-trajectory = reading.read_from_file_trajectory('/home/abel/VASP/Si-dynamic_300/RUN1/OUTCAR',structure)
+trajectory = reading.read_vasp_trajectory('/home/abel/VASP/Si-dynamic_300/RUN1/OUTCAR', structure)
 calculation = controller.Calculation(trajectory)
-
-
-
 
 ############################## DEFINE CALCULATION REQUESTS #####################################
 # All this options are totally optional and independent, just comment or uncomment the desired ones
@@ -58,7 +51,7 @@ calculation = controller.Calculation(trajectory)
 calculation.set_reduced_q_vector([0.5, 0.0, 0.0]) # X Point
 
 # 5b. Define range of frequency to analyze (default: 0-20THz)
-calculation.set_frequency_range(np.array([0.01*i + 14.0 for i in range (100)])) #(range: 14 to 15Thz using 100 steps of 0.01 THz)
+calculation.set_frequency_range(np.linspace(2, 15, 2000)) #(range: 2 to 15Thz using 2000 samples)
 
 # 5c. Request Boltzmann distribution trajectory analysis
 calculation.show_boltzmann_distribution()
@@ -80,5 +73,7 @@ calculation.plot_power_spectrum_phonon()
 
 # 5i. Request save phonon projected velocity correlation function into file
 calculation.write_power_spectrum_phonon('Data Files/correlation_phonon.out')
+
+
 
 exit()

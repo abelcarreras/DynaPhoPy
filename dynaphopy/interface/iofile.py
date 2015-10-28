@@ -8,7 +8,7 @@ import h5py
 
 import dynaphopy.classes.dynamics as dyn
 import dynaphopy.classes.atoms as atomtest
-import phonopy_link as pho_interface
+from dynaphopy.interface import phonopy_link as pho_interface
 
 
 def check_trajectory_file_type(file_name, bytes_to_check=1000000):
@@ -660,8 +660,12 @@ def read_parameters_from_input_file(file_name):
         if "STRUCTURE FILE POSCAR" in line:
             input_parameters.update({'structure_file_name_poscar': input_file[i+1].replace('\n','')})
 
-        if "FORCE CONSTANTS" in line:
+        if "FORCE SETS" in line:
             input_parameters.update({'force_constants_file_name': input_file[i+1].replace('\n','')})
+
+        if "FORCE CONSTANTS" in line:
+            print('Warning!: FORCE CONSTANTS label in input has changed. Please use FORCE SETS instead')
+            exit()
 
         if "PRIMITIVE MATRIX" in line:
             primitive_matrix = [input_file[i+1].replace('\n','').split(),

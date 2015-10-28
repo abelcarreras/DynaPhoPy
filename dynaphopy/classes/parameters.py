@@ -20,12 +20,9 @@ class Parameters:
                  integration_method = 1,  # 0: Trapezoid  1:Rectangles
 
                  #Power spectra
-                    # 0: Correlation functions parallel(python)
-                    # 1: Maximum Entropy Method
-                    # 2: Correlation functions serial
-                    # 3: Correlation functions parallel (OpenMP) [Recommended]
-                    # 4: Maximum Entropy Method parallel (OpenMP) [Recommended]
-                 power_spectra_algorithm=4,
+                    # 0: Correlation functions parallel (OpenMP) [Recommended]
+                    # 1: Maximum Entropy Method parallel (OpenMP) [Recommended]
+                 power_spectra_algorithm=1,
                  frequency_range=np.linspace(0, 40, 500),
 
                  #Phonon dispersion diagram

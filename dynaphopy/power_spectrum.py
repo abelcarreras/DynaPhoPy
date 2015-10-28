@@ -1,15 +1,15 @@
 import numpy as np
 import sys
-import multiprocessing
 
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from dynaphopy.mem import mem
+import dynaphopy.correlation as correlation
 
 from dynaphopy.analysis.fitting import lorentzian, get_error_from_covariance
 
 
-def progress_bar(progress):
+def progress_bar(progress, type):
     bar_length = 30
     status = ""
     if isinstance(progress, int):
@@ -24,58 +24,44 @@ def progress_bar(progress):
         progress = 1
         status = "Done...\r\n"
     block = int(round(bar_length*progress))
-    text = "\rM.E. Method: [{0}] {1:.2f}% {2}".format("#"*block + "-"*(bar_length-block),
+    text = "\r{0}: [{1}] {2:.2f}% {3}".format(type, "#"*block + "-"*(bar_length-block),
                                                       progress*100, status)
     sys.stdout.write(text)
     sys.stdout.flush()
 
 
-def mem_worker(n_pos, velocity, trajectory, parameters):
-    power_spectrum = mem(parameters.frequency_range,
-                         velocity.real,
-                         trajectory.get_time_step_average(),
-                         coefficients=parameters.number_of_coefficients_mem)
 
-    return {n_pos: power_spectrum}
+def get_correlation_spectra_par_openmp(vq, trajectory, parameters):
+    test_frequency_range = np.array(parameters.frequency_range)
 
+    correlation_vector = []
+    progress_bar(0, "Fourier")
+    for i in range (vq.shape[1]):
+        correlation_vector.append(correlation.correlation_par(test_frequency_range,
+                                                               vq[:, i],
+          #                                                     np.lib.pad(vq[:, i], (2500, 2500), 'constant'),
+                                                               trajectory.get_time_step_average(),
+                                                               step=parameters.correlation_function_step,
+                                                               integration_method=parameters.integration_method))
+        progress_bar(float(i+1)/vq.shape[1], "Fourier")
 
-def get_mem_spectra_par_python(velocity, trajectory, parameters):
-
-    mem_full_dict = {}
-    progress_bar(0)
-
-    def log_result(result):
-        mem_full_dict.update(result)
-        progress_bar(float(len(mem_full_dict))/velocity.shape[1])
-
-#    print ('found',multiprocessing.cpu_count(), 'CPU')
-    pool = multiprocessing.Pool(processes=max(multiprocessing.cpu_count()-1, 1))
-#    print('using:', pool._processes)
-
-    for i in range(velocity.shape[1]):
-        pool.apply_async(mem_worker,
-                         args=(i, velocity[:, i], trajectory, parameters),
-                         callback = log_result)
-
-    pool.close()
-    pool.join()
-
-    correlation_vector = np.array([mem_full_dict[i] for i in mem_full_dict.keys()]).T
+    correlation_vector = np.array(correlation_vector).T
 
     return correlation_vector
+
 
 def get_mem_spectra_par_openmp(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
     correlation_vector = []
-    progress_bar(0)
+    progress_bar(0, "M.E. Method")
     for i in range (vq.shape[1]):
         correlation_vector.append(mem(test_frequency_range,
                                       vq[:, i],
                                       trajectory.get_time_step_average(),
                                       coefficients=parameters.number_of_coefficients_mem))
 
-        progress_bar(float(i+1)/vq.shape[1])
+        progress_bar(float(i+1)/vq.shape[1],"M.E. Method")
 
     correlation_vector = np.array(correlation_vector).T
 
@@ -90,7 +76,7 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         fit_data = []
         scan_params = []
         power_spectra = []
-        progress_bar(0)
+        progress_bar(0, "M.E. Method")
         for number_of_coefficients in parameters.mem_scan_range:
 
 
@@ -120,7 +106,7 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
             scan_params.append(fitParams)
             power_spectra.append(power_spectrum)
 
-            progress_bar(float(number_of_coefficients+1)/parameters.mem_scan_range[-1])
+            progress_bar(float(number_of_coefficients+1)/parameters.mem_scan_range[-1], "M.E. Method")
 
         fit_data = np.array(fit_data).T
 
