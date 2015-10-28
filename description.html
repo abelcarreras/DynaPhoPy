@@ -42,18 +42,14 @@ of physics to descompose signals into elemental frequencies without information 
  
 <h3>Power spectra</h3>
 <p>The power spectrum calculated by Dynaphopy can be either displayed in a matplotlib X window or stored in a file. The selection of the algorithm used to calculate the power spectra is defined by <strong>-psm</strong> flag followed by algorithm number.
-<br>At the present time there are 5 algorithms available:</p>
+<br>At the present time there are 2 algorithms available:</p>
 <UL>
-<LI>0: Fourier transform algorithm using parallel python module
-<LI>1: Maximum Entropy Method using parallel python module
-<LI>2: Fourier transform algorithm serial
-<LI>3: Fourier transform algorithm parallel using OpenMP.
-<LI>4: Maximum Entropy mMthod algorithm parallel using OpenMP.
+<LI>0: Fourier transform algorithm.
+<LI>1: Maximum Entropy Method algorithm.
 </UL>
-<em>Algorithms 0 and 1 and are essencially for testing purposes so algorithms 2, 3 and 4 are <strong>strongly</strong> recomended. 
-If not specified algorithm 4 is used.</em>
+If not specified algorithm 1 is used.</em>
 
-<pre><code>$ dynaphopy input_file OUTCAR -psm 4
+<pre><code>$ dynaphopy input_file OUTCAR -psm 1
 </code></pre>
 <p> Fourier methods do not require additional parameters but Maximum Entropy Method (MEM) does. MEM allows to obtain smoother and faster 
 power spectra interpolating the velocity using a polynomia which depends on a certain number of coefficents. The higher this number is, the heavier the calculation becomes and the result becomes closer to Fourier transfom solution. Fortunatelly, usually the convergence of the peaks shape in MEM can be found with 1000-3000 coeficients obtaining a very good performance. By default the number of coefficents used is 1000 but it can be changed using <strong>-cf</strong> followed by the number of coeficients.</p>
@@ -164,7 +160,7 @@ Occupation number:         4.79786944186
 Fit temperature            3697.73074478 K
 Maximum height:            67.6763577864 u * Angstrom^2 * 2 pi / ps
 Frequency shift:           0.19964818724 THz
-Fit Error/Max. (RMS):      9.14172647357
+Fit Error(RMSD)/Max.:      9.14172647357
 </code></pre>
 <p>
 <br><strong>Width:</strong>	Phonon linewidth
@@ -190,7 +186,14 @@ $$n = \frac{{\left\langle E \right\rangle }}{{\hbar \omega }} - \frac{1}{2}$$
 where <em>n</em> is the occupation number and <em>&omega;</em> is the phonon frequency (Position).
 <p>
 <br><strong>Frequency shift:</strong> Difference between anharmonic frequency (Position) and harmonic frequency.
-<br><strong>Fit Error/Max. (RMS):</strong> Error of the Lorentzian curve with the power spectrum divided by the peak height. This is another good method to know how good is the phonon decomposition technique approximation for the studied system. For MEM method it is expected to be very low (<1E-5). In the case of Fourier transform method can depend very much on the noise and the temperature so can only be used as relative reference between peaks. 
+<br><strong>Fit Error(RMSD)/Max.:</strong> Fitting error of the Lorentzian curve with the power spectrum divided by the peak height. RMSD is given by the square root of the trace of the covariance matrix.</p>
+<p style="text-align:center">
+$$ 
+RMSD = \sqrt {tr\left( {{\mathop{\rm cov}} } \right)} 
+$$
+</p>
+<p>
+This is another good method to know how good is the phonon decomposition technique approximation for the studied system. For MEM method it is expected to be very low (<1E-5). In the case of Fourier transform method can depend very much on the noise and the temperature so can only be used as relative reference between peaks. 
 <br><em>Using <strong>fitdata</strong> script, these noisy spectra can be smoothed and a similar low fitting error can be obtained (refere to Advanced features section).</em>
 
 <br><p>When the calculation is finished, for each peak a matplotlib X window apear in the screen showing the result of the fitting for visual analysis. This is very convenient for visual analysis of short MD trajectories, but when the calculations are long, specially using Fourier transform, and the calculations are done in cluster computers, xwindows cannot be displayed and the calculation may crash.
