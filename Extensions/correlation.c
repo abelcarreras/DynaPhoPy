@@ -4,7 +4,11 @@
 #include <stdlib.h>
 #include <complex.h>
 #include <numpy/arrayobject.h>
+
+#if defined(ENABLE_OPENMP)
 #include <omp.h>
+#endif
+
 
 #undef I
 

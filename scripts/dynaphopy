@@ -93,8 +93,8 @@ parser.add_argument('--read_from', metavar='N', type=int, default=0,
 parser.add_argument('--read_to', metavar='N', type=int, default=None,
                    help='define interval of trajectory to read (default: end)')
 
-parser.add_argument('-ds', '--display_spectrum', action='store_true',
-                    help='display phonon dispersion data in screen (just for test: not recommended)')
+#parser.add_argument('-ds', '--display_spectrum', action='store_true',
+#                    help='display phonon dispersion data in screen (just for test: not recommended)')
 
 parser.add_argument('-sfc', '--save_force_constants', metavar='file', type=str, nargs=1, default=False,
                     help='save the renormalized force constants to a file')
@@ -194,8 +194,8 @@ if args.save_force_constants:
 
 
 #On development methods (not recommended)
-if args.display_spectrum:
-    calculation.print_phonon_dispersion_bands()
+#if args.display_spectrum:
+#    calculation.print_phonon_dispersion_bands()
 
 if args.coefficient_scan_analysis:
     calculation.phonon_width_scan_analysis()

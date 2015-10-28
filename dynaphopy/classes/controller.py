@@ -496,8 +496,7 @@ class Calculation:
 
             distributions.append(distribution)
 
-
-        distance = bins - (bins[1]-bins[0])/2
+        distance = np.array([ i_bin - (bins[1]-bins[0])/2 for i_bin in bins ])
 
         return np.array(distributions), distance
 

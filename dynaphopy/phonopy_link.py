@@ -11,7 +11,6 @@ def eigenvectors_normalization(eigenvector):
         eigenvector[i, :] = eigenvector[i, :]/np.linalg.norm(eigenvector[i, :])
     return eigenvector
 
-
 def get_force_sets_from_file(file_name='FORCE_SETS'):
     #Just a wrapper to phonopy function
     force_sets = parse_FORCE_SETS(filename=file_name)

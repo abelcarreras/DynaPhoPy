@@ -1,7 +1,8 @@
 import numpy as np
 from dynaphopy.classes import atoms
+#Can be changed for MacOSX compatibility
 from dynaphopy.derivative import derivative as derivative
-from dynaphopy.analysis.coordinates import relativize_trajectory
+from dynaphopy.analysis.coordinates import relativize_trajectory_py as relativize_trajectory
 
 
 #import matplotlib.pyplot as plt
@@ -10,8 +11,8 @@ from dynaphopy.analysis.coordinates import relativize_trajectory
 def obtain_velocity_from_positions(cell, trajectory, time):
     velocity = np.empty_like(trajectory)
     for i in range(trajectory.shape[1]):
-     #   velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time)
-        velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=6)
+        velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time)
+     #   velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=6)
 
     print('Velocity obtained from trajectory derivative')
     return velocity
