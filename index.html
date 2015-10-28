@@ -80,7 +80,8 @@ $$
 <br>Phonopy 1.9.6 or higher (<a href="http://phonopy/sourceforge.net" target="" name="">http://phonopy/sourceforge.net</a>)
 <br>Matplotlib
 <br>Scipy
-<br>h5py<br>
+<br>h5py
+<br>OpenMP (optional)<br>
 </p>
 
 <h5><LI>Download</h5><p style="">Download <a href="#top">source</a> code and unzip it into the installation directory.
@@ -88,10 +89,18 @@ $$
 <h5><LI>Configure and install</h5>
 
 <p>Run setup.py script using&nbsp;python to install</p>
+
 <pre><code>$ python setup.py install —-user
 </code></pre>
 <p>Executable scripts are placed in script folder. Optionally you can either add this folder to <strong>$PATH</strong> environment variable
 or copy(or link) them to /home/user/bin directory. Refere to your OS documentation for detailed information.</p>
+<p>To compile with OpenMP support use setup_openmp.py</p>  
+<pre><code>$ python setup_openmp.py install —-user
+</code></pre>
+<em>Note: In OSX by default system uses clang compiler that at this moment has no official openMP support.
+To use openMP version in OSX is necessary to install another compiler (gcc recommended) with openMP support.</em>
+
+
 
 </OL>
 
@@ -102,7 +111,8 @@ or copy(or link) them to /home/user/bin directory. Refere to your OS documentati
 <LI><a href="description.html">Features description</a>
 <LI><a href="special.html">Advanced features</a>
 <LI><a href="examples.html">Examples</a>
-<LI><a href="theory_no.html">Theory (under construction)</a> 
+
+<!--<LI><a href="theory_no.html">Theory (under construction)</a>-->
 
 </OL>
 

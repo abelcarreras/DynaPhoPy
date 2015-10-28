@@ -123,8 +123,8 @@ BANDS
 </code></pre>
 <img src="images/wave_silicon_800.png" alt="Interactive" style="width:630px">
 
-<UL><p><LI>Save phonon mode projection power spectrum at <em>X</em> point to spectrum.dat file :</p></UL>
-<pre><code>$ dynaphopy input_file OUTCAR -n 80000 -sw power.dat -q 0.5 0.0 0.5
+<UL><p><LI>Save phonon mode projection power spectrum at <em>X</em> point (0.5 0 0.5) to spectrum.dat file using lasts 80000 times teps:</p></UL>
+<pre><code>$ dynaphopy input_file OUTCAR -n 80000 -sw spectrum.dat -q 0.5 0.0 0.5
 </code></pre>
 </p>
 <p>
@@ -139,7 +139,7 @@ BANDS
 </code></pre>
 
 
-<UL><p><LI>Peak analysis at <em>&Gamma;</em> point using MEM method (parallel) with 3000 coeficients:</p></UL>
+<UL><p><LI>Peak analysis at <em>&Gamma;</em> point using MEM method (parallel) with 1000 coeficients:</p></UL>
 <pre><code>$ dynaphopy input_file OUTCAR -n 5000000 -pa -psm 4 -cf 1000
 </code></pre>
 <p></p>
@@ -296,7 +296,8 @@ run             1000000                      #Number of timesteps
 </code></pre>
 <br><em>Note: The number of timesteps printed in the trajectory file is not necessarily 
 the number specified in <strong>run command</strong>, it will also depend on the format used in
-<strong>dump command</strong>. For further details refere to LAMMPS manual</em></p>
+<strong>dump command</strong>. For further details refere to 
+<a href="http://lammps.sandia.gov/doc/dump.html">LAMMPS manual</a>.</em></p>
 <p>
 The use of LAMMPS trajectory file is equivalent to VASP output OUTCAR file. DynaPhoPy will automatically recognize 
 the file type. If needed the time step has to be specified.

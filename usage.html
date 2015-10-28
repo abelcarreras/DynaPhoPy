@@ -77,7 +77,7 @@ The order of the atoms within the cell has to be kept in both cells to work prop
 
 <UL><LI><h5>POSCAR and FORCE_SETS files location</h5>
 <p>Define the file name and path in which a POSCAR type file containing the crystal unit cell in <strong>fractional coordinates</strong> and FORCE_SETS containing atom forces files are stored. 
-If not specified POSCAR and FORCE_SETS filen ames stored in the working directory are taken as default.</p>
+If POSCAR file is not specified DynaPhoPy will use POSCAR file name stored in the working directory as default. If FORCES CONSTANTS is not specified DynaPhoPy will not read any FORCE_SETS file (features will be limited)</p>
 
 <pre><code>STRUCTURE FILE POSCAR
 /home/user/phonopy/calculation/POSCAR_unitcell
