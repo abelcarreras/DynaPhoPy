@@ -10,8 +10,8 @@ def lorentzian(x, a, b, c, d):
 
 
 def get_error_from_covariance(covariance):
-    return np.sqrt(np.sum(np.linalg.eigvals(covariance)**2))
-  #  return np.sqrt(np.trace(covariance))
+  #  return np.sqrt(np.sum(np.linalg.eigvals(covariance)**2))
+    return np.sqrt(np.trace(covariance))
 
 
 def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None, show_plots=True):
@@ -80,7 +80,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print 'Maximum height:           ', maximum, 'u * Angstrom^2 * 2 pi / ps'
         if harmonic_frequencies is not None:
             print 'Frequency shift:          ', frequency - harmonic_frequencies[i], 'THz'
-        print 'Fit Error/Max. (RMS):     ', error/maximum
+        print 'Fit Error(RMSD)/ Max. :     ', error/maximum
 
         positions.append(frequency)
         widths.append(width)
