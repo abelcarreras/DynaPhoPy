@@ -48,8 +48,8 @@ static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywo
     //Create new numpy array for storing result
     PyArrayObject *PowerSpectrum_object;
     int dims[1]={NumberOfFrequencies};
-    PowerSpectrum_object = (PyArrayObject *) PyArray_FromDims(1,dims,NPY_FLOAT);
-    float *PowerSpectrum  = (float*)PyArray_DATA(PowerSpectrum_object);
+    PowerSpectrum_object = (PyArrayObject *) PyArray_FromDims(1,dims,NPY_DOUBLE);
+    double *PowerSpectrum  = (double*)PyArray_DATA(PowerSpectrum_object);
 
     // Maximum Entropy Method Algorithm
     if (IntMethod < 0 || IntMethod > 1) {

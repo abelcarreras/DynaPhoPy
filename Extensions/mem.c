@@ -45,8 +45,8 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     //Create new numpy array for storing result
     PyArrayObject *PowerSpectrum_object;
     int dims[1]={NumberOfFrequencies};
-    PowerSpectrum_object = (PyArrayObject *) PyArray_FromDims(1,dims,NPY_FLOAT);
-    float *PowerSpectrum  = (float*)PyArray_DATA(PowerSpectrum_object);
+    PowerSpectrum_object = (PyArrayObject *) PyArray_FromDims(1,dims,NPY_DOUBLE);
+    double *PowerSpectrum  = (double*)PyArray_DATA(PowerSpectrum_object);
 
     //Declare internal variables
     double Coefficients[NumberOfCoefficients];
@@ -58,7 +58,7 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
 # pragma omp parallel for default(shared) private(AngularFrequency)
     for (int i=0;i<NumberOfFrequencies;i++) {
         AngularFrequency = Frequency[i]*2.0*M_PI;
-        PowerSpectrum[i] = (float)FrequencyEvaluation(AngularFrequency*TimeStep/2.0, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep;
+        PowerSpectrum[i] = FrequencyEvaluation(AngularFrequency*TimeStep/2.0, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep;
     }
     //Returning Python array
     return(PyArray_Return(PowerSpectrum_object));
