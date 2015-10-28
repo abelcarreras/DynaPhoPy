@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 import argparse
-from fractions import Fraction
-
 import numpy as np
-
 import dynaphopy.interface.iofile as reading
 import dynaphopy.classes.controller as controller
 import dynaphopy.interface.interactive_ui as interactive_ui
+
+from fractions import Fraction
 from dynaphopy.interface.phonopy_link import get_force_sets_from_file
-
-
 
 
 #Define arguments
@@ -17,13 +14,11 @@ parser = argparse.ArgumentParser(description='DynaPhonoPy options')
 parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
                    help='input file containing structure related data')
 
-
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('md_file', metavar='TRAJECTORY', type=str, nargs='?',
                    help='Output file containing MD trajectory')
 group.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
                    help='load velocity from hdf5 file')
-
 
 parser.add_argument('-i', '--interactive', action='store_true',
                     help='enter interactive mode')

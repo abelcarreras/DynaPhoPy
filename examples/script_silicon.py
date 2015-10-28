@@ -16,8 +16,6 @@ structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
 
 
-
-
 ############################### PHONOPY CELL INFORMATION ####################################
 # 2. Set primitive matrix, this matrix fulfills that:
 #    Primitive_cell = Unit_cell x Primitive_matrix
@@ -29,14 +27,12 @@ structure.set_primitive_matrix([[0.5, 0.0, 0.0],
 
 
 
-
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements
 
 structure.set_super_cell_phonon([[4, 0, 0],
                                  [0, 4, 0],
                                  [0, 0, 4]])
-
 
 
 ################################### TRAJECTORY FILES ##########################################
@@ -77,5 +73,7 @@ calculation.plot_power_spectrum_phonon()
 
 # 5i. Request save phonon projected velocity correlation function into file
 calculation.write_power_spectrum_phonon('Data Files/correlation_phonon.out')
+
+
 
 exit()
