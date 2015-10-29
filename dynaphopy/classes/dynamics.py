@@ -4,7 +4,6 @@ from dynaphopy.classes import atoms
 from dynaphopy.derivative import derivative as derivative
 from dynaphopy.analysis.coordinates import relativize_trajectory_py as relativize_trajectory
 
-
 #import matplotlib.pyplot as plt
 
 

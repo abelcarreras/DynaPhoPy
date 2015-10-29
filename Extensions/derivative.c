@@ -161,7 +161,7 @@ static PyObject* method2 (PyObject* self, PyObject *arg, PyObject *keywords) {
 //  Interface with python
     PyObject *Cell_obj, *Trajectory_obj;
 
-    static char *kwlist[] = {"cell", "trajectory", "time_step", "precision_order", NULL};
+    static char *kwlist[] = {"cell", "trajectory", "time_step", "step", NULL};
     if (!PyArg_ParseTupleAndKeywords(arg, keywords, "OOd|i", kwlist, &Cell_obj, &Trajectory_obj, &TimeStep, &Order))  return NULL;
 
     PyObject *Cell_array = PyArray_FROM_OTF(Cell_obj, NPY_DOUBLE, NPY_IN_ARRAY);
