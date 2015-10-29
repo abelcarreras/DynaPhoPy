@@ -202,7 +202,7 @@ def read_from_file_structure_poscar(file_name):
 def read_vasp_trajectory(file_name, structure=None, time_step=None,
                          limit_number_steps=10000000,  #Maximum number of steps read (for security)
                          last_steps=None,
-                         initial_cut=0,
+                         initial_cut=1,
                          end_cut=None):
 
 
@@ -759,7 +759,7 @@ def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, 
     hdf5_file.close()
 
 
-def initialize_from_hdf5_file(file_name, structure, read_trajectory=True):
+def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initial_cut=1, final_cut=None):
     print("Reading data from hdf5 file: " + file_name)
 
     trajectory = None
@@ -775,12 +775,24 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True):
     hdf5_file = h5py.File(file_name, "r")
     if "trajectory" in hdf5_file and read_trajectory is True:
         trajectory = hdf5_file['trajectory'][:]
+        if final_cut is not None:
+            trajectory = trajectory[initial_cut-1:final_cut]
+        else:
+            trajectory = trajectory[initial_cut-1:]
 
     if "velocity" in hdf5_file:
         velocity = hdf5_file['velocity'][:]
+        if final_cut is not None:
+            velocity = velocity[initial_cut-1:final_cut]
+        else:
+            velocity = velocity[initial_cut-1:]
 
     if "vc" in hdf5_file:
         vc = hdf5_file['vc'][:]
+        if final_cut is not None:
+            vc = vc[initial_cut-1:final_cut]
+        else:
+            vc = vc[initial_cut-1:]
 
     if "reduced_q_vector" in hdf5_file:
         reduced_q_vector = hdf5_file['reduced_q_vector'][:]
