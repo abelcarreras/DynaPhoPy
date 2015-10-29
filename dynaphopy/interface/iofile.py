@@ -202,12 +202,8 @@ def read_from_file_structure_poscar(file_name):
 def read_vasp_trajectory(file_name, structure=None, time_step=None,
                          limit_number_steps=10000000,  #Maximum number of steps read (for security)
                          last_steps=None,
-                         initial_cut=0,  #Not enabled yet
-                         end_cut=None):  #Not enabled yet
-
-    # Provisional cut
-    if initial_cut != 0 or end_cut is not None:
-        print('Warning! interval reading not enabled for VASP OUTCAR yet')
+                         initial_cut=1,
+                         end_cut=None):
 
 
     #Check file exists
@@ -228,6 +224,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
     number_of_dimensions = 3
 
     with open(file_name, "r+") as f:
+
         #Memory-map the file
         file_map = mmap.mmap(f.fileno(), 0)
         position_number=file_map.find('NIONS =')
@@ -260,7 +257,16 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
 #       Read coordinates and energy
         trajectory = []
         energy = []
+        counter = 0
         while True :
+
+            counter +=1
+
+            #Initial cut control
+            if initial_cut > counter:
+                continue
+
+
             position_number=file_map.find('POSITION')
             if position_number < 0 : break
 
@@ -278,10 +284,11 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
             energy.append(np.array(read_energy, dtype=float))
 
             #security routine to limit maximum of steps to read and put in memory
-            limit_number_steps -= 1
-
-            if limit_number_steps < 0:
+            if limit_number_steps+initial_cut < counter:
                 print("Warning! maximum number of steps reached! No more steps will be read")
+                break
+
+            if end_cut is not None and end_cut <= counter:
                 break
 
         file_map.close()
@@ -752,7 +759,7 @@ def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, 
     hdf5_file.close()
 
 
-def initialize_from_hdf5_file(file_name, structure, read_trajectory=True):
+def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initial_cut=1, final_cut=None):
     print("Reading data from hdf5 file: " + file_name)
 
     trajectory = None
@@ -768,12 +775,24 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True):
     hdf5_file = h5py.File(file_name, "r")
     if "trajectory" in hdf5_file and read_trajectory is True:
         trajectory = hdf5_file['trajectory'][:]
+        if final_cut is not None:
+            trajectory = trajectory[initial_cut-1:final_cut]
+        else:
+            trajectory = trajectory[initial_cut-1:]
 
     if "velocity" in hdf5_file:
         velocity = hdf5_file['velocity'][:]
+        if final_cut is not None:
+            velocity = velocity[initial_cut-1:final_cut]
+        else:
+            velocity = velocity[initial_cut-1:]
 
     if "vc" in hdf5_file:
         vc = hdf5_file['vc'][:]
+        if final_cut is not None:
+            vc = vc[initial_cut-1:final_cut]
+        else:
+            vc = vc[initial_cut-1:]
 
     if "reduced_q_vector" in hdf5_file:
         reduced_q_vector = hdf5_file['reduced_q_vector'][:]

@@ -85,7 +85,7 @@ parser.add_argument('-sad', '--save_atomic_displacements',metavar='X', type=str,
 
 
 #For development
-parser.add_argument('--read_from', metavar='N', type=int, default=0,
+parser.add_argument('--read_from', metavar='N', type=int, default=1,
                    help='define interval of trajectory to read (default: 1)')
 
 parser.add_argument('--read_to', metavar='N', type=int, default=None,
@@ -117,11 +117,19 @@ if 'force_constants_file_name' in input_parameters:
 
 
 if args.load_velocity:
-    trajectory = reading.initialize_from_hdf5_file(args.load_velocity[0], structure, read_trajectory=not(args.velocity_only))
+    trajectory = reading.initialize_from_hdf5_file(args.load_velocity[0],
+                                                   structure,
+                                                   read_trajectory=not(args.velocity_only),
+                                                   initial_cut=args.read_from,
+                                                   final_cut=args.read_to)
     structure_file = args.load_velocity[0]
 else:
     trajectory_reading_function = reading.check_trajectory_file_type(args.md_file)
-    trajectory = trajectory_reading_function(args.md_file, structure, args.time_step, initial_cut=args.read_from, end_cut=args.read_to)
+    trajectory = trajectory_reading_function(args.md_file,
+                                             structure,
+                                             args.time_step,
+                                             initial_cut=args.read_from,
+                                             end_cut=args.read_to)
 
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
