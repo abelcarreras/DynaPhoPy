@@ -161,7 +161,7 @@ static PyObject* method2 (PyObject* self, PyObject *arg, PyObject *keywords) {
 //  Interface with python
     PyObject *Cell_obj, *Trajectory_obj;
 
-    static char *kwlist[] = {"cell", "trajectory", "time_step", "precision_order", NULL};
+    static char *kwlist[] = {"cell", "trajectory", "time_step", "step", NULL};
     if (!PyArg_ParseTupleAndKeywords(arg, keywords, "OOd|i", kwlist, &Cell_obj, &Trajectory_obj, &TimeStep, &Order))  return NULL;
 
     PyObject *Cell_array = PyArray_FROM_OTF(Cell_obj, NPY_DOUBLE, NPY_IN_ARRAY);
@@ -254,7 +254,7 @@ static PyObject* method2 (PyObject* self, PyObject *arg, PyObject *keywords) {
 //		printf("Proper: %f %f %f\n",Point_final[0],Point_final[1],Point_final[2]);
 
 		for (int j = 0; j < NumberOfDimensions; j++) {
-			Derivative[i][j] = (Point_final[j]-Point_initial[j])/ TimeStep;
+			Derivative[i][j] = (Point_final[j]-Point_initial[j])/ (TimeStep * 2 * Order);
 		}
 	}
 
@@ -263,8 +263,8 @@ static PyObject* method2 (PyObject* self, PyObject *arg, PyObject *keywords) {
 //  Side limits extrapolation
 	for (int k = Order; k > 0; k--) {
 		for (int j = 0; j < NumberOfDimensions; j++) {
-			Derivative[k-1][j] = ((Derivative[2+k-1][j] - Derivative[1+k-1][j]) / TimeStep) * TimeStep + Derivative[1+k-1][j];
-			Derivative[NumberOfData-k][j] = ((Derivative[NumberOfData-2-k][j] - Derivative[NumberOfData-1-k][j]) / TimeStep)
+			Derivative[k-1][j] = ((Derivative[2+k-1][j] - Derivative[1+k-1][j]) / (TimeStep * 2 * Order)) * TimeStep + Derivative[1+k-1][j];
+			Derivative[NumberOfData-k][j] = ((Derivative[NumberOfData-2-k][j] - Derivative[NumberOfData-1-k][j]) / (TimeStep * 2 * Order))
 			*TimeStep + Derivative[NumberOfData-1-k][j];
 		}
 	 }

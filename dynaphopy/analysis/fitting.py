@@ -69,13 +69,13 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print 'Area (1/2<K>) (Loretzian):', area, 'u * Angstrom^2 / ps^2'             # Kinetic energy
         print 'Area (1/2<K>) (Total):    ', total_integral, 'u * Angstrom^2 / ps^2'   # Kinetic energy
         print '<|dQ/dt|^2>:              ', dt_Q2_lor, 'u * Angstrom^2 / ps^2'        # Total energy
-#        print '<|dQ/dt|^2> (tot):      ', dt_Q2_tot, 'u * Angstrom^2 / ps^2'        # Total energy
+ #       print '<|dQ/dt|^2> (tot):      ', dt_Q2_tot, 'u * Angstrom^2 / ps^2'         # Total energy
  #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
  #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
         print 'Occupation number:        ', occupancy_lor
  #       print 'Occupation number(tot): ', occupancy_tot
         print 'Fit temperature           ', dt_Q2_lor / kb_bolzman, 'K'
-#        print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
+ #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
 
         print 'Maximum height:           ', maximum, 'u * Angstrom^2 * 2 pi / ps'
         if harmonic_frequencies is not None:

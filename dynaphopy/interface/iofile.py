@@ -295,6 +295,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
             trajectory = trajectory[-last_steps:,:,:]
             energy = energy[-last_steps:]
 
+
         print('Number of total steps read: {0}'.format(trajectory.shape[0]))
         time = np.array([i*time_step for i in range(trajectory.shape[0])], dtype=float)
 
