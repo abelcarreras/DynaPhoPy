@@ -105,13 +105,13 @@ for arg in args.input[1:]:
     print(arg)
     new_vc, new_velocity, new_trajectory = read_file_hdf5(arg)[0:3]
 
-    if new_trajectory is not None:
+    if trajectory is not None:
         trajectory = np.concatenate((trajectory, new_trajectory[first:]), axis=0)
 
-    if new_velocity is not None:
+    if velocity is not None:
         velocity = np.concatenate((velocity, new_velocity[first:]), axis=0)
 
-    if new_vc is not  None:
+    if vc is not  None:
         vc = np.concatenate((vc, new_vc[first:]), axis=0)
 
 print "Final: ", args.output[0]
