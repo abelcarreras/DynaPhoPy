@@ -33,7 +33,7 @@ args = parser.parse_args()
 
 
 #LOWESS method definition
-def lowess(x, y, f=2./3.):
+def loess(x, y, f=2./3.):
 
     n = len(x)
     r = int(np.ceil(f*n))
@@ -82,13 +82,13 @@ for phonon in degeneracy:
 
 
 
-#Smoothing using LOWESS method
+#Smoothing using LOESS method
 if args.smooth:
 
     y_smooth = []
     for i, datum in enumerate(data):
 
-        y2 = lowess(test_frequencies_range, datum, f=args.f)
+        y2 = loess(test_frequencies_range, datum, f=args.f)
 
         if not(args.silent):
             plt.figure(i+1)
