@@ -13,7 +13,7 @@ import dynaphopy.analysis.coordinates as trajdist
 
 
 power_spectrum_functions = {
-    0: power_spectrum.get_correlation_spectra_par_openmp,
+    0: power_spectrum.get_fourier_spectra_par_openmp,
     1: power_spectrum.get_mem_spectra_par_openmp
 }
 
@@ -360,20 +360,20 @@ class Calculation:
         plt.suptitle('Full power spectrum')
         plt.plot(self.get_frequency_range(), self.get_power_spectrum_direct(), 'r-')
         plt.xlabel('Frequency [THz]')
-        plt.ylabel('$u * \AA^2 * THz$')
+        plt.ylabel('eV * ps')
         plt.show()
 
-        total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} u * Angstrom^2 *THz^2".format(total_integral))
+        total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
+        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
         plt.suptitle('Projection onto wave vector')
         plt.plot(self.get_frequency_range(),self.get_power_spectrum_wave_vector(), 'r-')
         plt.xlabel('Frequency [THz]')
-        plt.ylabel('$u * \AA^2 * THz$')
+        plt.ylabel('eV * ps')
         plt.show()
-        total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} u * Angstrom^2 * THz^2".format(total_integral))
+        total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())/(2 * np.pi)
+        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
 
     def plot_power_spectrum_phonon(self):
@@ -382,7 +382,7 @@ class Calculation:
             plt.suptitle('Projection onto phonon {0}'.format(i+1))
             plt.plot(self.get_frequency_range(), self.get_power_spectrum_phonon()[:, i])
             plt.xlabel('Frequency [THz]')
-            plt.ylabel('$u * \AA^2 * THz$')
+            plt.ylabel('eV * ps')
 
         plt.show()
 
