@@ -5,6 +5,10 @@ from scipy.optimize import curve_fit
 h_planck = 39.90310 # A^2 * u / ps
 kb_bolzman = 0.831446 # u * A^2 / ( ps^2 * K )
 
+unit_conversion =
+
+
+
 def lorentzian(x, a, b, c, d):
     return c/(np.pi*b*(1.0+((x-a)/b)**2))+d
 
@@ -77,7 +81,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print 'Fit temperature           ', dt_Q2_lor / kb_bolzman, 'K'
  #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
 
-        print 'Maximum height:           ', maximum, 'u * Angstrom^2 * 2 pi / ps'
+        print 'Maximum height:           ', maximum, 'u * Angstrom^2 * THz'
         if harmonic_frequencies is not None:
             print 'Frequency shift:          ', frequency - harmonic_frequencies[i], 'THz'
         print 'Fit Error(RMSD)/ Max. :     ', error/maximum
