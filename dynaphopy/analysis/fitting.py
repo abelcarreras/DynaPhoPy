@@ -5,7 +5,7 @@ from scipy.optimize import curve_fit
 h_planck = 39.90310 # A^2 * u / ps
 kb_bolzman = 0.831446 # u * A^2 / ( ps^2 * K )
 
-unit_conversion =
+unit_conversion = 4
 
 
 
