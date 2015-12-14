@@ -89,7 +89,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             plt.figure(i+1)
 
             plt.xlabel('Frequency [THz]')
-            plt.ylabel('$u * \AA^2 \pi/ ps$')
+            plt.ylabel('$u * \AA^2 * THz$')
 
             plt.title('Curve fitting')
 

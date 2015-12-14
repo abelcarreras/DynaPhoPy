@@ -263,7 +263,7 @@ class Calculation:
                    num=self.get_vc().shape[0])
 
         for mode in modes:
-            plt.plot(time,self.get_vq()[:,mode].real,label='mode: '+str(mode))
+            plt.plot(time,self.get_vq()[:, mode].real, label='mode: '+str(mode))
         plt.legend()
         plt.show()
 
@@ -360,20 +360,20 @@ class Calculation:
         plt.suptitle('Full power spectrum')
         plt.plot(self.get_frequency_range(), self.get_power_spectrum_direct(), 'r-')
         plt.xlabel('Frequency [THz]')
-        plt.ylabel('$u * \AA^2 \pi/ ps$')
+        plt.ylabel('$u * \AA^2 * THz$')
         plt.show()
 
         total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral))
+        print ("Total Area (1/2 Kinetic energy <K>): {0} u * Angstrom^2 *THz^2".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
         plt.suptitle('Projection onto wave vector')
         plt.plot(self.get_frequency_range(),self.get_power_spectrum_wave_vector(), 'r-')
         plt.xlabel('Frequency [THz]')
-        plt.ylabel('$u * \AA^2 \pi/ ps$')
+        plt.ylabel('$u * \AA^2 * THz$')
         plt.show()
         total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} u * Angstrom^2 / ps^2".format(total_integral))
+        print ("Total Area (1/2 Kinetic energy <K>): {0} u * Angstrom^2 * THz^2".format(total_integral))
 
 
     def plot_power_spectrum_phonon(self):
@@ -382,7 +382,7 @@ class Calculation:
             plt.suptitle('Projection onto phonon {0}'.format(i+1))
             plt.plot(self.get_frequency_range(), self.get_power_spectrum_phonon()[:, i])
             plt.xlabel('Frequency [THz]')
-            plt.ylabel('$u * \AA^2 \pi/ ps$')
+            plt.ylabel('$u * \AA^2 * THz$')
 
         plt.show()
 

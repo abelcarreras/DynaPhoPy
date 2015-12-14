@@ -1,21 +1,18 @@
 import numpy as np
 from dynaphopy.classes import atoms
-#Can be changed for MacOSX compatibility
+# Can be changed for MacOSX compatibility
 from dynaphopy.derivative import derivative as derivative
 from dynaphopy.analysis.coordinates import relativize_trajectory_py as relativize_trajectory
-
-#import matplotlib.pyplot as plt
 
 
 def obtain_velocity_from_positions(cell, trajectory, time):
     velocity = np.empty_like(trajectory)
     for i in range(trajectory.shape[1]):
         velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time)
-     #   velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=6)
+     # velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=6)
 
     print('Velocity obtained from trajectory derivative')
     return velocity
-
 
 class Dynamics:
 
@@ -71,7 +68,6 @@ class Dynamics:
 
         print("Using {0} steps".format(self.velocity.shape[0]))
 
-
     def get_number_of_atoms(self):
         if self._number_of_atoms is None:
             self._number_of_atoms = self.structure.get_number_of_atoms()*np.product(self.get_super_cell_matrix())
@@ -90,8 +86,7 @@ class Dynamics:
         return self._super_cell
 
     def get_energy(self):
-        return  self._energy
-
+        return self._energy
 
     def get_time_step_average(self):
 
@@ -108,17 +103,16 @@ class Dynamics:
     def get_velocity_mass_average(self):
         if self._velocity_mass_average is None:
             self._velocity_mass_average = np.empty_like(self.velocity)
-            super_cell= self.get_super_cell_matrix()
+            super_cell = self.get_super_cell_matrix()
             for i in range(self.get_number_of_atoms()):
-                self._velocity_mass_average[:,i,:] = self.velocity[:,i,:] * np.sqrt(self.structure.get_masses(super_cell=super_cell)[i])
+                self._velocity_mass_average[:, i, :] = (self.velocity[:, i, :] *
+                                                        np.sqrt(self.structure.get_masses(super_cell=super_cell)[i]))
 
         return np.array(self._velocity_mass_average)
 
     def get_relative_trajectory(self):
         if self._relative_trajectory is None:
-                #self._relative_trajectory = relativize_trajectory(self)
                 self._relative_trajectory = relativize_trajectory(self)
-
 
         return self._relative_trajectory
 
@@ -133,8 +127,7 @@ class Dynamics:
                 exit()
         return self._super_cell_matrix
 
-
-    #Properties
+    # Properties
     @property
     def structure(self):
         return self._structure
@@ -150,7 +143,7 @@ class Dynamics:
     @property
     def velocity(self):
         if self._velocity is None:
-            print('No velocity provided! calculating...')
+            print('No velocity provided! calculating it from coordinates...')
             self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time_step_average())
  #           self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time())
 
@@ -159,6 +152,3 @@ class Dynamics:
     @velocity.setter
     def velocity(self,velocity):
         self._velocity = velocity
-
-
-

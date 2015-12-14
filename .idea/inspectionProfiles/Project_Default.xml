@@ -3,15 +3,5 @@
     <option name="myName" value="Project Default" />
     <option name="myLocal" value="false" />
     <inspection_tool class="PyPep8Inspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
-    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="ignoredIdentifiers">
-        <value>
-          <list size="2">
-            <item index="0" class="java.lang.String" itemvalue="float.shape" />
-            <item index="1" class="java.lang.String" itemvalue="helloworld" />
-          </list>
-        </value>
-      </option>
-    </inspection_tool>
   </profile>
 </component>
