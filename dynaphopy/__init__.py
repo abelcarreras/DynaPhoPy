@@ -497,7 +497,7 @@ class Calculation:
 
     #Molecular dynamics analysis related methods
     def show_boltzmann_distribution(self):
-        energy.boltzmann_distribution(self.dynamic)
+        energy.boltzmann_distribution(self.dynamic, self.parameters)
 
     #Other
     def get_algorithm_list(self):

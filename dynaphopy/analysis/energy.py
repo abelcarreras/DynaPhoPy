@@ -5,7 +5,7 @@ import scipy.stats as stats
 kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
 
 
-def boltzmann_distribution(trajectory):
+def boltzmann_distribution(trajectory, parameters):
 
     print("\n***Velocity distribution analysis***")
 
@@ -23,20 +23,22 @@ def boltzmann_distribution(trajectory):
     temperature = pow(params[1],2)/ kb_boltzmann
     print('Temperature fit: {0:7.6f} K'.format(temperature))
 
-    x = np.linspace(0, average + 3 * deviation, 100)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    plt.xlabel('Velocity [Angstrom/ps]')
-    ax.plot(x, maxwell.pdf(x, *params), lw=3)
-    ax.text(0.95, 0.90, 'Temperature: {0:7.1f} K'.format(temperature),
-            verticalalignment='bottom',
-            horizontalalignment='right',
-            transform=ax.transAxes,
-            fontsize=15)
 
-    fig.suptitle('Velocity distribution')
-    ax.hist(velocity, bins=25, normed=True)
+    if not parameters.silent:
+        x = np.linspace(0, average + 3 * deviation, 100)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        plt.xlabel('Velocity [Angstrom/ps]')
+        ax.plot(x, maxwell.pdf(x, *params), lw=3)
+        ax.text(0.95, 0.90, 'Temperature: {0:7.1f} K'.format(temperature),
+                verticalalignment='bottom',
+                horizontalalignment='right',
+                transform=ax.transAxes,
+                fontsize=15)
 
-    plt.show()
+        fig.suptitle('Velocity distribution')
+        ax.hist(velocity, bins=parameters.number_of_bins_histogram, normed=True)
+
+        plt.show()
 
     print("***End of velocity analysis***\n")

@@ -36,7 +36,6 @@ def relativize_trajectory(dynamic):
     progress_bar(0)
 
 
-
     for j in range(number_of_atoms):
 
     #    print(trajectory, position, cell)
@@ -95,8 +94,8 @@ def trajectory_projection(dynamic, direction):
         projection = np.array([])
         for i in range(0, trajectory.shape[1]):
             if atom_type_index[i] == j:
-           #     print('atom:', i, 'type:', atom_type_index[i])
-                projection = np.append(projection, np.dot(trajectory[:, i, :], direction/np.dot(direction, direction)),axis=1)
+     #           print('atom:', i, 'type:', atom_type_index[i])
+                projection = np.append(projection, np.dot(trajectory[:, i, :], direction/np.linalg.norm(direction)))
         projections.append(projection)
 
     return np.array(projections)
