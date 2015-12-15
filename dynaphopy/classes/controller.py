@@ -172,7 +172,7 @@ class Calculation:
        # plt.axes().get_xaxis().set_visible(False)
         plt.axes().get_xaxis().set_ticks([])
 
-        plt.ylabel('Frequency (THz)')
+        plt.ylabel('Frequency [THz]')
         plt.xlabel('Wave vector')
         plt.xlim([0, self._bands[1][-1][-1]])
         plt.suptitle('Phonon dispersion')
@@ -198,7 +198,7 @@ class Calculation:
             plt.plot(self._renormalized_bands[1][i],self._renormalized_bands[2][i],color ='r', label='Renormalized')
    #     plt.axes().get_xaxis().set_visible(False)
         plt.axes().get_xaxis().set_ticks([])
-        plt.ylabel('Frequency (THz)')
+        plt.ylabel('Frequency [THz]')
         plt.xlabel('Wave vector')
         plt.xlim([0, self._bands[1][-1][-1]])
         plt.suptitle('Renormalized phonon dispersion')

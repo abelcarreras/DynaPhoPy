@@ -4,8 +4,8 @@ import scipy.stats as stats
 
 kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
 
-def boltzmann_distribution(trajectory):
 
+def boltzmann_distribution(trajectory):
 
     print("\n***Velocity distribution analysis***")
 
@@ -29,17 +29,14 @@ def boltzmann_distribution(trajectory):
     plt.xlabel('Velocity [Angstrom/ps]')
     ax.plot(x, maxwell.pdf(x, *params), lw=3)
     ax.text(0.95, 0.90, 'Temperature: {0:7.1f} K'.format(temperature),
-        verticalalignment='bottom', horizontalalignment='right',
-        transform=ax.transAxes, fontsize=15)
+            verticalalignment='bottom',
+            horizontalalignment='right',
+            transform=ax.transAxes,
+            fontsize=15)
+
     fig.suptitle('Velocity distribution')
     ax.hist(velocity, bins=25, normed=True)
 
     plt.show()
-
-#   Read info in files
-#    np.savetxt('Data Files/bolzmann.dat',np.array([maxwell.pdf(x,*params) for x in np.linspace(0, average+3*deviation, 100)]))
-#    np.savetxt('Data Files/bolzmann_his.dat',energy_distribution[0])
-#    np.savetxt('Data Files/bolzmann_his_x.dat',energy_distribution[1])
-
 
     print("***End of velocity analysis***\n")
