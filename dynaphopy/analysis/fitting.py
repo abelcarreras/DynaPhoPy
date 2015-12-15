@@ -77,7 +77,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print 'Maximum height:           ', maximum, 'eV * ps'
         if harmonic_frequencies is not None:
             print 'Frequency shift:          ', frequency - harmonic_frequencies[i], 'THz'
-        print 'Fit Error(RMSD)/ Max. :     ', error/maximum
+        print 'Fit Error(RMSD)/ Max. :   ', error/maximum
 
         positions.append(frequency)
         widths.append(width)
