@@ -218,7 +218,10 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                               str(calculation.parameters.number_of_coefficients_mem))
                 screen.addstr(7, 4, "4 - Number of bins in histograms (Boltzman/displacements): " +
                               str(calculation.parameters.number_of_bins_histogram))
-                screen.addstr(9, 4, "0 - Return")
+                screen.addstr(8, 4, "5 - Eigenvectors display vector scale: " +
+                              str(calculation.parameters.modes_vectors_scale))
+
+                screen.addstr(10, 4, "0 - Return")
                 screen.refresh()
 
                 x2 = screen.getch()
@@ -271,13 +274,19 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
 
                 if x2 == ord('3'):
-                    calculation.set_number_of_mem_coefficients(
-                        int(get_param(screen, "Insert number of coefficients")))
+               #     calculation.set_number_of_mem_coefficients(int(get_param(screen, "Insert number of coefficients")))
+                    calculation.parameters.number_of_coefficients_mem = int(get_param(screen, "Insert number of coefficients"))
+
                     curses.endwin()
 
                 if x2 == ord('4'):
                     calculation.parameters.number_of_bins_histogram = int(get_param(screen, "Insert number of bins"))
                     curses.endwin()
+
+                if x2 == ord('5'):
+                    calculation.parameters.modes_vectors_scale = int(get_param(screen, "Insert vector scale"))
+                    curses.endwin()
+
 
     curses.endwin()
 

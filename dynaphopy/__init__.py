@@ -216,7 +216,10 @@ class Calculation:
             print(str(np.hstack([self._bands[1][i][None].T,self._bands[2][i]])).replace('[','').replace(']',''))
 
     def plot_eigenvectors(self):
-        modes.plot_phonon_modes(self.dynamic.structure, self.get_eigenvectors(), self.get_q_vector())
+        modes.plot_phonon_modes(self.dynamic.structure,
+                                self.get_eigenvectors(),
+                                self.get_q_vector(),
+                                vectors_scale=self.parameters.modes_vectors_scale)
 
     def check_commensurate(self, q_vector):
         super_cell= self.dynamic.get_super_cell_matrix()

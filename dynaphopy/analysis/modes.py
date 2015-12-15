@@ -79,7 +79,6 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
             u.append(vector)
 
         u = np.array(u) * get_phase_factor(u, vectors_scale)
-        #print(u)
 
  #       ax.set_axis_off()
         ax.set_xlabel('X')
