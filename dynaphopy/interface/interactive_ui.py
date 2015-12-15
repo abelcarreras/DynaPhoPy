@@ -56,7 +56,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             screen.addstr(3,45,"Structure file: "+ structure_file[-14:])
             screen.addstr(4,45,"MD file: "+ args.md_file[-20:])
 
-        screen.addstr(6,45,"Wave Vector: "+str(calculation.get_reduced_q_vector()))
+        screen.addstr(6,45,"Wave vector: "+str(calculation.get_reduced_q_vector()))
         screen.addstr(7,45,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '
                                               +str(calculation.get_frequency_range()[-1])+' THz')
         screen.addstr(9,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
