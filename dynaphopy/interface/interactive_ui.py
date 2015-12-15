@@ -72,7 +72,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(6, 4, "3 - Change frequency range")
         screen.addstr(7, 4, "4 - Boltzmann analysis")
         screen.addstr(8, 4, "5 - Power spectrum")
-        screen.addstr(9, 4, "6 - Renormalized phonon dispersion bands")
+        screen.addstr(9, 4, "6 - Renormalized phonon dispersion")
         screen.addstr(10, 4, "7 - Peak analysis")
         screen.addstr(11, 4, "8 - Atomic displacements")
         screen.addstr(12, 4, "9 - Preferences")
@@ -210,7 +210,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.clear()
                 screen.border(0)
 
-                screen.addstr(2, 2, "Preferences... (on testing)")
+                screen.addstr(2, 2, "Preferences...")
                 screen.addstr(4, 4, "1 - Power spectrum algorithm")
                 screen.addstr(5, 4, "2 - Non analytical corrections (dispersion spectrum only): "+
                             str(calculation.parameters.use_NAC))
