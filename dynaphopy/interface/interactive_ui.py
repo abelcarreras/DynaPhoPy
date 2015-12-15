@@ -62,11 +62,11 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(9,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
         screen.addstr(10,45,"Unit cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
         screen.addstr(11,45,"MD  cell atoms: "+str(trajectory.get_number_of_atoms()))
-        screen.addstr(12,45,"Number of MD steps: "+str(len(trajectory.velocity)))
+        screen.addstr(12,45,"Number of MD time steps: "+str(len(trajectory.velocity)))
 
 
         #Option values left screen
-        screen.addstr(2, 2, "Please enter an option number...")
+        screen.addstr(2, 2, "Please enter option number...")
         screen.addstr(4, 4, "1 - Harmonic data")
         screen.addstr(5, 4, "2 - Change wave vector")
         screen.addstr(6, 4, "3 - Change frequency range")
