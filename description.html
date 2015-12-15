@@ -62,7 +62,7 @@ power spectra interpolating the velocity using a polynomia which depends on a ce
 <p> 
 This options calculate the power spectra directly from cartesian coordinates velocity without peforming any projection. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps and MD cell size limit, this power spectrum tends to the vibrational density of states (VDoS).
 
-<br><em>Notice that the super cell size limit is practically unreachable. This is <strong>not</strong> a good method at all to calculate the VDoS. For this purpose is better to interpolate a larger set of q points within the Brillouin zone. Refere to force renormalization section. </em>
+<br><em>Notice that the super cell size limit is practically unreachable. This is <strong>not</strong> a good method at all to calculate the VDoS. For this purpose is better to interpolate a larger set of q points within the Brillouin zone. Refere to <a href="#renormalized_forces">force renormalization</a> section. </em>
 
 
 </p>
@@ -73,7 +73,7 @@ This options calculate the power spectra directly from cartesian coordinates vel
 <pre><code>$ dynaphopy input_file OUTCAR -sd filename
 </code></pre>
 
-When this spectrum is requested, the area bellow the curve is also calculated. This area correspond to one half of the total kinetic energy of the phonon within the MD cell. According to the <a href="https://en.wikipedia.org/wiki/Equipartition_theorem">equipartition theorem</a>, at high temperatures this value can be approximated to:
+When this spectrum is requested, the area bellow the curve is also calculated. This area correspond to one half of the total kinetic energy of the phonon within the MD cell. According to the <a href="https://en.wikipedia.org/wiki/Equipartition_theorem">equipartition theorem</a>, at high temperatures this area can be approximated to:
 
 </p>
 <p style="text-align:center">
@@ -234,7 +234,7 @@ The file contains a column for each nonequivalent atom in the unit cell. The fir
 coordinate.
 </p>
 
- 
+<div id="renormalized_forces"></div> 
 <h3>Obtaining the renormalized forces</h3>
 <p> The phonon information that can be obtained from MD is limited to the size of the simulation cell.
 DynaPhoPy can only extract the information on the commensurate points so in order to obtain a good sampling
