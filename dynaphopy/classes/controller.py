@@ -514,7 +514,7 @@ class Calculation:
 
             normalized_frequencies = []
             for i, reduced_q_point in enumerate(com_points):
-                print ("Qpoint: {0} / {1}".format(i,reduced_q_point))
+                print ("Qpoint: {0} / {1}      {2}".format(i+1, len(com_points), reduced_q_point))
                 self.set_reduced_q_vector(reduced_q_point)
                 positions, widths = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                     self.parameters.frequency_range,

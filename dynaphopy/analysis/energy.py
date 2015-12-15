@@ -22,7 +22,7 @@ def boltzmann_distribution(trajectory):
     print('Distribution parameter: {0:3.7e} Amstrong/ps'.format(params[1]))
 
 
-    temperature = pow(params[1],2)/kb_boltzmann
+    temperature = pow(params[1],2)/ kb_boltzmann
     print('Temperature fit: {0:7.6f} K'.format(temperature))
 
     x = np.linspace(0, average+3*deviation, 100)
@@ -34,7 +34,7 @@ def boltzmann_distribution(trajectory):
         verticalalignment='bottom', horizontalalignment='right',
         transform=ax.transAxes, fontsize=15)
     fig.suptitle('Velocity distribution')
-    ax.hist(velocity, bins=25,normed=True)
+    ax.hist(velocity, bins=25, normed=True)
 
     plt.show()
 
