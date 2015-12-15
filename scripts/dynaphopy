@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import argparse
 import numpy as np
+import dynaphopy
 import dynaphopy.interface.iofile as reading
-import dynaphopy.classes.controller as controller
 import dynaphopy.interface.interactive_ui as interactive_ui
+
 from fractions import Fraction
 from dynaphopy.interface.phonopy_link import get_force_sets_from_file
 
@@ -128,11 +129,11 @@ else:
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
     print('Loading projected velocity only (limited features only)')
-    calculation = controller.Calculation(trajectory[2], vc=trajectory[0], last_steps=args.n)
-    calculation.parameters.reduced_q_vector = trajectory[1]
+    calculation = dynaphopy.Calculation(trajectory[2], vc=trajectory[0], last_steps=args.n)
+    calculation.reduced_q_vector = trajectory[1]
 
 else:
-    calculation = controller.Calculation(trajectory, last_steps=args.n)
+    calculation = dynaphopy.Calculation(trajectory, last_steps=args.n)
 
 if '_band_ranges' in input_parameters:
     calculation.set_band_ranges(input_parameters['_band_ranges'])

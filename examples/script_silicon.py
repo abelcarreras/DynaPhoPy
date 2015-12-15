@@ -3,7 +3,7 @@
 import numpy as np
 import phonopy.file_IO as file_IO
 import dynaphopy.interface.iofile as reading
-import dynaphopy.classes.controller as controller
+import dynaphopy as controller
 
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure OUTCAR are placed

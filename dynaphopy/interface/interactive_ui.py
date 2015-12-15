@@ -280,7 +280,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
 #Just for testing
 if __name__ == 'test_gui.py':
-    import dynaphopy.classes.controller as controller
+    import dynaphopy as controller
     import dynaphopy.functions.iofunctions as reading
     #Get data from input file
     input_parameters = reading.read_parameters_from_input_file(sys.argv[1])
