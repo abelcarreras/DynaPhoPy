@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-h_planck = 4.135667662E-3 # eV/ps
-kb_bolzman = 8.6173324E-5 # eV/K
+h_planck = 4.135667662E-3  # eV/ps
+kb_bolzman = 8.6173324E-5  # eV/K
 
 
 def lorentzian(x, a, b, c, d):
@@ -16,7 +16,6 @@ def get_error_from_covariance(covariance):
 
 
 def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None, show_plots=True):
-
 
     widths = []
     positions = []
@@ -66,7 +65,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print 'Area (1/2<K>) (Loretzian):', area, 'eV'             # 1/2 Kinetic energy
         print 'Area (1/2<K>) (Total):    ', total_integral, 'eV'   # 1/2 Kinetic energy
         print '<|dQ/dt|^2>      :        ', dt_Q2_lor, 'eV'        # Kinetic energy
-  #      print '<|dQ/dt|^2> (tot):        ', dt_Q2_tot, 'eV'        # Kinetic energy
+ #       print '<|dQ/dt|^2> (tot):        ', dt_Q2_tot, 'eV'        # Kinetic energy
  #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
  #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
         print 'Occupation number:        ', occupancy_lor
@@ -90,7 +89,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 
             plt.title('Curve fitting')
 
-            plt.suptitle('Phonon '+str(i+1))
+            plt.suptitle('Phonon {0}'.format(i+1))
             plt.text(fit_params[0], height/2, 'Width: ' + "{:10.4f}".format(width),
                      fontsize=12)
 

@@ -353,7 +353,7 @@ class Calculation:
         return
 
     def plot_power_spectrum_full(self):
-        plt.suptitle('Full power spectrum')
+        plt.suptitle('Full power spectrum (two sided)')
         plt.plot(self.get_frequency_range(), self.get_power_spectrum_direct(), 'r-')
         plt.xlabel('Frequency [THz]')
         plt.ylabel('eV * ps')
@@ -363,7 +363,7 @@ class Calculation:
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
-        plt.suptitle('Projection onto wave vector')
+        plt.suptitle('Projection onto wave vector (two sided)')
         plt.plot(self.get_frequency_range(),self.get_power_spectrum_wave_vector(), 'r-')
         plt.xlabel('Frequency [THz]')
         plt.ylabel('eV * ps')
@@ -375,7 +375,7 @@ class Calculation:
     def plot_power_spectrum_phonon(self):
         for i in range(self.get_power_spectrum_phonon().shape[1]):
             plt.figure(i)
-            plt.suptitle('Projection onto phonon {0}'.format(i+1))
+            plt.suptitle('Projection onto phonon {0} (two sided)'.format(i+1))
             plt.plot(self.get_frequency_range(), self.get_power_spectrum_phonon()[:, i])
             plt.xlabel('Frequency [THz]')
             plt.ylabel('eV * ps')
