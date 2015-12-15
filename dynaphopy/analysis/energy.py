@@ -9,7 +9,6 @@ def boltzmann_distribution(trajectory):
 
     print("\n***Velocity distribution analysis***")
 
-
     velocity = np.reshape(np.linalg.norm(trajectory.get_velocity_mass_average(), axis=2), -1)
 
     average = np.average(velocity)
@@ -19,17 +18,16 @@ def boltzmann_distribution(trajectory):
     maxwell = stats.maxwell
 
     params = maxwell.fit(velocity, floc=0)
-    print('Distribution parameter: {0:3.7e} Amstrong/ps'.format(params[1]))
-
+    print('Distribution parameter: {0:3.7e} Angstrom/ps'.format(params[1]))
 
     temperature = pow(params[1],2)/ kb_boltzmann
     print('Temperature fit: {0:7.6f} K'.format(temperature))
 
-    x = np.linspace(0, average+3*deviation, 100)
+    x = np.linspace(0, average + 3 * deviation, 100)
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.xlabel('Velocity [Angstrom/ps]')
-    ax.plot(x, maxwell.pdf(x,*params), lw=3)
+    ax.plot(x, maxwell.pdf(x, *params), lw=3)
     ax.text(0.95, 0.90, 'Temperature: {0:7.1f} K'.format(temperature),
         verticalalignment='bottom', horizontalalignment='right',
         transform=ax.transAxes, fontsize=15)
