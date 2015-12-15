@@ -219,19 +219,16 @@ class Calculation:
     def plot_eigenvectors(self):
         modes.plot_phonon_modes(self.dynamic.structure, self.get_eigenvectors(), self.get_q_vector())
 
-
     def check_commensurate(self, q_vector):
         super_cell= self.dynamic.get_super_cell_matrix()
 
         commensurate = False
-        for vector in self.dynamic.structure.get_commensurate_points(super_cell=super_cell):
-            if vector == [0, 0, 0]:
-                vector = [1, 1, 1]
+        primitive_matrix = self.dynamic.structure.get_primitive_matrix()
+        q_point_unit_cell = np.dot(q_vector, np.linalg.inv(primitive_matrix))
+        q_point_unit_cell = np.multiply(q_point_unit_cell, super_cell)*2
 
-            vector = np.array(vector)
-            q_vector = np.array(q_vector)
-            if np.all(np.equal(np.mod(q_vector/vector, 1), 0)) and np.unique(q_vector/vector).shape[0] == 1:
-                commensurate = True
+        if np.all(np.equal(np.mod(q_point_unit_cell, 1), 0)):
+            commensurate = True
 
         return commensurate
 
@@ -240,8 +237,8 @@ class Calculation:
         if self._vc is None:
             print("Projecting into wave vector")
             #Check if commensurate point
-#            if self.check_commensurate(self.get_reduced_q_vector()) == False:
-#                print("warning! Defined wave vector is not a commensurate point in this MD super cell")
+            if not self.check_commensurate(self.get_reduced_q_vector()):
+                print("warning! Defined wave vector is not a commensurate point in this MD super cell")
 
             self._vc = projection.project_onto_wave_vector(self.dynamic,self.get_q_vector())
         return self._vc

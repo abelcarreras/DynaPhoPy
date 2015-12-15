@@ -320,7 +320,7 @@ class Structure:
                     q_point = [np.around(k1,decimals=5), np.around(k2,decimals=5), np.around(k3,decimals=5)]
     
                     q_point_unit_cell = np.dot(q_point, np.linalg.inv(primitive_matrix))
-                    q_point_unit_cell = np.multiply(q_point_unit_cell, super_cell)
+                    q_point_unit_cell = np.multiply(q_point_unit_cell, super_cell)*2
     
                     if np.all(np.equal(np.mod(q_point_unit_cell, 1), 0)):
                         commensurate_points.append(q_point)
