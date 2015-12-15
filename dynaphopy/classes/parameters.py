@@ -5,30 +5,33 @@ import numpy as np
 class Parameters:
 
     def __init__(self,
-                 #General
+                 # General
                  silent=False,
 
-                 #Projections
+                 # Projections
                  reduced_q_vector=(0, 0, 0),  # default reduced wave vector
 
-                 #Maximum Entropy Method
+                 # Maximum Entropy Method
                  number_of_coefficients_mem=1000,
                  mem_scan_range=np.array(np.linspace(40, 2000, 100), dtype=int),
 
-                 #Correlation Method
+                 # Correlation Method
                  correlation_function_step=10,
                  integration_method = 1,  # 0: Trapezoid  1:Rectangles
 
-                 #Power spectra
+                 # Power spectra
                     # 0: Correlation functions parallel (OpenMP) [Recommended]
                     # 1: Maximum Entropy Method parallel (OpenMP) [Recommended]
                  power_spectra_algorithm=1,
                  frequency_range=np.linspace(0, 40, 500),
 
-                 #Phonon dispersion diagram
+                 # Phonon dispersion diagram
                  use_NAC = False,
                  band_ranges=([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]]),
-                 number_of_bins_histogram = 50
+                 number_of_bins_histogram = 30,
+
+                 # Modes (eigenvectors) display
+                 modes_vectors_scale=10
                  ):
 
         self._silent = silent
@@ -42,6 +45,8 @@ class Parameters:
         self._use_NAC = use_NAC
         self._band_ranges = band_ranges
         self._number_of_bins_histogram = number_of_bins_histogram
+        self._modes_vectors_scale = modes_vectors_scale
+
 
     #Properties
     @property
@@ -132,5 +137,10 @@ class Parameters:
     def number_of_bins_histogram(self, number_of_bins_histogram):
         self._number_of_bins_histogram = number_of_bins_histogram
 
+    @property
+    def modes_vectors_scale(self):
+        return self._modes_vectors_scale
 
-
+    @modes_vectors_scale.setter
+    def modes_vectors_scale(self, modes_vectors_scale):
+        self._modes_vectors_scale = modes_vectors_scale

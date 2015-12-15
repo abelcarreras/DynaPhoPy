@@ -56,23 +56,23 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             screen.addstr(3,45,"Structure file: "+ structure_file[-14:])
             screen.addstr(4,45,"MD file: "+ args.md_file[-20:])
 
-        screen.addstr(6,45,"Wave Vector: "+str(calculation.get_reduced_q_vector()))
+        screen.addstr(6,45,"Wave vector: "+str(calculation.get_reduced_q_vector()))
         screen.addstr(7,45,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '
                                               +str(calculation.get_frequency_range()[-1])+' THz')
         screen.addstr(9,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
         screen.addstr(10,45,"Unit cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
         screen.addstr(11,45,"MD  cell atoms: "+str(trajectory.get_number_of_atoms()))
-        screen.addstr(12,45,"Number of MD steps: "+str(len(trajectory.velocity)))
+        screen.addstr(12,45,"Number of MD time steps: "+str(len(trajectory.velocity)))
 
 
         #Option values left screen
-        screen.addstr(2, 2, "Please enter an option number...")
+        screen.addstr(2, 2, "Please enter option number...")
         screen.addstr(4, 4, "1 - Harmonic data")
         screen.addstr(5, 4, "2 - Change wave vector")
         screen.addstr(6, 4, "3 - Change frequency range")
         screen.addstr(7, 4, "4 - Boltzmann analysis")
         screen.addstr(8, 4, "5 - Power spectrum")
-        screen.addstr(9, 4, "6 - Renormalized phonon dispersion bands")
+        screen.addstr(9, 4, "6 - Renormalized phonon dispersion")
         screen.addstr(10, 4, "7 - Peak analysis")
         screen.addstr(11, 4, "8 - Atomic displacements")
         screen.addstr(12, 4, "9 - Preferences")
@@ -210,13 +210,18 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.clear()
                 screen.border(0)
 
-                screen.addstr(2, 2, "Preferences... (on testing)")
+                screen.addstr(2, 2, "Preferences...")
                 screen.addstr(4, 4, "1 - Power spectrum algorithm")
                 screen.addstr(5, 4, "2 - Non analytical corrections (dispersion spectrum only): "+
                             str(calculation.parameters.use_NAC))
                 screen.addstr(6, 4, "3 - Number of MEM coefficients: " +
                               str(calculation.parameters.number_of_coefficients_mem))
-                screen.addstr(8, 4, "0 - Return")
+                screen.addstr(7, 4, "4 - Number of bins in histograms (Boltzman/displacements): " +
+                              str(calculation.parameters.number_of_bins_histogram))
+                screen.addstr(8, 4, "5 - Eigenvectors display vector scale: " +
+                              str(calculation.parameters.modes_vectors_scale))
+
+                screen.addstr(10, 4, "0 - Return")
                 screen.refresh()
 
                 x2 = screen.getch()
@@ -269,8 +274,17 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
 
                 if x2 == ord('3'):
-                    calculation.set_number_of_mem_coefficients(
-                        int(get_param(screen, "Insert number of coefficients")))
+               #     calculation.set_number_of_mem_coefficients(int(get_param(screen, "Insert number of coefficients")))
+                    calculation.parameters.number_of_coefficients_mem = int(get_param(screen, "Insert number of coefficients"))
+
+                    curses.endwin()
+
+                if x2 == ord('4'):
+                    calculation.parameters.number_of_bins_histogram = int(get_param(screen, "Insert number of bins"))
+                    curses.endwin()
+
+                if x2 == ord('5'):
+                    calculation.parameters.modes_vectors_scale = int(get_param(screen, "Insert vector scale"))
                     curses.endwin()
 
 
@@ -280,7 +294,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
 #Just for testing
 if __name__ == 'test_gui.py':
-    import dynaphopy.classes.controller as controller
+    import dynaphopy as controller
     import dynaphopy.functions.iofunctions as reading
     #Get data from input file
     input_parameters = reading.read_parameters_from_input_file(sys.argv[1])

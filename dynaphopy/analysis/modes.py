@@ -3,6 +3,9 @@ from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d import proj3d
 import numpy as np
 
+import numpy
+from mpl_toolkits.mplot3d import proj3d
+
 
 class Arrow3D(FancyArrowPatch):
     def __init__(self, xs, ys, zs, *args, **kwargs):
@@ -79,7 +82,6 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
             u.append(vector)
 
         u = np.array(u) * get_phase_factor(u, vectors_scale)
-        #print(u)
 
  #       ax.set_axis_off()
         ax.set_xlabel('X')

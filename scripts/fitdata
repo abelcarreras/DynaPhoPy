@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+
 import numpy as np
-import dynaphopy.analysis.fitting as fitting
+import dynaphopy.analysis.fitting  as fitting
+import dynaphopy.interface.iofile as reading
 import matplotlib.pyplot as plt
 
 import argparse
@@ -20,6 +22,9 @@ parser.add_argument('-sm', '--smooth', action='store_true',
 parser.add_argument('-f', metavar='N', type=float, default=0.02,
                    help='smooth factor [Default: 0.02]')
 
+parser.add_argument('-s', metavar='file', type=str,
+                   help='Save spectra to file')
+
 parser.add_argument('--silent', action='store_true',
                    help='Do not show plots')
 
@@ -28,7 +33,7 @@ args = parser.parse_args()
 
 
 #LOWESS method definition
-def lowess(x, y, f=2./3.):
+def loess(x, y, f=2./3.):
 
     n = len(x)
     r = int(np.ceil(f*n))
@@ -77,13 +82,13 @@ for phonon in degeneracy:
 
 
 
-#Smoothing using LOWESS method
+#Smoothing using LOESS method
 if args.smooth:
 
     y_smooth = []
     for i, datum in enumerate(data):
 
-        y2 = lowess(test_frequencies_range, datum, f=args.f)
+        y2 = loess(test_frequencies_range, datum, f=args.f)
 
         if not(args.silent):
             plt.figure(i+1)
@@ -106,3 +111,5 @@ else:
 #Analysis using Dynaphopy functions
 fitting.phonon_fitting_analysis(data, test_frequencies_range, show_plots=not(args.silent))
 
+if args.s:
+    reading.write_correlation_to_file(test_frequencies_range, data, args.s)

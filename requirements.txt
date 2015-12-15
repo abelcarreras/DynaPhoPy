@@ -1,6 +1,5 @@
-dynaphopy>=1.9.6
+phonopy>=1.9.6
 numpy
 scipy
 matplotlib
-phonopy
 h5py

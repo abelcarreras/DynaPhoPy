@@ -8,8 +8,9 @@ import dynaphopy.correlation as correlation
 
 from dynaphopy.analysis.fitting import lorentzian, get_error_from_covariance
 
+unit_conversion = 6.651206285e-4 # u * A^2 * THz -> eV*ps
 
-def progress_bar(progress, type):
+def progress_bar(progress, label):
     bar_length = 30
     status = ""
     if isinstance(progress, int):
@@ -24,48 +25,48 @@ def progress_bar(progress, type):
         progress = 1
         status = "Done...\r\n"
     block = int(round(bar_length*progress))
-    text = "\r{0}: [{1}] {2:.2f}% {3}".format(type, "#"*block + "-"*(bar_length-block),
-                                                      progress*100, status)
+    text = "\r{0}: [{1}] {2:.2f}% {3}".format(label, "#"*block + "-"*(bar_length-block),
+                                              progress*100, status)
     sys.stdout.write(text)
     sys.stdout.flush()
 
 
-
-def get_correlation_spectra_par_openmp(vq, trajectory, parameters):
+def get_fourier_spectra_par_openmp(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
-    correlation_vector = []
+    psd_vector = []
     progress_bar(0, "Fourier")
-    for i in range (vq.shape[1]):
-        correlation_vector.append(correlation.correlation_par(test_frequency_range,
-                                                               vq[:, i],
-          #                                                     np.lib.pad(vq[:, i], (2500, 2500), 'constant'),
-                                                               trajectory.get_time_step_average(),
-                                                               step=parameters.correlation_function_step,
-                                                               integration_method=parameters.integration_method))
+    for i in range(vq.shape[1]):
+        psd_vector.append(correlation.correlation_par(test_frequency_range,
+                                                      vq[:, i],
+                                                      # np.lib.pad(vq[:, i], (2500, 2500), 'constant'),
+                                                      trajectory.get_time_step_average(),
+                                                      step=parameters.correlation_function_step,
+                                                      integration_method=parameters.integration_method))
         progress_bar(float(i+1)/vq.shape[1], "Fourier")
 
-    correlation_vector = np.array(correlation_vector).T
+    psd_vector = np.array(psd_vector).T
 
-    return correlation_vector
+    return psd_vector * unit_conversion
 
 
 def get_mem_spectra_par_openmp(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
-    correlation_vector = []
-    progress_bar(0, "M.E. Method")
-    for i in range (vq.shape[1]):
-        correlation_vector.append(mem(test_frequency_range,
-                                      vq[:, i],
-                                      trajectory.get_time_step_average(),
-                                      coefficients=parameters.number_of_coefficients_mem))
+    psd_vector = []
+    progress_bar(0, "M. Entropy")
+    for i in range(vq.shape[1]):
+        psd_vector.append(mem(test_frequency_range,
+                              vq[:, i],
+                              trajectory.get_time_step_average(),
+                              coefficients=parameters.number_of_coefficients_mem))
 
-        progress_bar(float(i+1)/vq.shape[1],"M.E. Method")
+        progress_bar(float(i+1)/vq.shape[1], "M. Entropy")
 
-    correlation_vector = np.array(correlation_vector).T
+    psd_vector = np.array(psd_vector).T
 
-    return correlation_vector
+    return psd_vector * unit_conversion
+
 
 def mem_coefficient_scan_analysis(vq, trajectory, parameters):
 
@@ -79,31 +80,28 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         progress_bar(0, "M.E. Method")
         for number_of_coefficients in parameters.mem_scan_range:
 
-
             power_spectrum = mem(test_frequency_range,
-                                          vq[:, i],
-                                          trajectory.get_time_step_average(),
-                                          coefficients=number_of_coefficients)
-
-
+                                 vq[:, i],
+                                 trajectory.get_time_step_average(),
+                                 coefficients=number_of_coefficients)
 
             height = np.max(power_spectrum)
             position = test_frequency_range[np.argmax(power_spectrum)]
 
             try:
-                fitParams, fitCovariances = curve_fit(lorentzian,
-                                                      test_frequency_range,
-                                                      power_spectrum,
-                                                      p0=[position, 0.1, height, 0.0])
+                fit_params, fit_covariances = curve_fit(lorentzian,
+                                                        test_frequency_range,
+                                                        power_spectrum,
+                                                        p0=[position, 0.1, height, 0.0])
             except:
                 print('Warning: Fitting error, skipping point {0}'.format(number_of_coefficients))
                 continue
 
-            maximum = fitParams[2]/(fitParams[1]*np.pi)
-            error = get_error_from_covariance(fitCovariances)/maximum
-            width = 2.0 * fitParams[1]
-            fit_data.append([number_of_coefficients, width, error])
-            scan_params.append(fitParams)
+            maximum = fit_params[2] / (fit_params[1] * np.pi)
+            error = get_error_from_covariance(fit_covariances)
+            width = 2.0 * fit_params[1]
+            fit_data.append([number_of_coefficients, width, error/maximum])
+            scan_params.append(fit_params)
             power_spectra.append(power_spectrum)
 
             progress_bar(float(number_of_coefficients+1)/parameters.mem_scan_range[-1], "M.E. Method")
@@ -117,7 +115,6 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
 
         mem_full_dict.update({i: [power_spectrum, best_width, best_index, fit_data, scan_params]})
 
-
     for i in range(vq.shape[1]):
 
         print "Peak # {0}".format(i+1)
@@ -127,7 +124,6 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         fit_data = mem_full_dict[i][3]
         scan_params = mem_full_dict[i][4]
         best_index = mem_full_dict[i][2]
-
 
         print "Position: {0} THz".format(scan_params[best_index][0])
         print "Optimum coefficients num: {0}".format(fit_data[0][best_index])
@@ -147,8 +143,8 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         ax1.plot((fit_data[0][0], fit_data[0][-1]), (mem_full_dict[i][1], mem_full_dict[i][1]), 'k-')
 
         ax2.set_xlabel('Number of coefficients')
-        ax2.set_ylabel('RMS^-1')
-        ax2.set_title('Fitting error/Max. (RMS)')
+        ax2.set_ylabel('(RMSD/max)^-1')
+        ax2.set_title('Fitting error/Max. (RMSD)')
         ax2.plot(fit_data[0], np.sqrt(1./fit_data[2]))
 
         ax3.set_xlabel('Frequency [THz]')
