@@ -3,6 +3,8 @@ import sys
 
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from scipy.fftpack import fft
+from scipy.interpolate import interp1d
 from dynaphopy.mem import mem
 import dynaphopy.correlation as correlation
 
@@ -66,6 +68,11 @@ def get_mem_spectra_par_openmp(vq, trajectory, parameters):
     psd_vector = np.array(psd_vector).T
 
     return psd_vector * unit_conversion
+
+
+def autocorr(x):
+    result = np.correlate(x, x, mode='full')
+    return np.multiply(result[result.size/2:], np.arange(result.size/2+1))
 
 
 def mem_coefficient_scan_analysis(vq, trajectory, parameters):
@@ -155,3 +162,48 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
                  label='Lorentzian fit')
 
         plt.show()
+
+
+# Under development (TESTING ONLY)
+
+def fft_power(freq, vq, dtime ):
+    # Number of samplepoints
+    N = len(vq)
+    # sample spacing
+    T = dtime
+    x = np.linspace(0.0, N*T, N)
+    #y = np.sin(50.0 * 2.0*np.pi*x)*np.exp(-20*x) + 0.5*np.sin(80.0 * 2.0*np.pi*x)*np.exp(-20*x)
+    y = vq.real
+
+    yf = fft(y)
+    xf = np.linspace(0.0, 1.0/(2.0*T), N/2)
+
+#    fig2, ax2 = plt.subplots()
+#    ax2.plot(x, y)
+#    plt.show()
+
+#    fig3, ax3 = plt.subplots()
+#    ax3.plot(xf, 2.0 * np.abs(yf[:N/2]))
+#    plt.show()
+
+    f_interpol = interp1d(xf, np.abs(yf[:N/2]), kind='cubic')
+
+    return f_interpol(freq)
+
+
+def get_fft_spectra(vq, trajectory, parameters):
+    test_frequency_range = np.array(parameters.frequency_range)
+
+    psd_vector = []
+    progress_bar(0, "FFT")
+    for i in range(vq.shape[1]):
+        psd_vector.append(fft_power(test_frequency_range,
+                              vq[:, i],
+                              trajectory.get_time_step_average()))
+
+        progress_bar(float(i+1)/vq.shape[1], "FFT")
+
+    psd_vector = np.array(psd_vector).T
+
+    return psd_vector * unit_conversion
+

@@ -130,7 +130,8 @@ else:
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
     print('Loading projected velocity only (limited features only)')
     calculation = dynaphopy.Calculation(trajectory[2], vc=trajectory[0], last_steps=args.n)
-    calculation.reduced_q_vector = trajectory[1]
+    calculation.parameters.reduced_q_vector = trajectory[1]
+
 
 else:
     calculation = dynaphopy.Calculation(trajectory, last_steps=args.n)
