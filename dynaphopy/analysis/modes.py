@@ -94,6 +94,7 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
 
     return
 
+
 def get_phase_factor(modulation, argument):
     u = np.ravel(modulation)
     index_max_elem = np.argmax(abs(u))
@@ -102,8 +103,6 @@ def get_phase_factor(modulation, argument):
     phase_factor = np.exp(1j * np.pi * argument / 180) / phase_for_zero
 
     return phase_factor
-
-
 
 
 atom_radius = {
