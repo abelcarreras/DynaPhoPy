@@ -212,7 +212,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 screen.addstr(2, 2, "Preferences...")
                 screen.addstr(4, 4, "1 - Power spectrum algorithm")
-                screen.addstr(5, 4, "2 - Non analytical corrections (dispersion spectrum only): "+
+                screen.addstr(5, 4, "2 - Non analytical corrections (dispersion spectrum only): " +
                             str(calculation.parameters.use_NAC))
                 screen.addstr(6, 4, "3 - Number of MEM coefficients: " +
                               str(calculation.parameters.number_of_coefficients_mem))
@@ -227,8 +227,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 x2 = screen.getch()
 
                 if x2 == ord('1'):
-                    x3 = ord("9")
-                    while int(chr(int(x3))) >= len(calculation.get_algorithm_list()):
+                    x3 = 9
+                    while x3 >= len(calculation.get_algorithm_list()):
                         screen = curses.initscr()
                         screen.clear()
                         screen.border(0)
@@ -241,8 +241,13 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                                 screen.addstr(4+i, 4, str(i) +" : "+ str(algorithm))
 
                         screen.refresh()
-                        x3 = screen.getch()
-                    calculation.select_power_spectra_algorithm(int(chr(int(x3))))
+                        try:
+                            x3 = int(chr(int(screen.getch())))
+                        except ValueError:
+                            x3 = 9
+
+                    calculation.select_power_spectra_algorithm(x3)
+
                     curses.endwin()
 
                 if x2 == ord('2'):
