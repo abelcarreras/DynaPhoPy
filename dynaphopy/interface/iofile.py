@@ -65,7 +65,7 @@ def read_from_file_structure_outcar(file_name):
         #Setting number of dimensions
         number_of_dimensions = 3
 
-        #Test reading for guessing primitive cell (Not stable)
+        #trash reading for guessing primitive cell (Not stable)
         if False:
            #Reading primitive cell (not sure about this, by default disabled)
             position_number = file_map.find('PRICEL')
