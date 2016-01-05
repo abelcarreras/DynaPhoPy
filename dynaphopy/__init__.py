@@ -14,7 +14,7 @@ import dynaphopy.analysis.coordinates as trajdist
 power_spectrum_functions = {
     0: power_spectrum.get_fourier_spectra_par_openmp,
     1: power_spectrum.get_mem_spectra_par_openmp,
-    2: power_spectrum.get_fft_spectra
+#    2: power_spectrum.get_fft_spectra
 }
 
 class Calculation:
