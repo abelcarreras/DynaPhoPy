@@ -216,7 +216,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                             str(calculation.parameters.use_NAC))
                 screen.addstr(6, 4, "3 - Number of MEM coefficients: " +
                               str(calculation.parameters.number_of_coefficients_mem))
-                screen.addstr(7, 4, "4 - Number of bins in histograms (Boltzman/displacements): " +
+                screen.addstr(7, 4, "4 - Number of bins in histograms (Boltzmann/displacements): " +
                               str(calculation.parameters.number_of_bins_histogram))
                 screen.addstr(8, 4, "5 - Eigenvectors display vector scale: " +
                               str(calculation.parameters.modes_vectors_scale))

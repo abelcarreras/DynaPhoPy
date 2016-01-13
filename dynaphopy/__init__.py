@@ -38,7 +38,7 @@ class Calculation:
 
         self._parameters = parameters.Parameters()
         self.crop_trajectory(last_steps)
-
+        print('Using {0} time steps for calculation'.format(len(self.dynamic.velocity)))
 
     #Crop trajectory
     def crop_trajectory(self, last_steps):
@@ -330,7 +330,7 @@ class Calculation:
 
     def get_power_spectrum_direct(self):
         if self._power_spectrum_direct is None:
-            print("Calculation direct power spectrum")
+            print("Calculation full power spectrum")
 
             Number_of_dimensions = self.dynamic.get_velocity_mass_average().shape[2]
 
