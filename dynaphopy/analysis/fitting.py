@@ -9,6 +9,8 @@ kb_bolzman = 8.6173324E-5  # eV/K
 def lorentzian(x, a, b, c, d):
     return c/(np.pi*b*(1.0+((x-a)/b)**2))+d
 
+def lorentzian_asymmetric(x, a, b, c, d, s):
+    return c/(np.pi*b*(1.0+((x-a)/b)**2)) *2*abs(b)/(1.0+np.exp(s*(x-a))) +d
 
 def get_error_from_covariance(covariance):
   #  return np.sqrt(np.sum(np.linalg.eigvals(covariance)**2))
@@ -28,10 +30,10 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         position = test_frequencies_range[np.argmax(power_spectrum)]
 
         try:
-            fit_params, fit_covariances = curve_fit(lorentzian,
+            fit_params, fit_covariances = curve_fit(lorentzian_asymmetric,
                                                     test_frequencies_range,
                                                     power_spectrum,
-                                                    p0=[position, 0.1, height, 0.0])
+                                                    p0=[position, 0.1, height, 0.0, 0.0])
         except:
             print('Warning: Fitting error in phonon {0}. Try increasing the spectrum point density'.format(i))
             positions.append(0)
@@ -43,6 +45,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         width = 2.0*fit_params[1]
         area = fit_params[2] / ( 2 * np.pi)
         frequency = fit_params[0]
+        base_line = fit_params[3]
+        assymetry = fit_params[4]
 
         total_integral = np.trapz(power_spectrum, x=test_frequencies_range)/ (2 * np.pi)
 
@@ -72,7 +76,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
  #       print 'Occupation number(tot): ', occupancy_tot
         print 'Fit temperature            ', dt_Q2_lor / kb_bolzman, 'K'
  #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
-
+        print 'Base line                  ', base_line, 'ev * ps'
+        print 'Peak asymmetry             ', assymetry
         print 'Maximum height:            ', maximum, 'eV * ps'
         if harmonic_frequencies is not None:
             print 'Frequency shift:           ', frequency - harmonic_frequencies[i], 'THz'
@@ -95,9 +100,13 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 
             plt.plot(test_frequencies_range, power_spectrum,
                      label='Power spectrum')
-            plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params),
-                     label='Lorentzian fit',
+
+            plt.plot(test_frequencies_range, lorentzian_asymmetric(test_frequencies_range, *fit_params),
+                     label='Lorentzian Asymm fit',
                      linewidth=3)
+            plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params[:4]),
+                     label='Lorentzian fit',
+                     linewidth=2)
 
             plt.legend()
 
