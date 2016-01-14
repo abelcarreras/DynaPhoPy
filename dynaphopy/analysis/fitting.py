@@ -10,7 +10,7 @@ def lorentzian(x, a, b, c, d):
     return c/(np.pi*b*(1.0+((x-a)/b)**2))+d
 
 def lorentzian_asymmetric(x, a, b, c, d, s):
-    return c/(np.pi*b*(1.0+((x-a)/b)**2)) *2*abs(b)/(1.0+np.exp(s*(x-a))) +d
+    return c/(np.pi*b*(1.0+((x-a)/b)**2)) *4*abs(b)/(1.0+np.exp(s*(x-a))) +d
 
 def get_error_from_covariance(covariance):
   #  return np.sqrt(np.sum(np.linalg.eigvals(covariance)**2))
