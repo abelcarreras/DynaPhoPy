@@ -14,7 +14,7 @@ parser.add_argument('file', metavar='file', type=str,
                    help='file containing power spectra information')
 
 parser.add_argument('-bi', metavar='indices', type=str, default=None,
-                   help='band indices (ex: "1,2 3 4, 5')
+                   help='band indices (ex: "1,2 3 4, 5)')
 
 parser.add_argument('-sm', '--smooth', action='store_true',
                    help='smooth before fitting (LOESS method)')

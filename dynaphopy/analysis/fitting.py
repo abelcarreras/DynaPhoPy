@@ -60,23 +60,23 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         #Print section
         print '\nPeak #', i+1
         print('------------------------------------')
-        print 'Width (FWHM):             ', width, 'THz'
-        print 'Position:                 ', frequency, 'THz'
-        print 'Area (1/2<K>) (Loretzian):', area, 'eV'             # 1/2 Kinetic energy
-        print 'Area (1/2<K>) (Total):    ', total_integral, 'eV'   # 1/2 Kinetic energy
-        print '<|dQ/dt|^2>      :        ', dt_Q2_lor, 'eV'        # Kinetic energy
+        print 'Width (FWHM):              ', width, 'THz'
+        print 'Position:                  ', frequency, 'THz'
+        print 'Area (1/2<K>) (Lorentzian):', area, 'eV'             # 1/2 Kinetic energy
+        print 'Area (1/2<K>) (Total):     ', total_integral, 'eV'   # 1/2 Kinetic energy
+        print '<|dQ/dt|^2>      :         ', dt_Q2_lor, 'eV'        # Kinetic energy
  #       print '<|dQ/dt|^2> (tot):        ', dt_Q2_tot, 'eV'        # Kinetic energy
  #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
  #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
-        print 'Occupation number:        ', occupancy_lor
+        print 'Occupation number:         ', occupancy_lor
  #       print 'Occupation number(tot): ', occupancy_tot
-        print 'Fit temperature           ', dt_Q2_lor / kb_bolzman, 'K'
+        print 'Fit temperature            ', dt_Q2_lor / kb_bolzman, 'K'
  #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
 
-        print 'Maximum height:           ', maximum, 'eV * ps'
+        print 'Maximum height:            ', maximum, 'eV * ps'
         if harmonic_frequencies is not None:
-            print 'Frequency shift:          ', frequency - harmonic_frequencies[i], 'THz'
-        print 'Fit Error(RMSD)/ Max. :   ', error/maximum
+            print 'Frequency shift:           ', frequency - harmonic_frequencies[i], 'THz'
+        print 'Fit Error(RMSD)/ Max. :    ', error/maximum
 
         positions.append(frequency)
         widths.append(width)
