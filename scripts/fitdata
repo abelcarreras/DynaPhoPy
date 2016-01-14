@@ -17,7 +17,7 @@ parser.add_argument('-bi', metavar='indices', type=str, default=None,
                    help='Band indices (ex: "1,2 3 4, 5')
 
 parser.add_argument('-sm', '--smooth', action='store_true',
-                   help='Smooth before fitting (LOWESS method)')
+                   help='Smooth before fitting (LOESS method)')
 
 parser.add_argument('-f', metavar='N', type=float, default=0.02,
                    help='smooth factor [Default: 0.02]')
