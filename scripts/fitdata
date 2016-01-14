@@ -11,22 +11,22 @@ import argparse
 #Arguments definition
 parser = argparse.ArgumentParser(description='fitdata')
 parser.add_argument('file', metavar='file', type=str,
-                   help='File containing power spectra information')
+                   help='file containing power spectra information')
 
 parser.add_argument('-bi', metavar='indices', type=str, default=None,
-                   help='Band indices (ex: "1,2 3 4, 5')
+                   help='band indices (ex: "1,2 3 4, 5')
 
 parser.add_argument('-sm', '--smooth', action='store_true',
-                   help='Smooth before fitting (LOESS method)')
+                   help='smooth before fitting (LOESS method)')
 
 parser.add_argument('-f', metavar='N', type=float, default=0.02,
                    help='smooth factor [Default: 0.02]')
 
 parser.add_argument('-s', metavar='file', type=str,
-                   help='Save spectra to file')
+                   help='save spectra to file')
 
 parser.add_argument('--silent', action='store_true',
-                   help='Do not show plots')
+                   help='do not show plots')
 
 args = parser.parse_args()
 
