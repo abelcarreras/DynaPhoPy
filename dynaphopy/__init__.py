@@ -38,7 +38,7 @@ class Calculation:
 
         self._parameters = parameters.Parameters()
         self.crop_trajectory(last_steps)
-        print('Using {0} time steps for calculation'.format(len(self.dynamic.velocity)))
+      #  print('Using {0} time steps for calculation'.format(len(self.dynamic.velocity)))
 
     #Crop trajectory
     def crop_trajectory(self, last_steps):
