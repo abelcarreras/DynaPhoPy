@@ -7,10 +7,23 @@ kb_bolzman = 8.6173324E-5  # eV/K
 
 
 def lorentzian(x, a, b, c, d):
+    """Lorentzian function
+    x: frequency coordinate
+    a: peak position
+    b: half width
+    d: base line
+    """
     return c/(np.pi*b*(1.0+((x-a)/b)**2))+d
 
 def lorentzian_asymmetric(x, a, b, c, d, s):
-    return c/(np.pi*b*(1.0+((x-a)/b)**2)) *4*abs(b)/(1.0+np.exp(s*(x-a))) +d
+    """Lorentzian asymmetric function
+    x: frequency coordinate
+    a: peak position
+    b: half width
+    d: base line
+    s: asymmetry parameter
+    """
+    return c/(np.pi*b*(1.0+((x-a)/b)**2)) * 4*abs(b)/(1.0+np.exp(s*(x-a))) + d
 
 def get_error_from_covariance(covariance):
   #  return np.sqrt(np.sum(np.linalg.eigvals(covariance)**2))
