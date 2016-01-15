@@ -207,4 +207,3 @@ if args.coefficient_scan_analysis:
 
 if args.peak_analysis:
     calculation.phonon_individual_analysis()
-    calculation.save_vc('test_vc')
