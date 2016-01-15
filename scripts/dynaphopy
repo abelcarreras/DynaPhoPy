@@ -198,13 +198,12 @@ if args.save_atomic_displacements:
 if args.save_force_constants:
     calculation.write_renormalized_constants(args.save_force_constants[0])
 
-# On development methods (not recommended)
-# if args.display_spectrum:
-# calculation.print_phonon_dispersion_bands()
-
 if args.coefficient_scan_analysis:
     calculation.phonon_width_scan_analysis()
 
 if args.peak_analysis:
     calculation.phonon_individual_analysis()
-    calculation.save_vc('test_vc')
+
+# On development methods (not recommended)
+# if args.display_spectrum:
+# calculation.print_phonon_dispersion_bands()
