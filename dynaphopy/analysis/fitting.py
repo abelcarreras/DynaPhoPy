@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit, minimize_scalar
+from scipy.optimize import curve_fit, minimize_scalar, root
 
 h_planck = 4.135667662E-3  # eV/ps
 kb_bolzman = 8.6173324E-5  # eV/K
@@ -16,6 +16,16 @@ def lorentzian(x, a, b, c, d):
     """
     return c/(np.pi*b*(1.0+((x-a)/b)**2))+d
 
+def g_a (x, a, b, s):
+    """Asymmetric width term
+    x: frequency coordinate
+    a: peak position
+    b: half width
+    s: asymmetry parameter
+    """
+    return 2*b/(1.0+np.exp(s*(x-a)))
+
+
 def lorentzian_asymmetric(x, a, b, c, d, s):
     """Lorentzian asymmetric function
     x: frequency coordinate
@@ -25,7 +35,7 @@ def lorentzian_asymmetric(x, a, b, c, d, s):
     d: base line
     s: asymmetry parameter
     """
-    return c/(np.pi*b*(1.0+((x-a)/b)**2)) * 4*abs(b)/(1.0+np.exp(s*(x-a))) + d
+    return c/(np.pi*g_a(x, a, b,s)*(1.0+((x-a)/(g_a(x, a, b,s)))**2))+d
 
 def get_error_from_covariance(covariance):
   #  return np.sqrt(np.sum(np.linalg.eigvals(covariance)**2))
@@ -60,8 +70,19 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
                                    bounds=[test_frequencies_range[0], test_frequencies_range[-1]],
                                    method='bounded')
 
-        fit_params[0] = solution["x"]
-        fit_params[2] = -solution["fun"] * (fit_params[1]*np.pi)
+        frequency = solution["x"]
+        fit_params[1] = g_a(frequency, fit_params[0],fit_params[1],fit_params[4])
+        fit_params[0] = frequency
+
+       # print(width)
+
+       # print('new_solutions')
+      #  print('width',width)
+       # print('freq',frequency)
+
+
+
+
 
         maximum = fit_params[2]/(fit_params[1]*np.pi)
         error = get_error_from_covariance(fit_covariances)
@@ -124,12 +145,14 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             plt.plot(test_frequencies_range, power_spectrum,
                      label='Power spectrum')
 
-#            plt.plot(test_frequencies_range, lorentzian_asymmetric(test_frequencies_range, *fit_params),
-#                     label='Lorentzian Asymm fit',
-#                     linewidth=3)
             plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params[:4]),
                      label='Lorentzian fit',
-                     linewidth=2)
+                     linewidth=3)
+
+
+            plt.plot(test_frequencies_range, lorentzian_asymmetric(test_frequencies_range, *fit_params),
+                     label='Lorentzian Asymm fit',
+                     linewidth=3)
 
             plt.legend()
 
