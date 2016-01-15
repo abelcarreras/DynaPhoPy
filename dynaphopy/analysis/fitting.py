@@ -47,6 +47,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
     widths = []
     positions = []
 
+    asymm = False
+
     for i in range(original.shape[1]):
 
         power_spectrum = original[:, i]
@@ -54,11 +56,21 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         height = np.max(power_spectrum)
         position = test_frequencies_range[np.argmax(power_spectrum)]
 
+
         try:
-            fit_params, fit_covariances = curve_fit(lorentzian_asymmetric,
-                                                    test_frequencies_range,
-                                                    power_spectrum,
-                                                    p0=[position, 0.1, height, 0.0, 0.0])
+            if asymm:
+                fit_params, fit_covariances = curve_fit(lorentzian_asymmetric,
+                                                        test_frequencies_range,
+                                                        power_spectrum,
+                                                        p0=[position, 0.1, height, 0.0, 0.0])
+            else:
+                fit_params, fit_covariances = curve_fit(lorentzian,
+                                                        test_frequencies_range,
+                                                        power_spectrum,
+                                                        p0=[position, 0.1, height, 0.0])
+                fit_params = np.append(fit_params, [0])
+
+
         except:
             print('Warning: Fitting error in phonon {0}. Try increasing the spectrum point density'.format(i))
             positions.append(0)
@@ -71,26 +83,17 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
                                    method='bounded')
 
         frequency = solution["x"]
-        width = g_a(frequency, fit_params[0],fit_params[1],fit_params[4])*2
-      #  fit_params[0] = frequency
-
-       # print(width)
-
-       # print('new_solutions')
-      #  print('width',width)
-       # print('freq',frequency)
+        maximum = -solution["fun"]
+        width = g_a(frequency, fit_params[0], fit_params[1], fit_params[4])*2
+        assymetry = fit_params[4]
 
 
-
-
-
-        maximum = fit_params[2]/(fit_params[1]*np.pi)
+    #    maximum = fit_params[2]/(fit_params[1]*np.pi)
         error = get_error_from_covariance(fit_covariances)
     #    width = 2.0*fit_params[1]
         area = fit_params[2] / ( 2 * np.pi)
     #    frequency = fit_params[0]
         base_line = fit_params[3]
-        assymetry = fit_params[4]
 
         total_integral = np.trapz(power_spectrum, x=test_frequencies_range)/ (2 * np.pi)
 
