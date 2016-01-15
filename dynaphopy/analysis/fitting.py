@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
+from scipy.optimize import curve_fit, minimize_scalar
 
 h_planck = 4.135667662E-3  # eV/ps
 kb_bolzman = 8.6173324E-5  # eV/K
@@ -11,6 +11,7 @@ def lorentzian(x, a, b, c, d):
     x: frequency coordinate
     a: peak position
     b: half width
+    c: area proportional parameter
     d: base line
     """
     return c/(np.pi*b*(1.0+((x-a)/b)**2))+d
@@ -20,6 +21,7 @@ def lorentzian_asymmetric(x, a, b, c, d, s):
     x: frequency coordinate
     a: peak position
     b: half width
+    c: area proportional parameter
     d: base line
     s: asymmetry parameter
     """
@@ -52,6 +54,14 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             positions.append(0)
             widths.append(0)
             continue
+
+
+        solution = minimize_scalar(lambda x: -lorentzian_asymmetric(x, *fit_params), fit_params[0],
+                                   bounds=[test_frequencies_range[0], test_frequencies_range[-1]],
+                                   method='bounded')
+
+        fit_params[0] = solution["x"]
+        fit_params[2] = -solution["fun"] * (fit_params[1]*np.pi)
 
         maximum = fit_params[2]/(fit_params[1]*np.pi)
         error = get_error_from_covariance(fit_covariances)
@@ -114,9 +124,9 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             plt.plot(test_frequencies_range, power_spectrum,
                      label='Power spectrum')
 
-            plt.plot(test_frequencies_range, lorentzian_asymmetric(test_frequencies_range, *fit_params),
-                     label='Lorentzian Asymm fit',
-                     linewidth=3)
+#            plt.plot(test_frequencies_range, lorentzian_asymmetric(test_frequencies_range, *fit_params),
+#                     label='Lorentzian Asymm fit',
+#                     linewidth=3)
             plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params[:4]),
                      label='Lorentzian fit',
                      linewidth=2)
