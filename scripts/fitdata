@@ -28,6 +28,9 @@ parser.add_argument('-s', metavar='file', type=str,
 parser.add_argument('--silent', action='store_true',
                    help='do not show plots')
 
+parser.add_argument('--asymmetric_peaks', action='store_true',
+                   help='Fit usign assymetric Lorentzian function')
+
 args = parser.parse_args()
 
 
@@ -109,7 +112,9 @@ else:
     data=np.array(data).T
 
 #Analysis using Dynaphopy functions
-fitting.phonon_fitting_analysis(data, test_frequencies_range, show_plots=not(args.silent))
+fitting.phonon_fitting_analysis(data, test_frequencies_range,
+                                show_plots=not(args.silent),
+                                asymmetric_peaks=args.asymmetric_peaks)
 
 if args.s:
     reading.write_correlation_to_file(test_frequencies_range, data, args.s)
