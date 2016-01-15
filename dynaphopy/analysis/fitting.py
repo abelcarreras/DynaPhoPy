@@ -99,6 +99,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
                      label='Lorentzian fit',
                      linewidth=3)
 
+            plt.axvline(x=frequency, color='k', ls='dashed')
             plt.legend()
 
 
