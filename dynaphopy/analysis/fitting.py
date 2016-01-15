@@ -71,8 +71,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
                                    method='bounded')
 
         frequency = solution["x"]
-        fit_params[1] = g_a(frequency, fit_params[0],fit_params[1],fit_params[4])
-        fit_params[0] = frequency
+        width = g_a(frequency, fit_params[0],fit_params[1],fit_params[4])*2
+      #  fit_params[0] = frequency
 
        # print(width)
 
@@ -86,9 +86,9 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 
         maximum = fit_params[2]/(fit_params[1]*np.pi)
         error = get_error_from_covariance(fit_covariances)
-        width = 2.0*fit_params[1]
+    #    width = 2.0*fit_params[1]
         area = fit_params[2] / ( 2 * np.pi)
-        frequency = fit_params[0]
+    #    frequency = fit_params[0]
         base_line = fit_params[3]
         assymetry = fit_params[4]
 
@@ -139,21 +139,23 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             plt.title('Curve fitting')
 
             plt.suptitle('Phonon {0}'.format(i+1))
-            plt.text(fit_params[0], height/2, 'Width: ' + "{:10.4f}".format(width),
+            plt.text(fit_params[0]+width, height/2, 'Width: ' + "{:10.4f}".format(width),
                      fontsize=12)
 
             plt.plot(test_frequencies_range, power_spectrum,
                      label='Power spectrum')
 
-            plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params[:4]),
-                     label='Lorentzian fit',
-                     linewidth=3)
-
+#            plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params[:4]),
+#                     label='Lorentzian fit',
+#                     linewidth=3)
 
             plt.plot(test_frequencies_range, lorentzian_asymmetric(test_frequencies_range, *fit_params),
-                     label='Lorentzian Asymm fit',
+                     label='As. Lorentzian fit',
                      linewidth=3)
 
+            plt.axvline(x=frequency, color='k', ls='dashed')
+
+            plt.ylim(bottom=0)
             plt.legend()
 
 
