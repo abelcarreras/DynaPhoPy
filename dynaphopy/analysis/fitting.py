@@ -1,41 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit, minimize_scalar, root
+from scipy.optimize import curve_fit
 
 h_planck = 4.135667662E-3  # eV/ps
 kb_bolzman = 8.6173324E-5  # eV/K
 
 
 def lorentzian(x, a, b, c, d):
-    """Lorentzian function
-    x: frequency coordinate
-    a: peak position
-    b: half width
-    c: area proportional parameter
-    d: base line
-    """
     return c/(np.pi*b*(1.0+((x-a)/b)**2))+d
 
-def g_a (x, a, b, s):
-    """Asymmetric width term
-    x: frequency coordinate
-    a: peak position
-    b: half width
-    s: asymmetry parameter
-    """
-    return 2*b/(1.0+np.exp(s*(x-a)))
-
-
-def lorentzian_asymmetric(x, a, b, c, d, s):
-    """Lorentzian asymmetric function
-    x: frequency coordinate
-    a: peak position
-    b: half width
-    c: area proportional parameter
-    d: base line
-    s: asymmetry parameter
-    """
-    return c/(np.pi*g_a(x, a, b,s)*(1.0+((x-a)/(g_a(x, a, b,s)))**2))+d
 
 def get_error_from_covariance(covariance):
   #  return np.sqrt(np.sum(np.linalg.eigvals(covariance)**2))
@@ -55,42 +28,21 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         position = test_frequencies_range[np.argmax(power_spectrum)]
 
         try:
-            fit_params, fit_covariances = curve_fit(lorentzian_asymmetric,
+            fit_params, fit_covariances = curve_fit(lorentzian,
                                                     test_frequencies_range,
                                                     power_spectrum,
-                                                    p0=[position, 0.1, height, 0.0, 0.0])
+                                                    p0=[position, 0.1, height, 0.0])
         except:
             print('Warning: Fitting error in phonon {0}. Try increasing the spectrum point density'.format(i))
             positions.append(0)
             widths.append(0)
             continue
 
-
-        solution = minimize_scalar(lambda x: -lorentzian_asymmetric(x, *fit_params), fit_params[0],
-                                   bounds=[test_frequencies_range[0], test_frequencies_range[-1]],
-                                   method='bounded')
-
-        frequency = solution["x"]
-        fit_params[1] = g_a(frequency, fit_params[0],fit_params[1],fit_params[4])
-        fit_params[0] = frequency
-
-       # print(width)
-
-       # print('new_solutions')
-      #  print('width',width)
-       # print('freq',frequency)
-
-
-
-
-
         maximum = fit_params[2]/(fit_params[1]*np.pi)
         error = get_error_from_covariance(fit_covariances)
         width = 2.0*fit_params[1]
         area = fit_params[2] / ( 2 * np.pi)
         frequency = fit_params[0]
-        base_line = fit_params[3]
-        assymetry = fit_params[4]
 
         total_integral = np.trapz(power_spectrum, x=test_frequencies_range)/ (2 * np.pi)
 
@@ -120,8 +72,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
  #       print 'Occupation number(tot): ', occupancy_tot
         print 'Fit temperature            ', dt_Q2_lor / kb_bolzman, 'K'
  #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
-        print 'Base line                  ', base_line, 'ev * ps'
-        print 'Peak asymmetry             ', assymetry
+
         print 'Maximum height:            ', maximum, 'eV * ps'
         if harmonic_frequencies is not None:
             print 'Frequency shift:           ', frequency - harmonic_frequencies[i], 'THz'
@@ -144,16 +95,11 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 
             plt.plot(test_frequencies_range, power_spectrum,
                      label='Power spectrum')
-
-            plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params[:4]),
+            plt.plot(test_frequencies_range, lorentzian(test_frequencies_range, *fit_params),
                      label='Lorentzian fit',
                      linewidth=3)
 
-
-            plt.plot(test_frequencies_range, lorentzian_asymmetric(test_frequencies_range, *fit_params),
-                     label='Lorentzian Asymm fit',
-                     linewidth=3)
-
+            plt.axvline(x=frequency, color='k', ls='dashed')
             plt.legend()
 
 
