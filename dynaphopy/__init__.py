@@ -353,7 +353,8 @@ class Calculation:
         fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                         self.parameters.frequency_range,
                                         harmonic_frequencies=self.get_frequencies(),
-                                        show_plots=not self.parameters.silent)
+                                        show_plots=not self.parameters.silent,
+                                        asymmetric_peaks=self.parameters.use_asymmetric_peaks)
         return
 
     def plot_power_spectrum_full(self):
@@ -522,7 +523,8 @@ class Calculation:
                 positions, widths = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                     self.parameters.frequency_range,
                                     harmonic_frequencies=self.get_frequencies(),
-                                    show_plots=False)
+                                    show_plots=False,
+                                    asymmetric_peaks=self.parameters.use_asymmetric_peaks)
 
                 if (reduced_q_point == [0, 0, 0]).all():
                     print('Fixing gamma point frequencies')

@@ -42,12 +42,10 @@ def get_error_from_covariance(covariance):
     return np.sqrt(np.trace(covariance))
 
 
-def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None, show_plots=True):
+def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None, asymmetric_peaks = False, show_plots=True):
 
     widths = []
     positions = []
-
-    asymm = False
 
     for i in range(original.shape[1]):
 
@@ -58,7 +56,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 
 
         try:
-            if asymm:
+            if asymmetric_peaks:
                 fit_params, fit_covariances = curve_fit(lorentzian_asymmetric,
                                                         test_frequencies_range,
                                                         power_spectrum,
@@ -78,12 +76,12 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             continue
 
 
-        solution = minimize_scalar(lambda x: -lorentzian_asymmetric(x, *fit_params), fit_params[0],
+        peak_pos = minimize_scalar(lambda x: -lorentzian_asymmetric(x, *fit_params), fit_params[0],
                                    bounds=[test_frequencies_range[0], test_frequencies_range[-1]],
                                    method='bounded')
 
-        frequency = solution["x"]
-        maximum = -solution["fun"]
+        frequency = peak_pos["x"]
+        maximum = -peak_pos["fun"]
         width = g_a(frequency, fit_params[0], fit_params[1], fit_params[4])*2
         assymetry = fit_params[4]
 
@@ -124,11 +122,14 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         print 'Fit temperature            ', dt_Q2_lor / kb_bolzman, 'K'
  #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
         print 'Base line                  ', base_line, 'ev * ps'
-        print 'Peak asymmetry             ', assymetry
         print 'Maximum height:            ', maximum, 'eV * ps'
+        print 'Fit Error(RMSD)/ Max. :    ', error/maximum
+
+        if asymmetric_peaks:
+            print 'Peak asymmetry             ', assymetry
+
         if harmonic_frequencies is not None:
             print 'Frequency shift:           ', frequency - harmonic_frequencies[i], 'THz'
-        print 'Fit Error(RMSD)/ Max. :    ', error/maximum
 
         positions.append(frequency)
         widths.append(width)
@@ -153,7 +154,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 #                     linewidth=3)
 
             plt.plot(test_frequencies_range, lorentzian_asymmetric(test_frequencies_range, *fit_params),
-                     label='As. Lorentzian fit',
+                     label=('As. Lorentzian fit' if asymmetric_peaks else 'Lorentizian fit'),
                      linewidth=3)
 
             plt.axvline(x=frequency, color='k', ls='dashed')
