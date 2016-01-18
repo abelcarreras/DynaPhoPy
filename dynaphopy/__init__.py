@@ -163,9 +163,9 @@ class Calculation:
 
     def get_phonon_dispersion_bands(self):
         if self._bands is None:
-            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,
-                                                                         self.parameters.band_ranges,
-                                                                         NAC=self.parameters.use_NAC)
+            self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                       self.parameters.band_ranges,
+                                                                       NAC=self.parameters.use_NAC)
 
         for i,freq in enumerate(self._bands[1]):
             plt.plot(self._bands[1][i],self._bands[2][i],color ='r')
@@ -182,9 +182,9 @@ class Calculation:
     def get_renormalized_phonon_dispersion_bands(self):
 
         if self._bands is None:
-            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,
-                                                                         self.parameters.band_ranges,
-                                                                         NAC=self.parameters.use_NAC)
+            self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                       self.parameters.band_ranges,
+                                                                       NAC=self.parameters.use_NAC)
 
         if self._renormalized_bands is None:
             self._renormalized_bands = pho_interface.obtain_renormalized_phonon_dispersion_spectra(self.dynamic.structure,
@@ -209,9 +209,9 @@ class Calculation:
 
     def print_phonon_dispersion_bands(self):
         if self._bands is None:
-            self._bands = pho_interface.obtain_phonon_dispersion_spectra(self.dynamic.structure,
-                                                                         self.parameters.band_ranges,
-                                                                         NAC=self.parameters.use_NAC)
+            self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                       self.parameters.band_ranges,
+                                                                       NAC=self.parameters.use_NAC)
         np.set_printoptions(linewidth=200)
         for i,freq in enumerate(self._bands[1]):
             print(str(np.hstack([self._bands[1][i][None].T,self._bands[2][i]])).replace('[','').replace(']',''))
