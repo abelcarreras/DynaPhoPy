@@ -125,7 +125,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 if x2 == ord('3'):
                     curses.endwin()
-                    calculation.get_phonon_dispersion_spectra()
+                    calculation.get_phonon_dispersion_bands()
 
 ######## OPTION 2 :  DEFINE WAVE VECTOR
         if x == ord('2'):
@@ -182,7 +182,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 ######## OPTION 6 :  Renormalized phonon dispersion
         if x == ord('6'):
             curses.endwin()
-            calculation.get_renormalized_phonon_dispersion_spectra()
+            calculation.get_renormalized_phonon_dispersion_bands()
             curses.endwin()
 
 ######## OPTION 7 :  PEAK ANALYSIS
