@@ -220,8 +220,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                               str(calculation.parameters.number_of_bins_histogram))
                 screen.addstr(8, 4, "5 - Eigenvectors display vector scale: " +
                               str(calculation.parameters.modes_vectors_scale))
-
-                screen.addstr(10, 4, "0 - Return")
+                screen.addstr(9, 4, "6 - Use asymmetric lorentzian: " +
+                            str(calculation.parameters.use_asymmetric_peaks))
+                screen.addstr(11, 4, "0 - Return")
                 screen.refresh()
 
                 x2 = screen.getch()
@@ -279,9 +280,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
 
                 if x2 == ord('3'):
-               #     calculation.set_number_of_mem_coefficients(int(get_param(screen, "Insert number of coefficients")))
+               # calculation.set_number_of_mem_coefficients(int(get_param(screen, "Insert number of coefficients")))
                     calculation.parameters.number_of_coefficients_mem = int(get_param(screen, "Insert number of coefficients"))
-
                     curses.endwin()
 
                 if x2 == ord('4'):
@@ -292,10 +292,30 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     calculation.parameters.modes_vectors_scale = int(get_param(screen, "Insert vector scale"))
                     curses.endwin()
 
+                if x2 == ord('6'):
+                    x3 = ord('9')
+                    while int(chr(int(x3))) > 2:
+                        screen = curses.initscr()
+                        screen.clear()
+                        screen.border(0)
+
+                        screen.addstr(2, 2, 'Asymmetric peaks...')
+                        screen.addstr(4, 4, '1 - On')
+                        screen.addstr(5, 4, '2 - Off')
+
+                        if calculation.parameters.use_asymmetric_peaks:
+                            screen.addstr(4, 3, '>')
+                        else:
+                            screen.addstr(5, 3, '>')
+
+                        screen.refresh()
+                        x3 = screen.getch()
+                        calculation.parameters.use_asymmetric_peaks=bool(int(chr(int(x3)))-2)
+
+                    curses.endwin()
+
 
     curses.endwin()
-
-
 
 #Just for testing
 if __name__ == 'test_gui.py':

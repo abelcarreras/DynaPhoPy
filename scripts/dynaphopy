@@ -70,17 +70,20 @@ parser.add_argument('-csa', '--coefficient_scan_analysis', action='store_true',
 parser.add_argument('-pa', '--peak_analysis', action='store_true',
                     help='request a peak analysis')
 
+parser.add_argument('-pad', '--plot_atomic_displacements', metavar='N', type=str, nargs=3,
+                    help='plot atomic displacements respect to specified direction [N N N]')
+
+parser.add_argument('-sad', '--save_atomic_displacements', metavar='X', type=str, nargs=4,
+                    help='save atomic displacements into a file [ N N N filename ]')
+
 parser.add_argument('--silent', action='store_true',
                     help='executes without showing plots')
 
 parser.add_argument('--velocity_only', action='store_true',
                     help='loads only velocity data from hdf5 file')
 
-parser.add_argument('-pad', '--plot_atomic_displacements', metavar='N', type=str, nargs=3,
-                    help='plot atomic displacements respect to specified direction [N N N]')
-
-parser.add_argument('-sad', '--save_atomic_displacements', metavar='X', type=str, nargs=4,
-                    help='save atomic displacements into a file [ N N N filename ]')
+parser.add_argument('--asymmetric_peaks', action='store_true',
+                    help='Uses asymmetric Lorentzian functions to fit spectra')
 
 # For development
 parser.add_argument('--read_from', metavar='N', type=int, default=1,
@@ -141,6 +144,9 @@ if '_band_ranges' in input_parameters:
 # Set Parameters
 calculation.parameters.silent = args.silent
 
+calculation.parameters.use_asymmetric_peaks = args.asymmetric_peaks
+
+
 # Process properties arguments
 if args.q:
     calculation.set_reduced_q_vector(np.array([float(Fraction(s)) for s in args.q]))
@@ -197,7 +203,3 @@ if args.coefficient_scan_analysis:
 
 if args.peak_analysis:
     calculation.phonon_individual_analysis()
-
-# On development methods (not recommended)
-# if args.display_spectrum:
-# calculation.print_phonon_dispersion_bands()

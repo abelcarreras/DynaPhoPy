@@ -23,6 +23,7 @@ class Parameters:
                     # 0: Correlation functions parallel (OpenMP) [Recommended]
                     # 1: Maximum Entropy Method parallel (OpenMP) [Recommended]
                  power_spectra_algorithm=1,
+                 use_asymmetric_peaks=False,
                  frequency_range=np.linspace(0, 40, 500),
 
                  # Phonon dispersion diagram
@@ -46,6 +47,7 @@ class Parameters:
         self._band_ranges = band_ranges
         self._number_of_bins_histogram = number_of_bins_histogram
         self._modes_vectors_scale = modes_vectors_scale
+        self._use_asymmetric_peaks = use_asymmetric_peaks
 
 
     #Properties
@@ -144,3 +146,11 @@ class Parameters:
     @modes_vectors_scale.setter
     def modes_vectors_scale(self, modes_vectors_scale):
         self._modes_vectors_scale = modes_vectors_scale
+
+    @property
+    def use_asymmetric_peaks(self):
+        return self._use_asymmetric_peaks
+
+    @use_asymmetric_peaks.setter
+    def use_asymmetric_peaks(self, use_asymmetric_peaks):
+        self._use_asymmetric_peaks = use_asymmetric_peaks
