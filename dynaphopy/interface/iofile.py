@@ -594,11 +594,6 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 if bounds.shape[1] == 2:
                     bounds = np.append(bounds, np.array([0, 0, 0])[None].T ,axis=1)
 
-                print(bounds)
-                print("--")
-
-
-
                 xy = bounds[0, 2]
                 xz = bounds[1, 2]
                 yz = bounds[2, 2]
@@ -614,42 +609,20 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                                        [0,  yhi-ylo,  yz],
                                        [0,   0,  zhi-zlo]])
 
-#                super_cell = np.array([[63.048, 0,  0.0],
-#                                       [0,  9.858825, 0.0],
-#                                       [-41.23, 0.0 , 11.19]])
-
-
-
+# Testing cell
                 lx = xhi-xlo
                 ly = yhi-ylo
                 lz = zhi-zlo
-
-
 
                 a = lx
                 b = np.sqrt(pow(ly,2) + pow(xy,2))
                 c = np.sqrt(pow(lz,2) + pow(xz,2) +  pow(yz,2))
 
-
-
-                super_cell
-
-
                 alpha = np.arccos((xy*xz + ly*yz)/(b*c))
                 beta = np.arccos(xz/c)
                 gamma = np.arccos(xy/b)
+#End testing cell
 
-                print("a:",a)
-                print("b:",b)
-                print("c:",c)
-
-                print("alpha:",alpha*180/np.pi)
-                print("beta:",beta*180/np.pi)
-                print("gamma:",gamma*180/np.pi)
-
-                print("A", np.linalg.norm(bounds[:,0]))
-
-                print(super_cell)
 
             position_number = file_map.find('ITEM: ATOMS')
 
