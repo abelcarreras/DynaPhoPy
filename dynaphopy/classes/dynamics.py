@@ -124,7 +124,12 @@ class Dynamics:
             if abs(sum(self._super_cell_matrix - super_cell_matrix_real)) > tolerance:
                 print('Warning! Structure cell and MD cell do not fit!')
                 print('Cell size relation is not integer:',super_cell_matrix_real)
+                print ('If you are using lammps, orient the lattice vectors in unit cell')
+                print ('a: in x direction, b: in plane xy')
                 exit()
+
+#            print(self._super_cell_matrix, super_cell_matrix_real,sum(self._super_cell_matrix - super_cell_matrix_real))
+
         return self._super_cell_matrix
 
     # Properties

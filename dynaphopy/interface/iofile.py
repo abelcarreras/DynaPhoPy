@@ -18,9 +18,11 @@ def check_trajectory_file_type(file_name, bytes_to_check=1000000):
         print file_name + ' file does not exists'
         exit()
 
+    file_size = os.stat(file_name).st_size
+
     #Check if LAMMPS file
     with open (file_name, "r+") as f:
-        file_map = mmap.mmap(f.fileno(), bytes_to_check)
+        file_map = mmap.mmap(f.fileno(), np.min([bytes_to_check, file_size]))
         num_test = [file_map.find('ITEM: TIMESTEP'),
                     file_map.find('ITEM: NUMBER OF ATOMS'),
                     file_map.find('ITEM: BOX BOUNDS')]
@@ -32,7 +34,7 @@ def check_trajectory_file_type(file_name, bytes_to_check=1000000):
 
     #Check if VASP file
     with open (file_name, "r+") as f:
-        file_map = mmap.mmap(f.fileno(), bytes_to_check)
+        file_map = mmap.mmap(f.fileno(), np.min([bytes_to_check, file_size]))
         num_test = [file_map.find('NIONS'),
                     file_map.find('POMASS'),
                     file_map.find('direct lattice vectors')]
@@ -592,9 +594,62 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 if bounds.shape[1] == 2:
                     bounds = np.append(bounds, np.array([0, 0, 0])[None].T ,axis=1)
 
-                super_cell = np.array([[bounds[0, 1] - bounds[0, 0], 0,                           0],
-                                       [bounds[0, 2],                bounds[1, 1] - bounds[1, 0], 0],
-                                       [bounds[1, 2],                bounds[2, 2],                bounds[2, 1] - bounds[2, 0]]])
+                print(bounds)
+                print("--")
+
+
+
+                xy = bounds[0, 2]
+                xz = bounds[1, 2]
+                yz = bounds[2, 2]
+
+                xlo = bounds[0, 0] - np.min([0.0, xy, xz, xy+xz])
+                xhi = bounds[0, 1] - np.max([0.0, xy, xz, xy+xz])
+                ylo = bounds[1, 0] - np.min([0.0, yz])
+                yhi = bounds[1, 1] - np.max([0.0, yz])
+                zlo = bounds[2, 0]
+                zhi = bounds[2, 1]
+
+                super_cell = np.array([[xhi-xlo, xy,  xz],
+                                       [0,  yhi-ylo,  yz],
+                                       [0,   0,  zhi-zlo]])
+
+#                super_cell = np.array([[63.048, 0,  0.0],
+#                                       [0,  9.858825, 0.0],
+#                                       [-41.23, 0.0 , 11.19]])
+
+
+
+                lx = xhi-xlo
+                ly = yhi-ylo
+                lz = zhi-zlo
+
+
+
+                a = lx
+                b = np.sqrt(pow(ly,2) + pow(xy,2))
+                c = np.sqrt(pow(lz,2) + pow(xz,2) +  pow(yz,2))
+
+
+
+                super_cell
+
+
+                alpha = np.arccos((xy*xz + ly*yz)/(b*c))
+                beta = np.arccos(xz/c)
+                gamma = np.arccos(xy/b)
+
+                print("a:",a)
+                print("b:",b)
+                print("c:",c)
+
+                print("alpha:",alpha*180/np.pi)
+                print("beta:",beta*180/np.pi)
+                print("gamma:",gamma*180/np.pi)
+
+                print("A", np.linalg.norm(bounds[:,0]))
+
+                print(super_cell)
 
             position_number = file_map.find('ITEM: ATOMS')
 
@@ -634,6 +689,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
     if last_steps is not None:
         trajectory = trajectory[-last_steps:, :, :]
         time = time[-last_steps:]
+
 
     return dyn.Dynamics(structure=structure,
                         trajectory=trajectory,
