@@ -128,7 +128,7 @@ class Dynamics:
                 print ('a: in x direction, b: in plane xy')
                 exit()
 
-#            print(self._super_cell_matrix, super_cell_matrix_real,sum(self._super_cell_matrix - super_cell_matrix_real))
+            print('MD cell size relation: {0}'.format(self._super_cell_matrix))
 
         return self._super_cell_matrix
 
