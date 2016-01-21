@@ -319,10 +319,9 @@ class Calculation:
     def get_power_spectrum_wave_vector(self):
         if self._power_spectrum_wave_vector is None:
             print("Calculating wave vector projection power spectrum")
-            self._power_spectrum_wave_vector = np.zeros((len(self.get_frequency_range()),self.get_vc().shape[2]))
-            for i in range(self.get_vc().shape[1]):
-                self._power_spectrum_wave_vector += (
-                    power_spectrum_functions[self.parameters.power_spectra_algorithm])(self.get_vc()[:,i,:],
+            size = self.get_vc().shape[1]*self.get_vc().shape[2]
+            self._power_spectrum_wave_vector = (
+                    power_spectrum_functions[self.parameters.power_spectra_algorithm])(self.get_vc().swapaxes(1, 2).reshape(-1, size),
                                                                                        self.dynamic,
                                                                                        self.parameters)
 
@@ -331,21 +330,18 @@ class Calculation:
     def get_power_spectrum_direct(self):
         if self._power_spectrum_direct is None:
             print("Calculation full power spectrum")
+            size = self.dynamic.get_velocity_mass_average().shape[1]*self.dynamic.get_velocity_mass_average().shape[2]
 
-            Number_of_dimensions = self.dynamic.get_velocity_mass_average().shape[2]
-
-            self._power_spectrum_direct = np.zeros((len(self.get_frequency_range()),Number_of_dimensions))
-            for i in range(self.dynamic.get_velocity_mass_average().shape[1]):
-                self._power_spectrum_direct += (power_spectrum_functions[self.parameters.power_spectra_algorithm])(
-                    self.dynamic.get_velocity_mass_average()[:, i, :],
-                    self.dynamic,
-                    self.parameters)
+            self._power_spectrum_direct = (power_spectrum_functions[self.parameters.power_spectra_algorithm])(
+                self.dynamic.get_velocity_mass_average().swapaxes(1, 2).reshape(-1, size),
+                self.dynamic,
+                self.parameters)
 
             self._power_spectrum_direct = np.sum(self._power_spectrum_direct, axis=1)
         return self._power_spectrum_direct
 
     def phonon_width_scan_analysis(self):
-        print("Phonon coefficient scan analysis(Maximum Entropy Method Only)")
+        print("Phonon coefficient scan analysis(Maximum entropy method/Symmetric Lorentzian fit only)")
         power_spectrum.mem_coefficient_scan_analysis(self.get_vq(), self.dynamic, self.parameters)
 
     def phonon_individual_analysis(self):
