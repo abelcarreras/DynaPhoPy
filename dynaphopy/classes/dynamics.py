@@ -116,16 +116,23 @@ class Dynamics:
 
         return self._relative_trajectory
 
-    def get_super_cell_matrix(self,tolerance=0.1):
+    def get_super_cell_matrix(self,tolerance=0.01):
+
+        def parameters(h):
+            a = np.linalg.norm(h[:,0])
+            b = np.linalg.norm(h[:,1])
+            c = np.linalg.norm(h[:,2])
+            return [a, b, c]
+
+
         if self._super_cell_matrix is None:
-            super_cell_matrix_real = np.diagonal(np.dot(self.get_super_cell(),np.linalg.inv(self.structure.get_cell())))
+            super_cell_matrix_real = np.divide(parameters(self.get_super_cell()), parameters(self.structure.get_cell()))
             self._super_cell_matrix = np.around(super_cell_matrix_real).astype("int")
 
-            if abs(sum(self._super_cell_matrix - super_cell_matrix_real)) > tolerance:
+            if abs(sum(self._super_cell_matrix - super_cell_matrix_real)/np.linalg.norm(super_cell_matrix_real)) > tolerance:
+                print(abs(sum(self._super_cell_matrix - super_cell_matrix_real)/np.linalg.norm(super_cell_matrix_real)))
                 print('Warning! Structure cell and MD cell do not fit!')
-                print('Cell size relation is not integer:',super_cell_matrix_real)
-                print ('If you are using lammps, orient the lattice vectors in unit cell')
-                print ('a: in x direction, b: in plane xy')
+                print('Cell size relation is not integer: {0}'.format(super_cell_matrix_real))
                 exit()
 
             print('MD cell size relation: {0}'.format(self._super_cell_matrix))
