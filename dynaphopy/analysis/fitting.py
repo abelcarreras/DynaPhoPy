@@ -85,12 +85,12 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         width = g_a(frequency, fit_params[0], fit_params[1], fit_params[4])*2
         assymetry = fit_params[4]
 
-
     #    maximum = fit_params[2]/(fit_params[1]*np.pi)
-        error = get_error_from_covariance(fit_covariances)
     #    width = 2.0*fit_params[1]
-        area = fit_params[2] / ( 2 * np.pi)
     #    frequency = fit_params[0]
+
+        error = get_error_from_covariance(fit_covariances)
+        area = fit_params[2] / ( 2 * np.pi)
         base_line = fit_params[3]
 
         total_integral = np.trapz(power_spectrum, x=test_frequencies_range)/ (2 * np.pi)
