@@ -158,9 +158,9 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
                      linewidth=3)
 
             plt.axvline(x=frequency, color='k', ls='dashed')
-            x = np.arange(0,10,0.1)
-            plt.fill_between([frequency-width/2, frequency+width/2],0,plt.gca().get_ylim()[1],color='red', alpha='0.2')
             plt.ylim(bottom=0)
+            plt.xlim([test_frequencies_range[0],test_frequencies_range[-1]])
+            plt.fill_between([frequency-width/2, frequency+width/2],0,plt.gca().get_ylim()[1],color='red', alpha='0.2')
             plt.legend()
 
 
