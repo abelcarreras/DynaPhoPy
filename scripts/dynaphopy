@@ -9,7 +9,7 @@ from fractions import Fraction
 from dynaphopy.interface.phonopy_link import get_force_sets_from_file
 
 # Define arguments
-parser = argparse.ArgumentParser(description='DynaPhonoPy options')
+parser = argparse.ArgumentParser(description='DynaPhoPy options')
 parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
                     help='input file containing structure related data')
 
