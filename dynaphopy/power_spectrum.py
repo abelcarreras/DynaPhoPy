@@ -165,18 +165,19 @@ def autocorrelation(x):
     return result
 
 
-def fft_power(freq, data, time_step, zero_padding=0):
+def fft_power(frequency_range, data, time_step, zero_padding=0):
 
     data = autocorrelation(data)*time_step
 
-    data = np.lib.pad(data,(0, zero_padding), 'constant', constant_values=(0, 0))
+    data = np.lib.pad(data, (0, zero_padding), 'constant', constant_values=(0, 0))
 
-    ps = np.abs(np.fft.fft(data))*time_step
+    ps = np.abs(np.fft.fft(data))*time_step/np.pi.real
 
     freqs = np.fft.fftfreq(data.size, time_step)
     idx = np.argsort(freqs)
 
-    return np.interp(freq, freqs[idx], ps[idx])
+    return np.interp(frequency_range, freqs[idx], ps[idx])
+
 
 def get_fft_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)

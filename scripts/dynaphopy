@@ -14,7 +14,7 @@ parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
                     help='input file containing structure related data')
 
 group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument('md_file', metavar='TRAJECTORY', type=str, nargs='?',
+group.add_argument('md_file', metavar='trajectory', type=str, nargs='?',
                    help='Output file containing MD trajectory')
 group.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
                    help='load velocity from hdf5 file')
