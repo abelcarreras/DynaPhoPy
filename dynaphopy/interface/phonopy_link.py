@@ -91,11 +91,14 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
                                     for j in range(number_of_primitive_atoms)]
                                     for i in range(number_of_primitive_atoms*number_of_dimensions)])
 
+    print("Harmonic frequencies:")
+    print(frequencies)
+
     return arranged_ev, frequencies
 
 def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_resolution=30):
 
-    print('Calculating phonon dispersion spectra...')
+    print('Getting phonon dispersion bands')
     phonon = get_phonon(structure, NAC=False)
 
     bands =[]
@@ -108,9 +111,9 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_reso
 
     return phonon.get_band_structure()
 
-def obtain_renormalized_phonon_dispersion_spectra(structure, bands_ranges, force_constants, NAC=False, band_resolution=30):
+def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_constants, NAC=False, band_resolution=30):
 
-    print('Calculating phonon dispersion spectra...')
+    print('Getting renormalized phonon dispersion bands')
     phonon = get_phonon(structure, NAC=False)
     phonon.set_force_constants(force_constants)
 
@@ -140,7 +143,7 @@ def get_commensurate_points_info(structure):
 
     return com_points, dynmat2fc, phonon
 
-def calculate_renormalized_force_constants(normalized_frequencies, dynmat2fc, phonon, degenerate=True):
+def get_renormalized_force_constants(normalized_frequencies, dynmat2fc, phonon, degenerate=True):
 
     frequencies, eigenvectors = phonon.get_qpoints_phonon()
 

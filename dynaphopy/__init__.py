@@ -141,8 +141,6 @@ class Calculation:
                 pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,
                                                                self.parameters.reduced_q_vector,
                                                                NAC=self.parameters.use_NAC))
-            print("Frequencies obtained:")
-            print(self._frequencies)
         return self._eigenvectors
 
     def get_frequencies(self):
@@ -187,10 +185,10 @@ class Calculation:
                                                                        NAC=self.parameters.use_NAC)
 
         if self._renormalized_bands is None:
-            self._renormalized_bands = pho_interface.obtain_renormalized_phonon_dispersion_spectra(self.dynamic.structure,
-                                                                                      self.parameters.band_ranges,
-                                                                                      self.get_renormalized_constants(),
-                                                                                      NAC=self.parameters.use_NAC)
+            self._renormalized_bands = pho_interface.obtain_renormalized_phonon_dispersion_bands(self.dynamic.structure,
+                                                                                                 self.parameters.band_ranges,
+                                                                                                 self.get_renormalized_constants(),
+                                                                                                 NAC=self.parameters.use_NAC)
 
 
         for i,freq in enumerate(self._renormalized_bands[1]):
@@ -308,7 +306,7 @@ class Calculation:
 
     def get_power_spectrum_phonon(self):
         if self._power_spectrum_phonon is None:
-            print("Calculating phonon projection power spectrum")
+            print("Calculating phonon projection power spectra")
             self._power_spectrum_phonon = (
                 power_spectrum_functions[self.parameters.power_spectra_algorithm])(self.get_vq(),
                                                                                    self.dynamic,
@@ -514,7 +512,7 @@ class Calculation:
 
             normalized_frequencies = []
             for i, reduced_q_point in enumerate(com_points):
-                print ("Qpoint: {0} / {1}      {2}".format(i+1, len(com_points), reduced_q_point))
+                print ("\nQpoint: {0} / {1}      {2}".format(i+1, len(com_points), reduced_q_point))
                 self.set_reduced_q_vector(reduced_q_point)
                 positions, widths = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                     self.parameters.frequency_range,
@@ -531,9 +529,9 @@ class Calculation:
                 normalized_frequencies.append(positions)
 
             normalized_frequencies = np.array(normalized_frequencies)
-            self._renormalized_force_constants = pho_interface.calculate_renormalized_force_constants(normalized_frequencies,
-                                                                                                      dynmat2fc,
-                                                                                                      phonon)
+            self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(normalized_frequencies,
+                                                                                                dynmat2fc,
+                                                                                                phonon)
             self.set_reduced_q_vector(initial_reduced_q_point)
 
         return self._renormalized_force_constants
