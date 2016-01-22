@@ -165,9 +165,11 @@ def autocorrelation(x):
     return result
 
 
-def fft_power(freq, data, time_step):
+def fft_power(freq, data, time_step, zero_padding=0):
 
     data = autocorrelation(data)*time_step
+
+    data = np.lib.pad(data,(0, zero_padding), 'constant', constant_values=(0, 0))
 
     ps = np.abs(np.fft.fft(data))*time_step
 
@@ -179,12 +181,16 @@ def fft_power(freq, data, time_step):
 def get_fft_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
+    if parameters.zero_padding:
+        print('Padding with {0} zeros'.format(parameters.zero_padding))
+
     psd_vector = []
     progress_bar(0, "FFT")
     for i in range(vq.shape[1]):
-        psd_vector.append(fft_power(test_frequency_range,
-                              vq[:, i],
-                              trajectory.get_time_step_average()))
+        psd_vector.append(fft_power(test_frequency_range,vq[:, i],
+                                    trajectory.get_time_step_average(),
+                                    zero_padding=parameters.zero_padding),
+                          )
 
         progress_bar(float(i+1)/vq.shape[1], "FFT")
 

@@ -22,8 +22,10 @@ class Parameters:
                  # Power spectra
                     # 0: Correlation functions parallel (OpenMP) [Recommended]
                     # 1: Maximum Entropy Method parallel (OpenMP) [Recommended]
+                    # 2: FFT via numpy (FFTW)
                  power_spectra_algorithm=1,
                  use_asymmetric_peaks=False,
+                 zero_padding=0,
                  frequency_range=np.linspace(0, 40, 500),
 
                  # Phonon dispersion diagram
@@ -41,14 +43,14 @@ class Parameters:
         self._correlation_function_step = correlation_function_step
         self._integration_method = integration_method
         self._power_spectra_algorithm = power_spectra_algorithm
+        self._use_asymmetric_peaks = use_asymmetric_peaks
+        self._zero_padding = zero_padding
         self._frequency_range = frequency_range
         self._reduced_q_vector = reduced_q_vector
         self._use_NAC = use_NAC
         self._band_ranges = band_ranges
         self._number_of_bins_histogram = number_of_bins_histogram
         self._modes_vectors_scale = modes_vectors_scale
-        self._use_asymmetric_peaks = use_asymmetric_peaks
-
 
     #Properties
     @property
@@ -154,3 +156,11 @@ class Parameters:
     @use_asymmetric_peaks.setter
     def use_asymmetric_peaks(self, use_asymmetric_peaks):
         self._use_asymmetric_peaks = use_asymmetric_peaks
+
+    @property
+    def zero_padding(self):
+        return self._zero_padding
+
+    @zero_padding.setter
+    def zero_padding(self, zero_padding):
+        self._zero_padding = zero_padding

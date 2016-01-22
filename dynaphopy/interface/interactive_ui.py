@@ -222,7 +222,11 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                               str(calculation.parameters.modes_vectors_scale))
                 screen.addstr(9, 4, "6 - Use asymmetric lorentzian: " +
                             str(calculation.parameters.use_asymmetric_peaks))
-                screen.addstr(11, 4, "0 - Return")
+                screen.addstr(10, 4, "7 - Zero padding (FFT only): " +
+                            str(calculation.parameters.zero_padding))
+
+
+                screen.addstr(12, 4, "0 - Return")
                 screen.refresh()
 
                 x2 = screen.getch()
@@ -312,6 +316,11 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                         x3 = screen.getch()
                         calculation.parameters.use_asymmetric_peaks=bool(int(chr(int(x3)))-2)
 
+                    curses.endwin()
+
+                if x2 == ord('7'):
+                    calculation.parameters.zero_padding = int(get_param(screen, "Insert number of zeros"))
+                    calculation.power_spectra_clear()
                     curses.endwin()
 
 
