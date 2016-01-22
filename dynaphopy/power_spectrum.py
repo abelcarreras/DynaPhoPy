@@ -171,7 +171,7 @@ def fft_power(frequency_range, data, time_step, zero_padding=0):
 
     data = np.lib.pad(data, (0, zero_padding), 'constant', constant_values=(0, 0))
 
-    ps = np.abs(np.fft.fft(data))*time_step/np.pi.real
+    ps = np.abs(np.fft.fft(data))*time_step/np.sqrt(2*np.pi.real)
 
     freqs = np.fft.fftfreq(data.size, time_step)
     idx = np.argsort(freqs)
