@@ -161,17 +161,17 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
 # Under testing FFT (CAUTION)
 
 def autocorrelation(x):
-    result = np.correlate(x, x, mode='same')/np.sqrt(x.size)
+    result = np.correlate(x, x, mode='same')/x.size
     return result
 
 
 def fft_power(frequency_range, data, time_step, zero_padding=0):
 
-    data = autocorrelation(data)*time_step
+    data = autocorrelation(data)
 
     data = np.lib.pad(data, (0, zero_padding), 'constant', constant_values=(0, 0))
 
-    ps = np.abs(np.fft.fft(data))*time_step/np.sqrt(2*np.pi.real)
+    ps = np.abs(np.fft.fft(data))*time_step/2.0
 
     freqs = np.fft.fftfreq(data.size, time_step)
     idx = np.argsort(freqs)
