@@ -3,8 +3,10 @@ from phonopy.api_phonopy import Phonopy
 from phonopy.structure.atoms import Atoms as PhonopyAtoms
 from phonopy.file_IO import parse_BORN, parse_FORCE_SETS, write_FORCE_CONSTANTS
 from phonopy.harmonic.dynmat_to_fc import DynmatToForceConstants
+from phonopy.harmonic.force_constants import set_tensor_symmetry_PJ
 from phonopy.units import VaspToTHz
 from phonopy.phonon.degeneracy import degenerate_sets
+
 
 def eigenvectors_normalization(eigenvector):
     for i in range(eigenvector.shape[0]):
@@ -154,6 +156,13 @@ def get_renormalized_force_constants(normalized_frequencies, dynmat2fc, phonon, 
     dynmat2fc.run()
 
     force_constants = dynmat2fc.get_force_constants()
+
+
+    set_tensor_symmetry_PJ(force_constants,
+                           phonon.supercell.get_cell().T,
+                           phonon.supercell.get_scaled_positions(),
+                           phonon.symmetry)
+
 
     return force_constants
 
