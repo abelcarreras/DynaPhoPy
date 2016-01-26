@@ -12,9 +12,10 @@ import dynaphopy.analysis.modes as modes
 import dynaphopy.analysis.coordinates as trajdist
 
 power_spectrum_functions = {
-    0: power_spectrum.get_fourier_spectra_par_openmp,
-    1: power_spectrum.get_mem_spectra_par_openmp,
-    2: power_spectrum.get_fft_spectra
+    0: [power_spectrum.get_fourier_spectra_par_openmp, 'Fourier transform'],
+    1: [power_spectrum.get_mem_spectra_par_openmp,     'Maximum entropy method'],
+    2: [power_spectrum.get_fft_spectra,                'Fast Fourier transform (Numpy)'],
+    3: [power_spectrum.get_fft_fftw_spectra,           'Fast Fourier transform (FFTW)']
 }
 
 class Calculation:
@@ -297,18 +298,18 @@ class Calculation:
             if algorithm != self.parameters.power_spectra_algorithm:
                 self.power_spectra_clear()
                 self.parameters.power_spectra_algorithm = algorithm
-            print("Using {0} function".format(power_spectrum_functions[algorithm]))
+            print("Using {0} function".format(power_spectrum_functions[algorithm][1]))
         else:
-            print("Algorithm function number not found!\nPlease select:")
+            print("Power spectrum algorithm number not found!\nPlease select:")
             for i in power_spectrum_functions.keys():
-                print(i,power_spectrum_functions[i])
+                print('{0} : {1}'.format(i,power_spectrum_functions[i][1]))
             exit()
 
     def get_power_spectrum_phonon(self):
         if self._power_spectrum_phonon is None:
             print("Calculating phonon projection power spectra")
             self._power_spectrum_phonon = (
-                power_spectrum_functions[self.parameters.power_spectra_algorithm])(self.get_vq(),
+                power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
                                                                                    self.dynamic,
                                                                                    self.parameters)
 
@@ -319,7 +320,7 @@ class Calculation:
             print("Calculating wave vector projection power spectrum")
             size = self.get_vc().shape[1]*self.get_vc().shape[2]
             self._power_spectrum_wave_vector = (
-                    power_spectrum_functions[self.parameters.power_spectra_algorithm])(self.get_vc().swapaxes(1, 2).reshape(-1, size),
+                    power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vc().swapaxes(1, 2).reshape(-1, size),
                                                                                        self.dynamic,
                                                                                        self.parameters)
 
@@ -330,7 +331,7 @@ class Calculation:
             print("Calculation full power spectrum")
             size = self.dynamic.get_velocity_mass_average().shape[1]*self.dynamic.get_velocity_mass_average().shape[2]
 
-            self._power_spectrum_direct = (power_spectrum_functions[self.parameters.power_spectra_algorithm])(
+            self._power_spectrum_direct = (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
                 self.dynamic.get_velocity_mass_average().swapaxes(1, 2).reshape(-1, size),
                 self.dynamic,
                 self.parameters)

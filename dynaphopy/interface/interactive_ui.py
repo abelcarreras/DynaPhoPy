@@ -241,9 +241,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                         screen.addstr(2, 2, "Algorithms...")
                         for i, algorithm in enumerate(calculation.get_algorithm_list()):
                             if i == calculation.parameters.power_spectra_algorithm:
-                                screen.addstr(4+i, 3, ">"+str(i) +" : "+ str(algorithm))
+                                screen.addstr(4+i, 3, ">"+str(i) +" : "+ str(algorithm[1]))
                             else:
-                                screen.addstr(4+i, 4, str(i) +" : "+ str(algorithm))
+                                screen.addstr(4+i, 4, str(i) +" : "+ str(algorithm[1]))
 
                         screen.refresh()
                         try:

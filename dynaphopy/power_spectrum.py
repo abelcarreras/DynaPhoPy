@@ -3,7 +3,6 @@ import sys
 
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from scipy.interpolate import interp1d
 from dynaphopy.mem import mem
 import dynaphopy.correlation as correlation
 
@@ -177,11 +176,14 @@ def fft_power(frequency_range, data, time_step, zero_padding=0):
     data = np.lib.pad(data, (0, zero_padding), 'constant', constant_values=(0, 0))
 
     ps = np.abs(np.fft.fft(data))*time_step/2.0
+#    ps = np.abs(pyfftw.interfaces.numpy_fft.fft(data, threads=multiprocessing.cpu_count()))*time_step/2.0
 
     freqs = np.fft.fftfreq(data.size, time_step)
     idx = np.argsort(freqs)
 
     return np.interp(frequency_range, freqs[idx], ps[idx])
+
+
 
 
 def get_fft_spectra(vq, trajectory, parameters):
@@ -199,6 +201,43 @@ def get_fft_spectra(vq, trajectory, parameters):
                           )
 
         progress_bar(float(i+1)/vq.shape[1], 'FFT')
+
+    psd_vector = np.array(psd_vector).T
+
+    return psd_vector * unit_conversion
+
+
+def fftw_power(frequency_range, data, time_step, zero_padding=0):
+    import pyfftw
+    from multiprocessing import cpu_count
+
+    data = autocorrelation(data)
+
+    data = np.lib.pad(data, (0, zero_padding), 'constant', constant_values=(0, 0))
+
+    ps = np.abs(pyfftw.interfaces.numpy_fft.fft(data, threads=cpu_count()))*time_step/2.0
+
+    freqs = np.fft.fftfreq(data.size, time_step)
+    idx = np.argsort(freqs)
+
+    return np.interp(frequency_range, freqs[idx], ps[idx])
+
+
+def get_fft_fftw_spectra(vq, trajectory, parameters):
+    test_frequency_range = np.array(parameters.frequency_range)
+
+    if parameters.zero_padding:
+        print('Padding with {0} zeros'.format(parameters.zero_padding))
+
+    psd_vector = []
+    progress_bar(0, 'FFTW')
+    for i in range(vq.shape[1]):
+        psd_vector.append(fftw_power(test_frequency_range,vq[:, i],
+                                     trajectory.get_time_step_average(),
+                                     zero_padding=parameters.zero_padding),
+                          )
+
+        progress_bar(float(i+1)/vq.shape[1], 'FFTW')
 
     psd_vector = np.array(psd_vector).T
 
