@@ -31,6 +31,9 @@ def progress_bar(progress, label):
     sys.stdout.flush()
 
 
+#####################################
+#   Fourier transform  method       #
+#####################################
 def get_fourier_spectra_par_openmp(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
@@ -49,7 +52,9 @@ def get_fourier_spectra_par_openmp(vq, trajectory, parameters):
 
     return psd_vector * unit_conversion
 
-
+#####################################
+#   Maximum entropy method method   #
+#####################################
 def get_mem_spectra_par_openmp(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
@@ -72,7 +77,7 @@ def get_mem_spectra_par_openmp(vq, trajectory, parameters):
 
     return psd_vector * unit_conversion
 
-
+# Coefficient analysis for MEM
 def mem_coefficient_scan_analysis(vq, trajectory, parameters):
 
     mem_full_dict = {}
@@ -162,12 +167,15 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         plt.show()
 
 
-# Under testing FFT (CAUTION)
+#####################################
+#   FFT method                      #
+#####################################
 
 def autocorrelation(x):
     result = np.correlate(x, x, mode='same')/x.size
     return result
 
+#   FFT Numpy
 
 def fft_power(frequency_range, data, time_step, zero_padding=0):
 
@@ -206,6 +214,7 @@ def get_fft_spectra(vq, trajectory, parameters):
 
     return psd_vector * unit_conversion
 
+#   FFTW
 
 def fftw_power(frequency_range, data, time_step, zero_padding=0):
     import pyfftw
