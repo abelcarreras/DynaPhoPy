@@ -18,15 +18,15 @@ def progress_bar(progress, label):
         progress = float(progress)
     if not isinstance(progress, float):
         progress = 0
-        status = "Progress error\r\n"
+        status = 'Progress error\r\n'
     if progress < 0:
         progress = 0
-        status = "Halt ...\r\n"
+        status = 'Halt ...\r\n'
     if progress >= 1:
         progress = 1
-        status = "Done...\r\n"
+        status = 'Done...\r\n'
     block = int(round(bar_length*progress))
-    text = "\r{0}: [{1}] {2:.2f}% {3}".format(label, "#"*block + "-"*(bar_length-block),
+    text = '\r{0}: [{1}] {2:.2f}% {3}'.format(label, '#'*block + '-'*(bar_length-block),
                                               progress*100, status)
     sys.stdout.write(text)
     sys.stdout.flush()
@@ -54,15 +54,20 @@ def get_fourier_spectra_par_openmp(vq, trajectory, parameters):
 def get_mem_spectra_par_openmp(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
+    # Check number of coefficients
+    if vq.shape[0] <= parameters.number_of_coefficients_mem+1:
+        print('Number of coefficients should be smaller than the number of time steps')
+        exit()
+
     psd_vector = []
-    progress_bar(0, "M. Entropy")
+    progress_bar(0, 'M. Entropy')
     for i in range(vq.shape[1]):
         psd_vector.append(mem(test_frequency_range,
                               vq[:, i],
                               trajectory.get_time_step_average(),
                               coefficients=parameters.number_of_coefficients_mem))
 
-        progress_bar(float(i+1)/vq.shape[1], "M. Entropy")
+        progress_bar(float(i+1)/vq.shape[1], 'M. Entropy')
 
     psd_vector = np.array(psd_vector).T
 
@@ -78,7 +83,7 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         fit_data = []
         scan_params = []
         power_spectra = []
-        progress_bar(0, "M.E. Method")
+        progress_bar(0, 'M.E. Method')
         for number_of_coefficients in parameters.mem_scan_range:
 
             power_spectrum = mem(test_frequency_range,
@@ -118,17 +123,17 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
 
     for i in range(vq.shape[1]):
 
-        print "Peak # {0}".format(i+1)
-        print("------------------------------------")
-        print "Estimated width(FWHM): {0} THz".format(mem_full_dict[i][1])
+        print ('Peak # {0}'.format(i+1))
+        print('------------------------------------')
+        print ('Estimated width(FWHM): {0} THz'.format(mem_full_dict[i][1]))
 
         fit_data = mem_full_dict[i][3]
         scan_params = mem_full_dict[i][4]
         best_index = mem_full_dict[i][2]
 
-        print "Position: {0} THz".format(scan_params[best_index][0])
-        print "Optimum coefficients num: {0}".format(fit_data[0][best_index])
-        print "Fitting Error: {0}".format(np.min(fit_data[2]))
+        print ('Position: {0} THz'.format(scan_params[best_index][0]))
+        print ('Optimum coefficients num: {0}'.format(fit_data[0][best_index]))
+        print ('Fitting Error: {0}'.format(np.min(fit_data[2])))
         print ("\n")
 
         plt.figure(i+1)
@@ -186,14 +191,14 @@ def get_fft_spectra(vq, trajectory, parameters):
         print('Padding with {0} zeros'.format(parameters.zero_padding))
 
     psd_vector = []
-    progress_bar(0, "FFT")
+    progress_bar(0, 'FFT')
     for i in range(vq.shape[1]):
         psd_vector.append(fft_power(test_frequency_range,vq[:, i],
                                     trajectory.get_time_step_average(),
                                     zero_padding=parameters.zero_padding),
                           )
 
-        progress_bar(float(i+1)/vq.shape[1], "FFT")
+        progress_bar(float(i+1)/vq.shape[1], 'FFT')
 
     psd_vector = np.array(psd_vector).T
 
