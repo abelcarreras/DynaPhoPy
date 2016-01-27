@@ -530,9 +530,9 @@ class Calculation:
 
                 renormalized_frequencies.append(positions)
 
-#            self.list_freq_and_qpoints(renormalized_frequencies, com_points)
-
             renormalized_frequencies = np.array(renormalized_frequencies)
+#            np.savetxt('test_freq', renormalized_frequencies)
+
             self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
                                                                                                 dynmat2fc,
                                                                                                 phonon,
@@ -547,8 +547,3 @@ class Calculation:
     def write_renormalized_constants(self, filename="FORCE_CONSTANTS"):
         force_constants = self.get_renormalized_constants()
         pho_interface.save_force_constants_to_file(force_constants, filename)
-
-    def list_freq_and_qpoints(self, frequencies, com_points):
-        print('Wave vectors          Frequencies\n--------------------')
-        for q_point, frequency in zip(com_points, frequencies):
-            print('{0} :'.format(q_point) + '{} '.format(frequency))
