@@ -15,23 +15,30 @@ class Parameters:
                  number_of_coefficients_mem=1000,
                  mem_scan_range=np.array(np.linspace(40, 2000, 100), dtype=int),
 
-                 # Correlation Method
+                 # Fourier transform Method
                  correlation_function_step=10,
                  integration_method = 1,  # 0: Trapezoid  1:Rectangles
+
+                 # Fast Fourier tranform Method
+                 zero_padding=0,
 
                  # Power spectra
                     # 0: Correlation functions parallel (OpenMP) [Recommended]
                     # 1: Maximum Entropy Method parallel (OpenMP) [Recommended]
-                    # 2: FFT via numpy (FFTW)
+                    # 2: FFT via numpy
+                    # 3: FFT via FFTW
                  power_spectra_algorithm=1,
                  use_asymmetric_peaks=False,
-                 zero_padding=0,
                  frequency_range=np.linspace(0, 40, 500),
 
                  # Phonon dispersion diagram
                  use_NAC = False,
                  band_ranges=([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]]),
                  number_of_bins_histogram = 30,
+
+                 # Force constants
+                 symmetrize = False,
+                 degenerate = True,
 
                  # Modes (eigenvectors) display
                  modes_vectors_scale=10
@@ -50,6 +57,10 @@ class Parameters:
         self._use_NAC = use_NAC
         self._band_ranges = band_ranges
         self._number_of_bins_histogram = number_of_bins_histogram
+
+        self._symmetrize = symmetrize
+        self._degenerate = degenerate
+
         self._modes_vectors_scale = modes_vectors_scale
 
     #Properties
@@ -164,3 +175,19 @@ class Parameters:
     @zero_padding.setter
     def zero_padding(self, zero_padding):
         self._zero_padding = zero_padding
+
+    @property
+    def degenerate(self):
+        return self._symmetrize
+
+    @degenerate.setter
+    def degenerate(self, degenerate):
+        self._degenerate = degenerate
+
+    @property
+    def symmetrize(self):
+        return self._symmetrize
+
+    @symmetrize.setter
+    def symmetrize(self, symmetrize):
+        self._symmetrize = symmetrize

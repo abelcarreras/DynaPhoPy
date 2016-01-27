@@ -99,6 +99,8 @@ parser.add_argument('--read_to', metavar='N', type=int, default=None,
 parser.add_argument('--zero_padding', metavar='N', type=int, default=0,
                     help='Number of padding zeros (default: 0) [FFT only]')
 
+parser.add_argument('--fcsymm', action='store_true',
+                    help='Symmetrize force constants')
 
 
 args = parser.parse_args()
@@ -148,6 +150,8 @@ if '_band_ranges' in input_parameters:
 calculation.parameters.silent = args.silent
 calculation.parameters.use_asymmetric_peaks = args.asymmetric_peaks
 calculation.parameters.zero_padding = args.zero_padding
+calculation.parameters.degenerate = args.fcsymm
+
 
 # Process properties arguments
 if args.q:

@@ -60,7 +60,7 @@ def get_phonon(structure, NAC=False):
     return phonon
 
 
-def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
+def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthonormal=False):
 
     force_atoms_file = structure.get_force_set()['natom']
     force_atoms_input = np.product(np.diagonal(structure.get_super_cell_phonon()))*structure.get_number_of_atoms()
@@ -77,7 +77,7 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
     print(eigenvectors)
 
     #Making sure eigenvectors are orthonormal (can be omitted)
-    if True:
+    if test_orthonormal:
         eigenvectors = eigenvectors_normalization(eigenvectors)
         print('Testing eigenvectors orthonormality')
         np.set_printoptions(precision=3,suppress=True)
@@ -148,7 +148,7 @@ def get_commensurate_points_info(structure):
     return com_points, dynmat2fc, phonon
 
 
-def get_renormalized_force_constants(renormalized_frequencies, dynmat2fc, phonon, degenerate=False, symmetrize=True):
+def get_renormalized_force_constants(renormalized_frequencies, dynmat2fc, phonon, degenerate=True, symmetrize=True):
 
     frequencies, eigenvectors = phonon.get_qpoints_phonon()
 

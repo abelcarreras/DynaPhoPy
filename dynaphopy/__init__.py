@@ -535,7 +535,9 @@ class Calculation:
             renormalized_frequencies = np.array(renormalized_frequencies)
             self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
                                                                                                 dynmat2fc,
-                                                                                                phonon)
+                                                                                                phonon,
+                                                                                                symmetrize=self.parameters.symmetrize,
+                                                                                                degenerate=self.parameters.degenerate)
             self.set_reduced_q_vector(initial_reduced_q_point)
 
 
