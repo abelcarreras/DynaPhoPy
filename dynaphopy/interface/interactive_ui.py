@@ -315,6 +315,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                         screen.refresh()
                         x3 = screen.getch()
                         calculation.parameters.use_asymmetric_peaks=bool(int(chr(int(x3)))-2)
+                        calculation.power_spectra_clear()
 
                     curses.endwin()
 

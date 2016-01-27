@@ -200,6 +200,7 @@ class Calculation:
         plt.ylabel('Frequency [THz]')
         plt.xlabel('Wave vector')
         plt.xlim([0, self._bands[1][-1][-1]])
+        plt.axhline(y=0, color='k', ls='dashed')
         plt.suptitle('Renormalized phonon dispersion')
         handles, labels = plt.gca().get_legend_handles_labels()
         plt.legend([handles[0], handles[-1]], ['Harmonic','Renormalized'])
@@ -511,7 +512,7 @@ class Calculation:
 
             initial_reduced_q_point = self.get_reduced_q_vector()
 
-            normalized_frequencies = []
+            renormalized_frequencies = []
             for i, reduced_q_point in enumerate(com_points):
                 print ("\nQpoint: {0} / {1}      {2}".format(i+1, len(com_points), reduced_q_point))
                 self.set_reduced_q_vector(reduced_q_point)
@@ -527,16 +528,25 @@ class Calculation:
                     positions[1] = 0
                     positions[2] = 0
 
-                normalized_frequencies.append(positions)
+                renormalized_frequencies.append(positions)
 
-            normalized_frequencies = np.array(normalized_frequencies)
-            self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(normalized_frequencies,
+#            self.list_freq_and_qpoints(renormalized_frequencies, com_points)
+
+            renormalized_frequencies = np.array(renormalized_frequencies)
+            self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
                                                                                                 dynmat2fc,
                                                                                                 phonon)
             self.set_reduced_q_vector(initial_reduced_q_point)
+
+
 
         return self._renormalized_force_constants
 
     def write_renormalized_constants(self, filename="FORCE_CONSTANTS"):
         force_constants = self.get_renormalized_constants()
         pho_interface.save_force_constants_to_file(force_constants, filename)
+
+    def list_freq_and_qpoints(self, frequencies, com_points):
+        print('Wave vectors          Frequencies\n--------------------')
+        for q_point, frequency in zip(com_points, frequencies):
+            print('{0} :'.format(q_point) + '{} '.format(frequency))

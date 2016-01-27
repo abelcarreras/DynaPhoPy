@@ -13,10 +13,12 @@ def eigenvectors_normalization(eigenvector):
         eigenvector[i, :] = eigenvector[i, :]/np.linalg.norm(eigenvector[i, :])
     return eigenvector
 
+
 def get_force_sets_from_file(file_name='FORCE_SETS'):
     #Just a wrapper to phonopy function
     force_sets = parse_FORCE_SETS(filename=file_name)
     return force_sets
+
 
 def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
     #Just a wrapper to phonopy function
@@ -58,7 +60,6 @@ def get_phonon(structure, NAC=False):
     return phonon
 
 
-
 def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
 
     force_atoms_file = structure.get_force_set()['natom']
@@ -98,6 +99,7 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False):
 
     return arranged_ev, frequencies
 
+
 def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_resolution=30):
 
     print('Getting phonon dispersion bands')
@@ -112,6 +114,7 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_reso
     phonon.set_band_structure(bands)
 
     return phonon.get_band_structure()
+
 
 def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_constants, NAC=False, band_resolution=30):
 
@@ -130,7 +133,6 @@ def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_c
     return phonon.get_band_structure()
 
 
-
 def get_commensurate_points_info(structure):
 
     phonon = get_phonon(structure)
@@ -145,40 +147,44 @@ def get_commensurate_points_info(structure):
 
     return com_points, dynmat2fc, phonon
 
-def get_renormalized_force_constants(normalized_frequencies, dynmat2fc, phonon, degenerate=True):
+
+def get_renormalized_force_constants(renormalized_frequencies, dynmat2fc, phonon, degenerate=False, symmetrize=True):
 
     frequencies, eigenvectors = phonon.get_qpoints_phonon()
 
+    # Average degenerated phonons
     if degenerate:
-        normalized_frequencies = get_degenerated_frequencies(frequencies, normalized_frequencies)
+        renormalized_frequencies = get_degenerated_frequencies(frequencies, renormalized_frequencies)
 
-    dynmat2fc.set_dynamical_matrices(normalized_frequencies / VaspToTHz, eigenvectors)
+    dynmat2fc.set_dynamical_matrices(renormalized_frequencies / VaspToTHz, eigenvectors)
     dynmat2fc.run()
 
     force_constants = dynmat2fc.get_force_constants()
 
-
-    set_tensor_symmetry_PJ(force_constants,
-                           phonon.supercell.get_cell().T,
-                           phonon.supercell.get_scaled_positions(),
-                           phonon.symmetry)
-
+    # Symmetrize force constants using crystal symmetry
+    if symmetrize:
+        set_tensor_symmetry_PJ(force_constants,
+                               phonon.supercell.get_cell().T,
+                               phonon.supercell.get_scaled_positions(),
+                               phonon.symmetry)
 
     return force_constants
 
-def get_degenerated_frequencies(frequencies, normalized_frequencies):
+
+def get_degenerated_frequencies(frequencies, renormalized_frequencies):
 
     num_phonons = frequencies.shape[1]
-    normalized_frequencies_degenerated = np.zeros_like(normalized_frequencies)
+    renormalized_frequencies_degenerated = np.zeros_like(renormalized_frequencies)
 
     for i, q_frequencies in enumerate(frequencies):
         degenerate_index = degenerate_sets(q_frequencies)
         weight_matrix = get_weights_from_index_list(num_phonons, degenerate_index)
 
         for j, weight in enumerate(weight_matrix):
-            normalized_frequencies_degenerated[i, j]= np.average(normalized_frequencies[i, :], weights=weight)
+            renormalized_frequencies_degenerated[i, j]= np.average(renormalized_frequencies[i, :], weights=weight)
 
-    return normalized_frequencies_degenerated
+    return renormalized_frequencies_degenerated
+
 
 def get_weights_from_index_list(size, index_list):
 
