@@ -131,6 +131,22 @@ def get_commensurate_points_info(structure):
 
     return com_points
 
+def get_equivalent_qpoints_by_symmetry(q_point, structure):
+
+    from phonopy.structure.symmetry import Symmetry
+    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
+                        scaled_positions=structure.get_scaled_positions(),
+                        cell=structure.get_cell().T)
+
+    tot_points = []
+    for operation_matrix in Symmetry(bulk).get_reciprocal_operations():
+        q_point_conventional = np.dot(q_point, np.linalg.inv(structure.get_primitive_matrix().T))
+        q_point_test = np.dot(q_point_conventional, operation_matrix)
+        q_point_test = np.dot(q_point_test, structure.get_primitive_matrix())
+        if (q_point_test >= 0).all():
+            tot_points.append(q_point_test)
+
+    return np.vstack({tuple(row) for row in tot_points})
 
 def get_renormalized_force_constants(renormalized_frequencies, com_points, structure, degenerate=True, symmetrize=True):
 
