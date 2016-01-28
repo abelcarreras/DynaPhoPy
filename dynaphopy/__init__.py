@@ -508,7 +508,7 @@ class Calculation:
     def get_renormalized_constants(self):
 
         if self._renormalized_force_constants is None:
-            com_points, dynmat2fc, phonon = pho_interface.get_commensurate_points_info(self.dynamic.structure)
+            com_points = pho_interface.get_commensurate_points_info(self.dynamic.structure)
 
             initial_reduced_q_point = self.get_reduced_q_vector()
 
@@ -533,14 +533,13 @@ class Calculation:
             renormalized_frequencies = np.array(renormalized_frequencies)
 #            np.savetxt('test_freq', renormalized_frequencies)
 
+
             self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
-                                                                                                dynmat2fc,
-                                                                                                phonon,
+                                                                                                com_points,
+                                                                                                self.dynamic.structure,
                                                                                                 symmetrize=self.parameters.symmetrize,
                                                                                                 degenerate=self.parameters.degenerate)
             self.set_reduced_q_vector(initial_reduced_q_point)
-
-
 
         return self._renormalized_force_constants
 

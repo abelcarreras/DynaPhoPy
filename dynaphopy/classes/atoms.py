@@ -184,6 +184,14 @@ class Structure:
         if self._force_set is None:
             print('No force sets specified!')
             exit()
+
+        force_atoms_file = self._force_set['natom']
+        force_atoms_input = np.product(np.diagonal(self.get_super_cell_phonon()))*self.get_number_of_atoms()
+
+        if force_atoms_file != force_atoms_input:
+            print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
+            exit()
+
         return self._force_set
 
 

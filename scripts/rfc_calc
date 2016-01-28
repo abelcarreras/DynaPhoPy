@@ -44,35 +44,31 @@ else:
     structure.get_data_from_dict(input_parameters)
 
 
-def get_renormalized_constants(filename, structure, symmetrize=True, degenerate=True):
+def get_renormalized_constants(freq_filename, structure, symmetrize=True, degenerate=True):
 
     structure.set_force_set(pho_interface.get_force_sets_from_file(file_name=input_parameters['force_constants_file_name']))
 
-    com_points, dynmat2fc, phonon = pho_interface.get_commensurate_points_info(structure)
+    com_points = pho_interface.get_commensurate_points_info(structure)
 
-    renormalized_frequencies = np.loadtxt(filename)
+    renormalized_frequencies = np.loadtxt(freq_filename)
     renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
-                                                                                        dynmat2fc,
-                                                                                        phonon,
-                                                                                        symmetrize=symmetrize,
-                                                                                        degenerate=degenerate)
-
+                                                                                  com_points,
+                                                                                  structure,
+                                                                                  symmetrize=symmetrize,
+                                                                                  degenerate=degenerate)
 
     return  renormalized_force_constants
 
 
-
 def plot_renormalized_phonon_bands(structure, renormalized_force_constants):
     bands = pho_interface.obtain_phonon_dispersion_bands(structure,
-                                                               input_parameters['_band_ranges'],
-                                                               NAC=False)
-
+                                                         input_parameters['_band_ranges'],
+                                                         NAC=False)
 
     renormalized_bands = pho_interface.obtain_renormalized_phonon_dispersion_bands(structure,
                                                                                   input_parameters['_band_ranges'],
                                                                                   renormalized_force_constants,
                                                                                   NAC=False)
-
 
     for i,freq in enumerate(renormalized_bands[1]):
         plt.plot(bands[1][i],bands[2][i],color ='b', label='Harmonic (0K)')
@@ -89,24 +85,8 @@ def plot_renormalized_phonon_bands(structure, renormalized_force_constants):
     plt.show()
 
 
-
-
 if args.cp:
-
-        #Preparing the bulk type object
-    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
-                        scaled_positions=structure.get_scaled_positions(),
-                        cell=structure.get_cell().T)
-
-    phonon = Phonopy(bulk, structure.get_super_cell_phonon(),
-                     primitive_matrix=structure.get_primitive_matrix(),
-                     is_auto_displacements=False)
-
-
-    dynmat2fc = DynmatToForceConstants(phonon.get_primitive(), phonon.get_supercell())
-    com_points = dynmat2fc.get_commensurate_points()
-
-
+    com_points = pho_interface.get_commensurate_points_info(structure)
     print(com_points)
 
 else:
