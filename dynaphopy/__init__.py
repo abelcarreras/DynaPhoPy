@@ -236,14 +236,17 @@ class Calculation:
         return commensurate
 
     #Projections related methods
-    def get_vc(self):
+    def get_vc(self, use_symmetry=False):
         if self._vc is None:
             print("Projecting into wave vector")
             #Check if commensurate point
             if not self.check_commensurate(self.get_reduced_q_vector()):
                 print("warning! Defined wave vector is not a commensurate q-point in this cell")
 
-            self._vc = projection.project_onto_wave_vector(self.dynamic,self.get_q_vector())
+            if use_symmetry:
+                q_point = pho_interface.get_equivalent_qpoints_by_symmetry(self.get_q_vector(),self.dynamic.structure)
+            else:
+                self._vc = projection.project_onto_wave_vector(self.dynamic, self.get_q_vector())
         return self._vc
 
     def get_vq(self):
