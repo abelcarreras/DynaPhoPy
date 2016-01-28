@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 from matplotlib.patches import FancyArrowPatch
+from matplotlib import lines
 from mpl_toolkits.mplot3d import proj3d
 import numpy as np
 
@@ -45,12 +46,11 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
         ax = fig.add_subplot(111, projection='3d')
 
         color_atom=['g','b','m','c','y','k','w']
-        #Atom positions
+        # Atom positions
         for i,atom in enumerate(positions):
             ax.plot(atom[0][None], atom[1][None], atom[2][None], 'o', markersize=atom_radius[elements[i]]*30, color=color_atom[atom_type[i]], alpha=0.8)
-     #   ax.plot(positions[:, 0], positions[:, 1], positions[:, 2], 'o', markersize=30, color='green', alpha=0.8)
 
-        #Cell frame
+        # Cell frame
         for i in range(3):
             cell_side = [(0, cell_t[i, 0]), (0, cell_t[i, 1]), (0, cell_t[i, 2])]
             ax.plot3D(*cell_side, color="b")
@@ -67,9 +67,7 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
 
                             ax.plot3D(*cell_side, color="b")
 
-
-        #Atom positions
-        u = []
+        # Atom positions
         for i, position in enumerate(positions):
             eigenvector_atom = np.array(eigenvectors[i_phonon, atom_type[i], :])
             phase = np.complex(0, 1) * np.dot(position, q_vector)
@@ -79,9 +77,13 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
                         [position[2], position[2]+vector[2]], mutation_scale=20, lw=3, arrowstyle="-|>", color="r")
             ax.add_artist(a)
 
-            u.append(vector)
+        # Legend
+        atom_type_index_unique = np.unique(atom_type, return_index=True)[1]
+        atomic_types_unique = [elements[i] for i in atom_type_index_unique]
 
-        u = np.array(u) * get_phase_factor(u, vectors_scale)
+        legend_atoms =  [ lines.Line2D([0],[0], linestyle="none", c=color_atom[i], marker='o') for i, element in enumerate(atomic_types_unique)]
+        ax.legend(legend_atoms, atomic_types_unique, numpoints = 1)
+
 
  #       ax.set_axis_off()
         ax.set_xlabel('X')
@@ -93,16 +95,6 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
     plt.show()
 
     return
-
-
-def get_phase_factor(modulation, argument):
-    u = np.ravel(modulation)
-    index_max_elem = np.argmax(abs(u))
-    max_elem = u[index_max_elem]
-    phase_for_zero = max_elem / abs(max_elem)
-    phase_factor = np.exp(1j * np.pi * argument / 180) / phase_for_zero
-
-    return phase_factor
 
 
 atom_radius = {
