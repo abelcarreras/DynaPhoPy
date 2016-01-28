@@ -155,6 +155,7 @@ def get_renormalized_force_constants(renormalized_frequencies, com_points, struc
 
     # Symmetrize force constants using crystal symmetry
     if symmetrize:
+        print('Symmetrizing force constants')
         set_tensor_symmetry_PJ(force_constants,
                                phonon.supercell.get_cell().T,
                                phonon.supercell.get_scaled_positions(),
