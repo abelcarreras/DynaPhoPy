@@ -15,11 +15,21 @@ parser = argparse.ArgumentParser(description='rfc_calc options')
 parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
                     help='input file containing structure related data')
 
-parser.add_argument('frequency_file', metavar='data_file', type=str, nargs=1,
+#parser.add_argument('-cp', action='store_true',
+#                   help='Get commensurate points')
+
+
+#parser.add_argument('frequency_file', metavar='data_file', type=str, nargs=1,
+#                    help='input file containing renormalized phonon frequencies')
+
+
+group = parser.add_mutually_exclusive_group (required=True)
+group.add_argument('-cp', action='store_true',
+                   help='Get commensurate points')
+group.add_argument('frequency_file', metavar='data_file', type=str, nargs='?',
                     help='input file containing renormalized phonon frequencies')
 
-parser.add_argument('-cp', action='store_true',
-                   help='Get commensurate points')
+
 
 parser.add_argument('-p', action='store_true',
                    help='plot bands')
@@ -88,11 +98,11 @@ def plot_renormalized_phonon_bands(structure, renormalized_force_constants):
 if args.cp:
     com_points = pho_interface.get_commensurate_points_info(structure)
     print(com_points)
+    exit()
 
-else:
-    renormalized_force_constants = get_renormalized_constants(args.frequency_file[0], structure, symmetrize=args.fcsymm)
+renormalized_force_constants = get_renormalized_constants(args.frequency_file, structure, symmetrize=args.fcsymm)
 
-    if args.s:
-        dynaphopy.pho_interface.write_FORCE_CONSTANTS(renormalized_force_constants,filename=args.s[0])
-    if args.p:
-        plot_renormalized_phonon_bands(structure, renormalized_force_constants)
+if args.s:
+    dynaphopy.pho_interface.write_FORCE_CONSTANTS(renormalized_force_constants,filename=args.s[0])
+if args.p:
+    plot_renormalized_phonon_bands(structure, renormalized_force_constants)
