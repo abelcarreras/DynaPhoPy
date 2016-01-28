@@ -235,6 +235,13 @@ class Calculation:
 
         return commensurate
 
+
+    def average_vc(self, structure):
+        q_point, operation = pho_interface.get_equivalent_qpoints_by_symmetry(self.get_q_vector(),self.dynamic.structure)
+
+        return vc
+
+
     #Projections related methods
     def get_vc(self, use_symmetry=False):
         if self._vc is None:
@@ -244,7 +251,9 @@ class Calculation:
                 print("warning! Defined wave vector is not a commensurate q-point in this cell")
 
             if use_symmetry:
+                self._vc = self.average_vc(self.dynamic.structure)
                 q_point = pho_interface.get_equivalent_qpoints_by_symmetry(self.get_q_vector(),self.dynamic.structure)
+
             else:
                 self._vc = projection.project_onto_wave_vector(self.dynamic, self.get_q_vector())
         return self._vc
