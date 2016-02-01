@@ -236,14 +236,33 @@ class Calculation:
         return commensurate
 
 
-    def average_vc(self, structure):
-        q_point, operation = pho_interface.get_equivalent_qpoints_by_symmetry(self.get_q_vector(),self.dynamic.structure)
+    def average_vc(self):
 
-        return vc
+        q_points = pho_interface.get_equivalent_qpoints_and_operations(self.get_reduced_q_vector(), self.dynamic.structure)
+
+        print(q_points)
+        exit()
+        vc_tot = []
+        for q_point_group in q_points:
+            q_point = np.dot(q_point_group[0], 2.0*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
+
+            operation = q_point_group[1]
+
+            print(q_point)
+            print(operation)
+            vc = projection.project_onto_wave_vector(self.dynamic, q_point)
+            number_of_cell_atoms = vc.shape[1]
+            for i in range(number_of_cell_atoms):
+                vc[:,i,:] = np.dot(vc[:,i,:], np.linalg.inv(operation))
+            vc_tot.append(vc)
+
+        return np.average(np.array(vc_tot), axis=0)
+
+
 
 
     #Projections related methods
-    def get_vc(self, use_symmetry=False):
+    def get_vc(self, use_symmetry=True):
         if self._vc is None:
             print("Projecting into wave vector")
             #Check if commensurate point
@@ -251,9 +270,7 @@ class Calculation:
                 print("warning! Defined wave vector is not a commensurate q-point in this cell")
 
             if use_symmetry:
-                self._vc = self.average_vc(self.dynamic.structure)
-                q_point = pho_interface.get_equivalent_qpoints_by_symmetry(self.get_q_vector(),self.dynamic.structure)
-
+                self._vc = self.average_vc()
             else:
                 self._vc = projection.project_onto_wave_vector(self.dynamic, self.get_q_vector())
         return self._vc
