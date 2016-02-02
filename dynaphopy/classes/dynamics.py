@@ -1,8 +1,8 @@
 import numpy as np
 from dynaphopy.classes import atoms
 # Can be changed for MacOSX compatibility
-from dynaphopy.derivative import derivative as derivative
-from dynaphopy.analysis.coordinates import relativize_trajectory_py as relativize_trajectory
+#from dynaphopy.derivative import derivative as derivative
+from dynaphopy.analysis.coordinates import relativize_trajectory as relativize_trajectory
 
 
 class Dynamics:

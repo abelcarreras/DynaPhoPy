@@ -1,6 +1,7 @@
 import numpy as np
 import sys
 import dynaphopy.displacements as disp
+from derivative import atomic_displacement
 
 def progress_bar(progress):
     bar_length = 30
@@ -30,22 +31,16 @@ def relativize_trajectory(dynamic):
     number_of_atoms = dynamic.trajectory.shape[1]
     super_cell = dynamic.get_super_cell_matrix()
     position = dynamic.structure.get_positions(super_cell=super_cell)
-    normalized_trajectory = np.zeros_like(dynamic.trajectory.real)
-    trajectory = dynamic.trajectory.real
+#    normalized_trajectory = np.zeros_like(dynamic.trajectory.real)
+    trajectory = dynamic.trajectory
 
-    progress_bar(0)
+    normalized_trajectory = np.empty_like(trajectory)
+#    progress_bar(0)
 
+    for i in range(number_of_atoms):
+        normalized_trajectory[:, i, :] = atomic_displacement(trajectory[:,i,:], position[i], cell)
 
-    for j in range(number_of_atoms):
-        for i in range(0, normalized_trajectory.shape[0]):
-
-            difference = normalized_trajectory[i, j, :] - position[j]
-
-            difference_matrix = np.around(np.dot(np.linalg.inv(cell), difference), decimals=0)
-            normalized_trajectory[i, j, :] -= np.dot(difference_matrix, cell) + position[j]
-
-        progress_bar(float(j+1)/number_of_atoms)
-
+   #     progress_bar(float(i+1)/number_of_atoms)
     return normalized_trajectory
 
 def relativize_trajectory_py(dynamic):
