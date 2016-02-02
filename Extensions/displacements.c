@@ -10,7 +10,6 @@
 //  Functions declaration
 //static double   **matrix_inverse_3x3    (double  **a);
 static double   **matrix_multiplication (double  **a, double  **b, int n, int l, int m);
-static void       matrix_multiplication2 (double  **a, double  **b, double  **c, int n, int l, int m);
 
 static int       TwotoOne              (int Row, int Column, int NumColumns);
 static double   **pymatrix_to_c_array_real   (PyArrayObject *array);
@@ -21,50 +20,51 @@ static double  **matrix_inverse ( double ** a ,int n);
 static double  Determinant(double  **a,int n);
 static double  ** CoFactor(double  **a,int n);
 
-static double *FiniteDifferenceCoefficients(int DerivativeOrder, int PrecisionOrder);
-static int Position(int i);
 
-//  Derivate calculation (centered differencing)
-static PyObject* relative_trajectory (PyObject* self, PyObject *arg) {
+static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *keywords) {
+
 
 //  Interface with python
     PyObject *Cell_obj, *Trajectory_obj, *Positions_obj;
 
-    if (!PyArg_ParseTuple(arg, "OOO", &Cell_obj, &Trajectory_obj, &Positions_obj))  return NULL;
 
+    static char *kwlist[] = {"trajectory", "positions", "cell", NULL};
+    if (!PyArg_ParseTupleAndKeywords(arg, keywords, "OOO", kwlist,  &Trajectory_obj, &Positions_obj, &Cell_obj))  return NULL;
+
+    PyObject *Trajectory_array = PyArray_FROM_OTF(Trajectory_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
+    PyObject *Positions_array = PyArray_FROM_OTF(Positions_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
     PyObject *Cell_array = PyArray_FROM_OTF(Cell_obj, NPY_DOUBLE, NPY_IN_ARRAY);
-    PyObject *Trajectory_array = PyArray_FROM_OTF(Trajectory_obj, NPY_DOUBLE, NPY_IN_ARRAY);
-    PyObject *Positions_array = PyArray_FROM_OTF(Positions_obj, NPY_DOUBLE, NPY_IN_ARRAY);
 
-    if (Cell_array == NULL || Trajectory_array == NULL || Positions_array == NULL) {
+    if (Cell_array == NULL || Trajectory_array == NULL) {
          Py_XDECREF(Cell_array);
          Py_XDECREF(Trajectory_array);
          Py_XDECREF(Positions_array);
          return NULL;
     }
 
-//    double _Complex *Cell           = (double _Complex*)PyArray_DATA(Cell_array);
-    double  *Positions     = (double *)PyArray_DATA(Positions_array);
-    double  *Trajectory    = (double *)PyArray_DATA(Trajectory_array);
-    int NumberOfData       = (int)PyArray_DIM(Trajectory_array, 0);
-    int NumberOfDimensions = (int)PyArray_DIM(Trajectory_array, 1);
 
+//    double _Complex *Cell           = (double _Complex*)PyArray_DATA(Cell_array);
+    double _Complex *Trajectory     = (double _Complex*)PyArray_DATA(Trajectory_array);
+    double _Complex *Positions              = (double _Complex*)PyArray_DATA(Positions_array);
+
+    int NumberOfData       = (int)PyArray_DIM(Trajectory_array, 0);
+    int NumberOfDimensions = (int)PyArray_DIM(Cell_array, 0);
 
 //  Create new Numpy array to store the result
+    double _Complex **Displacement;
+    PyArrayObject *Displacement_object;
 
-    double **NormalizedTrajectory;
-    PyArrayObject *NormalizedTrajectory_object;
+    int dims[2]={NumberOfData, NumberOfDimensions};
 
-    int dims[2]={NumberOfData,NumberOfDimensions};
+    Displacement_object=(PyArrayObject *) PyArray_FromDims(2,dims,NPY_CDOUBLE);
+    Displacement=pymatrix_to_c_array( Displacement_object);
 
-    NormalizedTrajectory_object=(PyArrayObject *) PyArray_FromDims(2,dims,NPY_DOUBLE);
-    NormalizedTrajectory=pymatrix_to_c_array_real( NormalizedTrajectory_object);
 
 //  Create a pointer array for cell matrix (to be improved)
     double  **Cell_c = pymatrix_to_c_array_real((PyArrayObject *) Cell_array);
 
-
 /*
+
 	printf("\nCell Matrix");
 	for(int i = 0 ;i < NumberOfDimensions ; i++){
 		printf("\n");
@@ -76,7 +76,7 @@ static PyObject* relative_trajectory (PyObject* self, PyObject *arg) {
 
 //	Matrix inversion
 //	double _Complex **Cell_i = matrix_inverse_3x3(Cell_c);
-	double  **Cell_i = matrix_inverse(Cell_c,NumberOfDimensions);
+	double  **Cell_i = matrix_inverse(Cell_c, NumberOfDimensions);
 
 /*
 	printf("\nMatrix Inverse");
@@ -84,36 +84,35 @@ static PyObject* relative_trajectory (PyObject* self, PyObject *arg) {
 		printf("\n");
 		for(int j = 0; j < NumberOfDimensions; j++) printf("%f\t",Cell_i[i][j]);
 	}
-    printf("\n\n");
+	printf("\n\n");
 */
 
-    double ** Difference          = malloc(sizeof(double *));
-    for (int k = 0; k < NumberOfDimensions; k++) Difference[k] = (double *) malloc(sizeof(double));
 
-    double ** DifferenceMatrix          = malloc(sizeof(double *));
-    for (int k = 0; k < NumberOfDimensions; k++) DifferenceMatrix[k] = (double *) malloc(sizeof(double));
+//	double _Complex* Difference        = malloc(NumberOfDimensions*sizeof(double _Complex));
+	double ** Difference          = malloc(sizeof(double *));
+	for (int k = 0; k < NumberOfDimensions; k++) Difference[k] = (double *) malloc(sizeof(double  ));
 
-    # pragma omp parallel for default(shared), firstprivate(Difference, DifferenceMatrix), schedule(dynamic, 20000)
-	for (int i=0; i<NumberOfData; i++) {
 
-     		for (int k = 0; k < NumberOfDimensions; k++) Difference[k][0] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - Positions[k];
 
-		    DifferenceMatrix = matrix_multiplication(Cell_i, Difference, NumberOfDimensions, NumberOfDimensions, 1);
+    for (int i = 0; i < NumberOfData; i++) {
+        for (int k = 0; k < NumberOfDimensions; k++) {
+            Difference[k][0] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - Positions[k];
+        }
 
-		    for (int k = 0; k < NumberOfDimensions; k++) DifferenceMatrix[k][0] = round(DifferenceMatrix[k][0]);
+        double ** Difference_matrix = matrix_multiplication(Cell_i, Difference, NumberOfDimensions, NumberOfDimensions, 1);
 
-		    double  ** NormalizedVector = matrix_multiplication(Cell_c, DifferenceMatrix, NumberOfDimensions, NumberOfDimensions, 1);
+        for (int k = 0; k < NumberOfDimensions; k++) {
+                Difference_matrix[k][0] = round(Difference_matrix[k][0]);
+        }
 
-            for (int k = 0; k < NumberOfDimensions; k++) NormalizedTrajectory[i][k] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - NormalizedVector[k][0] - Positions[k];
-
+        double ** A = matrix_multiplication(Cell_c, Difference_matrix, NumberOfDimensions, NumberOfDimensions, 1);
+        for (int k = 0; k < NumberOfDimensions; k++) {
+            Displacement[i][k] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - A[k][0] + Positions[k];
+        }
     }
 
-    free (Difference);
-    free (DifferenceMatrix);
-
 //  Returning python array
-    return(PyArray_Return(NormalizedTrajectory_object));
-
+    return(PyArray_Return(Displacement_object));
 };
 
 
@@ -272,77 +271,22 @@ static double  **matrix_multiplication ( double   **a, double   **b, int n, int 
 };
 
 
-// Alternative matrix multiplication function using preexisting allocated memory
-static void  matrix_multiplication2 (double  **a, double  **b, double  **c, int n, int l, int m){
-
-	for (int i = 0 ; i< n ;i++) {
-		for (int j  = 0; j<m ; j++) {
-			c[i][j] = 0;
-			for (int k = 0; k<l; k++) {
-				c[i][j] += a[i][k] * b[k][j];
-			}
-		}
-	}
-};
-
 
 static int TwotoOne(int Row, int Column, int NumColumns) {
 	return Row*NumColumns + Column;
 };
 
-static int Position(int i) {
-    return (i+1)/2*pow(-1,i+1);
-};
 
-
-static double *FiniteDifferenceCoefficients(int M, int N) {
-    double *df = malloc((N+1)*sizeof(double *));
-    double d[M+1][N+1][N+1];
-    double a[N+1];
-
-    double x0;
-    int c1, c2, c3;
-    int m,n,v, i;
-
-    for (i=0; i <= N ; i++) {
-        a[i] = Position(i);
-    }
-
-    x0 = 0;
-    d[0][0][0] = 1.0;
-    c1 = 1;
-    for ( n = 1; n<=N; n++) {
-        c2 = 1;
-        for ( v=0; v < n; v++){
-            c3 = a[n] - a[v];
-            c2 = c2 * c3;
-            if (n < M)  d[n][n-1][v]=0.0;
-            for ( m=0; m <= min(n,M); m++) {
-                d[m][n][v] = ((a[n]-x0)*d[m][n-1][v]-m*d[m-1][n-1][v])/c3;
-            }
-        }
-        for (m=0; m <= min(n,M); m++) {
-            d[m][n][v] = c1*(m*d[m-1][n-1][n-1]-(a[n-1]-x0)*d[m][n-1][n-1])/c2;
-        }
-        c1 = c2;
-    }
-
-    for (i=0; i<=N ; i++) {
-        df[i] = d[M][N][i];
-    }
-
-    return df;
-};
 
 //  --------------- Interface functions ---------------- //
 
 static char extension_docs[] =
-    "relative_trajectory(cell, trajectory, positions )\n";
+    "atomic_displacement(cell, trajectory, positions )\n";
 
 
 static PyMethodDef extension_funcs[] = {
-      {"relative_trajectory", (PyCFunction)relative_trajectory, METH_VARARGS, extension_docs},
-      {NULL}
+    {"atomic_displacement", (PyCFunction)atomic_displacement, METH_VARARGS|METH_KEYWORDS, extension_docs},
+    {NULL}
 };
 
 void initdisplacements(void)

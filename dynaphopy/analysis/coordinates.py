@@ -1,7 +1,6 @@
 import numpy as np
 import sys
-import dynaphopy.displacements as disp
-from derivative import atomic_displacement
+from dynaphopy.displacements import atomic_displacement
 
 def progress_bar(progress):
     bar_length = 30
