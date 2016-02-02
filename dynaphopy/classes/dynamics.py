@@ -5,15 +5,6 @@ from dynaphopy.derivative import derivative as derivative
 from dynaphopy.analysis.coordinates import relativize_trajectory_py as relativize_trajectory
 
 
-def obtain_velocity_from_positions(cell, trajectory, time):
-    velocity = np.empty_like(trajectory)
-    for i in range(trajectory.shape[1]):
-        velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time)
-     # velocity[:, i, :] = derivative(cell, trajectory[:, i, :], time, precision_order=6)
-
-    print('Velocity obtained from trajectory derivative')
-    return velocity
-
 class Dynamics:
 
     def __init__(self,
@@ -156,8 +147,10 @@ class Dynamics:
     def velocity(self):
         if self._velocity is None:
             print('No velocity provided! calculating it from coordinates...')
-            self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time_step_average())
- #           self._velocity = obtain_velocity_from_positions(self.get_super_cell(),self.trajectory,self.get_time())
+            self._velocity = np.zeros_like(self.get_relative_trajectory(), dtype=complex)
+            for i in range(self.get_number_of_atoms()):
+                for j in range(self.structure.get_number_of_dimensions()):
+                    self._velocity[:,i,j] = np.gradient(self.get_relative_trajectory()[:,i,j],self.get_time_step_average())
 
         return self._velocity
 

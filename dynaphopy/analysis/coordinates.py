@@ -37,19 +37,14 @@ def relativize_trajectory(dynamic):
 
 
     for j in range(number_of_atoms):
-
-    #    print(trajectory, position, cell)
-    #    print (disp.relative_trajectory(cell, trajectory[:,j,:], position[j]))
         for i in range(0, normalized_trajectory.shape[0]):
-            difference = trajectory[i, j, :] - position[j]
-            difference_matrix = np.dot(np.linalg.inv(cell), difference)
-#            print(difference_matrix)
 
-        normalized_trajectory[:, j, :] = disp.relative_trajectory(cell, trajectory[:, j, :], position[j])
+            difference = normalized_trajectory[i, j, :] - position[j]
+
+            difference_matrix = np.around(np.dot(np.linalg.inv(cell), difference), decimals=0)
+            normalized_trajectory[i, j, :] -= np.dot(difference_matrix, cell) + position[j]
 
         progress_bar(float(j+1)/number_of_atoms)
-
-  #  print(normalized_trajectory)
 
     return normalized_trajectory
 
@@ -70,12 +65,10 @@ def relativize_trajectory_py(dynamic):
 
          #   difference_matrix = np.array(np.dot(np.linalg.inv(cell),(IniSep)),dtype=int)
             difference_matrix = np.around(np.dot(np.linalg.inv(cell), difference), decimals=0)
-
             normalized_trajectory[i, j, :] -= np.dot(difference_matrix, cell) + position[j]
 
         progress_bar(float(j+1)/number_of_atoms)
 
-  #  print(normalized_trajectory)
     return normalized_trajectory
 
 def trajectory_projection(dynamic, direction):
