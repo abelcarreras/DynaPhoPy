@@ -37,7 +37,7 @@ def relativize_trajectory(dynamic):
 #    progress_bar(0)
 
     for i in range(number_of_atoms):
-        normalized_trajectory[:, i, :] = atomic_displacement(trajectory[:,i,:], position[i], cell)
+        normalized_trajectory[:, i, :] = atomic_displacement(trajectory[:, i, :], position[i], cell)
 
    #     progress_bar(float(i+1)/number_of_atoms)
     return normalized_trajectory
@@ -72,6 +72,8 @@ def trajectory_projection(dynamic, direction):
     super_cell = dynamic.get_super_cell_matrix()
     trajectory = dynamic.get_relative_trajectory()
 
+  #  print(trajectory)
+
     atom_type_index = dynamic.structure.get_atom_type_index(super_cell=super_cell)
     number_of_atom_types = dynamic.structure.get_number_of_atom_types()
 
@@ -82,7 +84,7 @@ def trajectory_projection(dynamic, direction):
         for i in range(0, trajectory.shape[1]):
             if atom_type_index[i] == j:
      #           print('atom:', i, 'type:', atom_type_index[i])
-                projection = np.append(projection, np.dot(trajectory[:, i, :], direction/np.linalg.norm(direction)))
+                projection = np.append(projection, np.dot(trajectory[:, i, :].real, direction/np.linalg.norm(direction)))
         projections.append(projection)
 
     return np.array(projections)

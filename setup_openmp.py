@@ -9,10 +9,6 @@ correlation = Extension('dynaphopy.correlation',
                         include_dirs = include_dirs_numpy,
                         sources=['Extensions/correlation.c'])
 
-derivative = Extension('dynaphopy.derivative',
-                       extra_compile_args=['-std=c99'],
-                       include_dirs = include_dirs_numpy,
-                       sources=['Extensions/derivative.c'])
 
 mem = Extension('dynaphopy.mem',
                 extra_compile_args=['-std=c99', '-fopenmp'],
@@ -37,7 +33,7 @@ setup(name='dynaphopy',
                 'dynaphopy.analysis',
                 'dynaphopy.interface'],
       scripts=['scripts/dynaphopy'],
-      ext_modules=[correlation, derivative, mem, displacements])
+      ext_modules=[correlation, mem, displacements])
 
 
 exit()

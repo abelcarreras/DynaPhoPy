@@ -107,7 +107,7 @@ static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *ke
 
         double ** A = matrix_multiplication(Cell_c, Difference_matrix, NumberOfDimensions, NumberOfDimensions, 1);
         for (int k = 0; k < NumberOfDimensions; k++) {
-            Displacement[i][k] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - A[k][0] + Positions[k];
+            Displacement[i][k] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - A[k][0] - Positions[k];
         }
     }
 
