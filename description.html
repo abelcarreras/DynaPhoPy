@@ -38,11 +38,11 @@ the harmonic phonon modes are defined.
 To calculate this power spectrum dynaphopy can use either <a href="http://mathworld.wolfram.com/FourierTransform.html">Fourier transform</a>, or <a href="http://cmm.cit.nih.gov/maxent/letsgo.html">Maximum Entropy Method</a>(MEM). Fourier transform is a robust method widely used in many fields 
 of physics to descompose signals into elemental frequencies without information loss. On the other hand, MEM is a very fast method that approximates the whole signal into a much simpler function made by the most representative frequencies. This way it allows to separate the noise from the important data showing smoother spectra that becomes easier to analize. For this reason MEM is highly recomended when working with very long MD and is the default option. 
 
-<br>Fourier transform algorith may be used in short MD simulations, or to corroborate the results obtained using MEM. Fourier transform is expected to work better when the number of samples is low, and it will yield better measures of the power spectrum area if the spectra is calculated with high resolution. 
+<br>Fourier transform algorith may be used to corroborate the results obtained using MEM. Fourier transform is expected to work better when the number of samples is low, and it will yield better measures of the power spectrum area if the spectra is calculated with high resolution. 
  
 <h3>Power spectra</h3>
 <p>The power spectrum calculated by Dynaphopy can be either displayed in a matplotlib X window or stored in a file. All power spectra calculated by DynaPhoPy are by default two sided. The selection of the algorithm used to calculate the power spectra is defined by <strong>-psm</strong> flag followed by algorithm number.
-<br>At the present time there are 2 algorithms available:</p>
+<br>At the present time there are 4 algorithms available:</p>
 <UL>
 <LI>0: Fourier transform algorithm (by integration).
 <LI>1: Maximum Entropy Method algorithm.
@@ -210,8 +210,28 @@ This is very convenient for visual analysis of short MD trajectories, but when t
 </p>
 <pre><code>$ dynaphopy input_file OUTCAR -pa --silent > output.log
 </code></pre>
-<p> 
+<p>
+Sometimes phonon modes present a power spectrum with very asymmetric peaks, specially for soft phonon modes. These peaks can be fitted better usign asymmetric lorentzian functions. The assymetric function used in DynaPhoPy is described in this article[1] and is defined by:
 
+<p style="text-align:center">
+$$ 
+L(\omega) = \frac{2 A/\pi \gamma(\omega)}{ 1+ 4 [(\omega - \omega_0)/\gamma(\omega)]^2} 
+$$
+</p>    
+    where <em>A</em> is the total peak area, &omega;<sub>0</sub> is the peak center and &gamma;(&omega;) the variable width defined as:
+<p style="text-align:center">
+$$ 
+\gamma(\omega) = \frac{2 \gamma_0}{1+e^{a(\omega - \omega_0)}} 
+$$
+</p>
+where <em> a </em> is the peak asymmetry. When <em> a = 0 </em> this function is equivalent to a Lorentzian function. 
+DynaPhoPy calculates the phonon frequency (&omega;max) at the maximum of this assymetric function which in general differe from &omega;<sub>0</sub>. Phonon linewidth is calculate as 2&gamma;(&omega;max).    
+
+<img src="images/asymmetric_peak.png" alt="Interactive" style="width:630px">    
+<p>
+To request assymetric lorentzian fitting use frag <strong>--asymmetric_peaks</strong>. This option can also be set in the interactive interface in preferences menu.
+</p>
+    <em>[1] Stancik A L and  Brauns E B. A simple asymmetric lineshape for fitting infrared absorption spectra. Vibrational Spectroscopy, 47(1), 66–69 (2008)</em>
 <h3>Atomic displacements calculation</h3>
 <p>
 DynaPhoPy allows to calculate the atomic displacements from the MD trajectory respect to a desired direction. 
