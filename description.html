@@ -44,8 +44,11 @@ of physics to descompose signals into elemental frequencies without information 
 <p>The power spectrum calculated by Dynaphopy can be either displayed in a matplotlib X window or stored in a file. All power spectra calculated by DynaPhoPy are by default two sided. The selection of the algorithm used to calculate the power spectra is defined by <strong>-psm</strong> flag followed by algorithm number.
 <br>At the present time there are 2 algorithms available:</p>
 <UL>
-<LI>0: Fourier transform algorithm.
+<LI>0: Fourier transform algorithm (by integration).
 <LI>1: Maximum Entropy Method algorithm.
+<LI>2: Fast Fourier transform (using numpy).
+<LI>3: Fast Fourier transform (using fftw).
+
 </UL>
 If not specified algorithm 1 is used.</em>
 
@@ -151,16 +154,17 @@ When the calculation is finished the individual information of each phonon (sort
 </p>
 <pre><code>Peak # 7
 ------------------------------------
-Width (FWHM):              7.23023622031 THz
-Position:                  14.5432491526 THz
-Area (1/2<K>) (Loretzian): 768.615859207 u * Angstrom^2 / ps^2
-Area (1/2<K>) (Total):     635.398869055 u * Angstrom^2 / ps^2
-<|dQ/dt|^2>:               3074.46343683 u * Angstrom^2 / ps^2
-Occupation number:         4.79786944186
-Fit temperature            3697.73074478 K
-Maximum height:            67.6763577864 u * Angstrom^2 * 2 pi / ps
-Frequency shift:           0.19964818724 THz
-Fit Error(RMSD)/Max.:      9.14172647357
+Width (FWHM):               0.989203711917 THz
+Position:                   21.9736957219 THz
+Area (1/2&lt;K&gt;) (Lorentzian): 0.0252305528197 eV
+Area (1/2&lt;K&gt;) (Total):      0.0256233166418 eV
+<|dQ/dt|^2>      :          0.100922211279 eV
+Occupation number:          0.61054975143
+Fit temperature             1171.15374682 K
+Base line                   0.000124398596919 ev * ps
+Maximum height:             0.102148087007 eV * ps
+Fit Error(RMSD)/ Max. :     0.033406091534
+Frequency shift:            -0.821624887263 THz
 </code></pre>
 <p>
 <br><strong>Width:</strong>	Phonon linewidth
@@ -170,7 +174,7 @@ Fit Error(RMSD)/Max.:      9.14172647357
 <p style="text-align:center">
 $$ \frac{1}4 N K_bT$$
 </p>
-However, due to the anharmonicity, the harmonic eigenvectors may not describe correctly the anharmonic phonons and this value may change. This value is calculated fromt he obtained power spectrum (tot) and from the interpolated Lorentzian curve (Lorenzian). As long as the phonon quasi particles approximation is correct, the area obtained from Loretzian curve should be more trustfull. Using MEM method, both areas tend to be equal. However, in the Fourier Transform method, due to the noise these values may differ. For this reason, visual analysis is strongly recommended to ensure a good fitting.
+However, due to the anharmonicity, the harmonic eigenvectors may not describe correctly the anharmonic phonons and this value may change. This value is calculated fromt he obtained power spectrum (total) and from the interpolated Lorentzian curve (Lorenzian). As long as the phonon quasi particles approximation is correct, the area obtained from Loretzian curve should be more trustfull. Using MEM method, both areas tend to be equal. However, in the Fourier Transform method, due to the noise these values may differ. For this reason, visual analysis is strongly recommended to ensure a good fitting.
 <br><strong><|dQ/dt|^2>:</strong> Time derivative of the phonon coordinate. Within the harmonic approximation, this value is equal to the double of the kinetic energy and equal to the total energy.</p>
 
 <p style="text-align:center">
@@ -196,7 +200,11 @@ $$
 This is another good method to know how good is the phonon decomposition technique approximation for the studied system. For MEM method it is expected to be very low (<1E-5). In the case of Fourier transform method can depend very much on the noise and the temperature so can only be used as relative reference between peaks. 
 <br><em>Using <strong>fitdata</strong> script, these noisy spectra can be smoothed and a similar low fitting error can be obtained (refere to Advanced features section).</em>
 
-<br><p>When the calculation is finished, for each peak a matplotlib X window apear in the screen showing the result of the fitting for visual analysis. This is very convenient for visual analysis of short MD trajectories, but when the calculations are long, specially using Fourier transform, and the calculations are done in cluster computers, xwindows cannot be displayed and the calculation may crash.
+<br><p>When the calculation is finished, for each peak a matplotlib X window apear in the screen showing the result of the fitting for visual inspection. 
+</p>    
+<img src="images/peak_analysis_7.png" alt="Interactive" style="width:630px">
+<p>
+This is very convenient for visual analysis of short MD trajectories, but when the calculations are long, specially using Fourier transform, and the calculations are done in cluster computers, xwindows cannot be displayed and the calculation may crash.
 
 <br><p>In this case flag <strong>--silent</strong> may be used. Using this flag only the text data is shown in the screen and the phonon information wich can be stored redirecting the output to a file.   
 </p>
@@ -250,6 +258,14 @@ These force constants are written in a FORCE_CONSTANTS file that can be used in 
 <pre><code>$ phonopy --readfc FORCE_CONSTANTS
 </code></pre>
 <p>
+ 
+To enforce space group symmetry to force constants use option <strong>--fcsymm</strong>. This option can only be set by command line. If you want to use this feature in interactive, load it in the execution command using <strong>--fcsymm</strong> flag. 
+
+<pre><code>$ phonopy --readfc FORCE_CONSTANTS --fcsymm
+</code></pre>
+
+<p>
+
 Using this new force constants it is possible to calculate all the properties available in phonopy using a set of renormalized forces obtained at finite temperature. One of the most intersting applications is the renormalization of imaginary frequencies in materials that are stable at high temperatures but inestable at 0 K. 
 </p>
 <img src="images/renormalized_phonon_dispersion.png" alt="Interactive" style="width:630px">

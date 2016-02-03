@@ -77,13 +77,13 @@ The order of the atoms within the cell has to be kept in both cells to work prop
 
 <UL><LI><h5>POSCAR and FORCE_SETS files location</h5>
 <p>Define the file name and path in which a POSCAR type file containing the crystal unit cell in <strong>fractional coordinates</strong> and FORCE_SETS containing atom forces files are stored. 
-If POSCAR file is not specified DynaPhoPy will use POSCAR file name stored in the working directory as default. If FORCES CONSTANTS is not specified DynaPhoPy will not read any FORCE_SETS file (features will be limited)</p>
+If POSCAR file is not specified DynaPhoPy will use POSCAR file name stored in the working directory as default. If FORCE_SETS is not specified DynaPhoPy will not read any FORCE_SETS file (features will be limited)</p>
 
 <pre><code>STRUCTURE FILE POSCAR
 /home/user/phonopy/calculation/POSCAR_unitcell
 </code></pre>
 <p></p>
-<pre><code>FORCE CONSTANTS
+<pre><code>FORCE SETS
 /home/user/phonopy/calculation/FORCE_SETS
 </code></pre>
 <p>Alternatively to POSCAR file, an OUTCAR file can be used to read the cell estructure<p>
@@ -136,10 +136,19 @@ $ dynaphopy input_file LAMMPS.lammpstrj -ts 0.002	(LAMMPS)
 <p>This command does essentially nothing, since no calculation has been requested. It just checks that all the necessary files exists and can be loaded correctly.
 <br>To request a calculation, additional flags have to be set. Using <strong>-h</strong> flag shows all available options.</p>
 </p><pre><code>$ dynaphopy -h
+usage: dynaphopy [-h] [-lv file] [-i] [-q N N N] [-r N N N] [-n N] [-ts step]
+                 [-pd] [-pw] [-pp] [-sd file] [-sw file] [-sp file] [-sv file]
+                 [-svc file] [-psm N] [-cf N] [-csa] [-pa] [-pad N N N]
+                 [-sad X X X X] [-sfc file] [--silent] [--velocity_only]
+                 [--asymmetric_peaks] [--read_from N] [--read_to N]
+                 [--zero_padding N] [--fcsymm]
+                 data_file [trajectory]
+
+DynaPhoPy options
+
 positional arguments:
   data_file             input file containing structure related data
-  TRAJECTORY            Output file containing MD trajectory
-
+  trajectory            Output file containing MD trajectory
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -153,8 +162,7 @@ optional arguments:
                         (min, max, number of points)
   -n N                  number of MD last steps to take (default: All)
   -ts step, --time_step step
-                        time step in ps (default: 0 [Read from trajectory
-                        file])
+                        time step in ps (default: Read from trajectory file)
   -pd, --plot_direct    plot full power spectrum
   -pw, --plot_wave_vector
                         plot projection into wave vector
@@ -172,28 +180,29 @@ optional arguments:
                         save wave vector projected velocity into hdf5 file
   -psm N, --power_spectrum_algorithm N
                         select power spectrum calculation algorithm (default
-                        4)
+                        MEM)
   -cf N, --number_of_mem_coefficients N
                         number of coefficients to use in MEM algorithm
                         (default 300)
   -csa, --coefficient_scan_analysis
                         request coefficient scan analysis
   -pa, --peak_analysis  request a peak analysis
-  --silent              executes without showing plots
-  --velocity_only       loads only velocity data from hdf5 file
   -pad N N N, --plot_atomic_displacements N N N
                         plot atomic displacements respect to specified
                         direction [N N N]
   -sad X X X X, --save_atomic_displacements X X X X
                         save atomic displacements into a file [ N N N filename
                         ]
-  --read_from N         define interval of trajectory to read (default: 1)
-  --read_to N           define interval of trajectory to read (default: end)
-  -ds, --display_spectrum
-                        display phonon dispersion spectrum data in screen
-                        (just for test: not recommended)
   -sfc file, --save_force_constants file
                         save the renormalized force constants to a file
+  --silent              executes without showing plots
+  --velocity_only       loads only velocity data from hdf5 file
+  --asymmetric_peaks    uses asymmetric Lorentzian functions to fit spectra
+  --read_from N         define interval of trajectory to read (default: 1)
+  --read_to N           define interval of trajectory to read (default: end)
+  --zero_padding N      number of padding zeros (default: 0) [FFT only]
+  --fcsymm              symmetrize force constants
+
 </code></pre>
 
 
@@ -212,7 +221,7 @@ available for most of the features. To store the data in files command line shou
 <br> Velocity distribution analysis (Boltzmann analysis)
 <br> Harmonic eigenvectors representation
 <br> Harmonic phonon dispersion bands
-<br> Renormalized phonon dispersion bands
+<br> Plot renormalized phonon dispersion bands
 
 
 
