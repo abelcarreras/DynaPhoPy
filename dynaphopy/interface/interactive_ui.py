@@ -37,7 +37,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
     screen = curses.initscr()
     screen.border(0)
-    screen.addstr(5, 7, "Welcome   to   DynaPhoPy 1.5")
+    screen.addstr(5, 7, "Welcome   to   DynaPhoPy 1.6")
     screen.refresh()
     sleep(3)
     curses.endwin()
