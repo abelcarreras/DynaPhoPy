@@ -5,8 +5,6 @@
 #include <complex.h>
 #include <numpy/arrayobject.h>
 
-#define min(a,b) ((a) < (b) ? (a) : (b))
-
 //  Functions declaration
 //static double   **matrix_inverse_3x3    (double  **a);
 static double   **matrix_multiplication (double  **a, double  **b, int n, int l, int m);
