@@ -99,16 +99,24 @@ static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *ke
             Difference[k][0] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - Positions[k];
         }
 
-        double ** Difference_matrix = matrix_multiplication(Cell_i, Difference, NumberOfDimensions, NumberOfDimensions, 1);
+        double ** DifferenceMatrix = matrix_multiplication(Cell_i, Difference, NumberOfDimensions, NumberOfDimensions, 1);
 
         for (int k = 0; k < NumberOfDimensions; k++) {
-                Difference_matrix[k][0] = round(Difference_matrix[k][0]);
+                DifferenceMatrix[k][0] = round(DifferenceMatrix[k][0]);
         }
 
-        double ** A = matrix_multiplication(Cell_c, Difference_matrix, NumberOfDimensions, NumberOfDimensions, 1);
+        double ** PeriodicDisplacement = matrix_multiplication(Cell_c, DifferenceMatrix, NumberOfDimensions, NumberOfDimensions, 1);
         for (int k = 0; k < NumberOfDimensions; k++) {
-            Displacement[i][k] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - A[k][0] - Positions[k];
+            Displacement[i][k] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - PeriodicDisplacement[k][0] - Positions[k];
+
+
+        //Free memory
+        for (k=0 ; k<NumberOfDimensions-1; k++)
+            free(DifferenceMatrix[k]);
+            free(PeriodicDisplacement[k]);
         }
+        free(DifferenceMatrix);
+        free(PeriodicDisplacement);
     }
 
 //  Returning python array
