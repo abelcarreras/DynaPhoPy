@@ -5,14 +5,14 @@
 #include <complex.h>
 #include <numpy/arrayobject.h>
 
+
 //  Functions declaration
-//static double   **matrix_inverse_3x3    (double  **a);
 static double   **matrix_multiplication (double  **a, double  **b, int n, int l, int m);
 
 static int       TwotoOne              (int Row, int Column, int NumColumns);
 static double   **pymatrix_to_c_array_real   (PyArrayObject *array);
 
-static double _Complex  **pymatrix_to_c_array   (PyArrayObject *array);
+static double _Complex  **pymatrix_to_c_array_complex   (PyArrayObject *array);
 
 static double  **matrix_inverse ( double ** a ,int n);
 static double  Determinant(double  **a,int n);
@@ -30,7 +30,7 @@ static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *ke
     if (!PyArg_ParseTupleAndKeywords(arg, keywords, "OOO", kwlist,  &Trajectory_obj, &Positions_obj, &Cell_obj))  return NULL;
 
     PyObject *Trajectory_array = PyArray_FROM_OTF(Trajectory_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
-    PyObject *Positions_array = PyArray_FROM_OTF(Positions_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
+    PyObject *Positions_array = PyArray_FROM_OTF(Positions_obj, NPY_DOUBLE, NPY_IN_ARRAY);
     PyObject *Cell_array = PyArray_FROM_OTF(Cell_obj, NPY_DOUBLE, NPY_IN_ARRAY);
 
     if (Cell_array == NULL || Trajectory_array == NULL) {
@@ -41,9 +41,9 @@ static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *ke
     }
 
 
-//    double _Complex *Cell           = (double _Complex*)PyArray_DATA(Cell_array);
+//  double _Complex *Cell           = (double _Complex*)PyArray_DATA(Cell_array);
     double _Complex *Trajectory     = (double _Complex*)PyArray_DATA(Trajectory_array);
-    double _Complex *Positions              = (double _Complex*)PyArray_DATA(Positions_array);
+    double *Positions               = (double*)PyArray_DATA(Positions_array);
 
     int NumberOfData       = (int)PyArray_DIM(Trajectory_array, 0);
     int NumberOfDimensions = (int)PyArray_DIM(Cell_array, 0);
@@ -55,14 +55,13 @@ static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *ke
     int dims[2]={NumberOfData, NumberOfDimensions};
 
     Displacement_object=(PyArrayObject *) PyArray_FromDims(2,dims,NPY_CDOUBLE);
-    Displacement=pymatrix_to_c_array( Displacement_object);
+    Displacement=pymatrix_to_c_array_complex( Displacement_object);
 
 
 //  Create a pointer array for cell matrix (to be improved)
     double  **Cell_c = pymatrix_to_c_array_real((PyArrayObject *) Cell_array);
 
 /*
-
 	printf("\nCell Matrix");
 	for(int i = 0 ;i < NumberOfDimensions ; i++){
 		printf("\n");
@@ -73,7 +72,6 @@ static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *ke
 */
 
 //	Matrix inversion
-//	double _Complex **Cell_i = matrix_inverse_3x3(Cell_c);
 	double  **Cell_i = matrix_inverse(Cell_c, NumberOfDimensions);
 
 /*
@@ -85,14 +83,11 @@ static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *ke
 	printf("\n\n");
 */
 
-
-//	double _Complex* Difference        = malloc(NumberOfDimensions*sizeof(double _Complex));
-	double ** Difference          = malloc(sizeof(double *));
-	for (int k = 0; k < NumberOfDimensions; k++) Difference[k] = (double *) malloc(sizeof(double  ));
-
-
+	double ** Difference = malloc(NumberOfDimensions * sizeof(double *));
+    for (int i = 0; i < NumberOfDimensions; i++) Difference[i] = (double *) malloc( sizeof(double ));
 
     for (int i = 0; i < NumberOfData; i++) {
+
         for (int k = 0; k < NumberOfDimensions; k++) {
             Difference[k][0] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - Positions[k];
         }
@@ -104,27 +99,27 @@ static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *ke
         }
 
         double ** PeriodicDisplacement = matrix_multiplication(Cell_c, DifferenceMatrix, NumberOfDimensions, NumberOfDimensions, 1);
+
         for (int k = 0; k < NumberOfDimensions; k++) {
             Displacement[i][k] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - PeriodicDisplacement[k][0] - Positions[k];
-
+		}
 
         //Free memory
-        for (k=0 ; k<NumberOfDimensions-1; k++)
-            free(DifferenceMatrix[k]);
-            free(PeriodicDisplacement[k]);
-        }
-        free(DifferenceMatrix);
-        free(PeriodicDisplacement);
+        for (int k=0 ; k<NumberOfDimensions-1; k++) free(DifferenceMatrix[k]); free(DifferenceMatrix);
+        for (int k=0 ; k<NumberOfDimensions-1; k++) free(PeriodicDisplacement[k]); free(PeriodicDisplacement);
+
     }
+    //Free memory
+    for (int k=0 ; k<NumberOfDimensions-1; k++) free(Difference[k]); free(Difference);
+    for (int k=0 ; k<NumberOfDimensions-1; k++) free(Cell_i[k]); free(Cell_i);
+ 	free(Cell_c);
 
 //  Returning python array
     return(PyArray_Return(Displacement_object));
 };
 
 
-//  Derivate calculation (centered differencing) [real]
-
-static double _Complex **pymatrix_to_c_array(PyArrayObject *array)  {
+static double _Complex **pymatrix_to_c_array_complex(PyArrayObject *array)  {
 
       int n=(*array).dimensions[0];
       int m=(*array).dimensions[1];
@@ -155,7 +150,6 @@ static double  **pymatrix_to_c_array_real(PyArrayObject *array)  {
 
 static double  **matrix_inverse ( double ** a ,int n){
 
-
 	double ** b = malloc(n*sizeof(double *));
     for (int i = 0; i < n; i++) b[i] = (double *) malloc(n*sizeof(double ));
 
@@ -172,7 +166,6 @@ static double  **matrix_inverse ( double ** a ,int n){
 };
 
 //  Recursive definition of determinate using expansion by minors.
-
 static double  Determinant(double  **a,int n)
 {
    int i,j,j1,j2;
@@ -210,7 +203,6 @@ static double  Determinant(double  **a,int n)
 };
 
 //   Find the cofactor matrix of a square matrix
-
 static double **CoFactor(double  **a,int n)
 {
    int i,j,ii,jj,i1,j1;
@@ -257,7 +249,7 @@ static double **CoFactor(double  **a,int n)
 
 };
 
-//  Calculate the matrix multiplication creating new memory allocation
+//  Calculate the matrix multiplication
 static double  **matrix_multiplication ( double   **a, double   **b, int n, int l, int m ){
 
 	double **c = malloc(n*sizeof(double *));
@@ -277,18 +269,15 @@ static double  **matrix_multiplication ( double   **a, double   **b, int n, int 
 };
 
 
-
 static int TwotoOne(int Row, int Column, int NumColumns) {
 	return Row*NumColumns + Column;
 };
 
 
-
-//  --------------- Interface functions ---------------- //
+//  Python Interface
 
 static char extension_docs[] =
     "atomic_displacement(cell, trajectory, positions )\n";
-
 
 static PyMethodDef extension_funcs[] = {
     {"atomic_displacement", (PyCFunction)atomic_displacement, METH_VARARGS|METH_KEYWORDS, extension_docs},

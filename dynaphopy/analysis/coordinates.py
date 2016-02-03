@@ -39,6 +39,7 @@ def relativize_trajectory(dynamic):
     for i in range(number_of_atoms):
         normalized_trajectory[:, i, :] = atomic_displacement(trajectory[:, i, :], position[i], cell)
 
+
    #     progress_bar(float(i+1)/number_of_atoms)
     return normalized_trajectory
 
