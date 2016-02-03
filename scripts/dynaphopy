@@ -88,7 +88,7 @@ parser.add_argument('--velocity_only', action='store_true',
                     help='loads only velocity data from hdf5 file')
 
 parser.add_argument('--asymmetric_peaks', action='store_true',
-                    help='Uses asymmetric Lorentzian functions to fit spectra')
+                    help='uses asymmetric Lorentzian functions to fit spectra')
 
 parser.add_argument('--read_from', metavar='N', type=int, default=1,
                     help='define interval of trajectory to read (default: 1)')
@@ -97,10 +97,10 @@ parser.add_argument('--read_to', metavar='N', type=int, default=None,
                     help='define interval of trajectory to read (default: end)')
 
 parser.add_argument('--zero_padding', metavar='N', type=int, default=0,
-                    help='Number of padding zeros (default: 0) [FFT only]')
+                    help='number of padding zeros (default: 0) [FFT only]')
 
 parser.add_argument('--fcsymm', action='store_true',
-                    help='Symmetrize force constants')
+                    help='symmetrize force constants')
 
 
 args = parser.parse_args()
