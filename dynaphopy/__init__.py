@@ -241,18 +241,22 @@ class Calculation:
         q_points = pho_interface.get_equivalent_qpoints_and_operations(self.get_reduced_q_vector(), self.dynamic.structure)
 
         print(q_points)
-        exit()
+     #   exit()
         vc_tot = []
-        for q_point_group in q_points:
+        for q_point_group in q_points[4: 5]:
+            print('EQ. QPOINT {0}'.format(q_point_group[0]))
+
+       #     q_point_group = [self.get_reduced_q_vector(), np.identity(3)]
             q_point = np.dot(q_point_group[0], 2.0*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
 
             operation = q_point_group[1]
-
+        #    self.set_reduced_q_vector(q_point_group[0])
             print(q_point)
             print(operation)
             vc = projection.project_onto_wave_vector(self.dynamic, q_point)
             number_of_cell_atoms = vc.shape[1]
             for i in range(number_of_cell_atoms):
+         #       vc[:,i,:] = vc[:,i,:]
                 vc[:,i,:] = np.dot(vc[:,i,:], np.linalg.inv(operation))
             vc_tot.append(vc)
 
