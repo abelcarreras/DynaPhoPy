@@ -92,7 +92,7 @@ If POSCAR file is not specified DynaPhoPy will use POSCAR file name stored in th
 </code></pre>
 
 <LI><h5>Primitive matrix definition</h5>
-<p>This matrix defines the primitive cell size respect to the unit cell. If not defined it takes identity matrix meaning that primitive cell and unit cell are the same.
+<p>This matrix defines the primitive cell size respect to the unit cell. The rows of this matrix corresponds to the primitive axis defined in <a href="http://atztogo.github.io/phonopy/setting-tags.html?highlight=tag#primitive-axis">phonopy manual</a>. If not defined it takes identity matrix meaning that primitive cell and unit cell are the same.
 </p><pre><code>PRIMITIVE MATRIX
 0.0 0.5 0.5
 0.5 0.0 0.5
