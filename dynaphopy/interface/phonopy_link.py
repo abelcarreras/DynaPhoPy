@@ -131,6 +131,7 @@ def get_commensurate_points_info(structure):
 
     return com_points
 
+
 def get_equivalent_qpoints_and_operations(q_point, structure):
 
     from phonopy.structure.symmetry import Symmetry
@@ -170,7 +171,8 @@ def get_equivalent_qpoints_by_symmetry(q_point, structure):
 
     return np.vstack({tuple(row) for row in tot_points})
 
-def get_renormalized_force_constants(renormalized_frequencies, com_points, structure, degenerate=True, symmetrize=True):
+
+def get_renormalized_force_constants(renormalized_frequencies, com_points, structure, degenerate=True, symmetrize=False):
 
     phonon = get_phonon(structure)
 
@@ -183,8 +185,12 @@ def get_renormalized_force_constants(renormalized_frequencies, com_points, struc
     frequencies, eigenvectors = phonon.get_qpoints_phonon()
 
     # Average degenerated phonons
+
     if degenerate:
-        renormalized_frequencies = get_degenerated_frequencies(frequencies, renormalized_frequencies)
+
+        #renormalized_frequencies = get_degenerated_frequencies_old(frequencies, renormalized_frequencies)
+        renormalized_frequencies, frequency_deviations = get_degenerated_property(frequencies, renormalized_frequencies, com_points, structure)
+        print_q_point_information(com_points, frequencies, frequency_deviations)
 
     dynmat2fc.set_dynamical_matrices(renormalized_frequencies / VaspToTHz, eigenvectors)
     dynmat2fc.run()
@@ -202,7 +208,11 @@ def get_renormalized_force_constants(renormalized_frequencies, com_points, struc
     return force_constants
 
 
-def get_degenerated_frequencies(frequencies, renormalized_frequencies):
+
+#On development
+
+
+def get_degenerated_frequencies_old(frequencies, renormalized_frequencies):
 
     num_phonons = frequencies.shape[1]
     renormalized_frequencies_degenerated = np.zeros_like(renormalized_frequencies)
@@ -216,6 +226,41 @@ def get_degenerated_frequencies(frequencies, renormalized_frequencies):
 
     return renormalized_frequencies_degenerated
 
+def print_q_point_information(q_point_list, frequencies, deviation):
+    for i, q_point in enumerate(q_point_list):
+        print('{0}, : {1} / {0}'.format(q_point, frequencies[i], deviation[i]))
+
+
+def get_degenerated_property(frequencies, normalized_frequencies, vector_list, structure):
+
+    degenerated_frequencies = np.zeros_like(normalized_frequencies)
+    variance = np.zeros_like(normalized_frequencies)
+    num_frequencies = frequencies.shape[1]
+
+    for i, q_vector in enumerate(vector_list):
+        for j in range(num_frequencies):
+            equivalent_matrix = get_equivalent_matrix(q_vector, j, vector_list, frequencies, structure )
+            degenerated_frequencies[i, j] = np.average(normalized_frequencies,weights=equivalent_matrix)
+            variance[i, j] = np.average((normalized_frequencies -degenerated_frequencies[i, j])**2, weights=equivalent_matrix)
+
+    return degenerated_frequencies, np.sqrt(variance)
+
+def get_equivalent_matrix(vector, i_freq, vector_list, frequencies, structure):
+
+    num_frequencies = frequencies.shape[1]
+
+    vector_equivalent = get_equivalent_qpoints_by_symmetry(vector, structure)
+
+    index_vector = []
+    for i, vector_test in enumerate(vector_list):
+
+        degenerate_vector = np.array([(vector == vector_test).all() for vector in vector_equivalent]).any()
+        degenerate_frequencies = degenerate_sets(frequencies[i])
+        weight_matrix = get_weights_from_index_list(num_frequencies, degenerate_frequencies)[i_freq]
+
+        index_vector.append(weight_matrix*degenerate_vector)
+
+    return np.array(index_vector)
 
 def get_weights_from_index_list(size, index_list):
 

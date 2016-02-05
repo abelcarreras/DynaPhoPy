@@ -235,48 +235,14 @@ class Calculation:
 
         return commensurate
 
-
-    def average_vc(self):
-
-        q_points = pho_interface.get_equivalent_qpoints_and_operations(self.get_reduced_q_vector(), self.dynamic.structure)
-
-        print(q_points)
-     #   exit()
-        vc_tot = []
-        for q_point_group in q_points[4: 5]:
-            print('EQ. QPOINT {0}'.format(q_point_group[0]))
-
-       #     q_point_group = [self.get_reduced_q_vector(), np.identity(3)]
-            q_point = np.dot(q_point_group[0], 2.0*np.pi*np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
-
-            operation = q_point_group[1]
-        #    self.set_reduced_q_vector(q_point_group[0])
-            print(q_point)
-            print(operation)
-            vc = projection.project_onto_wave_vector(self.dynamic, q_point)
-            number_of_cell_atoms = vc.shape[1]
-            for i in range(number_of_cell_atoms):
-         #       vc[:,i,:] = vc[:,i,:]
-                vc[:,i,:] = np.dot(vc[:,i,:], np.linalg.inv(operation))
-            vc_tot.append(vc)
-
-        return np.average(np.array(vc_tot), axis=0)
-
-
-
-
     #Projections related methods
-    def get_vc(self, use_symmetry=True):
+    def get_vc(self):
         if self._vc is None:
             print("Projecting into wave vector")
             #Check if commensurate point
             if not self.check_commensurate(self.get_reduced_q_vector()):
                 print("warning! Defined wave vector is not a commensurate q-point in this cell")
-
-            if use_symmetry:
-                self._vc = self.average_vc()
-            else:
-                self._vc = projection.project_onto_wave_vector(self.dynamic, self.get_q_vector())
+            self._vc = projection.project_onto_wave_vector(self.dynamic, self.get_q_vector())
         return self._vc
 
     def get_vq(self):
@@ -285,12 +251,11 @@ class Calculation:
             self._vq =  projection.project_onto_phonon(self.get_vc(),self.get_eigenvectors())
         return self._vq
 
-    def plot_vq(self,modes=None):
+    def plot_vq(self, modes=None):
         if not modes: modes = [0]
         plt.suptitle('Phonon mode projection')
         plt.xlabel('Time [ps]')
         plt.ylabel('$u^{1/2}\AA/ps$')
-
 
         time = np.linspace(0, self.get_vc().shape[0]*self.dynamic.get_time_step_average(),
                    num=self.get_vc().shape[0])
@@ -344,8 +309,8 @@ class Calculation:
             print("Calculating phonon projection power spectra")
             self._power_spectrum_phonon = (
                 power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
-                                                                                   self.dynamic,
-                                                                                   self.parameters)
+                                                                               self.dynamic,
+                                                                               self.parameters)
 
         return self._power_spectrum_phonon
 
@@ -546,6 +511,8 @@ class Calculation:
             initial_reduced_q_point = self.get_reduced_q_vector()
 
             renormalized_frequencies = []
+            linewidths = []
+
             for i, reduced_q_point in enumerate(com_points):
                 print ("\nQpoint: {0} / {1}      {2}".format(i+1, len(com_points), reduced_q_point))
                 self.set_reduced_q_vector(reduced_q_point)
@@ -562,9 +529,11 @@ class Calculation:
                     positions[2] = 0
 
                 renormalized_frequencies.append(positions)
+                linewidths.append(widths)
 
             renormalized_frequencies = np.array(renormalized_frequencies)
 #            np.savetxt('test_freq', renormalized_frequencies)
+#            np.savetxt('test_line', linewidths)
 
 
             self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
@@ -573,6 +542,7 @@ class Calculation:
                                                                                                 symmetrize=self.parameters.symmetrize,
                                                                                                 degenerate=self.parameters.degenerate)
             self.set_reduced_q_vector(initial_reduced_q_point)
+
 
         return self._renormalized_force_constants
 

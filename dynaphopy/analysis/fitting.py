@@ -54,7 +54,6 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         height = np.max(power_spectrum)
         position = test_frequencies_range[np.argmax(power_spectrum)]
 
-
         try:
             if asymmetric_peaks:
                 fit_params, fit_covariances = curve_fit(lorentzian_asymmetric,
