@@ -190,8 +190,8 @@ def get_renormalized_force_constants(renormalized_frequencies, com_points, struc
 
         renormalized_frequencies, frequency_deviations = get_symmetrized_frequencies(frequencies, renormalized_frequencies, com_points, structure)
 
-        for i, q_point in enumerate(com_points):
-            print('{0}, : {1} / {0}'.format(q_point, frequencies[i], frequency_deviations[i]))
+#        for i, q_point in enumerate(com_points):
+#            print('{0}, : {1} / {0}'.format(q_point, frequencies[i], frequency_deviations[i]))
 
 
 
