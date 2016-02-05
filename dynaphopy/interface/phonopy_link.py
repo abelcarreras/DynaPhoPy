@@ -188,9 +188,12 @@ def get_renormalized_force_constants(renormalized_frequencies, com_points, struc
 
     if degenerate:
 
-        #renormalized_frequencies = get_degenerated_frequencies_old(frequencies, renormalized_frequencies)
-        renormalized_frequencies, frequency_deviations = get_degenerated_property(frequencies, renormalized_frequencies, com_points, structure)
-        print_q_point_information(com_points, frequencies, frequency_deviations)
+        renormalized_frequencies, frequency_deviations = get_symmetrized_frequencies(frequencies, renormalized_frequencies, com_points, structure)
+
+        for i, q_point in enumerate(com_points):
+            print('{0}, : {1} / {0}'.format(q_point, frequencies[i], frequency_deviations[i]))
+
+
 
     dynmat2fc.set_dynamical_matrices(renormalized_frequencies / VaspToTHz, eigenvectors)
     dynmat2fc.run()
@@ -212,26 +215,7 @@ def get_renormalized_force_constants(renormalized_frequencies, com_points, struc
 #On development
 
 
-def get_degenerated_frequencies_old(frequencies, renormalized_frequencies):
-
-    num_phonons = frequencies.shape[1]
-    renormalized_frequencies_degenerated = np.zeros_like(renormalized_frequencies)
-
-    for i, q_frequencies in enumerate(frequencies):
-        degenerate_index = degenerate_sets(q_frequencies)
-        weight_matrix = get_weights_from_index_list(num_phonons, degenerate_index)
-
-        for j, weight in enumerate(weight_matrix):
-            renormalized_frequencies_degenerated[i, j]= np.average(renormalized_frequencies[i, :], weights=weight)
-
-    return renormalized_frequencies_degenerated
-
-def print_q_point_information(q_point_list, frequencies, deviation):
-    for i, q_point in enumerate(q_point_list):
-        print('{0}, : {1} / {0}'.format(q_point, frequencies[i], deviation[i]))
-
-
-def get_degenerated_property(frequencies, normalized_frequencies, vector_list, structure):
+def get_symmetrized_frequencies(frequencies, normalized_frequencies, vector_list, structure):
 
     degenerated_frequencies = np.zeros_like(normalized_frequencies)
     variance = np.zeros_like(normalized_frequencies)
@@ -244,6 +228,7 @@ def get_degenerated_property(frequencies, normalized_frequencies, vector_list, s
             variance[i, j] = np.average((normalized_frequencies -degenerated_frequencies[i, j])**2, weights=equivalent_matrix)
 
     return degenerated_frequencies, np.sqrt(variance)
+
 
 def get_equivalent_matrix(vector, i_freq, vector_list, frequencies, structure):
 
@@ -261,6 +246,7 @@ def get_equivalent_matrix(vector, i_freq, vector_list, frequencies, structure):
         index_vector.append(weight_matrix*degenerate_vector)
 
     return np.array(index_vector)
+
 
 def get_weights_from_index_list(size, index_list):
 
