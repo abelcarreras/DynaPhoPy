@@ -32,7 +32,7 @@ def get_renormalized_constants(freq_filename, structure, symmetrize=False, degen
 
     structure.set_force_set(pho_interface.get_force_sets_from_file(file_name=input_parameters['force_constants_file_name']))
 
-    com_points = pho_interface.get_commensurate_points_info(structure)
+    com_points = pho_interface.get_commensurate_points(structure)
 
     renormalized_frequencies = np.loadtxt(freq_filename)
     renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
@@ -80,7 +80,7 @@ else:
 
 # Process options
 if args.cp:
-    com_points = pho_interface.get_commensurate_points_info(structure)
+    com_points = pho_interface.get_commensurate_points(structure)
     print(com_points)
     exit()
 

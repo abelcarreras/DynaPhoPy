@@ -42,14 +42,46 @@ def get_error_from_covariance(covariance):
     return np.sqrt(np.trace(covariance))
 
 
-def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None, asymmetric_peaks = False, show_plots=True):
+def degenerate_sets(freqs, cutoff=1e-4):
+    indices = []
+    done = []
+    for i in range(len(freqs)):
+        if i in done:
+            continue
+        else:
+            f_set = [i]
+            done.append(i)
+        for j in range(i + 1, len(freqs)):
+            if (np.abs(freqs[f_set] - freqs[j]) < cutoff).any():
+                f_set.append(j)
+                done.append(j)
+        indices.append(f_set[:])
+
+    return indices
+
+
+def average_phonon(index, data, degeneracy):
+    for i, set in enumerate(degeneracy):
+        if index in set:
+            return np.average([data[:, j] for j in degeneracy[i]], axis=0)
+
+
+def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None,
+                            asymmetric_peaks = False,
+                            show_plots=True,
+                            use_degeneracy=True):
 
     widths = []
     positions = []
 
     for i in range(original.shape[1]):
 
-        power_spectrum = original[:, i]
+        if use_degeneracy:
+            degeneracy = degenerate_sets(harmonic_frequencies)
+            power_spectrum = average_phonon(i, original, degeneracy)
+
+        else:
+            power_spectrum = original[:, i]
 
         height = np.max(power_spectrum)
         position = test_frequencies_range[np.argmax(power_spectrum)]

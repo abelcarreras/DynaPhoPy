@@ -307,21 +307,54 @@ class Calculation:
     def get_power_spectrum_phonon(self):
         if self._power_spectrum_phonon is None:
             print("Calculating phonon projection power spectra")
-            self._power_spectrum_phonon = (
-                power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
+
+            if self.parameters.use_symmetry:
+                initial_reduced_q_point = self.get_reduced_q_vector()
+                power_spectrum_phonon = []
+                q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(self.get_reduced_q_vector(), self.dynamic.structure)
+#                print(q_points_equivalent)
+                for q_point in q_points_equivalent:
+                    self.set_reduced_q_vector(q_point)
+                    power_spectrum_phonon.append((
+                        power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
                                                                                self.dynamic,
-                                                                               self.parameters)
+                                                                               self.parameters))
+
+                self._power_spectrum_phonon = np.average(power_spectrum_phonon, axis=0)
+                self.parameters.reduced_q_vector = initial_reduced_q_point
+            else:
+                self._power_spectrum_phonon = (
+                    power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
+                                                                                   self.dynamic,
+                                                                                   self.parameters)
 
         return self._power_spectrum_phonon
 
     def get_power_spectrum_wave_vector(self):
+
         if self._power_spectrum_wave_vector is None:
-            print("Calculating wave vector projection power spectrum")
+            print('Calculating wave vector projection power spectrum')
             size = self.get_vc().shape[1]*self.get_vc().shape[2]
-            self._power_spectrum_wave_vector = (
-                    power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vc().swapaxes(1, 2).reshape(-1, size),
-                                                                                       self.dynamic,
-                                                                                       self.parameters)
+            if self.parameters.use_symmetry:
+                initial_reduced_q_point = self.get_reduced_q_vector()
+                power_spectrum_wave_vector = []
+                q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(self.get_reduced_q_vector(), self.dynamic.structure)
+                print(q_points_equivalent)
+                for q_point in q_points_equivalent:
+                    self.set_reduced_q_vector(q_point)
+                    power_spectrum_wave_vector.append((
+                        power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vc().swapaxes(1, 2).reshape(-1, size),
+                                                                                           self.dynamic,
+                                                                                           self.parameters))
+
+                power_spectrum_wave_vector = np.array(power_spectrum_wave_vector)
+                self._power_spectrum_wave_vector = np.average(power_spectrum_wave_vector, axis=0)
+                self.parameters.reduced_q_vector = initial_reduced_q_point
+            else:
+                self._power_spectrum_wave_vector = (
+                        power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vc().swapaxes(1, 2).reshape(-1, size),
+                                                                                           self.dynamic,
+                                                                                           self.parameters)
 
         return np.sum(self._power_spectrum_wave_vector,axis=1)
 
@@ -506,15 +539,30 @@ class Calculation:
     def get_renormalized_constants(self):
 
         if self._renormalized_force_constants is None:
-            com_points = pho_interface.get_commensurate_points_info(self.dynamic.structure)
+            com_points = pho_interface.get_commensurate_points(self.dynamic.structure)
 
             initial_reduced_q_point = self.get_reduced_q_vector()
 
             renormalized_frequencies = []
             linewidths = []
+            q_points_list = []
 
             for i, reduced_q_point in enumerate(com_points):
+
                 print ("\nQpoint: {0} / {1}      {2}".format(i+1, len(com_points), reduced_q_point))
+
+                q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(reduced_q_point, self.dynamic.structure)
+                q_index = vector_in_list(q_points_equivalent, q_points_list)
+                q_points_list.append(reduced_q_point)
+
+                if q_index != 0 and self.parameters.use_symmetry:
+                    renormalized_frequencies.append(renormalized_frequencies[q_index])
+                    linewidths.append(linewidths[q_index])
+                    print('Skipped, equivalent to {0}'.format(q_points_list[q_index]))
+                    continue
+
+
+
                 self.set_reduced_q_vector(reduced_q_point)
                 positions, widths = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                     self.parameters.frequency_range,
@@ -549,3 +597,12 @@ class Calculation:
     def write_renormalized_constants(self, filename="FORCE_CONSTANTS"):
         force_constants = self.get_renormalized_constants()
         pho_interface.save_force_constants_to_file(force_constants, filename)
+
+
+def vector_in_list(vector_test_list, vector_full_list):
+
+    for vector_test in vector_test_list:
+        for i, vector_full in enumerate(vector_full_list):
+            if (vector_full == vector_test).all():
+                return i
+    return 0

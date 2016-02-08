@@ -38,7 +38,7 @@ class Parameters:
 
                  # Force constants
                  symmetrize = False,
-                 degenerate = True,
+                 use_symmetry = True,
 
                  # Modes (eigenvectors) display
                  modes_vectors_scale=10
@@ -59,7 +59,7 @@ class Parameters:
         self._number_of_bins_histogram = number_of_bins_histogram
 
         self._symmetrize = symmetrize
-        self._degenerate = degenerate
+        self._use_symmetry = use_symmetry
 
         self._modes_vectors_scale = modes_vectors_scale
 
@@ -177,12 +177,12 @@ class Parameters:
         self._zero_padding = zero_padding
 
     @property
-    def degenerate(self):
-        return self._symmetrize
+    def use_symmetry(self):
+        return self._use_symmetry
 
-    @degenerate.setter
-    def degenerate(self, degenerate):
-        self._degenerate = degenerate
+    @use_symmetry.setter
+    def use_symmetry(self, use_symmetry):
+        self._use_symmetry = use_symmetry
 
     @property
     def symmetrize(self):
