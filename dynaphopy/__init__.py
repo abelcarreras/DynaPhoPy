@@ -587,8 +587,7 @@ class Calculation:
             self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
                                                                                                 com_points,
                                                                                                 self.dynamic.structure,
-                                                                                                symmetrize=self.parameters.symmetrize,
-                                                                                                degenerate=self.parameters.degenerate)
+                                                                                                symmetrize=self.parameters.symmetrize)
             self.set_reduced_q_vector(initial_reduced_q_point)
 
 
