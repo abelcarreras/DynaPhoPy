@@ -31,9 +31,10 @@ def relativize_trajectory(dynamic):
     super_cell = dynamic.get_super_cell_matrix()
     position = dynamic.structure.get_positions(super_cell=super_cell)
 #    normalized_trajectory = np.zeros_like(dynamic.trajectory.real)
+    normalized_trajectory = dynamic.trajectory
+
     trajectory = dynamic.trajectory
 
-    normalized_trajectory = np.empty_like(trajectory)
 #    progress_bar(0)
 
     for i in range(number_of_atoms):
