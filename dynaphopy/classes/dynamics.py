@@ -5,6 +5,64 @@ from dynaphopy.classes import atoms
 from dynaphopy.analysis.coordinates import relativize_trajectory as relativize_trajectory
 
 
+def average_positions(trajectory):
+
+    print(trajectory.shape)
+    lenght = trajectory.shape[0]
+    positions = np.random.random_integers(lenght, size=(1000,))-1
+
+  #  positions = [0,1]
+    return np.average(trajectory[positions,:], axis=0)
+
+
+def check_trajectory_structure(trajectory, structure, tolerance=0.2):
+
+    index_vector = []
+    reference = average_positions(trajectory)
+    number_of_atoms = structure.get_number_of_atoms()
+  #  print(structure.get_cell())
+
+    print(np.dot(np.amax(reference,axis=0), np.linalg.inv(structure.get_cell()).T))
+
+    unit_coordinates = []
+    for coordinate in reference:
+        trans = np.dot(coordinate, np.linalg.inv(structure.get_cell()).T)
+        print(np.array(trans.real, dtype=int))
+        unit_coordinates.append(np.array(trans.real, dtype=int))
+
+
+    print(np.array(np.average(unit_coordinates, axis=0) *2+1 ,dtype=int))
+    print([int(2*a+1) for a in np.average(unit_coordinates, axis=0)])
+
+    cell_size = np.array(np.average(unit_coordinates, axis=0) *2+1 ,dtype=int)
+    print('#############')
+    for i, coordinate in enumerate(unit_coordinates):
+
+        x =i/(cell_size[0]*cell_size[1]*number_of_atoms)
+        y =i/4
+        z =  np.mod(i,cell_size[0])
+        vector = [z, y, x]
+
+        print(vector)
+        #print(vector - coordinate)
+
+
+
+    exit()
+
+    for i, atom_coordinate in enumerate(reference):
+        print(i, atom_coordinate)
+
+        for structure_atom in structure.get_positions():
+            a = np.divide(atom_coordinate, structure_atom)
+            b = (a - np.round(a))
+            if (b < tolerance).all():
+                print(np.array(np.round(a).real,dtype=int))
+                index_vector.append(np.array(np.round(a).real,dtype=int))
+
+    exit()
+
+
 class Dynamics:
 
     def __init__(self,
@@ -30,8 +88,11 @@ class Dynamics:
         if structure:
             self._structure = structure
         else:
-            print('Warning: Initialization without structure (not recommended)')
+            print('Warning: Initialization without structure')
             self._structure = None
+
+        if trajectory is not None:
+            trajectory = check_trajectory_structure(trajectory, structure)
 
 # A bit messy, has to be fixed
     def crop_trajectory(self, last_steps):
