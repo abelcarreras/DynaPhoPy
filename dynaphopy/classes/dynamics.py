@@ -20,12 +20,12 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
 
     if arangement:
         original_trajectory = trajectory.copy()
-        print(arangement)
+ #       print(arangement)
         for i, position in enumerate(arangement):
             trajectory[:,i,:] = original_trajectory[:, position,:]
 
-    for i in trajectory[0,:,:]:
-        print 'Si {0} {1} {2}'.format(*i.real)
+#    for i in trajectory[0,:,:]:
+#        print 'Si {0} {1} {2}'.format(*i.real)
 
     return trajectory
 
@@ -44,10 +44,10 @@ def get_correct_arangement(reference, structure):
     difference = []
     for i, coordinate in enumerate(unit_coordinates):
 
-        vector_type2 = type_2(i, cell_size, number_of_cell_atoms)
+#        vector_type2 = type_2(i, cell_size, number_of_cell_atoms)
         difference.append([np.power(type_1(i, cell_size, number_of_cell_atoms)[:3]- coordinate,2),
                            np.power(type_2(i, cell_size, number_of_cell_atoms)[:3] - coordinate,2)])
-        print('{0}     {1} -> {2}'.format(vector_type2, coordinate, np.power(vector_type2[:3] - coordinate,2)))
+ #       print('{0}     {1} -> {2}'.format(vector_type2, coordinate, np.power(vector_type2[:3] - coordinate,2)))
 
     difference = np.average(difference, axis=0)
     difference = np.linalg.norm(difference, axis=1)
