@@ -1,66 +1,87 @@
 import numpy as np
 from dynaphopy.classes import atoms
-# Can be changed for MacOSX compatibility
-#from dynaphopy.derivative import derivative as derivative
+#from dynaphopy.analysis.coordinates import relativize_trajectory_py as relativize_trajectory
 from dynaphopy.analysis.coordinates import relativize_trajectory as relativize_trajectory
 
 
-def average_positions(trajectory):
+def averaged_positions(trajectory, number_of_samples=1000):
 
-    print(trajectory.shape)
     lenght = trajectory.shape[0]
-    positions = np.random.random_integers(lenght, size=(1000,))-1
+    positions = np.random.random_integers(lenght, size=(number_of_samples,))-1
 
-  #  positions = [0,1]
     return np.average(trajectory[positions,:], axis=0)
 
 
 def check_trajectory_structure(trajectory, structure, tolerance=0.2):
 
-    index_vector = []
-    reference = average_positions(trajectory)
-    number_of_atoms = structure.get_number_of_atoms()
-  #  print(structure.get_cell())
+    reference = averaged_positions(trajectory)
 
-    print(np.dot(np.amax(reference,axis=0), np.linalg.inv(structure.get_cell()).T))
+    arangement = get_correct_arangement(reference, structure)
+
+    if arangement:
+        original_trajectory = trajectory.copy()
+        print(arangement)
+        for i, position in enumerate(arangement):
+            trajectory[:,i,:] = original_trajectory[:, position,:]
+
+    return trajectory
+
+
+def get_correct_arangement(reference, structure):
 
     unit_coordinates = []
     for coordinate in reference:
         trans = np.dot(coordinate, np.linalg.inv(structure.get_cell()).T)
-        print(np.array(trans.real, dtype=int))
         unit_coordinates.append(np.array(trans.real, dtype=int))
 
+    number_of_cell_atoms = structure.get_number_of_atoms()
 
-    print(np.array(np.average(unit_coordinates, axis=0) *2+1 ,dtype=int))
-    print([int(2*a+1) for a in np.average(unit_coordinates, axis=0)])
+    cell_size = [int(round(2*a+1)) for a in np.average(unit_coordinates, axis=0)]
 
-    cell_size = np.array(np.average(unit_coordinates, axis=0) *2+1 ,dtype=int)
-    print('#############')
+    difference = []
     for i, coordinate in enumerate(unit_coordinates):
 
-        x =i/(cell_size[0]*cell_size[1]*number_of_atoms)
-        y =i/4
-        z =  np.mod(i,cell_size[0])
-        vector = [z, y, x]
+        # vector_type2 = type_2(i, cell_size, number_of_cell_atoms)
+        difference.append([np.power(type_1(i, cell_size, number_of_cell_atoms)[:3]- coordinate,2),
+                           np.power(type_2(i, cell_size, number_of_cell_atoms)[:3] - coordinate,2)])
+        # print('{0}     {1} -> {2}'.format(vector_type2, coordinate, np.power(vector_type2[:3] - coordinate,2)))
 
-        print(vector)
-        #print(vector - coordinate)
+    difference = np.average(difference, axis=0)
+    difference = np.linalg.norm(difference, axis=1)
+    order_type = np.argmin(difference)
+
+    if order_type == 1:
+        list_reference = [(type_1(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]
+        list_target = [(type_2(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]
+
+        list_trans = []
+        for reference in list_reference:
+            for i, target in enumerate(list_target):
+                if (target == reference).all():
+                    list_trans.append(i)
+
+        return list_trans
+
+    return None
+
+def type_1(i, size, natom):
+
+    x = np.mod(i, size[0])
+    y = np.mod(i, size[0]*size[1])/size[1]
+    z = np.mod(i, size[0]*size[1]*size[2])/(size[1]*size[0])
+    k = i/(size[1]*size[0]*size[2])
+
+    return np.array([x, y, z, k])
 
 
+def type_2(i, size, natom):
+    x = np.mod(i, size[0]*natom)/natom
+    y = np.mod(i, size[0]*natom*size[1])/(size[0]*natom)
+    z = i/(size[1]*size[0]*natom)
+    k = np.mod(i, size[0])
 
-    exit()
+    return np.array([x, y, z, k])
 
-    for i, atom_coordinate in enumerate(reference):
-        print(i, atom_coordinate)
-
-        for structure_atom in structure.get_positions():
-            a = np.divide(atom_coordinate, structure_atom)
-            b = (a - np.round(a))
-            if (b < tolerance).all():
-                print(np.array(np.round(a).real,dtype=int))
-                index_vector.append(np.array(np.round(a).real,dtype=int))
-
-    exit()
 
 
 class Dynamics:
@@ -92,7 +113,7 @@ class Dynamics:
             self._structure = None
 
         if trajectory is not None:
-            trajectory = check_trajectory_structure(trajectory, structure)
+            self._trajectory = check_trajectory_structure(trajectory, structure)
 
 # A bit messy, has to be fixed
     def crop_trajectory(self, last_steps):
