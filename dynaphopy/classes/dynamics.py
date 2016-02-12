@@ -20,7 +20,7 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
 
     if arangement:
         original_trajectory = trajectory.copy()
-        print(arangement)
+#        print(arangement)
         for i, position in enumerate(arangement):
             trajectory[:,i,:] = original_trajectory[:, position,:]
 
