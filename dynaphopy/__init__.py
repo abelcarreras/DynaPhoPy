@@ -87,7 +87,7 @@ class Calculation:
         if save_trajectory:
             trajectory = self.dynamic.trajectory
         else:
-            trajectory = ()
+            trajectory = None
 
         reading.save_data_hdf5(file_name,
                                self.dynamic.get_time(),
