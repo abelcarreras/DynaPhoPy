@@ -29,7 +29,7 @@ class Parameters:
                     # 3: FFT via FFTW
                  power_spectra_algorithm=1,
                  use_asymmetric_peaks=False,
-                 frequency_range=np.linspace(0, 40, 500),
+                 frequency_range=np.linspace(0, 40, 2000),
 
                  # Phonon dispersion diagram
                  use_NAC = False,
