@@ -138,29 +138,29 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         occupancy_tot = dt_Q2_tot / (frequency * h_planck) - 0.5
 
         #Print section
-        print '\nPeak #', i+1
-        print('------------------------------------')
-        print 'Width (FWHM):              ', width, 'THz'
-        print 'Position:                  ', frequency, 'THz'
-        print 'Area (1/2<K>) (Lorentzian):', area, 'eV'             # 1/2 Kinetic energy
-        print 'Area (1/2<K>) (Total):     ', total_integral, 'eV'   # 1/2 Kinetic energy
-        print '<|dQ/dt|^2>      :         ', dt_Q2_lor, 'eV'        # Kinetic energy
+        print ('\nPeak # {0}'.format(i+1))
+        print ('----------------------------------------------')
+        print ('Width (FWHM)               {0:15.6f} THz'.format(width))
+        print ('Position                   {0:15.6f} THz'.format(frequency))
+        print ('Area (1/2<K>) (Lorentzian) {0:15.6f} eV'.format(area))      # 1/2 Kinetic energy
+        print ('Area (1/2<K>) (Total)      {0:15.6f} eV'.format(total_integral))   # 1/2 Kinetic energy
+        print ('<|dQ/dt|^2>                {0:15.6f} eV'.format(dt_Q2_lor))        # Kinetic energy
  #       print '<|dQ/dt|^2> (tot):        ', dt_Q2_tot, 'eV'        # Kinetic energy
  #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
  #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
-        print 'Occupation number:         ', occupancy_lor
+        print ('Occupation number          {0:15.6f}'.format(occupancy_lor))
  #       print 'Occupation number(tot): ', occupancy_tot
-        print 'Fit temperature            ', dt_Q2_lor / kb_bolzman, 'K'
+        print ('Fit temperature            {0:15.6f} K'.format(dt_Q2_lor / kb_bolzman))
  #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
-        print 'Base line                  ', base_line, 'ev * ps'
-        print 'Maximum height:            ', maximum, 'eV * ps'
-        print 'Fit Error(RMSD)/ Max. :    ', error/maximum
+        print ('Base line                  {0:15.6f} eV * ps'.format(base_line))
+        print ('Maximum height             {0:15.6f} eV * ps'.format(maximum))
+        print ('Fit Error(RMSD)/ Max.      {0:15.6f}'.format(error/maximum))
 
         if asymmetric_peaks:
-            print 'Peak asymmetry             ', assymetry
+            print ('Peak asymmetry             {0:15.6f}'.format(assymetry))
 
         if harmonic_frequencies is not None:
-            print 'Frequency shift:           ', frequency - harmonic_frequencies[i], 'THz'
+            print ('Frequency shift            {0:15.6f} THz'.format(frequency - harmonic_frequencies[i]))
 
         positions.append(frequency)
         widths.append(width)
