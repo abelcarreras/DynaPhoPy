@@ -89,3 +89,20 @@ def trajectory_projection(dynamic, direction):
         projections.append(projection)
 
     return np.array(projections)
+
+def get_mean_displacement_matrix(displacements, dynamic):
+
+    super_cell = dynamic.get_super_cell_matrix()
+
+    atom_type_index = dynamic.structure.get_atom_type_index(super_cell=super_cell)
+    number_of_atom_types = dynamic.structure.get_number_of_atom_types()
+
+
+    mean_displacement_matrix = np.zeros((number_of_atom_types, 3,3))
+
+    for i in range(displacements.shape[1]):
+        mean_displacement_matrix[atom_type_index[i],:,:] += np.dot(displacements[:,i,:].T, displacements[:i,:])
+
+    mean_displacement_matrix /= number_of_atom_types
+
+    return mean_displacement_matrix

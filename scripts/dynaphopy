@@ -79,6 +79,9 @@ parser.add_argument('-sad', '--save_atomic_displacements', metavar='X', type=str
 parser.add_argument('-sfc', '--save_force_constants', metavar='file', type=str, nargs=1, default=False,
                     help='save the renormalized force constants to a file')
 
+parser.add_argument('-adp', action='store_true',
+                    help='print anisotropic displacement parameters')
+
 # Extra options
 
 parser.add_argument('--silent', action='store_true',
@@ -217,3 +220,6 @@ if args.coefficient_scan_analysis:
 
 if args.peak_analysis:
     calculation.phonon_individual_analysis()
+
+if args.adp:
+    calculation.get_anisotropic_displacement_parameters()

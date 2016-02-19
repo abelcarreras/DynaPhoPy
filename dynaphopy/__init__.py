@@ -598,6 +598,37 @@ class Calculation:
         pho_interface.save_force_constants_to_file(force_constants, filename)
 
 
+    def get_anisotropic_displacement_parameters(self, coordinate_type='uvrs'):
+
+        elements = self.dynamic.structure.get_atomic_types()
+
+        print('Anisotropic displacement parameters ({0})'.format(coordinate_type))
+        for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix()):
+
+            cell = self.dynamic.structure.get_cell()
+            cell_inv = np.linalg.inv(cell)
+            n = np.array([[np.linalg.norm(cell_inv[0]), 0, 0],
+                          [0, np.linalg.norm(cell_inv[1]), 0],
+                          [0, 0, np.linalg.norm(cell_inv[2])]])
+
+            u_crys = np.dot(np.dot(cell_inv, u_cart), cell_inv.T)
+            u_uvrs = np.dot(np.dot(np.linalg.inv(n), u_crys), np.linalg.inv(n).T)
+
+            u = {'cart': u_cart,
+                 'crys': u_crys,
+                 'uvrs': u_uvrs}
+
+            print('{0:3} {1:12.8f} {2:12.8f} {3:12.8f} {4:12.8f} {5:12.8f} {6:12.8f}'.format(elements[i],
+                                                       u[coordinate_type][0,0],
+                                                       u[coordinate_type][1,1],
+                                                       u[coordinate_type][2,2],
+                                                       u[coordinate_type][1,2],
+                                                       u[coordinate_type][0,2],
+                                                       u[coordinate_type][0,1]))
+
+
+#Support functions
+
 def vector_in_list(vector_test_list, vector_full_list):
 
     for vector_test in vector_test_list:

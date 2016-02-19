@@ -108,6 +108,8 @@ class Dynamics:
         self._relative_trajectory = None
         self._super_cell_matrix = None
         self._number_of_atoms = None
+        self._mean_displacement_matrix = None
+
 
         if structure:
             self._structure = structure
@@ -214,6 +216,26 @@ class Dynamics:
             print('MD cell size relation: {0}'.format(self._super_cell_matrix))
 
         return self._super_cell_matrix
+
+    def get_mean_displacement_matrix(self):
+
+        if self._mean_displacement_matrix is None:
+
+            super_cell = self.get_super_cell_matrix()
+            atom_type_index = self.structure.get_atom_type_index(super_cell=super_cell)
+            number_of_atom_types = self.structure.get_number_of_atom_types()
+            displacements = self.get_relative_trajectory()
+            number_of_data = displacements.shape[0]
+
+            mean_displacement_matrix = np.zeros((number_of_atom_types, 3,3))
+
+            for i in range(displacements.shape[1]):
+                mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(displacements[:, i, :].T, displacements[:, i, :]).real
+
+            self._mean_displacement_matrix = mean_displacement_matrix / (number_of_atom_types * number_of_data)
+
+        return self._mean_displacement_matrix
+
 
     # Properties
     @property
