@@ -219,6 +219,13 @@ class Dynamics:
 
     def get_mean_displacement_matrix(self):
 
+
+
+        atom_type = self.structure.get_atom_type_index()
+
+        atom_primitive_equivalent = np.unique(atom_type, return_counts=True)[1]
+
+
         if self._mean_displacement_matrix is None:
 
             super_cell = self.get_super_cell_matrix()
@@ -227,12 +234,15 @@ class Dynamics:
             displacements = self.get_relative_trajectory()
             number_of_data = displacements.shape[0]
 
+            number_of_equivalent_atoms = np.prod(super_cell)
+
             mean_displacement_matrix = np.zeros((number_of_atom_types, 3,3))
 
             for i in range(displacements.shape[1]):
-                mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(displacements[:, i, :].T, displacements[:, i, :]).real
+                primtive_normalization = atom_primitive_equivalent[atom_type_index[i]]
+                mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(displacements[:, i, :].T, displacements[:, i, :]).real/primtive_normalization
 
-            self._mean_displacement_matrix = mean_displacement_matrix / (number_of_atom_types * number_of_data)
+            self._mean_displacement_matrix = mean_displacement_matrix / (number_of_equivalent_atoms * number_of_data)
 
         return self._mean_displacement_matrix
 
