@@ -26,26 +26,26 @@ def progress_bar(progress):
 
 def relativize_trajectory(dynamic):
 
-    cell = dynamic.get_super_cell()
+    cell = dynamic.structure.get_cell()
     number_of_atoms = dynamic.trajectory.shape[1]
     super_cell = dynamic.get_super_cell_matrix()
     position = dynamic.structure.get_positions(super_cell=super_cell)
 #    normalized_trajectory = np.zeros_like(dynamic.trajectory.real)
-    normalized_trajectory = dynamic.trajectory.copy()
-
     trajectory = dynamic.trajectory
 
+    normalized_trajectory = np.empty_like(trajectory)
 #    progress_bar(0)
 
     for i in range(number_of_atoms):
         normalized_trajectory[:, i, :] = atomic_displacement(trajectory[:, i, :], position[i], cell)
+
 
    #     progress_bar(float(i+1)/number_of_atoms)
     return normalized_trajectory
 
 def relativize_trajectory_py(dynamic):
 
-    cell = dynamic.get_super_cell()
+    cell = dynamic.structure.get_cell()
     number_of_atoms = dynamic.trajectory.shape[1]
     super_cell = dynamic.get_super_cell_matrix()
     position = dynamic.structure.get_positions(super_cell=super_cell)
@@ -89,20 +89,3 @@ def trajectory_projection(dynamic, direction):
         projections.append(projection)
 
     return np.array(projections)
-
-def get_mean_displacement_matrix(displacements, dynamic):
-
-    super_cell = dynamic.get_super_cell_matrix()
-
-    atom_type_index = dynamic.structure.get_atom_type_index(super_cell=super_cell)
-    number_of_atom_types = dynamic.structure.get_number_of_atom_types()
-
-
-    mean_displacement_matrix = np.zeros((number_of_atom_types, 3,3))
-
-    for i in range(displacements.shape[1]):
-        mean_displacement_matrix[atom_type_index[i],:,:] += np.dot(displacements[:,i,:].T, displacements[:i,:])
-
-    mean_displacement_matrix /= number_of_atom_types
-
-    return mean_displacement_matrix

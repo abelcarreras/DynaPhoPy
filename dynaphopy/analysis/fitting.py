@@ -42,49 +42,18 @@ def get_error_from_covariance(covariance):
     return np.sqrt(np.trace(covariance))
 
 
-def degenerate_sets(freqs, cutoff=1e-4):
-    indices = []
-    done = []
-    for i in range(len(freqs)):
-        if i in done:
-            continue
-        else:
-            f_set = [i]
-            done.append(i)
-        for j in range(i + 1, len(freqs)):
-            if (np.abs(freqs[f_set] - freqs[j]) < cutoff).any():
-                f_set.append(j)
-                done.append(j)
-        indices.append(f_set[:])
-
-    return indices
-
-
-def average_phonon(index, data, degeneracy):
-    for i, set in enumerate(degeneracy):
-        if index in set:
-            return np.average([data[:, j] for j in degeneracy[i]], axis=0)
-
-
-def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None,
-                            asymmetric_peaks = False,
-                            show_plots=True,
-                            use_degeneracy=True):
+def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None, asymmetric_peaks = False, show_plots=True):
 
     widths = []
     positions = []
 
     for i in range(original.shape[1]):
 
-        if use_degeneracy:
-            degeneracy = degenerate_sets(harmonic_frequencies)
-            power_spectrum = average_phonon(i, original, degeneracy)
-
-        else:
-            power_spectrum = original[:, i]
+        power_spectrum = original[:, i]
 
         height = np.max(power_spectrum)
         position = test_frequencies_range[np.argmax(power_spectrum)]
+
 
         try:
             if asymmetric_peaks:
@@ -138,29 +107,29 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         occupancy_tot = dt_Q2_tot / (frequency * h_planck) - 0.5
 
         #Print section
-        print ('\nPeak # {0}'.format(i+1))
-        print ('----------------------------------------------')
-        print ('Width (FWHM)               {0:15.6f} THz'.format(width))
-        print ('Position                   {0:15.6f} THz'.format(frequency))
-        print ('Area (1/2<K>) (Lorentzian) {0:15.6f} eV'.format(area))      # 1/2 Kinetic energy
-        print ('Area (1/2<K>) (Total)      {0:15.6f} eV'.format(total_integral))   # 1/2 Kinetic energy
-        print ('<|dQ/dt|^2>                {0:15.6f} eV'.format(dt_Q2_lor))        # Kinetic energy
+        print '\nPeak #', i+1
+        print('------------------------------------')
+        print 'Width (FWHM):              ', width, 'THz'
+        print 'Position:                  ', frequency, 'THz'
+        print 'Area (1/2<K>) (Lorentzian):', area, 'eV'             # 1/2 Kinetic energy
+        print 'Area (1/2<K>) (Total):     ', total_integral, 'eV'   # 1/2 Kinetic energy
+        print '<|dQ/dt|^2>      :         ', dt_Q2_lor, 'eV'        # Kinetic energy
  #       print '<|dQ/dt|^2> (tot):        ', dt_Q2_tot, 'eV'        # Kinetic energy
  #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
  #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
-        print ('Occupation number          {0:15.6f}'.format(occupancy_lor))
+        print 'Occupation number:         ', occupancy_lor
  #       print 'Occupation number(tot): ', occupancy_tot
-        print ('Fit temperature            {0:15.6f} K'.format(dt_Q2_lor / kb_bolzman))
+        print 'Fit temperature            ', dt_Q2_lor / kb_bolzman, 'K'
  #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
-        print ('Base line                  {0:15.6f} eV * ps'.format(base_line))
-        print ('Maximum height             {0:15.6f} eV * ps'.format(maximum))
-        print ('Fit Error(RMSD)/ Max.      {0:15.6f}'.format(error/maximum))
+        print 'Base line                  ', base_line, 'ev * ps'
+        print 'Maximum height:            ', maximum, 'eV * ps'
+        print 'Fit Error(RMSD)/ Max. :    ', error/maximum
 
         if asymmetric_peaks:
-            print ('Peak asymmetry             {0:15.6f}'.format(assymetry))
+            print 'Peak asymmetry             ', assymetry
 
         if harmonic_frequencies is not None:
-            print ('Frequency shift            {0:15.6f} THz'.format(frequency - harmonic_frequencies[i]))
+            print 'Frequency shift:           ', frequency - harmonic_frequencies[i], 'THz'
 
         positions.append(frequency)
         widths.append(width)

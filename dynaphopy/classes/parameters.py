@@ -29,7 +29,7 @@ class Parameters:
                     # 3: FFT via FFTW
                  power_spectra_algorithm=1,
                  use_asymmetric_peaks=False,
-                 frequency_range=np.linspace(0, 40, 2000),
+                 frequency_range=np.linspace(0, 40, 500),
 
                  # Phonon dispersion diagram
                  use_NAC = False,
@@ -38,7 +38,7 @@ class Parameters:
 
                  # Force constants
                  symmetrize = False,
-                 use_symmetry = True,
+                 degenerate = True,
 
                  # Modes (eigenvectors) display
                  modes_vectors_scale=10
@@ -59,7 +59,7 @@ class Parameters:
         self._number_of_bins_histogram = number_of_bins_histogram
 
         self._symmetrize = symmetrize
-        self._use_symmetry = use_symmetry
+        self._degenerate = degenerate
 
         self._modes_vectors_scale = modes_vectors_scale
 
@@ -177,12 +177,12 @@ class Parameters:
         self._zero_padding = zero_padding
 
     @property
-    def use_symmetry(self):
-        return self._use_symmetry
+    def degenerate(self):
+        return self._symmetrize
 
-    @use_symmetry.setter
-    def use_symmetry(self, use_symmetry):
-        self._use_symmetry = use_symmetry
+    @degenerate.setter
+    def degenerate(self, degenerate):
+        self._degenerate = degenerate
 
     @property
     def symmetrize(self):

@@ -105,13 +105,13 @@ static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *ke
 		}
 
         //Free memory
-        for (int k=0 ; k<NumberOfDimensions; k++) free(DifferenceMatrix[k]); free(DifferenceMatrix);
-        for (int k=0 ; k<NumberOfDimensions; k++) free(PeriodicDisplacement[k]); free(PeriodicDisplacement);
+        for (int k=0 ; k<NumberOfDimensions-1; k++) free(DifferenceMatrix[k]); free(DifferenceMatrix);
+        for (int k=0 ; k<NumberOfDimensions-1; k++) free(PeriodicDisplacement[k]); free(PeriodicDisplacement);
 
     }
     //Free memory
-    for (int k=0 ; k<NumberOfDimensions; k++) free(Difference[k]); free(Difference);
-    for (int k=0 ; k<NumberOfDimensions; k++) free(Cell_i[k]); free(Cell_i);
+    for (int k=0 ; k<NumberOfDimensions-1; k++) free(Difference[k]); free(Difference);
+    for (int k=0 ; k<NumberOfDimensions-1; k++) free(Cell_i[k]); free(Cell_i);
  	free(Cell_c);
 
 //  Returning python array
