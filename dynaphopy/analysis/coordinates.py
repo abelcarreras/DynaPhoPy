@@ -26,7 +26,7 @@ def progress_bar(progress):
 
 def relativize_trajectory(dynamic):
 
-    cell = dynamic.structure.get_cell()
+    cell = dynamic.get_super_cell()
     number_of_atoms = dynamic.trajectory.shape[1]
     super_cell = dynamic.get_super_cell_matrix()
     position = dynamic.structure.get_positions(super_cell=super_cell)
@@ -45,7 +45,7 @@ def relativize_trajectory(dynamic):
 
 def relativize_trajectory_py(dynamic):
 
-    cell = dynamic.structure.get_cell()
+    cell = dynamic.get_super_cell()
     number_of_atoms = dynamic.trajectory.shape[1]
     super_cell = dynamic.get_super_cell_matrix()
     position = dynamic.structure.get_positions(super_cell=super_cell)
