@@ -598,11 +598,20 @@ class Calculation:
         pho_interface.save_force_constants_to_file(force_constants, filename)
 
 
-    def get_anisotropic_displacement_parameters(self, coordinate_type='uvrs'):
+    def get_anisotropic_displacement_parameters(self, coordinate_type='uvrs', print_on_screen=True):
 
         elements = self.dynamic.structure.get_atomic_types()
 
-        print('Anisotropic displacement parameters ({0})'.format(coordinate_type))
+        atom_type = self.dynamic.structure.get_atom_type_index()
+        atom_type_index_unique = np.unique(atom_type, return_index=True)[1]
+
+        atom_equivalent = np.unique(atom_type, return_counts=True)[1]
+        atomic_types_unique = [elements[i] for i in atom_type_index_unique]
+
+        if print_on_screen:
+            print('Anisotropic displacement parameters ({0})'.format(coordinate_type))
+
+        anisotropic_displacements = []
         for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix()):
 
             cell = self.dynamic.structure.get_cell()
@@ -618,14 +627,19 @@ class Calculation:
                  'crys': u_crys,
                  'uvrs': u_uvrs}
 
-            print('{0:3} {1:12.8f} {2:12.8f} {3:12.8f} {4:12.8f} {5:12.8f} {6:12.8f}'.format(elements[i],
-                                                       u[coordinate_type][0,0],
-                                                       u[coordinate_type][1,1],
-                                                       u[coordinate_type][2,2],
-                                                       u[coordinate_type][1,2],
-                                                       u[coordinate_type][0,2],
-                                                       u[coordinate_type][0,1]))
+            if print_on_screen:
+                for equivalent in range(atom_equivalent[i]):
+                    print('{0:3} {1:12.8f} {2:12.8f} {3:12.8f} {4:12.8f} {5:12.8f} {6:12.8f}'.format(atomic_types_unique[i],
+                                                               u[coordinate_type][0,0],
+                                                               u[coordinate_type][1,1],
+                                                               u[coordinate_type][2,2],
+                                                               u[coordinate_type][1,2],
+                                                               u[coordinate_type][0,2],
+                                                               u[coordinate_type][0,1]))
 
+            anisotropic_displacements.append(u[coordinate_type])
+
+        return anisotropic_displacements
 
 #Support functions
 
