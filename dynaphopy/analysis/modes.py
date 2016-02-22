@@ -72,7 +72,7 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
             eigenvector_atom = np.array(eigenvectors[i_phonon, atom_type[i], :])
             phase = np.complex(0, 1) * np.dot(position, q_vector)
             vector = (eigenvector_atom / np.sqrt(masses[atom_type[i]]) * np.exp(phase) * vectors_scale).real
-
+ #           vector = np.dot(vector, np.linalg.inv(structure.get_primitive_matrix().T))
             a = Arrow3D([position[0], position[0]+vector[0]], [position[1], position[1]+vector[1]],
                         [position[2], position[2]+vector[2]], mutation_scale=20, lw=3, arrowstyle="-|>", color="r")
             ax.add_artist(a)

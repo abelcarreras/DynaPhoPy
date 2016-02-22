@@ -87,7 +87,11 @@ class Structure:
         self._cell = np.array(cell, dtype='double')
 
 
-    def get_cell(self):
+    def get_cell(self, super_cell=None):
+
+        if super_cell is not None:
+            return np.dot(self._cell, np.diag(super_cell))
+
         return self._cell
 
 
@@ -161,10 +165,19 @@ class Structure:
         return position_super_cell
 
 
-    def get_scaled_positions(self):
-        if self._scaled_positions is  None:
+    def get_scaled_positions(self, super_cell=None):
+
+        if self._scaled_positions is None:
             self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self.get_cell().T))
+
+        if super_cell is not None:
+            cell = np.dot(self.get_cell() , np.diag(super_cell))
+            scaled_positions = np.dot(self.get_positions(super_cell), np.linalg.inv(cell.T))
+            return scaled_positions
+
         return self._scaled_positions
+
+
 
 
     #Force related methods
@@ -184,6 +197,14 @@ class Structure:
         if self._force_set is None:
             print('No force sets specified!')
             exit()
+
+        force_atoms_file = self._force_set['natom']
+        force_atoms_input = np.product(np.diagonal(self.get_super_cell_phonon()))*self.get_number_of_atoms()
+
+        if force_atoms_file != force_atoms_input:
+            print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
+            exit()
+
         return self._force_set
 
 
