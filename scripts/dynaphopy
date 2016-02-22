@@ -79,6 +79,9 @@ parser.add_argument('-sad', '--save_atomic_displacements', metavar='X', type=str
 parser.add_argument('-sfc', '--save_force_constants', metavar='file', type=str, nargs=1, default=False,
                     help='save the renormalized force constants to a file')
 
+parser.add_argument('-adp', action='store_true',
+                    help='print anisotropic displacement parameters')
+
 # Extra options
 
 parser.add_argument('--silent', action='store_true',
@@ -88,7 +91,7 @@ parser.add_argument('--velocity_only', action='store_true',
                     help='loads only velocity data from hdf5 file')
 
 parser.add_argument('--asymmetric_peaks', action='store_true',
-                    help='Uses asymmetric Lorentzian functions to fit spectra')
+                    help='uses asymmetric Lorentzian functions to fit spectra')
 
 parser.add_argument('--read_from', metavar='N', type=int, default=1,
                     help='define interval of trajectory to read (default: 1)')
@@ -97,10 +100,14 @@ parser.add_argument('--read_to', metavar='N', type=int, default=None,
                     help='define interval of trajectory to read (default: end)')
 
 parser.add_argument('--zero_padding', metavar='N', type=int, default=0,
-                    help='Number of padding zeros (default: 0) [FFT only]')
+                    help='number of padding zeros (default: 0) [FFT only]')
 
 parser.add_argument('--fcsymm', action='store_true',
-                    help='Symmetrize force constants')
+                    help='symmetrize force constants')
+
+parser.add_argument('--no_symmetry', action='store_true',
+                    help='do not use crystal symmetry')
+
 
 
 args = parser.parse_args()
@@ -139,6 +146,7 @@ if isinstance(trajectory, list) or isinstance(trajectory, tuple):
     print('Loading projected velocity only (limited features only)')
     calculation = dynaphopy.Calculation(trajectory[2], vc=trajectory[0], last_steps=args.n)
     calculation.parameters.reduced_q_vector = trajectory[1]
+    calculation.parameters.use_symmetry = False
 
 else:
     calculation = dynaphopy.Calculation(trajectory, last_steps=args.n)
@@ -151,6 +159,9 @@ calculation.parameters.silent = args.silent
 calculation.parameters.use_asymmetric_peaks = args.asymmetric_peaks
 calculation.parameters.zero_padding = args.zero_padding
 calculation.parameters.degenerate = args.fcsymm
+
+if args.no_symmetry:
+    calculation.parameters.use_symmetry = False
 
 
 # Process properties arguments
@@ -209,3 +220,6 @@ if args.coefficient_scan_analysis:
 
 if args.peak_analysis:
     calculation.phonon_individual_analysis()
+
+if args.adp:
+    calculation.get_anisotropic_displacement_parameters()

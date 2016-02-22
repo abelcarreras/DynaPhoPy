@@ -87,7 +87,7 @@ class Calculation:
         if save_trajectory:
             trajectory = self.dynamic.trajectory
         else:
-            trajectory = ()
+            trajectory = None
 
         reading.save_data_hdf5(file_name,
                                self.dynamic.get_time(),
@@ -242,8 +242,7 @@ class Calculation:
             #Check if commensurate point
             if not self.check_commensurate(self.get_reduced_q_vector()):
                 print("warning! Defined wave vector is not a commensurate q-point in this cell")
-
-            self._vc = projection.project_onto_wave_vector(self.dynamic,self.get_q_vector())
+            self._vc = projection.project_onto_wave_vector(self.dynamic, self.get_q_vector())
         return self._vc
 
     def get_vq(self):
@@ -252,12 +251,11 @@ class Calculation:
             self._vq =  projection.project_onto_phonon(self.get_vc(),self.get_eigenvectors())
         return self._vq
 
-    def plot_vq(self,modes=None):
+    def plot_vq(self, modes=None):
         if not modes: modes = [0]
         plt.suptitle('Phonon mode projection')
         plt.xlabel('Time [ps]')
         plt.ylabel('$u^{1/2}\AA/ps$')
-
 
         time = np.linspace(0, self.get_vc().shape[0]*self.dynamic.get_time_step_average(),
                    num=self.get_vc().shape[0])
@@ -309,21 +307,54 @@ class Calculation:
     def get_power_spectrum_phonon(self):
         if self._power_spectrum_phonon is None:
             print("Calculating phonon projection power spectra")
-            self._power_spectrum_phonon = (
-                power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
+
+            if self.parameters.use_symmetry:
+                initial_reduced_q_point = self.get_reduced_q_vector()
+                power_spectrum_phonon = []
+                q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(self.get_reduced_q_vector(), self.dynamic.structure)
+#                print(q_points_equivalent)
+                for q_point in q_points_equivalent:
+                    self.set_reduced_q_vector(q_point)
+                    power_spectrum_phonon.append((
+                        power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
+                                                                               self.dynamic,
+                                                                               self.parameters))
+
+                self._power_spectrum_phonon = np.average(power_spectrum_phonon, axis=0)
+                self.parameters.reduced_q_vector = initial_reduced_q_point
+            else:
+                self._power_spectrum_phonon = (
+                    power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
                                                                                    self.dynamic,
                                                                                    self.parameters)
 
         return self._power_spectrum_phonon
 
     def get_power_spectrum_wave_vector(self):
+
         if self._power_spectrum_wave_vector is None:
-            print("Calculating wave vector projection power spectrum")
+            print('Calculating wave vector projection power spectrum')
             size = self.get_vc().shape[1]*self.get_vc().shape[2]
-            self._power_spectrum_wave_vector = (
-                    power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vc().swapaxes(1, 2).reshape(-1, size),
-                                                                                       self.dynamic,
-                                                                                       self.parameters)
+            if self.parameters.use_symmetry:
+                initial_reduced_q_point = self.get_reduced_q_vector()
+                power_spectrum_wave_vector = []
+                q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(self.get_reduced_q_vector(), self.dynamic.structure)
+                print(q_points_equivalent)
+                for q_point in q_points_equivalent:
+                    self.set_reduced_q_vector(q_point)
+                    power_spectrum_wave_vector.append((
+                        power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vc().swapaxes(1, 2).reshape(-1, size),
+                                                                                           self.dynamic,
+                                                                                           self.parameters))
+
+                power_spectrum_wave_vector = np.array(power_spectrum_wave_vector)
+                self._power_spectrum_wave_vector = np.average(power_spectrum_wave_vector, axis=0)
+                self.parameters.reduced_q_vector = initial_reduced_q_point
+            else:
+                self._power_spectrum_wave_vector = (
+                        power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vc().swapaxes(1, 2).reshape(-1, size),
+                                                                                           self.dynamic,
+                                                                                           self.parameters)
 
         return np.sum(self._power_spectrum_wave_vector,axis=1)
 
@@ -508,13 +539,30 @@ class Calculation:
     def get_renormalized_constants(self):
 
         if self._renormalized_force_constants is None:
-            com_points, dynmat2fc, phonon = pho_interface.get_commensurate_points_info(self.dynamic.structure)
+            com_points = pho_interface.get_commensurate_points(self.dynamic.structure)
 
             initial_reduced_q_point = self.get_reduced_q_vector()
 
             renormalized_frequencies = []
+            linewidths = []
+            q_points_list = []
+
             for i, reduced_q_point in enumerate(com_points):
+
                 print ("\nQpoint: {0} / {1}      {2}".format(i+1, len(com_points), reduced_q_point))
+
+                q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(reduced_q_point, self.dynamic.structure)
+                q_index = vector_in_list(q_points_equivalent, q_points_list)
+                q_points_list.append(reduced_q_point)
+
+                if q_index != 0 and self.parameters.use_symmetry:
+                    renormalized_frequencies.append(renormalized_frequencies[q_index])
+                    linewidths.append(linewidths[q_index])
+                    print('Skipped, equivalent to {0}'.format(q_points_list[q_index]))
+                    continue
+
+
+
                 self.set_reduced_q_vector(reduced_q_point)
                 positions, widths = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                     self.parameters.frequency_range,
@@ -529,17 +577,18 @@ class Calculation:
                     positions[2] = 0
 
                 renormalized_frequencies.append(positions)
-
-#            self.list_freq_and_qpoints(renormalized_frequencies, com_points)
+                linewidths.append(widths)
 
             renormalized_frequencies = np.array(renormalized_frequencies)
-            self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
-                                                                                                dynmat2fc,
-                                                                                                phonon,
-                                                                                                symmetrize=self.parameters.symmetrize,
-                                                                                                degenerate=self.parameters.degenerate)
-            self.set_reduced_q_vector(initial_reduced_q_point)
+#            np.savetxt('test_freq', renormalized_frequencies)
+#            np.savetxt('test_line', linewidths)
 
+
+            self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
+                                                                                                com_points,
+                                                                                                self.dynamic.structure,
+                                                                                                symmetrize=self.parameters.symmetrize)
+            self.set_reduced_q_vector(initial_reduced_q_point)
 
 
         return self._renormalized_force_constants
@@ -548,7 +597,56 @@ class Calculation:
         force_constants = self.get_renormalized_constants()
         pho_interface.save_force_constants_to_file(force_constants, filename)
 
-    def list_freq_and_qpoints(self, frequencies, com_points):
-        print('Wave vectors          Frequencies\n--------------------')
-        for q_point, frequency in zip(com_points, frequencies):
-            print('{0} :'.format(q_point) + '{} '.format(frequency))
+
+    def get_anisotropic_displacement_parameters(self, coordinate_type='uvrs', print_on_screen=True):
+
+        elements = self.dynamic.structure.get_atomic_types()
+
+        atom_type = self.dynamic.structure.get_atom_type_index()
+        atom_type_index_unique = np.unique(atom_type, return_index=True)[1]
+
+        atom_equivalent = np.unique(atom_type, return_counts=True)[1]
+        atomic_types_unique = [elements[i] for i in atom_type_index_unique]
+
+        if print_on_screen:
+            print('Anisotropic displacement parameters ({0})'.format(coordinate_type))
+
+        anisotropic_displacements = []
+        for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix()):
+
+            cell = self.dynamic.structure.get_cell()
+            cell_inv = np.linalg.inv(cell)
+            n = np.array([[np.linalg.norm(cell_inv[0]), 0, 0],
+                          [0, np.linalg.norm(cell_inv[1]), 0],
+                          [0, 0, np.linalg.norm(cell_inv[2])]])
+
+            u_crys = np.dot(np.dot(cell_inv, u_cart), cell_inv.T)
+            u_uvrs = np.dot(np.dot(np.linalg.inv(n), u_crys), np.linalg.inv(n).T)
+
+            u = {'cart': u_cart,
+                 'crys': u_crys,
+                 'uvrs': u_uvrs}
+
+            if print_on_screen:
+                for equivalent in range(atom_equivalent[i]):
+                    print('{0:3} {1:12.8f} {2:12.8f} {3:12.8f} {4:12.8f} {5:12.8f} {6:12.8f}'.format(atomic_types_unique[i],
+                                                               u[coordinate_type][0,0],
+                                                               u[coordinate_type][1,1],
+                                                               u[coordinate_type][2,2],
+                                                               u[coordinate_type][1,2],
+                                                               u[coordinate_type][0,2],
+                                                               u[coordinate_type][0,1]))
+
+            anisotropic_displacements.append(u[coordinate_type])
+
+        return anisotropic_displacements
+
+#Support functions
+
+def vector_in_list(vector_test_list, vector_full_list):
+
+    for vector_test in vector_test_list:
+        for i, vector_full in enumerate(vector_full_list):
+            if (vector_full == vector_test).all():
+                return i
+    return 0

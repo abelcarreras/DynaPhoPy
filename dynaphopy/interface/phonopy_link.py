@@ -5,7 +5,6 @@ from phonopy.file_IO import parse_BORN, parse_FORCE_SETS, write_FORCE_CONSTANTS
 from phonopy.harmonic.dynmat_to_fc import DynmatToForceConstants
 from phonopy.harmonic.force_constants import set_tensor_symmetry_PJ
 from phonopy.units import VaspToTHz
-from phonopy.phonon.degeneracy import degenerate_sets
 
 
 def eigenvectors_normalization(eigenvector):
@@ -25,15 +24,7 @@ def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
     write_FORCE_CONSTANTS(force_constants, filename=filename)
 
 
-def get_phonon(structure, NAC=False):
-
-    force_atoms_file = structure.get_force_set()['natom']
-    force_atoms_input = np.product(np.diagonal(structure.get_super_cell_phonon()))*structure.get_number_of_atoms()
-
-    if force_atoms_file != force_atoms_input:
-        print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
-        exit()
-
+def get_phonon(structure, NAC=False, set_force=True):
 
     #Preparing the bulk type object
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
@@ -52,9 +43,9 @@ def get_phonon(structure, NAC=False):
         nac_params = parse_BORN(primitive, get_is_symmetry)
         phonon.set_nac_params(nac_params=nac_params)
 
-
-    phonon.set_displacement_dataset(structure.get_force_set())
-    phonon.produce_force_constants(computation_algorithm="svd")
+    if set_force:
+        phonon.set_displacement_dataset(structure.get_force_set())
+        phonon.produce_force_constants(computation_algorithm="svd")
 
 
     return phonon
@@ -62,19 +53,14 @@ def get_phonon(structure, NAC=False):
 
 def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthonormal=False):
 
-    force_atoms_file = structure.get_force_set()['natom']
-    force_atoms_input = np.product(np.diagonal(structure.get_super_cell_phonon()))*structure.get_number_of_atoms()
-
-    if force_atoms_file != force_atoms_input:
-        print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
-        exit()
-
     phonon = get_phonon(structure)
 
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
-    print('Eigenvectors')
-    print(eigenvectors)
+
+    if False:
+        print('Eigenvectors')
+        print(eigenvectors)
 
     #Making sure eigenvectors are orthonormal (can be omitted)
     if test_orthonormal:
@@ -119,7 +105,8 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_reso
 def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_constants, NAC=False, band_resolution=30):
 
     print('Getting renormalized phonon dispersion bands')
-    phonon = get_phonon(structure, NAC=False)
+    phonon = get_phonon(structure, NAC=False, set_force=False)
+
     phonon.set_force_constants(force_constants)
 
     bands =[]
@@ -133,9 +120,9 @@ def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_c
     return phonon.get_band_structure()
 
 
-def get_commensurate_points_info(structure):
+def get_commensurate_points(structure):
 
-    phonon = get_phonon(structure)
+    phonon = get_phonon(structure, set_force=False)
 
     primitive = phonon.get_primitive()
     supercell = phonon.get_supercell()
@@ -143,18 +130,44 @@ def get_commensurate_points_info(structure):
     dynmat2fc = DynmatToForceConstants(primitive, supercell)
     com_points = dynmat2fc.get_commensurate_points()
 
+    return com_points
+
+
+def get_equivalent_q_points_by_symmetry(q_point, structure):
+
+    from phonopy.structure.symmetry import Symmetry
+    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
+                        scaled_positions=structure.get_scaled_positions(),
+                        cell=structure.get_cell().T)
+
+    tot_points = []
+    for operation_matrix in Symmetry(bulk).get_reciprocal_operations():
+        operation_matrix_q = np.dot(np.linalg.inv(structure.get_primitive_matrix()), operation_matrix.T)
+        operation_matrix_q = np.dot(operation_matrix_q, structure.get_primitive_matrix())
+
+        q_point_test = np.dot(q_point, operation_matrix_q)
+
+        if (q_point_test >= 0).all():
+                tot_points.append(q_point_test)
+
+#    print tot_points
+#    print(np.vstack({tuple(row) for row in tot_points}))
+
+    return np.vstack({tuple(row) for row in tot_points})
+
+
+def get_renormalized_force_constants(renormalized_frequencies, com_points, structure, symmetrize=False):
+
+    phonon = get_phonon(structure)
+
+    primitive = phonon.get_primitive()
+    supercell = phonon.get_supercell()
+
+    dynmat2fc = DynmatToForceConstants(primitive, supercell)
+
     phonon.set_qpoints_phonon(com_points, is_eigenvectors=True)
-
-    return com_points, dynmat2fc, phonon
-
-
-def get_renormalized_force_constants(renormalized_frequencies, dynmat2fc, phonon, degenerate=True, symmetrize=True):
-
     frequencies, eigenvectors = phonon.get_qpoints_phonon()
 
-    # Average degenerated phonons
-    if degenerate:
-        renormalized_frequencies = get_degenerated_frequencies(frequencies, renormalized_frequencies)
 
     dynmat2fc.set_dynamical_matrices(renormalized_frequencies / VaspToTHz, eigenvectors)
     dynmat2fc.run()
@@ -163,36 +176,10 @@ def get_renormalized_force_constants(renormalized_frequencies, dynmat2fc, phonon
 
     # Symmetrize force constants using crystal symmetry
     if symmetrize:
+        print('Symmetrizing force constants')
         set_tensor_symmetry_PJ(force_constants,
                                phonon.supercell.get_cell().T,
                                phonon.supercell.get_scaled_positions(),
                                phonon.symmetry)
 
     return force_constants
-
-
-def get_degenerated_frequencies(frequencies, renormalized_frequencies):
-
-    num_phonons = frequencies.shape[1]
-    renormalized_frequencies_degenerated = np.zeros_like(renormalized_frequencies)
-
-    for i, q_frequencies in enumerate(frequencies):
-        degenerate_index = degenerate_sets(q_frequencies)
-        weight_matrix = get_weights_from_index_list(num_phonons, degenerate_index)
-
-        for j, weight in enumerate(weight_matrix):
-            renormalized_frequencies_degenerated[i, j]= np.average(renormalized_frequencies[i, :], weights=weight)
-
-    return renormalized_frequencies_degenerated
-
-
-def get_weights_from_index_list(size, index_list):
-
-    weight = np.zeros([size, size])
-    for i in range(size):
-        for group in index_list:
-            if i in group:
-                for j in group:
-                    weight[i, j] = 1
-
-    return weight
