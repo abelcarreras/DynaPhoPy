@@ -52,12 +52,12 @@ of physics to descompose signals into elemental frequencies without information 
 </UL>
 If not specified algorithm 1 is used.</em>
 
-<pre><code>$ dynaphopy input_file OUTCAR -psm 1
+<pre><code>$ dynaphopy input_file TRAJECTORY -psm 1
 </code></pre>
 <p> Fourier methods do not require additional parameters but Maximum Entropy Method (MEM) does. MEM allows to obtain smoother and faster 
 power spectra interpolating the velocity using a polynomia which depends on a certain number of coefficents. The higher this number is, the heavier the calculation becomes and the result becomes closer to Fourier transfom solution. Fortunatelly, usually the convergence of the peaks shape in MEM can be found with 1000-3000 coeficients obtaining a very good performance. By default the number of coefficents used is 1000 but it can be changed using <strong>-cf</strong> followed by the number of coeficients.</p>
 
-<pre><code>$ dynaphopy input_file OUTCAR -cf 2000
+<pre><code>$ dynaphopy input_file TRAJECTORY -cf 2000
 </code></pre>
 
 <UL>
@@ -70,10 +70,10 @@ This options calculate the power spectra directly from cartesian coordinates vel
 
 </p>
 <p>Plot spectrum in a matplotlib X window:</p>
-<pre><code>$ dynaphopy input_file OUTCAR -pd
+<pre><code>$ dynaphopy input_file TRAJECTORY -pd
 </code></pre>
 <p>Save spectrum to file:</p>
-<pre><code>$ dynaphopy input_file OUTCAR -sd filename
+<pre><code>$ dynaphopy input_file TRAJECTORY -sd filename
 </code></pre>
 
 When this spectrum is requested, the area bellow the curve is also calculated. This area correspond to one half of the total kinetic energy of the phonon within the MD cell. According to the <a href="https://en.wikipedia.org/wiki/Equipartition_theorem">equipartition theorem</a>, at high temperatures this area can be approximated to:
@@ -90,7 +90,7 @@ where <em>N</em> is the number of phonon in the MD cell, <em>Kb</em> the <a href
 <pre><code>$ dynaphopy input_file OUTCAR -pw
 </code></pre>
 <p>Save spectrum to file:</p>
-<pre><code>$ dynaphopy input_file OUTCAR -sw filename
+<pre><code>$ dynaphopy input_file TRAJECTORY -sw filename
 </code></pre>
 
 <br><em>Like in the full power spectrum calculation, this option also calculates the area of this spectrum. In this case, since the velocity has been projected, only contains the contribution of the phonon within the defined primitive cell.</em>
@@ -104,19 +104,19 @@ which are either displayed in the screen in different windows or stored in a fil
 to higher frequency.
 
 <p>Plot spectrum in a matplotlib X window:</p>
-<pre><code>$ dynaphopy input_file OUTCAR -pp
+<pre><code>$ dynaphopy input_file TRAJECTORY -pp
 </code></pre>
 <p>Save spectrum to file:</p>
-<pre><code>$ dynaphopy input_file OUTCAR -sp filename
+<pre><code>$ dynaphopy input_file TRAJECTORY -sp filename
 </code></pre>
 
 <LI><h5>Additional options</h5>
 <p>Use <strong>-r</strong> option to change the power spectrum range and resolution (start, end, number of points).</p>
-<pre><code>$ dynaphopy input_file OUTCAR -r 0 25 100
+<pre><code>$ dynaphopy input_file TRAJECTORY -r 0 25 100
 </code></pre>
 <p>Use <strong>-q</strong> to change the recirpocal space point (wave vector) into which the velocity is projected. This option
 takes 3 real numbers (wave vector in reduced coordinates).
-<pre><code>$ dynaphopy input_file OUTCAR -q 0.5 0 0.5
+<pre><code>$ dynaphopy input_file TRAJECTORY -q 0.5 0 0.5
 </code></pre>
 
 <p>The number of time steps used to calculate the power spectra may have great influence in the final result. Using more time steps will lead to more converged results, however, this will imply a increase of the computational time (specially for Fourier transform method. Additionally, usually the MD simulation will take some time to equilibrate. Those initial time steps cannot be used and must be removed from the calculation. 
@@ -125,7 +125,7 @@ The main one is <strong>-n</strong> flag. This flag defines the number of steps 
 
 <br><em>If the OUTCAR file contains less time steps than the especified in <strong>-n</strong> flag, all time steps will be used.</em></p>
 
-<pre><code>$ dynaphopy input_file OUTCAR -n 5000
+<pre><code>$ dynaphopy input_file TRAJECTORY -n 5000
 </code></pre>
 
 <p>All these option can be combined to obtain the desired results. In interactive mode these options can also be used as initial 
@@ -147,7 +147,7 @@ requested through flag <strong>-pa</strong>.
 <br><em>This option works better with MEM method since the obtained sprectra are smoother. In case of Fourier trasform calculations
 some smoothing methods may be used before fitting.</em>
 
-<pre><code>$ dynaphopy input_file OUTCAR -pa
+<pre><code>$ dynaphopy input_file TRAJECTORY -pa
 </code></pre>
 <p> 
 When the calculation is finished the individual information of each phonon (sorted from low to high frequency) is displayed on the screen. Position and Width correspond to the anharmonic frequency and linewidth of the corresponding phonon (in this case the 7th phonon) respectively. Frequency shifts are calculated from the diference between the harmonic frequency and calculated anharmonic frequency (Position) of each peak.
@@ -208,7 +208,7 @@ This is very convenient for visual analysis of short MD trajectories, but when t
 
 <br><p>In this case flag <strong>--silent</strong> may be used. Using this flag only the text data is shown in the screen and the phonon information wich can be stored redirecting the output to a file.   
 </p>
-<pre><code>$ dynaphopy input_file OUTCAR -pa --silent > output.log
+<pre><code>$ dynaphopy input_file TRAJECTORY -pa --silent > output.log
 </code></pre>
 <p>
 Sometimes phonon modes present a power spectrum with very asymmetric peaks, specially for soft phonon modes. These peaks can be fitted better usign asymmetric lorentzian functions. The assymetric function used in DynaPhoPy is described in this article[1] and is defined by:
@@ -246,7 +246,7 @@ order to reduce HD space.
 <br>To request a atomic displacements calculation flags <strong>-pad</strong> and <strong>-sad</strong> are used,
 <strong>pad</strong> will calculate the displacements and show the data in a matplolib plot:
 </p>
-<pre><code>$ dynaphopy input_file OUTCAR -pad 0 0 1
+<pre><code>$ dynaphopy input_file TRAJECTORY -pad 0 0 1
 </code></pre>
 <img src="images/atomic_displacements.png" alt="Interactive" style="width:630px">
 <p>
@@ -255,13 +255,27 @@ the atomic displacements will be analyzed.
 <br>On the other hand, <strong>-sad</strong> flag does the same calculation as  <strong>-pad</strong> but instead of
 showing the plot on the screen stores the information in a defined file:
 </p>
-<pre><code>$ dynaphopy input_file OUTCAR -sad 0 0 1 displacements_file.out
+<pre><code>$ dynaphopy input_file TRAJECTORY -sad 0 0 1 displacements_file.out
 </code></pre>
 <p>
 The file contains a column for each nonequivalent atom in the unit cell. The first column correspond to the displacement
 coordinate.
 </p>
 
+<div id="anisotropic_displacement_parameters"></div> 
+<h3>Anisotropic displacement parameters (ADP's)</h3>
+<p> The anisotropic displacement parameters (ADP's) can be calculated from the molecular dynamics trajectories and used to display the thermal allipsoids using DynaPhoPy.
+    <br>This feature is only available by command line interface by using <strong>-adp</strong> option. 
+    </p>
+    <pre><code>$ dynaphopy input_file TRAJECTORY -adp</code></pre>
+    <p>
+    ADP's are displayed in "unitvectors parallel to the basis vectors of reciproval space (UVRS)" coordinates. This coordinate system is used in popular file formats such CIF as mmCIF. 
+</p>
+
+
+
+    
+    
 <div id="renormalized_forces"></div> 
 <h3>Obtaining the renormalized forces</h3>
 <p> The phonon information that can be obtained from MD is limited to the size of the simulation cell.
@@ -292,16 +306,19 @@ Using this new force constants it is possible to calculate all the properties av
 <p style="text-align:center">
 <em>Phonon dispersion bands of cubic zirconia (ZrO2) renormalized at 1000 K </em>
 </p>
- 
 
-
-
-
-
-
+<div id="symmetry"></div> 
+<h3>Crystallographic symmetry</h3>
+    <p> DynaPhoPy uses crystallographic symmetry to determine the equivalent q-ponts in the simulation cell. This information is used to average the power spectra of all the equivalent q-points to increase the precision of the phonon properties calculation. Dynaphopy also determines the degenerate phonons within a phonon branch to  also average the power spectra of the degenerated phonon. This procedure is carried out by default but can be deactivated using the option <strong>--no_symmetry</strong> (command line support only).     
+    </p>
+    <pre><code>$ dynaphopy input_file TRAJECTORY --no_symmetry</code></pre>
+    <p>
 </p>
 
 
+    
+
+    
     </section>
     </div>
     

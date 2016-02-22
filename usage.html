@@ -54,7 +54,7 @@ dump_modify  dynaphopy sort id
 <br>Please, refere to LAMMPS <a href="http://lammps.sandia.gov/doc/Manual.html"> online manual</a> for usage and detailed information about output <a href="http://lammps.sandia.gov/doc/dump.html"> formats and styles</a>.
 <br> LAMMPS trajectories do not have information about the time step used in the MD. For this reason the time step has to be introduced manually to DynaPhoPy in order to scale the time correctly. For this purpose <strong>-ts</strong>
 flag is used. This flag accepts a float number that indicated the time step in picoseconds.
-</p><pre><code>$ dynaphopy input_file trajectory_file -ts 0.002 
+</p><pre><code>$ dynaphopy input_file TRAJECTORY -ts 0.002 
 </code></pre>
 <br>This flag only work in LAMMPS trajectories, for VASP trajectories it is ignored. 
 Reading LAMMPS file, if not specified 0.001 ps time step is used.
