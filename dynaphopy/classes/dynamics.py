@@ -219,12 +219,8 @@ class Dynamics:
 
     def get_mean_displacement_matrix(self):
 
-
-
         atom_type = self.structure.get_atom_type_index()
-
         atom_primitive_equivalent = np.unique(atom_type, return_counts=True)[1]
-
 
         if self._mean_displacement_matrix is None:
 
