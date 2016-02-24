@@ -20,7 +20,6 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
 
     if arangement:
         original_trajectory = trajectory.copy()
- #       print(arangement)
         for i, position in enumerate(arangement):
             trajectory[:,i,:] = original_trajectory[:, position,:]
 
@@ -201,7 +200,6 @@ class Dynamics:
             b = np.linalg.norm(h[:,1])
             c = np.linalg.norm(h[:,2])
             return [a, b, c]
-
 
         if self._super_cell_matrix is None:
             super_cell_matrix_real = np.divide(parameters(self.get_super_cell()), parameters(self.structure.get_cell()))
