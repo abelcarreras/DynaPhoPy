@@ -207,8 +207,6 @@ def fft_power(frequency_range, data, time_step, zero_padding=0):
     return np.interp(frequency_range, freqs[idx], ps[idx])
 
 
-
-
 def get_fft_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
