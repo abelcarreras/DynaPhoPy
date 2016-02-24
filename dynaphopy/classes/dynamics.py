@@ -240,7 +240,7 @@ class Dynamics:
 
             for i in range(displacements.shape[1]):
                 primtive_normalization = atom_primitive_equivalent[atom_type_index[i]]
-                mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(displacements[:, i, :].T, displacements[:, i, :]).real/primtive_normalization
+                mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(np.conj(displacements[:, i, :]).T, displacements[:, i, :]).real/primtive_normalization
 
             self._mean_displacement_matrix = mean_displacement_matrix / (number_of_equivalent_atoms * number_of_data)
 
