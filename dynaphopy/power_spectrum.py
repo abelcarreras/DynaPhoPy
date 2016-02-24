@@ -178,15 +178,31 @@ def autocorrelation(x):
 
 def fft_power(frequency_range, data, time_step, zero_padding=0):
 
-    data = autocorrelation(data)
+  #  time_step = 0.0301
+  #  print('real aim', frequency_range[1]-frequency_range[0])
 
-    data = np.lib.pad(data, (0, zero_padding), 'constant', constant_values=(0, 0))
+    aim_step = frequency_range[1]-frequency_range[0]
+    piece_size = round(1./(time_step*aim_step))
+#    print 'N', piece_size
+    if piece_size > data.size:
+        piece_size = data.size
 
-    ps = np.abs(np.fft.fft(data))*time_step/2.0
-#    ps = np.abs(pyfftw.interfaces.numpy_fft.fft(data, threads=multiprocessing.cpu_count()))*time_step/2.0
+    number_of_pieces = int(data.size/piece_size)
+#    print'Number of pieces', number_of_pieces
+#    print'Size', data.size
 
-    freqs = np.fft.fftfreq(data.size, time_step)
+    ps = []
+    for i in range(number_of_pieces):
+        data_piece = data[piece_size*i:piece_size*(i+1)]
+        data_piece = autocorrelation(data_piece)
+        data_piece = np.lib.pad(data_piece, (0, zero_padding/number_of_pieces), 'constant', constant_values=(0, 0))
+        ps.append(np.abs(np.fft.fft(data_piece))*time_step/2.0)
+
+    ps = np.average(ps,axis=0)
+
+    freqs = np.fft.fftfreq(data_piece.size, time_step)
     idx = np.argsort(freqs)
+
 
     return np.interp(frequency_range, freqs[idx], ps[idx])
 
@@ -198,6 +214,12 @@ def get_fft_spectra(vq, trajectory, parameters):
 
     if parameters.zero_padding:
         print('Padding with {0} zeros'.format(parameters.zero_padding))
+
+    requested_resolution = test_frequency_range[1]-test_frequency_range[0]
+    maximum_resolution = 1./(trajectory.get_time_step_average()*(vq.shape[0]+parameters.zero_padding))
+    if requested_resolution < maximum_resolution:
+        print('Power spectrum resolution requested unavailable, using maximum: {0:9.6f} THz'.format(maximum_resolution))
+        print('If you need more resolution increase the number of data')
 
     psd_vector = []
     progress_bar(0, 'FFT')
