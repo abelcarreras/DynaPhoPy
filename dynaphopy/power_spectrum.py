@@ -228,7 +228,7 @@ def get_fft_spectra(vq, trajectory, parameters):
     maximum_resolution = 1./(trajectory.get_time_step_average()*(vq.shape[0]+parameters.zero_padding))
     if requested_resolution < maximum_resolution:
         print('Power spectrum resolution requested unavailable, using maximum: {0:9.6f} THz'.format(maximum_resolution))
-        print('If you need more resolution increase the number of data')
+        print('If you need higher resolution increase the number of data')
 
     psd_vector = []
     progress_bar(0, 'FFT')
