@@ -184,25 +184,36 @@ def fft_power(frequency_range, data, time_step, zero_padding=0):
     aim_step = frequency_range[1]-frequency_range[0]
     piece_size = round(1./(time_step*aim_step))
 #    print 'N', piece_size
-    if piece_size > data.size:
-        piece_size = data.size
 
-    number_of_pieces = int(data.size/piece_size)
+    number_of_pieces = int((data.size-1)/piece_size)
 #    print'Number of pieces', number_of_pieces
 #    print'Size', data.size
 
+    if number_of_pieces > 0:
+        interval = (data.size - piece_size)/number_of_pieces
+    else:
+        interval = 0
+        number_of_pieces = 1
+        piece_size = data.size
+
     ps = []
-    for i in range(number_of_pieces):
-        data_piece = data[piece_size*i:piece_size*(i+1)]
+    for i in range(number_of_pieces+1):
+
+        ini = int((piece_size/2+i*interval)-piece_size/2)
+        fin = int((piece_size/2+i*interval)+piece_size/2)
+
+        data_piece = data[ini:fin]
+
+        #data_piece = data[piece_size*i:piece_size*(i+1)]
+
         data_piece = autocorrelation(data_piece)
-        data_piece = np.lib.pad(data_piece, (0, zero_padding/number_of_pieces), 'constant', constant_values=(0, 0))
+        data_piece = np.lib.pad(data_piece, (0, zero_padding/(number_of_pieces+1)), 'constant', constant_values=(0, 0))
         ps.append(np.abs(np.fft.fft(data_piece))*time_step/2.0)
 
     ps = np.average(ps,axis=0)
 
     freqs = np.fft.fftfreq(data_piece.size, time_step)
     idx = np.argsort(freqs)
-
 
     return np.interp(frequency_range, freqs[idx], ps[idx])
 

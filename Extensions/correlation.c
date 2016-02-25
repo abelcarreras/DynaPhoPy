@@ -113,6 +113,7 @@ double EvaluateCorrelation2 (double AngularFrequency, double _Complex Velocity[]
 
     }
 
+
     return  creal(Integral)* TimeStep * Increment;
 }
 
