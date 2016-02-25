@@ -114,7 +114,8 @@ else:
 #Analysis using Dynaphopy functions
 fitting.phonon_fitting_analysis(data, test_frequencies_range,
                                 show_plots=not(args.silent),
-                                asymmetric_peaks=args.asymmetric_peaks)
+                                asymmetric_peaks=args.asymmetric_peaks,
+                                use_degeneracy=None)
 
 if args.s:
     reading.write_correlation_to_file(test_frequencies_range, data, args.s)
