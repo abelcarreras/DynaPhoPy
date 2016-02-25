@@ -96,7 +96,7 @@ if args.smooth:
         if not(args.silent):
             plt.figure(i+1)
             plt.title('Band '+str(i+1))
-            plt.suptitle('Smoothing LOWESS')
+            plt.suptitle('Smoothing LOESS')
 
             plt.plot(test_frequencies_range, datum, label='Original')
             plt.plot(test_frequencies_range, y2, label='Smooth', linewidth=3)
