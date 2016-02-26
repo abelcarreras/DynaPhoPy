@@ -59,9 +59,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(6,45,"Wave vector: "+str(calculation.get_reduced_q_vector()))
         screen.addstr(7,45,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '
                                               +str(calculation.get_frequency_range()[-1])+' THz')
-
         screen.addstr(8,45,"Spectrum resolution: {0} THz".format(calculation.parameters.spectrum_resolution))
-        screen.addstr(9,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
+
+        screen.addstr(10,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
         screen.addstr(11,45,"Unit cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
         screen.addstr(12,45,"MD  cell atoms: "+str(trajectory.get_number_of_atoms()))
         screen.addstr(13,45,"Number of MD time steps: "+str(len(trajectory.velocity)))
