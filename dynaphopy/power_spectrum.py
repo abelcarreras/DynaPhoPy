@@ -226,9 +226,6 @@ def fft_power(frequency_range, data, time_step):
 def get_fft_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
-    if parameters.zero_padding:
-        print('Padding with {0} zeros'.format(parameters.zero_padding))
-
     requested_resolution = test_frequency_range[1]-test_frequency_range[0]
     maximum_resolution = 1./(trajectory.get_time_step_average()*(vq.shape[0]+parameters.zero_padding))
     if requested_resolution < maximum_resolution:
@@ -250,17 +247,25 @@ def get_fft_spectra(vq, trajectory, parameters):
 
 #   FFTW
 
-def fftw_power(frequency_range, data, time_step, zero_padding=0):
+def fftw_power(frequency_range, data, time_step):
     import pyfftw
     from multiprocessing import cpu_count
 
-    data = autocorrelation(data)
+    pieces = division_of_data(frequency_range[1]-frequency_range[0],
+                              data.size,
+                              time_step)
 
-    data = np.lib.pad(data, (0, zero_padding), 'constant', constant_values=(0, 0))
+    ps = []
+    for i_p in pieces:
 
-    ps = np.abs(pyfftw.interfaces.numpy_fft.fft(data, threads=cpu_count()))*time_step/2.0
+        data_piece = data[i_p[0]:i_p[1]]
 
-    freqs = np.fft.fftfreq(data.size, time_step)
+        data_piece = autocorrelation(data_piece)
+        ps.append(np.abs(pyfftw.interfaces.numpy_fft.fft(data_piece, threads=cpu_count()))*time_step/2.0)
+
+    ps = np.average(ps,axis=0)
+
+    freqs = np.fft.fftfreq(data_piece.size, time_step)
     idx = np.argsort(freqs)
 
     return np.interp(frequency_range, freqs[idx], ps[idx])
@@ -269,15 +274,11 @@ def fftw_power(frequency_range, data, time_step, zero_padding=0):
 def get_fft_fftw_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
-    if parameters.zero_padding:
-        print('Padding with {0} zeros'.format(parameters.zero_padding))
-
     psd_vector = []
     progress_bar(0, 'FFTW')
     for i in range(vq.shape[1]):
         psd_vector.append(fftw_power(test_frequency_range,vq[:, i],
-                                     trajectory.get_time_step_average(),
-                                     zero_padding=parameters.zero_padding),
+                                     trajectory.get_time_step_average()),
                           )
 
         progress_bar(float(i+1)/vq.shape[1], 'FFTW')
