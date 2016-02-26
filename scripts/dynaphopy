@@ -100,9 +100,6 @@ parser.add_argument('--read_from', metavar='N', type=int, default=1, nargs=1,
 parser.add_argument('--read_to', metavar='N', type=int, default=None, nargs=1,
                     help='define interval of trajectory to read (default: end)')
 
-parser.add_argument('--zero_padding', metavar='N', type=int, default=0,
-                    help='number of padding zeros (default: 0) [FFT only]')
-
 parser.add_argument('--fcsymm', action='store_true',
                     help='symmetrize force constants')
 
@@ -160,7 +157,6 @@ if '_band_ranges' in input_parameters:
 # Set Parameters
 calculation.parameters.silent = args.silent
 calculation.parameters.use_asymmetric_peaks = args.asymmetric_peaks
-calculation.parameters.zero_padding = args.zero_padding
 calculation.parameters.degenerate = args.fcsymm
 
 if args.no_symmetry:
