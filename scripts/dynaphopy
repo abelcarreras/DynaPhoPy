@@ -25,8 +25,8 @@ parser.add_argument('-i', '--interactive', action='store_true',
 parser.add_argument('-q', metavar='N', type=str, nargs=3,
                     help='wave vector used to calculate projections (default: 0 0 0)')
 
-parser.add_argument('-r', '--frequency_range', metavar='N', type=float, nargs=3,
-                    help='frequency range for correlation function calculation (min, max, number of points)')
+parser.add_argument('-r', '--frequency_range', metavar='N', type=float, nargs=2,
+                    help='frequency range of power spectrum in THz (min, max)')
 
 parser.add_argument('-n', metavar='N', type=int, default=0,
                     help='number of MD last steps to take (default: All)')
@@ -84,6 +84,7 @@ parser.add_argument('-adp', action='store_true',
 
 # Extra options
 
+
 parser.add_argument('--silent', action='store_true',
                     help='executes without showing plots')
 
@@ -93,10 +94,10 @@ parser.add_argument('--velocity_only', action='store_true',
 parser.add_argument('--asymmetric_peaks', action='store_true',
                     help='uses asymmetric Lorentzian functions to fit spectra')
 
-parser.add_argument('--read_from', metavar='N', type=int, default=1,
+parser.add_argument('--read_from', metavar='N', type=int, default=1, nargs=1,
                     help='define interval of trajectory to read (default: 1)')
 
-parser.add_argument('--read_to', metavar='N', type=int, default=None,
+parser.add_argument('--read_to', metavar='N', type=int, default=None, nargs=1,
                     help='define interval of trajectory to read (default: end)')
 
 parser.add_argument('--zero_padding', metavar='N', type=int, default=0,
@@ -108,6 +109,8 @@ parser.add_argument('--fcsymm', action='store_true',
 parser.add_argument('--no_symmetry', action='store_true',
                     help='do not use crystal symmetry')
 
+parser.add_argument('--resolution', metavar='R', type=float, default=None, nargs=1,
+                    help='define power spectrum resolution in THz (default 0.05)')
 
 
 args = parser.parse_args()
@@ -165,6 +168,9 @@ if args.no_symmetry:
 
 
 # Process properties arguments
+if args.resolution:
+    calculation.set_spectra_resolution(args.resolution[0])
+
 if args.q:
     calculation.set_reduced_q_vector(np.array([float(Fraction(s)) for s in args.q]))
 
@@ -183,7 +189,8 @@ if args.save_velocity:
 
 # Process calculation arguments
 if args.frequency_range:
-    calculation.set_frequency_range(np.linspace(*args.frequency_range))
+    calculation.set_frequency_limits(args.frequency_range)
+ #   calculation.set_frequency_range(np.linspace(*args.frequency_range))
 
 if args.save_direct:
     calculation.write_power_spectrum_full(args.save_direct[0])

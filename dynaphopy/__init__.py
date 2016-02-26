@@ -118,6 +118,15 @@ class Calculation:
         self.power_spectra_clear()
         self.parameters.frequency_range = frequency_range
 
+    def set_spectra_resolution(self, resolution):
+        limits = [self.get_frequency_range()[0], self.get_frequency_range()[-1]]
+        self.parameters.spectrum_resolution = resolution
+        self.set_frequency_range(np.arange(limits[0], limits[1] + resolution, resolution))
+
+    def set_frequency_limits(self, limits):
+        resolution = self.parameters.spectrum_resolution
+        self.set_frequency_range(np.arange(limits[0], limits[1] + resolution, resolution))
+
     def get_frequency_range(self):
          return self.parameters.frequency_range
 

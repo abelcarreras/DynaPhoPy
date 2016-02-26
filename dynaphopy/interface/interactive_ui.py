@@ -59,10 +59,12 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(6,45,"Wave vector: "+str(calculation.get_reduced_q_vector()))
         screen.addstr(7,45,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '
                                               +str(calculation.get_frequency_range()[-1])+' THz')
+
+        screen.addstr(8,45,"Spectrum resolution: {0}".format(calculation.parameters.spectrum_resolution))
         screen.addstr(9,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
-        screen.addstr(10,45,"Unit cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
-        screen.addstr(11,45,"MD  cell atoms: "+str(trajectory.get_number_of_atoms()))
-        screen.addstr(12,45,"Number of MD time steps: "+str(len(trajectory.velocity)))
+        screen.addstr(11,45,"Unit cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
+        screen.addstr(12,45,"MD  cell atoms: "+str(trajectory.get_number_of_atoms()))
+        screen.addstr(13,45,"Number of MD time steps: "+str(len(trajectory.velocity)))
 
 
         #Option values left screen
@@ -137,9 +139,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 ######## OPTION 3 :  DEFINE FREQUENCY RANGE
         if x == ord('3'):
             frequency_limits = np.array([float(Fraction(s)) for s in
-                                         get_param(screen, "Insert frequency range (min, max, number of points)").split(',')])
+                                         get_param(screen, "Insert frequency range (min, max)").split(',')])
             print(frequency_limits)
-            calculation.set_frequency_range(np.linspace(*frequency_limits))
+            calculation.set_frequency_limits(frequency_limits)
             curses.endwin()
 
 ######## OPTION 4 :  BOLTZMANN DISTRIBUTION
@@ -222,8 +224,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                               str(calculation.parameters.modes_vectors_scale))
                 screen.addstr(9, 4, "6 - Use asymmetric lorentzian: " +
                             str(calculation.parameters.use_asymmetric_peaks))
-                screen.addstr(10, 4, "7 - Zero padding (FFT only): " +
-                            str(calculation.parameters.zero_padding))
+                screen.addstr(10, 4, "7 - Change spectrum resolution")
 
 
                 screen.addstr(12, 4, "0 - Return")
@@ -320,10 +321,10 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
 
                 if x2 == ord('7'):
-                    calculation.parameters.zero_padding = int(get_param(screen, "Insert number of zeros"))
+                    resolution =float(get_param(screen, "Insert resolution in THz"))
+                    calculation.set_spectra_resolution(resolution)
                     calculation.power_spectra_clear()
                     curses.endwin()
-
 
     curses.endwin()
 

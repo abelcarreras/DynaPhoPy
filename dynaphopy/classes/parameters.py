@@ -29,7 +29,8 @@ class Parameters:
                     # 3: FFT via FFTW
                  power_spectra_algorithm=1,
                  use_asymmetric_peaks=False,
-                 frequency_range=np.linspace(0, 40, 2000),
+                 spectrum_resolution=0.05,
+                 frequency_range=np.arange(0, 40.05, 0.05),
 
                  # Phonon dispersion diagram
                  use_NAC = False,
@@ -53,6 +54,7 @@ class Parameters:
         self._use_asymmetric_peaks = use_asymmetric_peaks
         self._zero_padding = zero_padding
         self._frequency_range = frequency_range
+        self._spectrum_resolution = spectrum_resolution
         self._reduced_q_vector = reduced_q_vector
         self._use_NAC = use_NAC
         self._band_ranges = band_ranges
@@ -117,8 +119,16 @@ class Parameters:
         return self._frequency_range
 
     @frequency_range.setter
-    def frequency_range(self,frequency_range):
+    def frequency_range(self, frequency_range):
         self._frequency_range = frequency_range
+
+    @property
+    def spectrum_resolution(self):
+        return self._spectrum_resolution
+
+    @spectrum_resolution.setter
+    def spectrum_resolution(self, spectrum_resolution):
+        self._spectrum_resolution = spectrum_resolution
 
     @property
     def power_spectra_algorithm(self):

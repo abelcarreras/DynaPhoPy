@@ -176,38 +176,43 @@ def autocorrelation(x):
 
 #   FFT Numpy
 
-def fft_power(frequency_range, data, time_step, zero_padding=0):
+def division_of_data(resolution, number_of_data, time_step):
 
-  #  time_step = 0.0301
-  #  print('real aim', frequency_range[1]-frequency_range[0])
-
-    aim_step = frequency_range[1]-frequency_range[0]
-    piece_size = round(1./(time_step*aim_step))
+    piece_size = round(1./(time_step*resolution))
 #    print 'N', piece_size
 
-    number_of_pieces = int((data.size-1)/piece_size)
+    number_of_pieces = int((number_of_data-1)/piece_size)
 #    print'Number of pieces', number_of_pieces
 #    print'Size', data.size
 
     if number_of_pieces > 0:
-        interval = (data.size - piece_size)/number_of_pieces
+        interval = (number_of_data - piece_size)/number_of_pieces
     else:
         interval = 0
         number_of_pieces = 1
-        piece_size = data.size
+        piece_size = number_of_data
 
-    ps = []
+    pieces = []
     for i in range(number_of_pieces+1):
-
         ini = int((piece_size/2+i*interval)-piece_size/2)
         fin = int((piece_size/2+i*interval)+piece_size/2)
+        pieces.append([ini, fin])
 
-        data_piece = data[ini:fin]
+    return pieces
 
-        #data_piece = data[piece_size*i:piece_size*(i+1)]
+
+def fft_power(frequency_range, data, time_step):
+
+    pieces = division_of_data(frequency_range[1]-frequency_range[0],
+                              data.size,
+                              time_step)
+
+    ps = []
+    for i_p in pieces:
+
+        data_piece = data[i_p[0]:i_p[1]]
 
         data_piece = autocorrelation(data_piece)
-        data_piece = np.lib.pad(data_piece, (0, zero_padding/(number_of_pieces+1)), 'constant', constant_values=(0, 0))
         ps.append(np.abs(np.fft.fft(data_piece))*time_step/2.0)
 
     ps = np.average(ps,axis=0)
@@ -234,8 +239,7 @@ def get_fft_spectra(vq, trajectory, parameters):
     progress_bar(0, 'FFT')
     for i in range(vq.shape[1]):
         psd_vector.append(fft_power(test_frequency_range,vq[:, i],
-                                    trajectory.get_time_step_average(),
-                                    zero_padding=parameters.zero_padding),
+                                    trajectory.get_time_step_average()),
                           )
 
         progress_bar(float(i+1)/vq.shape[1], 'FFT')
