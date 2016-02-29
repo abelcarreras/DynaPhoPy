@@ -206,9 +206,6 @@ if args.plot_wave_vector:
 if args.plot_phonon_mode:
     calculation.plot_power_spectrum_phonon()
 
-if args.interactive:
-    interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
-
 if args.plot_atomic_displacements:
     calculation.plot_trajectory_distribution([float(Fraction(i)) for i in args.plot_atomic_displacements])
 
@@ -226,3 +223,9 @@ if args.peak_analysis:
 
 if args.adp:
     calculation.get_anisotropic_displacement_parameters()
+
+if args.interactive:
+    if isinstance(trajectory, list) or isinstance(trajectory, tuple):
+        print('Interactive mode cannot be used loading wave vector projected velocity')
+        exit()
+    interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
