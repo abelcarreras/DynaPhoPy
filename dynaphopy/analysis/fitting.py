@@ -198,4 +198,5 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
     if show_plots:
         plt.show()
 
-    return positions, widths
+    return {'positions' : positions,
+            'widths' : widths}

@@ -573,12 +573,13 @@ class Calculation:
 
 
                 self.set_reduced_q_vector(reduced_q_point)
-                positions, widths = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
+                data = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                     self.parameters.frequency_range,
                                     harmonic_frequencies=self.get_frequencies(),
                                     show_plots=False,
                                     asymmetric_peaks=self.parameters.use_asymmetric_peaks)
 
+                positions = data['positions']
                 if (reduced_q_point == [0, 0, 0]).all():
                     print('Fixing gamma point frequencies')
                     positions[0] = 0
@@ -586,7 +587,7 @@ class Calculation:
                     positions[2] = 0
 
                 renormalized_frequencies.append(positions)
-                linewidths.append(widths)
+                linewidths.append(data['widths'])
 
             renormalized_frequencies = np.array(renormalized_frequencies)
 #            np.savetxt('test_freq', renormalized_frequencies)
