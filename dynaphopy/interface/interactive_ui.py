@@ -49,22 +49,22 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.border(0)
 
         #Show parameters right screen
-        screen.addstr(2,45,"Input file: "+args.input_file[0][-20:])
+        screen.addstr(2,45,"Input file: " + args.input_file[0][-20:])
         if args.load_velocity:
-            screen.addstr(4,45,"hdf5 file: "+ args.load_velocity[0][-20:])
+            screen.addstr(4,45,"hdf5 file: " + args.load_velocity[0][-20:])
         else:
-            screen.addstr(3,45,"Structure file: "+ structure_file[-14:])
-            screen.addstr(4,45,"MD file: "+ args.md_file[-20:])
+            screen.addstr(3,45,"Structure file: " + structure_file[-14:])
+            screen.addstr(4,45,"MD file: " + args.md_file[-20:])
 
-        screen.addstr(6,45,"Wave vector: "+str(calculation.get_reduced_q_vector()))
-        screen.addstr(7,45,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '
-                                              +str(calculation.get_frequency_range()[-1])+' THz')
+        screen.addstr(6,45,"Wave vector: {0} ".format(calculation.get_reduced_q_vector()))
+        screen.addstr(7,45,"Frequency range: {0} - {1} THz".format(calculation.get_frequency_range()[0],
+                                                                   calculation.get_frequency_range()[-1]))
         screen.addstr(8,45,"Spectrum resolution: {0} THz".format(calculation.parameters.spectrum_resolution))
 
-        screen.addstr(10,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
-        screen.addstr(11,45,"Unit cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
-        screen.addstr(12,45,"MD  cell atoms: "+str(trajectory.get_number_of_atoms()))
-        screen.addstr(13,45,"Number of MD time steps: "+str(len(trajectory.velocity)))
+        screen.addstr(10,45,"Primitive cell atoms: {0}".format(trajectory.structure.get_number_of_primitive_atoms()))
+        screen.addstr(11,45,"Unit cell atoms: {0}".format(trajectory.structure.get_number_of_atoms()))
+        screen.addstr(12,45,"MD  cell atoms: {0} ".format(trajectory.get_number_of_atoms()))
+        screen.addstr(13,45,"Number of MD time steps: {0}".format(len(trajectory.velocity)))
 
 
         #Option values left screen
