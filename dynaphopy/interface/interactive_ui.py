@@ -101,7 +101,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 x2 = screen.getch()
 
-
                 if x2 == ord('1'):
                     curses.endwin()
                     freq = calculation.get_frequencies()
@@ -118,7 +117,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
       #              for i,freq in enumerate(freq):
       #                  screen.addstr(4+i,4,str(i)+": "+str(freq))
                     screen.getch()
-
 
                 if x2 == ord('2'):
                     curses.endwin()
