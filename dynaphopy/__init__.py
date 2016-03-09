@@ -20,6 +20,10 @@ power_spectrum_functions = {
 
 class Calculation:
 
+    @property
+    def __version__(self):
+        return '1.8'
+
     def __init__(self,
                  dynamic,
                  last_steps=None,
