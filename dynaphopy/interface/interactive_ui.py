@@ -114,8 +114,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                     list_on_screen(screen,freq,5,4)
 
-      #              for i,freq in enumerate(freq):
-      #                  screen.addstr(4+i,4,str(i)+": "+str(freq))
                     screen.getch()
 
                 if x2 == ord('2'):
@@ -200,7 +198,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             curses.endwin()
             calculation.plot_trajectory_distribution(direction)
 
-
 ######## OPTION 9 :  PREFERENCES  (UNDER DEVELOPMENT)
         if x == ord('9'):
 
@@ -212,18 +209,17 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 screen.addstr(2, 2, "Preferences...")
                 screen.addstr(4, 4, "1 - Power spectrum algorithm")
-                screen.addstr(5, 4, "2 - Non analytical corrections (dispersion spectrum only): " +
-                            str(calculation.parameters.use_NAC))
-                screen.addstr(6, 4, "3 - Number of MEM coefficients: " +
-                              str(calculation.parameters.number_of_coefficients_mem))
-                screen.addstr(7, 4, "4 - Number of bins in histograms (Boltzmann/displacements): " +
-                              str(calculation.parameters.number_of_bins_histogram))
-                screen.addstr(8, 4, "5 - Eigenvectors display vector scale: " +
-                              str(calculation.parameters.modes_vectors_scale))
-                screen.addstr(9, 4, "6 - Use asymmetric lorentzian: " +
-                            str(calculation.parameters.use_asymmetric_peaks))
+                screen.addstr(5, 4, "2 - Non analytical corrections (dispersion spectrum only): {0}".format(
+                        calculation.parameters.use_NAC))
+                screen.addstr(6, 4, "3 - Number of MEM coefficients: {0}".format(
+                        calculation.parameters.number_of_coefficients_mem))
+                screen.addstr(7, 4, "4 - Number of bins in histograms (Boltzmann/displacements): {0}".format(
+                        calculation.parameters.number_of_bins_histogram))
+                screen.addstr(8, 4, "5 - Eigenvectors display vector scale: {0}".format(
+                        calculation.parameters.modes_vectors_scale))
+                screen.addstr(9, 4, "6 - Use asymmetric lorentzian: {0}".format(
+                        calculation.parameters.use_asymmetric_peaks))
                 screen.addstr(10, 4, "7 - Change spectrum resolution")
-
 
                 screen.addstr(12, 4, "0 - Return")
                 screen.refresh()
