@@ -323,6 +323,8 @@ def generate_test_trajectory(structure, super_cell=(4, 4, 4),
                              time_step=0.002,  # picoseconds
                              temperature=400): # Kelvin
 
+    from dynaphopy.power_spectrum import progress_bar
+
     print('Generating ideal harmonic data for testing')
     kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
 
@@ -370,9 +372,12 @@ def generate_test_trajectory(structure, super_cell=(4, 4, 4),
     number_of_frequencies = len(frequencies_r[0])
 
     #Generating trajectory
+    progress_bar(0, 'generating')
+
     trajectory = []
-    for time in np.arange(total_time,step=time_step):
-        print(time)
+    for time in np.arange(total_time, step=time_step):
+      #  print(time)
+
         xyz_file.write('{0}\n\n'.format(number_of_atoms))
         coordinates = []
         for i_atom in range(number_of_atoms):
@@ -399,6 +404,8 @@ def generate_test_trajectory(structure, super_cell=(4, 4, 4),
 
             coordinates.append(coordinate)
         trajectory.append(coordinates)
+        progress_bar(float(time+time_step)/total_time,'generating', )
+
 
     xyz_file.close()
 
