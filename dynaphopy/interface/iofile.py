@@ -202,7 +202,7 @@ def read_from_file_structure_poscar(file_name):
 
 
 def read_vasp_trajectory(file_name, structure=None, time_step=None,
-                         limit_number_steps=10000000,  #Maximum number of steps read (for security)
+                         limit_number_steps=10000000,  # Maximum number of steps read (for security)
                          last_steps=None,
                          initial_cut=1,
                          end_cut=None):
@@ -317,7 +317,11 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
 
 
 #Just for testing (use with care)
-def generate_test_trajectory(structure, super_cell=(4, 4, 4), save_to_file=None):
+def generate_test_trajectory(structure, super_cell=(4, 4, 4),
+                             save_to_file=None,
+                             total_time=2,     # picoseconds
+                             time_step=0.002,  # picoseconds
+                             temperature=400): # Kelvin
 
     print('Generating ideal harmonic data for testing')
     kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
@@ -335,12 +339,6 @@ def generate_test_trajectory(structure, super_cell=(4, 4, 4), save_to_file=None)
     positions = structure.get_positions(super_cell=super_cell)
     masses = structure.get_masses(super_cell=super_cell)
 
-
-    #Parameters used to generate harmonic trajectory
-    total_time = 2
-    time_step = 0.002
-    amplitude = 7.0
-    temperature = 1200
 
     for i in range(structure.get_number_of_dimensions()):
         number_of_atoms *= super_cell[i]
@@ -389,9 +387,8 @@ def generate_test_trajectory(structure, super_cell=(4, 4, 4), save_to_file=None)
                     q_vector = np.dot(q_vector_list[i_long,:], 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
 
                     if abs(frequencies_r[i_long][i_freq]) > 0.01: # Prevent dividing by 0
-                      #  amplitude /= frequencies_r[i_long][i_freq] * 2 * np.pi * np.sqrt(number_of_primitive_cells) # + random.uniform(-1,1)*0.05
-
-                        amplitude = np.sqrt(np.sqrt(2) * kb_boltzmann * temperature / (pow(frequencies_r[i_long][i_freq] * 2 * np.pi, 2)) / number_of_primitive_cells) # + random.uniform(-1,1)*0.05
+                        # Amplitude is normalized to be equal area for all phonon projected power spectra.
+                        amplitude = np.sqrt(np.sqrt(2) * kb_boltzmann * temperature / number_of_primitive_cells)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
                         normal_mode_coordinate = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
                         phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions[i_atom, :]))
 
