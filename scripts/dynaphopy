@@ -109,6 +109,9 @@ parser.add_argument('--no_symmetry', action='store_true',
 parser.add_argument('--resolution', metavar='R', type=float, default=None, nargs=1,
                     help='define power spectrum resolution in THz (default 0.05)')
 
+group.add_argument('--generate_trajectory', metavar='time', type=float, default=None, nargs=1,
+                    help='Generate a test harmonic trajectory from force constants')
+
 
 args = parser.parse_args()
 
@@ -134,13 +137,24 @@ if args.load_velocity:
                                                    initial_cut=args.read_from,
                                                    final_cut=args.read_to)
     structure_file = args.load_velocity[0]
-else:
+if args.md_file:
     trajectory_reading_function = reading.check_trajectory_file_type(args.md_file)
     trajectory = trajectory_reading_function(args.md_file,
                                              structure,
                                              args.time_step,
                                              initial_cut=args.read_from,
                                              end_cut=args.read_to)
+
+if args.generate_trajectory:
+    if '_super_cell_phonon' in input_parameters:
+        super_cell = np.diag(input_parameters['_super_cell_phonon'])
+    else:
+        print('No supercell defined in input file, using [1,1,1]')
+        super_cell = [1, 1, 1]
+    trajectory = reading.generate_test_trajectory(structure,
+                                                  total_time=args.generate_trajectory[0],
+                                                  super_cell=super_cell)
+
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
     print('Loading projected velocity only (limited features only)')

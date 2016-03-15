@@ -358,10 +358,8 @@ def generate_test_trajectory(structure, super_cell=(4, 4, 4),
     #Generate additional wave vectors sample
     q_vector_list = pho_interface.get_commensurate_points(structure)
 
-    print('Wave vectors included in test (commensurate points)')
-    print(q_vector_list)
-
     #Generate frequencies and eigenvectors for the testing wave vector samples
+    print('Wave vectors included in test (commensurate points)')
     eigenvectors_r = []
     frequencies_r = []
     for i in range(len(q_vector_list)):
@@ -370,9 +368,6 @@ def generate_test_trajectory(structure, super_cell=(4, 4, 4),
         eigenvectors_r.append(eigenvectors)
         frequencies_r.append(frequencies)
     number_of_frequencies = len(frequencies_r[0])
-    print('obtained frequencies')
-    print(frequencies_r)
-    print(np.pi*2.0*np.linalg.inv(structure.get_primitive_cell()).T)
 
     #Generating trajectory
     trajectory = []
@@ -426,8 +421,6 @@ def generate_test_trajectory(structure, super_cell=(4, 4, 4),
                     dump_file)
 
         dump_file.close()
-
-
 
     print(np.dot(np.diagflat(super_cell),structure.get_cell()))
 

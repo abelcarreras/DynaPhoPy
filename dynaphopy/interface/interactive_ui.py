@@ -54,7 +54,10 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             screen.addstr(4,45,"hdf5 file: " + args.load_velocity[0][-20:])
         else:
             screen.addstr(3,45,"Structure file: " + structure_file[-14:])
-            screen.addstr(4,45,"MD file: " + args.md_file[-20:])
+            if args.md_file:
+                screen.addstr(4,45,"MD file: " + args.md_file[-20:])
+            else:
+                screen.addstr(4,45, "Test trajectory")
 
         screen.addstr(6,45,"Wave vector: {0} ".format(calculation.get_reduced_q_vector()))
         screen.addstr(7,45,"Frequency range: {0} - {1} THz".format(calculation.get_frequency_range()[0],
