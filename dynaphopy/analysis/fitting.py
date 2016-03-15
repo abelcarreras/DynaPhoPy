@@ -101,7 +101,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 
 
         except:
-            print('Warning: Fitting error in phonon {0}. Try increasing the spectrum point density'.format(i))
+            print('Warning: Fitting error in phonon {0}. Try to increase the spectrum resolution'.format(i))
             positions.append(0)
             widths.append(0)
             continue
