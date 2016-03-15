@@ -383,7 +383,7 @@ def generate_test_trajectory(structure, super_cell=(4, 4, 4),
 
                     if abs(frequencies_r[i_long][i_freq]) > 0.01: # Prevent dividing by 0
                         # Amplitude is normalized to be equal area for all phonon projected power spectra.
-                        amplitude = np.sqrt(np.sqrt(2) * kb_boltzmann * temperature / number_of_primitive_cells)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
+                        amplitude = np.sqrt(2 * kb_boltzmann * temperature / number_of_primitive_cells)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
                         normal_mode_coordinate = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
                         phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions[i_atom, :]))
 
