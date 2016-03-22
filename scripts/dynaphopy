@@ -4,6 +4,7 @@ import numpy as np
 import dynaphopy
 import dynaphopy.interface.iofile as reading
 import dynaphopy.interface.interactive_ui as interactive_ui
+import dynaphopy.generate_cell as generate
 
 from fractions import Fraction
 from dynaphopy.interface.phonopy_link import get_force_sets_from_file
@@ -109,8 +110,15 @@ parser.add_argument('--no_symmetry', action='store_true',
 parser.add_argument('--resolution', metavar='F', type=float, default=None, nargs=1,
                     help='define power spectrum resolution in THz (default 0.05)')
 
+parser.add_argument('--dim', metavar='N', type=int, default=[1, 1, 1], nargs=3,
+                    help='Set the dimensions of generate structures (Default: [1, 1, 1])')
+
 group.add_argument('--generate_trajectory', metavar='F', type=float, default=None, nargs=3,
                     help='Generate a test harmonic trajectory from force constants [total time, time step, temperature]')
+
+group.add_argument('-c_poscar', metavar='S', type=str, default=None, nargs=1,
+                    help='Generate a VASP POSCAR structure')
+
 
 
 args = parser.parse_args()
@@ -127,9 +135,16 @@ else:
 
 if 'force_constants_file_name' in input_parameters:
     structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_constants_file_name']))
-
     structure.get_data_from_dict(input_parameters)
 
+
+if args.c_poscar:
+    f = open(args.c_poscar[0], 'w')
+    f.write(generate.generate_VASP_structure(structure, scaled=True, super_cell=args.dim))
+    f.close()
+    exit()
+
+# Load trajectory
 if args.load_velocity:
     trajectory = reading.initialize_from_hdf5_file(args.load_velocity[0],
                                                    structure,
@@ -146,16 +161,11 @@ if args.md_file:
                                              end_cut=args.read_to)
 
 if args.generate_trajectory:
-    if '_super_cell_phonon' in input_parameters:
-        super_cell = np.diag(input_parameters['_super_cell_phonon'])
-    else:
-        print('No supercell defined in input file, using [1,1,1]')
-        super_cell = [1, 1, 1]
     trajectory = reading.generate_test_trajectory(structure,
                                                   total_time=args.generate_trajectory[0],
                                                   time_step=args.generate_trajectory[1],
                                                   temperature=args.generate_trajectory[2],
-                                                  super_cell=super_cell)
+                                                  super_cell=args.dim)
 
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):

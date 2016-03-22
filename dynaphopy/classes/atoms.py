@@ -272,7 +272,7 @@ class Structure:
 
 
     #Atomic types related methods
-    def get_atomic_types(self,super_cell=None):
+    def get_atomic_types(self, super_cell=None, unique=False):
         if super_cell is None:
             super_cell = self.get_number_of_dimensions() * [1]
 
