@@ -692,6 +692,8 @@ def read_parameters_from_input_file(file_name):
 
     input_file = open(file_name, "r").readlines()
     for i, line in enumerate(input_file):
+        if line[0] == '#':
+            continue
 
         if "STRUCTURE FILE OUTCAR" in line:
             input_parameters.update({'structure_file_name_outcar': input_file[i+1].replace('\n','')})
@@ -734,6 +736,9 @@ def read_parameters_from_input_file(file_name):
                 i += 1
                 bands.append(band)
             input_parameters.update ({'_band_ranges':bands})
+
+        if "MESH PHONOPY" in line:
+            input_parameters.update({'_mesh_phonopy': input_file[i+1].replace('\n','').split()})
 
 
     return input_parameters

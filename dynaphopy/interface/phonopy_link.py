@@ -24,7 +24,7 @@ def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
     write_FORCE_CONSTANTS(force_constants, filename=filename)
 
 
-def get_phonon(structure, NAC=False, set_force=True):
+def get_phonon(structure, NAC=False, calculate_force_constants=True):
 
     #Preparing the bulk type object
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
@@ -43,7 +43,7 @@ def get_phonon(structure, NAC=False, set_force=True):
         nac_params = parse_BORN(primitive, get_is_symmetry)
         phonon.set_nac_params(nac_params=nac_params)
 
-    if set_force:
+    if calculate_force_constants:
         phonon.set_displacement_dataset(structure.get_force_set())
         phonon.produce_force_constants(computation_algorithm="svd")
 
@@ -102,10 +102,24 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_reso
     return phonon.get_band_structure()
 
 
+def obtain_phonopy_dos(structure, mesh=(20, 20, 20), force_constants=None, freq_min=None, freq_max=None):
+
+    from types import NoneType
+    phonon = get_phonon(structure, calculate_force_constants=isinstance(force_constants, NoneType))
+
+    if force_constants is not None:
+        phonon.set_force_constants(force_constants)
+
+    phonon.set_mesh(mesh)
+    phonon.set_total_DOS(freq_min=freq_min, freq_max=freq_max)
+#    phonon.plot_total_DOS().show()
+    return phonon.get_total_DOS()
+
+
 def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_constants, NAC=False, band_resolution=30):
 
     print('Getting renormalized phonon dispersion bands')
-    phonon = get_phonon(structure, NAC=False, set_force=False)
+    phonon = get_phonon(structure, NAC=False, calculate_force_constants=False)
 
     phonon.set_force_constants(force_constants)
 
@@ -122,7 +136,7 @@ def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_c
 
 def get_commensurate_points(structure):
 
-    phonon = get_phonon(structure, set_force=False)
+    phonon = get_phonon(structure, calculate_force_constants=False)
 
     primitive = phonon.get_primitive()
     supercell = phonon.get_supercell()
@@ -183,3 +197,14 @@ def get_renormalized_force_constants(renormalized_frequencies, com_points, struc
                                phonon.symmetry)
 
     return force_constants
+
+
+if __name__ == "__main__":
+
+    import dynaphopy.interface.iofile as reading
+    input_parameters = reading.read_parameters_from_input_file('/home/abel/VASP/Ag2Cu2O4/MD/input_dynaphopy')
+    structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
+    structure.set_primitive_matrix(input_parameters['_primitive_matrix'])
+    structure.set_super_cell_phonon(input_parameters['_super_cell_phonon'])
+    structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_constants_file_name']))
+    obtain_phonopy_dos(structure)

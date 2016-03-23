@@ -98,8 +98,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.addstr(2, 2, "Display...")
                 screen.addstr(4, 4, "1 - Show harmonic frequencies")
                 screen.addstr(5, 4, "2 - Show harmonic eigenvectors")
-                screen.addstr(6, 4, "3 - Plot phonon dispersion bands")
-                screen.addstr(8, 4, "0 - Return")
+                screen.addstr(6, 4, "3 - Plot phonon dispersion relations")
+                screen.addstr(7, 4, "4 - Plot phonon density of states")
+                screen.addstr(9, 4, "0 - Return")
                 screen.refresh()
 
                 x2 = screen.getch()
@@ -112,10 +113,10 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     screen.clear()
                     screen.border()
 
-                    screen.addstr(2,4,"Frequencies (THz)")
-                    screen.addstr(3,4,"-----------------")
+                    screen.addstr(2, 4, "Frequencies (THz)")
+                    screen.addstr(3, 4, "-----------------")
 
-                    list_on_screen(screen,freq,5,4)
+                    list_on_screen(screen, freq, 5, 4)
 
                     screen.getch()
 
@@ -127,6 +128,10 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 if x2 == ord('3'):
                     curses.endwin()
                     calculation.get_phonon_dispersion_bands()
+
+                if x2 == ord('4'):
+                    curses.endwin()
+                    calculation.plot_dos_phonopy()
 
 ######## OPTION 2 :  DEFINE WAVE VECTOR
         if x == ord('2'):

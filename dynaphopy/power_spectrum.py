@@ -94,6 +94,8 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
                                  trajectory.get_time_step_average(),
                                  coefficients=number_of_coefficients)
 
+            power_spectrum *= unit_conversion
+
             height = np.max(power_spectrum)
             position = test_frequency_range[np.argmax(power_spectrum)]
 
@@ -106,10 +108,13 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
                 print('Warning: Fitting error, skipping point {0}'.format(number_of_coefficients))
                 continue
 
+
             maximum = fit_params[2] / (fit_params[1] * np.pi)
             error = get_error_from_covariance(fit_covariances)
             width = 2.0 * fit_params[1]
-            fit_data.append([number_of_coefficients, width, error/maximum])
+            area = fit_params[2]/(2.0*np.pi)
+
+            fit_data.append([number_of_coefficients, width, error/maximum, area])
             scan_params.append(fit_params)
             power_spectra.append(power_spectrum)
 
@@ -135,6 +140,7 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         best_index = mem_full_dict[i][2]
 
         print ('Position: {0} THz'.format(scan_params[best_index][0]))
+        print ('Area: {0} eV'.format(fit_data[3][best_index]))
         print ('Optimum coefficients num: {0}'.format(fit_data[0][best_index]))
         print ('Fitting Error: {0}'.format(np.min(fit_data[2])))
         print ("\n")

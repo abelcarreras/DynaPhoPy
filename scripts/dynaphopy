@@ -180,14 +180,14 @@ if args.generate_trajectory:
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
     print('Loading projected velocity only (limited features only)')
     calculation = dynaphopy.Calculation(trajectory[2], vc=trajectory[0], last_steps=args.n)
-    calculation.parameters.reduced_q_vector = trajectory[1]
-    calculation.parameters.use_symmetry = False
+    input_parameters.update({'_reduced_q_vector': trajectory[1], '_use_symmetry': False})
 
 else:
     calculation = dynaphopy.Calculation(trajectory, last_steps=args.n)
 
-if '_band_ranges' in input_parameters:
-    calculation.set_band_ranges(input_parameters['_band_ranges'])
+
+calculation.parameters.get_data_from_dict(input_parameters)
+
 
 # Set Parameters
 calculation.parameters.silent = args.silent
@@ -223,6 +223,9 @@ if args.frequency_range:
     calculation.set_frequency_limits(args.frequency_range)
  #   calculation.set_frequency_range(np.linspace(*args.frequency_range))
 
+if args.save_force_constants:
+    calculation.write_renormalized_constants(args.save_force_constants[0])
+
 if args.save_direct:
     calculation.write_power_spectrum_full(args.save_direct[0])
 
@@ -247,8 +250,6 @@ if args.plot_atomic_displacements:
 if args.save_atomic_displacements:
     calculation.write_atomic_displacements([float(Fraction(i)) for i in args.save_atomic_displacements[0:3]],
                                            args.save_atomic_displacements[3])
-if args.save_force_constants:
-    calculation.write_renormalized_constants(args.save_force_constants[0])
 
 if args.coefficient_scan_analysis:
     calculation.phonon_width_scan_analysis()

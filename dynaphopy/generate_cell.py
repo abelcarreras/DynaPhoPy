@@ -45,9 +45,6 @@ def generate_LAMMPS_structure(structure, super_cell=(1, 1, 1), by_element=True):
         for i, index in enumerate(count_index_unique):
             atom_index += [i for j in range(index)]
 
-
-        #atom_index = structure.get_atom_type_index(super_cell=super_cell)
-
     else:
         atom_index = structure.get_atom_type_index(super_cell=super_cell)
 
@@ -63,9 +60,6 @@ def generate_LAMMPS_structure(structure, super_cell=(1, 1, 1), by_element=True):
     lammps_data_file += '{0} atoms\n\n'.format(number_of_atoms)
 
     lammps_data_file += '{0} atom types\n\n'.format(len(atom_index_unique))
-
-#    for row in cell.T:
-#        lammps_data_file += '{0:20.10f} {1:20.10f} {2:20.10f}\n'.format(*row)
 
     a, b, c, alpha, beta, gamma = structure.get_cell_parameters(super_cell=super_cell)
 
@@ -94,8 +88,6 @@ def generate_LAMMPS_structure(structure, super_cell=(1, 1, 1), by_element=True):
         lammps_data_file += '{0} {1} {2:20.10f} {3:20.10f} {4:20.10f}\n'.format(i+1, atom_index[i]+1, row[0],row[1],row[2])
 
     return lammps_data_file
-
-
 
 if __name__ == "__main__":
 

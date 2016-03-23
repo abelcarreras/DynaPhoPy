@@ -187,7 +187,9 @@ class Calculation:
         plt.ylabel('Frequency [THz]')
         plt.xlabel('Wave vector')
         plt.xlim([0, self._bands[1][-1][-1]])
+        plt.axhline(y=0, color='k', ls='dashed')
         plt.suptitle('Phonon dispersion')
+
 
         plt.show()
 
@@ -234,6 +236,19 @@ class Calculation:
                                 self.get_eigenvectors(),
                                 self.get_q_vector(),
                                 vectors_scale=self.parameters.modes_vectors_scale)
+
+    def plot_dos_phonopy(self):
+
+        phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
+                                                       mesh=self.parameters.mesh_phonopy,
+                                                       freq_min=self.get_frequency_range()[0],
+                                                       freq_max=self.get_frequency_range()[-1])
+
+        plt.plot(phonopy_dos[0], phonopy_dos[1], 'r-')
+        plt.ylabel('Density of states')
+        plt.xlabel('Frequency [THz]')
+        plt.suptitle('Density of states')
+        plt.show()
 
     def check_commensurate(self, q_vector):
         super_cell= self.dynamic.get_super_cell_matrix()
@@ -398,10 +413,44 @@ class Calculation:
         return
 
     def plot_power_spectrum_full(self):
+
+        phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
+                                                       mesh=self.parameters.mesh_phonopy,
+                                                       freq_min=self.get_frequency_range()[0],
+                                                       freq_max=self.get_frequency_range()[-1])
+
+        fig, ax1 = plt.subplots()
+
+        ax1.plot(self.get_frequency_range(), self.get_power_spectrum_direct(), 'r-', label='Power spectrum (MD)')
+        ax1.set_xlabel('Frequency [THz]')
+        ax1.set_ylabel('eV * ps')
+
+        ax2 = ax1.twinx()
+        ax2.plot(phonopy_dos[0], phonopy_dos[1],'b-',label='DoS (Lattice dynamics)')
+        ax2.set_ylabel('Density of states')
+
+        if self._renormalized_force_constants is not None:
+            phonopy_dos_r = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
+                                                             mesh=self.parameters.mesh_phonopy,
+                                                             freq_min=self.get_frequency_range()[0],
+                                                             freq_max=self.get_frequency_range()[-1],
+                                                             force_constants=self._renormalized_force_constants)
+
+            ax2.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized DoS')
+
         plt.suptitle('Full power spectrum (two sided)')
-        plt.plot(self.get_frequency_range(), self.get_power_spectrum_direct(), 'r-')
-        plt.xlabel('Frequency [THz]')
-        plt.ylabel('eV * ps')
+
+        handles1, labels = ax1.get_legend_handles_labels()
+        handles2, labels = ax2.get_legend_handles_labels()
+
+        handles = handles1 + handles2
+
+      #  print(handles)
+
+        plt.legend(handles, ['Molecular dynamics', 'DoS (lattice dynamics)', 'DoS (renormalized)'])
+
+
+#        plt.legend()
         plt.show()
 
         total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)

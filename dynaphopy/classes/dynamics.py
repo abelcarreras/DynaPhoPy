@@ -58,8 +58,7 @@ def get_correct_arangement(reference, structure):
 
     if np.min(difference) > 2:
         print('Something wrong with the order of atoms! Probably the calculation will fail')
-
-    print(difference)
+        print(difference)
 
     if order_type != 0:
         list_reference = [(type_0(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]

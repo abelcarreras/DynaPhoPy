@@ -42,7 +42,10 @@ class Parameters:
                  use_symmetry = True,
 
                  # Modes (eigenvectors) display
-                 modes_vectors_scale=10
+                 modes_vectors_scale=10,
+
+                 #Density of states mesh (phonopy)
+                 mesh_phonopy=(20, 20, 20)
                  ):
 
         self._silent = silent
@@ -64,6 +67,16 @@ class Parameters:
         self._use_symmetry = use_symmetry
 
         self._modes_vectors_scale = modes_vectors_scale
+        self._mesh_phonopy = mesh_phonopy
+
+
+    def get_data_from_dict(self, data_dictionary):
+        for data in self.__dict__:
+            try:
+                self.__dict__[data] = data_dictionary[data]
+            except KeyError:
+                continue
+
 
     #Properties
     @property
@@ -201,3 +214,11 @@ class Parameters:
     @symmetrize.setter
     def symmetrize(self, symmetrize):
         self._symmetrize = symmetrize
+
+    @property
+    def mesh_phonopy(self):
+        return self._mesh_phonopy
+
+    @mesh_phonopy.setter
+    def mesh_phonopy(self, mesh_phonopy):
+        self._mesh_phonopy = mesh_phonopy
