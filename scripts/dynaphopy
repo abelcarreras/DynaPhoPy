@@ -116,9 +116,11 @@ parser.add_argument('--dim', metavar='N', type=int, default=[1, 1, 1], nargs=3,
 group.add_argument('--generate_trajectory', metavar='F', type=float, default=None, nargs=3,
                     help='Generate a test harmonic trajectory from force constants [total time, time step, temperature]')
 
-group.add_argument('-c_poscar', metavar='S', type=str, default=None, nargs=1,
-                    help='Generate a VASP POSCAR structure')
+group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
+                    help='Generate a VASP POSCAR structure file')
 
+group.add_argument('-c_lammps', metavar='file', type=str, default=None, nargs=1,
+                    help='Generate a LAMMPS data structure file')
 
 
 args = parser.parse_args()
@@ -143,6 +145,13 @@ if args.c_poscar:
     f.write(generate.generate_VASP_structure(structure, scaled=True, super_cell=args.dim))
     f.close()
     exit()
+
+if args.c_lammps:
+    f = open(args.c_lammps[0], 'w')
+    f.write(generate.generate_LAMMPS_structure(structure, super_cell=args.dim))
+    f.close()
+    exit()
+
 
 # Load trajectory
 if args.load_velocity:

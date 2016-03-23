@@ -37,7 +37,6 @@ def generate_LAMMPS_structure(structure, super_cell=(1, 1, 1), by_element=True):
 
     cell = structure.get_cell(super_cell=super_cell)
     types = structure.get_atomic_types(super_cell=super_cell)
-    atom_index_unique = np.unique(types, return_index=True)[1]
 
     if by_element:
         count_index_unique = np.unique(types, return_counts=True)[1]
@@ -52,9 +51,9 @@ def generate_LAMMPS_structure(structure, super_cell=(1, 1, 1), by_element=True):
     else:
         atom_index = structure.get_atom_type_index(super_cell=super_cell)
 
-    masses = structure.get_masses(super_cell=super_cell)
+    atom_index_unique = np.unique(atom_index, return_index=True)[1]
 
-    atom_mass_unique = np.unique(masses, return_counts=True)
+    masses = structure.get_masses(super_cell=super_cell)
 
     positions = structure.get_positions(super_cell=super_cell)
     number_of_atoms = len(positions)
@@ -68,19 +67,22 @@ def generate_LAMMPS_structure(structure, super_cell=(1, 1, 1), by_element=True):
     for row in cell.T:
         lammps_data_file += '{0:20.10f} {1:20.10f} {2:20.10f}\n'.format(*row)
 
-    xlo = 0
-    ylo = 0
-    zlo = 0
-    xhi = 0
+    a, b, c, alpha, beta, gamma = structure.get_cell_parameters(super_cell=super_cell)
 
-    xy = 0
-    xz = 0
-    yz = 0
+    xhi = a
+    xy = b * np.cos(gamma)
+    xz = c * np.cos(beta)
+    yhi = np.sqrt(pow(b,2)- pow(xy,2))
+    yz = (b*c*np.cos(alpha)-xy * xz)/yhi
+    zhi = np.sqrt(pow(c,2)-pow(xz,2)-pow(yz,2))
 
-    lammps_data_file += '\n{0} {1} xlo xhi\n'.format(xlo, xhi)
-    lammps_data_file += '{0} {1} ylo yhi\n'.format(xlo, xhi)
-    lammps_data_file += '{0} {1} zlo zhi\n'.format(xlo, xhi)
-    lammps_data_file += '{0} {1} {2} xy xz yz\n\n'.format(xy, xz, yz)
+    xhi = xhi + max(0,0, xy, xz, xy+xz)
+    yhi = yhi + max(0,0, yz)
+
+    lammps_data_file += '\n{0:20.10f} {1:20.10f} xlo xhi\n'.format(0, xhi)
+    lammps_data_file += '{0:20.10f} {1:20.10f} ylo yhi\n'.format(0, yhi)
+    lammps_data_file += '{0:20.10f} {1:20.10f} zlo zhi\n'.format(0, zhi)
+    lammps_data_file += '{0:20.10f} {1:20.10f} {2:20.10f} xy xz yz\n\n'.format(xy, xz, yz)
 
     lammps_data_file += 'Masses\n\n'
 
