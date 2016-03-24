@@ -1,8 +1,6 @@
 import mmap
 import pickle
 import os
-import random
-
 import numpy as np
 import h5py
 
@@ -324,6 +322,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                              time_step=0.002,        # picoseconds
                              temperature=400):       # Kelvin
 
+    import random
     from dynaphopy.power_spectrum import progress_bar
 
     print('Generating ideal harmonic data for testing')
