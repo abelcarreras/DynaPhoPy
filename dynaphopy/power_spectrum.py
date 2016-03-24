@@ -94,6 +94,8 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
                                  trajectory.get_time_step_average(),
                                  coefficients=number_of_coefficients)
 
+            power_spectrum *= unit_conversion
+
             height = np.max(power_spectrum)
             position = test_frequency_range[np.argmax(power_spectrum)]
 
@@ -106,10 +108,13 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
                 print('Warning: Fitting error, skipping point {0}'.format(number_of_coefficients))
                 continue
 
+
             maximum = fit_params[2] / (fit_params[1] * np.pi)
             error = get_error_from_covariance(fit_covariances)
             width = 2.0 * fit_params[1]
-            fit_data.append([number_of_coefficients, width, error/maximum])
+            area = fit_params[2]/(2.0*np.pi)
+
+            fit_data.append([number_of_coefficients, width, error/maximum, area])
             scan_params.append(fit_params)
             power_spectra.append(power_spectrum)
 
@@ -135,6 +140,7 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         best_index = mem_full_dict[i][2]
 
         print ('Position: {0} THz'.format(scan_params[best_index][0]))
+        print ('Area: {0} eV'.format(fit_data[3][best_index]))
         print ('Optimum coefficients num: {0}'.format(fit_data[0][best_index]))
         print ('Fitting Error: {0}'.format(np.min(fit_data[2])))
         print ("\n")
@@ -176,35 +182,67 @@ def autocorrelation(x):
 
 #   FFT Numpy
 
-def fft_power(frequency_range, data, time_step, zero_padding=0):
+def division_of_data(resolution, number_of_data, time_step):
 
-    data = autocorrelation(data)
+    piece_size = round(1./(time_step*resolution))
+#    print 'N', piece_size
 
-    data = np.lib.pad(data, (0, zero_padding), 'constant', constant_values=(0, 0))
+    number_of_pieces = int((number_of_data-1)/piece_size)
+#    print'Number of pieces', number_of_pieces
+#    print'Size', data.size
 
-    ps = np.abs(np.fft.fft(data))*time_step/2.0
-#    ps = np.abs(pyfftw.interfaces.numpy_fft.fft(data, threads=multiprocessing.cpu_count()))*time_step/2.0
+    if number_of_pieces > 0:
+        interval = (number_of_data - piece_size)/number_of_pieces
+    else:
+        interval = 0
+        number_of_pieces = 1
+        piece_size = number_of_data
 
-    freqs = np.fft.fftfreq(data.size, time_step)
+    pieces = []
+    for i in range(number_of_pieces+1):
+        ini = int((piece_size/2+i*interval)-piece_size/2)
+        fin = int((piece_size/2+i*interval)+piece_size/2)
+        pieces.append([ini, fin])
+
+    return pieces
+
+
+def fft_power(frequency_range, data, time_step):
+
+    pieces = division_of_data(frequency_range[1]-frequency_range[0],
+                              data.size,
+                              time_step)
+
+    ps = []
+    for i_p in pieces:
+
+        data_piece = data[i_p[0]:i_p[1]]
+
+        data_piece = autocorrelation(data_piece)
+        ps.append(np.abs(np.fft.fft(data_piece))*time_step/2.0)
+
+    ps = np.average(ps,axis=0)
+
+    freqs = np.fft.fftfreq(data_piece.size, time_step)
     idx = np.argsort(freqs)
 
     return np.interp(frequency_range, freqs[idx], ps[idx])
 
 
-
-
 def get_fft_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
-    if parameters.zero_padding:
-        print('Padding with {0} zeros'.format(parameters.zero_padding))
+    requested_resolution = test_frequency_range[1]-test_frequency_range[0]
+    maximum_resolution = 1./(trajectory.get_time_step_average()*(vq.shape[0]+parameters.zero_padding))
+    if requested_resolution < maximum_resolution:
+        print('Power spectrum resolution requested unavailable, using maximum: {0:9.6f} THz'.format(maximum_resolution))
+        print('If you need higher resolution increase the number of data')
 
     psd_vector = []
     progress_bar(0, 'FFT')
     for i in range(vq.shape[1]):
         psd_vector.append(fft_power(test_frequency_range,vq[:, i],
-                                    trajectory.get_time_step_average(),
-                                    zero_padding=parameters.zero_padding),
+                                    trajectory.get_time_step_average()),
                           )
 
         progress_bar(float(i+1)/vq.shape[1], 'FFT')
@@ -215,17 +253,25 @@ def get_fft_spectra(vq, trajectory, parameters):
 
 #   FFTW
 
-def fftw_power(frequency_range, data, time_step, zero_padding=0):
+def fftw_power(frequency_range, data, time_step):
     import pyfftw
     from multiprocessing import cpu_count
 
-    data = autocorrelation(data)
+    pieces = division_of_data(frequency_range[1]-frequency_range[0],
+                              data.size,
+                              time_step)
 
-    data = np.lib.pad(data, (0, zero_padding), 'constant', constant_values=(0, 0))
+    ps = []
+    for i_p in pieces:
 
-    ps = np.abs(pyfftw.interfaces.numpy_fft.fft(data, threads=cpu_count()))*time_step/2.0
+        data_piece = data[i_p[0]:i_p[1]]
 
-    freqs = np.fft.fftfreq(data.size, time_step)
+        data_piece = autocorrelation(data_piece)
+        ps.append(np.abs(pyfftw.interfaces.numpy_fft.fft(data_piece, threads=cpu_count()))*time_step/2.0)
+
+    ps = np.average(ps,axis=0)
+
+    freqs = np.fft.fftfreq(data_piece.size, time_step)
     idx = np.argsort(freqs)
 
     return np.interp(frequency_range, freqs[idx], ps[idx])
@@ -234,15 +280,11 @@ def fftw_power(frequency_range, data, time_step, zero_padding=0):
 def get_fft_fftw_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
-    if parameters.zero_padding:
-        print('Padding with {0} zeros'.format(parameters.zero_padding))
-
     psd_vector = []
     progress_bar(0, 'FFTW')
     for i in range(vq.shape[1]):
         psd_vector.append(fftw_power(test_frequency_range,vq[:, i],
-                                     trajectory.get_time_step_average(),
-                                     zero_padding=parameters.zero_padding),
+                                     trajectory.get_time_step_average()),
                           )
 
         progress_bar(float(i+1)/vq.shape[1], 'FFTW')

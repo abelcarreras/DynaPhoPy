@@ -119,6 +119,7 @@ static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *ke
 };
 
 
+
 static double _Complex **pymatrix_to_c_array_complex(PyArrayObject *array)  {
 
       int n=(*array).dimensions[0];

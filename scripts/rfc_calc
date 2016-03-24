@@ -38,8 +38,7 @@ def get_renormalized_constants(freq_filename, structure, symmetrize=False, degen
     renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
                                                                                   com_points,
                                                                                   structure,
-                                                                                  symmetrize=symmetrize,
-                                                                                  degenerate=degenerate)
+                                                                                  symmetrize=symmetrize)
 
     return  renormalized_force_constants
 

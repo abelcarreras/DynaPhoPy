@@ -53,19 +53,19 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
         # Cell frame
         for i in range(3):
             cell_side = [(0, cell_t[i, 0]), (0, cell_t[i, 1]), (0, cell_t[i, 2])]
-            ax.plot3D(*cell_side, color="b")
+            ax.plot3D(*cell_side, color='b')
             for j in range(3):
                 if i != j:
                     cell_side = [(cell_t[i, l],
                                   cell_t[i, l]+cell_t[j, l]) for l in range(3)]
 
-                    ax.plot3D(*cell_side, color="b")
+                    ax.plot3D(*cell_side, color='b')
                     for k in range(3):
                         if k != i and k != j and j > i:
                             cell_side = [(cell_t[i, l]+cell_t[j, l],
                                           cell_t[i, l]+cell_t[j, l]+cell_t[k, l]) for l in range(3)]
 
-                            ax.plot3D(*cell_side, color="b")
+                            ax.plot3D(*cell_side, color='b')
 
         # Atom positions
         for i, position in enumerate(positions):
@@ -81,7 +81,7 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
         atom_type_index_unique = np.unique(atom_type, return_index=True)[1]
         atomic_types_unique = [elements[i] for i in atom_type_index_unique]
 
-        legend_atoms =  [ lines.Line2D([0],[0], linestyle="none", c=color_atom[i], marker='o') for i, element in enumerate(atomic_types_unique)]
+        legend_atoms =  [ lines.Line2D([0],[0], linestyle='none', c=color_atom[i], marker='o') for i, element in enumerate(atomic_types_unique)]
         ax.legend(legend_atoms, atomic_types_unique, numpoints = 1)
 
 
@@ -90,8 +90,8 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
 
-        plt.title('Phonon '+str(i_phonon+1))
-        plt.axis("equal")
+        plt.title('Phonon {0}'.format(i_phonon+1))
+        plt.axis('equal')
     plt.show()
 
     return

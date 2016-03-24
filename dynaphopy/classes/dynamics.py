@@ -6,6 +6,9 @@ from dynaphopy.analysis.coordinates import relativize_trajectory as relativize_t
 
 def averaged_positions(trajectory, number_of_samples=1000):
 
+    if trajectory.shape[0] < number_of_samples:
+        number_of_samples = trajectory.shape[0]
+
     lenght = trajectory.shape[0]
     positions = np.random.random_integers(lenght, size=(number_of_samples,))-1
 
@@ -20,7 +23,6 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
 
     if arangement:
         original_trajectory = trajectory.copy()
- #       print(arangement)
         for i, position in enumerate(arangement):
             trajectory[:,i,:] = original_trajectory[:, position,:]
 
@@ -45,17 +47,28 @@ def get_correct_arangement(reference, structure):
     for i, coordinate in enumerate(unit_coordinates):
 
 #        vector_type2 = type_2(i, cell_size, number_of_cell_atoms)
-        difference.append([np.power(type_1(i, cell_size, number_of_cell_atoms)[:3]- coordinate,2),
-                           np.power(type_2(i, cell_size, number_of_cell_atoms)[:3] - coordinate,2)])
- #       print('{0}     {1} -> {2}'.format(vector_type2, coordinate, np.power(vector_type2[:3] - coordinate,2)))
+        difference.append([np.power(type_0(i, cell_size, number_of_cell_atoms)[:3] - coordinate, 2),
+                           np.power(type_1(i, cell_size, number_of_cell_atoms)[:3] - coordinate, 2),
+                           np.power(type_2(i, cell_size, number_of_cell_atoms)[:3] - coordinate, 2)])
+#        print('{0}     {1} -> {2}'.format(vector_type2, coordinate, np.power(vector_type2[:3] - coordinate,2)))
 
     difference = np.average(difference, axis=0)
     difference = np.linalg.norm(difference, axis=1)
     order_type = np.argmin(difference)
 
-    if order_type == 1:
-        list_reference = [(type_1(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]
-        list_target = [(type_2(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]
+    if np.min(difference) > 2:
+        print('Something wrong with the order of atoms! Probably the calculation will fail')
+        print(difference)
+
+    if order_type != 0:
+        list_reference = [(type_0(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]
+        if order_type == 1:
+            print ('Using alternative atoms order 1')
+            list_target = [(type_1(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]
+
+        if order_type == 2:
+            print ('Using alternative atoms order 2 (untested!)')
+            list_target = [(type_2(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]
 
         list_trans = []
         for reference in list_reference:
@@ -67,8 +80,7 @@ def get_correct_arangement(reference, structure):
 
     return None
 
-def type_1(i, size, natom):
-
+def type_0(i, size, natom):
     x = np.mod(i, size[0])
     y = np.mod(i, size[0]*size[1])/size[1]
     z = np.mod(i, size[0]*size[1]*size[2])/(size[1]*size[0])
@@ -76,8 +88,7 @@ def type_1(i, size, natom):
 
     return np.array([x, y, z, k])
 
-
-def type_2(i, size, natom):
+def type_1(i, size, natom):
     x = np.mod(i, size[0]*natom)/natom
     y = np.mod(i, size[0]*natom*size[1])/(size[0]*natom)
     z = i/(size[1]*size[0]*natom)
@@ -85,6 +96,24 @@ def type_2(i, size, natom):
 
     return np.array([x, y, z, k])
 
+#Test function (works for 2 mpi instances with lammps)
+def type_2(i, size, natom, mpi_lammps=2):
+
+    half_size = size[0]/mpi_lammps
+    if half_size == 0:
+        half_size = 1
+
+    total = size[0]*size[1]*size[2]*natom
+    x = np.mod(i, half_size*natom)/natom
+    y = np.mod(i, half_size*natom*size[1])/(half_size*natom)
+    z = i/(size[1]*half_size*natom)
+    k = np.mod(i, natom)
+
+    if i>=total/mpi_lammps:
+        x += half_size
+        z -= half_size
+
+    return np.array([x, y, z, k])
 
 
 class Dynamics:
@@ -202,7 +231,6 @@ class Dynamics:
             c = np.linalg.norm(h[:,2])
             return [a, b, c]
 
-
         if self._super_cell_matrix is None:
             super_cell_matrix_real = np.divide(parameters(self.get_super_cell()), parameters(self.structure.get_cell()))
             self._super_cell_matrix = np.around(super_cell_matrix_real).astype("int")
@@ -219,12 +247,8 @@ class Dynamics:
 
     def get_mean_displacement_matrix(self):
 
-
-
         atom_type = self.structure.get_atom_type_index()
-
         atom_primitive_equivalent = np.unique(atom_type, return_counts=True)[1]
-
 
         if self._mean_displacement_matrix is None:
 
@@ -240,7 +264,7 @@ class Dynamics:
 
             for i in range(displacements.shape[1]):
                 primtive_normalization = atom_primitive_equivalent[atom_type_index[i]]
-                mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(displacements[:, i, :].T, displacements[:, i, :]).real/primtive_normalization
+                mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(np.conj(displacements[:, i, :]).T, displacements[:, i, :]).real/primtive_normalization
 
             self._mean_displacement_matrix = mean_displacement_matrix / (number_of_equivalent_atoms * number_of_data)
 

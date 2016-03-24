@@ -29,7 +29,8 @@ class Parameters:
                     # 3: FFT via FFTW
                  power_spectra_algorithm=1,
                  use_asymmetric_peaks=False,
-                 frequency_range=np.linspace(0, 40, 2000),
+                 spectrum_resolution=0.05,
+                 frequency_range=np.arange(0, 40.05, 0.05),
 
                  # Phonon dispersion diagram
                  use_NAC = False,
@@ -41,7 +42,10 @@ class Parameters:
                  use_symmetry = True,
 
                  # Modes (eigenvectors) display
-                 modes_vectors_scale=10
+                 modes_vectors_scale=10,
+
+                 #Density of states mesh (phonopy)
+                 mesh_phonopy=(20, 20, 20)
                  ):
 
         self._silent = silent
@@ -53,6 +57,7 @@ class Parameters:
         self._use_asymmetric_peaks = use_asymmetric_peaks
         self._zero_padding = zero_padding
         self._frequency_range = frequency_range
+        self._spectrum_resolution = spectrum_resolution
         self._reduced_q_vector = reduced_q_vector
         self._use_NAC = use_NAC
         self._band_ranges = band_ranges
@@ -62,6 +67,16 @@ class Parameters:
         self._use_symmetry = use_symmetry
 
         self._modes_vectors_scale = modes_vectors_scale
+        self._mesh_phonopy = mesh_phonopy
+
+
+    def get_data_from_dict(self, data_dictionary):
+        for data in self.__dict__:
+            try:
+                self.__dict__[data] = data_dictionary[data]
+            except KeyError:
+                continue
+
 
     #Properties
     @property
@@ -117,8 +132,16 @@ class Parameters:
         return self._frequency_range
 
     @frequency_range.setter
-    def frequency_range(self,frequency_range):
+    def frequency_range(self, frequency_range):
         self._frequency_range = frequency_range
+
+    @property
+    def spectrum_resolution(self):
+        return self._spectrum_resolution
+
+    @spectrum_resolution.setter
+    def spectrum_resolution(self, spectrum_resolution):
+        self._spectrum_resolution = spectrum_resolution
 
     @property
     def power_spectra_algorithm(self):
@@ -191,3 +214,11 @@ class Parameters:
     @symmetrize.setter
     def symmetrize(self, symmetrize):
         self._symmetrize = symmetrize
+
+    @property
+    def mesh_phonopy(self):
+        return self._mesh_phonopy
+
+    @mesh_phonopy.setter
+    def mesh_phonopy(self, mesh_phonopy):
+        self._mesh_phonopy = mesh_phonopy

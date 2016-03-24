@@ -14,7 +14,7 @@ parser.add_argument('file', metavar='file', type=str,
                    help='file containing power spectra information')
 
 parser.add_argument('-bi', metavar='indices', type=str, default=None,
-                   help='band indices (ex: "1,2 3 4, 5)')
+                   help='band indices (ex: "1,2 3 4, 5")')
 
 parser.add_argument('-sm', '--smooth', action='store_true',
                    help='smooth before fitting (LOESS method)')
@@ -96,7 +96,7 @@ if args.smooth:
         if not(args.silent):
             plt.figure(i+1)
             plt.title('Band '+str(i+1))
-            plt.suptitle('Smoothing LOWESS')
+            plt.suptitle('Smoothing LOESS')
 
             plt.plot(test_frequencies_range, datum, label='Original')
             plt.plot(test_frequencies_range, y2, label='Smooth', linewidth=3)
@@ -114,7 +114,8 @@ else:
 #Analysis using Dynaphopy functions
 fitting.phonon_fitting_analysis(data, test_frequencies_range,
                                 show_plots=not(args.silent),
-                                asymmetric_peaks=args.asymmetric_peaks)
+                                asymmetric_peaks=args.asymmetric_peaks,
+                                use_degeneracy=None)
 
 if args.s:
     reading.write_correlation_to_file(test_frequencies_range, data, args.s)

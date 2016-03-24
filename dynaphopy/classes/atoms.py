@@ -272,7 +272,7 @@ class Structure:
 
 
     #Atomic types related methods
-    def get_atomic_types(self,super_cell=None):
+    def get_atomic_types(self, super_cell=None, unique=False):
         if super_cell is None:
             super_cell = self.get_number_of_dimensions() * [1]
 
@@ -326,6 +326,22 @@ class Structure:
         return  atom_type_index_super_cell
 
 
+    def get_cell_parameters(self, super_cell=None):
+
+        if super_cell is None:
+            super_cell = self.get_number_of_dimensions() * [1]
+
+        cell = self.get_cell(super_cell=super_cell)
+        a = np.linalg.norm(cell.T[0])
+        b = np.linalg.norm(cell.T[1])
+        c = np.linalg.norm(cell.T[2])
+
+        alpha = np.arccos(np.dot(cell.T[1], cell.T[2])/(c*b))
+        gamma = np.arccos(np.dot(cell.T[1], cell.T[0])/(a*b))
+        beta = np.arccos(np.dot(cell.T[2], cell.T[0])/(a*c))
+
+        return a, b, c, alpha, beta, gamma
+
     def get_commensurate_points(self, super_cell=None):
 
         if super_cell is None:
@@ -347,6 +363,7 @@ class Structure:
                         commensurate_points.append(q_point)
                         
         return commensurate_points
+
 
 
 

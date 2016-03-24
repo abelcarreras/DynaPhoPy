@@ -4,6 +4,7 @@ import numpy as np
 import dynaphopy
 import dynaphopy.interface.iofile as reading
 import dynaphopy.interface.interactive_ui as interactive_ui
+import dynaphopy.generate_cell as generate
 
 from fractions import Fraction
 from dynaphopy.interface.phonopy_link import get_force_sets_from_file
@@ -22,11 +23,11 @@ group.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
 parser.add_argument('-i', '--interactive', action='store_true',
                     help='enter interactive mode')
 
-parser.add_argument('-q', metavar='N', type=str, nargs=3,
+parser.add_argument('-q', metavar='F', type=str, nargs=3,
                     help='wave vector used to calculate projections (default: 0 0 0)')
 
-parser.add_argument('-r', '--frequency_range', metavar='N', type=float, nargs=3,
-                    help='frequency range for correlation function calculation (min, max, number of points)')
+parser.add_argument('-r', '--frequency_range', metavar='F', type=float, nargs=2,
+                    help='frequency range of power spectrum in THz (min, max)')
 
 parser.add_argument('-n', metavar='N', type=int, default=0,
                     help='number of MD last steps to take (default: All)')
@@ -70,11 +71,11 @@ parser.add_argument('-csa', '--coefficient_scan_analysis', action='store_true',
 parser.add_argument('-pa', '--peak_analysis', action='store_true',
                     help='request a peak analysis')
 
-parser.add_argument('-pad', '--plot_atomic_displacements', metavar='N', type=str, nargs=3,
-                    help='plot atomic displacements respect to specified direction [N N N]')
+parser.add_argument('-pad', '--plot_atomic_displacements', metavar='F', type=str, nargs=3,
+                    help='plot atomic displacements respect to specified direction [F F F]')
 
-parser.add_argument('-sad', '--save_atomic_displacements', metavar='X', type=str, nargs=4,
-                    help='save atomic displacements into a file [ N N N filename ]')
+parser.add_argument('-sad', '--save_atomic_displacements', metavar='S', type=str, nargs=4,
+                    help='save atomic displacements into a file [ F F F filename ]')
 
 parser.add_argument('-sfc', '--save_force_constants', metavar='file', type=str, nargs=1, default=False,
                     help='save the renormalized force constants to a file')
@@ -83,6 +84,7 @@ parser.add_argument('-adp', action='store_true',
                     help='print anisotropic displacement parameters')
 
 # Extra options
+
 
 parser.add_argument('--silent', action='store_true',
                     help='executes without showing plots')
@@ -93,14 +95,11 @@ parser.add_argument('--velocity_only', action='store_true',
 parser.add_argument('--asymmetric_peaks', action='store_true',
                     help='uses asymmetric Lorentzian functions to fit spectra')
 
-parser.add_argument('--read_from', metavar='N', type=int, default=1,
+parser.add_argument('--read_from', metavar='N', type=int, default=1, nargs=1,
                     help='define interval of trajectory to read (default: 1)')
 
-parser.add_argument('--read_to', metavar='N', type=int, default=None,
+parser.add_argument('--read_to', metavar='N', type=int, default=None, nargs=1,
                     help='define interval of trajectory to read (default: end)')
-
-parser.add_argument('--zero_padding', metavar='N', type=int, default=0,
-                    help='number of padding zeros (default: 0) [FFT only]')
 
 parser.add_argument('--fcsymm', action='store_true',
                     help='symmetrize force constants')
@@ -108,6 +107,20 @@ parser.add_argument('--fcsymm', action='store_true',
 parser.add_argument('--no_symmetry', action='store_true',
                     help='do not use crystal symmetry')
 
+parser.add_argument('--resolution', metavar='F', type=float, default=None, nargs=1,
+                    help='define power spectrum resolution in THz (default 0.05)')
+
+parser.add_argument('--dim', metavar='N', type=int, default=[1, 1, 1], nargs=3,
+                    help='Set the dimensions of generate structures (Default: [1, 1, 1])')
+
+group.add_argument('--generate_trajectory', metavar='F', type=float, default=None, nargs=3,
+                    help='Generate a test harmonic trajectory from force constants [total time, time step, temperature]')
+
+group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
+                    help='Generate a VASP POSCAR structure file')
+
+group.add_argument('-c_lammps', metavar='file', type=str, default=None, nargs=1,
+                    help='Generate a LAMMPS data structure file')
 
 
 args = parser.parse_args()
@@ -124,9 +137,23 @@ else:
 
 if 'force_constants_file_name' in input_parameters:
     structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_constants_file_name']))
-
     structure.get_data_from_dict(input_parameters)
 
+
+if args.c_poscar:
+    f = open(args.c_poscar[0], 'w')
+    f.write(generate.generate_VASP_structure(structure, scaled=True, super_cell=args.dim))
+    f.close()
+    exit()
+
+if args.c_lammps:
+    f = open(args.c_lammps[0], 'w')
+    f.write(generate.generate_LAMMPS_structure(structure, super_cell=args.dim))
+    f.close()
+    exit()
+
+
+# Load trajectory
 if args.load_velocity:
     trajectory = reading.initialize_from_hdf5_file(args.load_velocity[0],
                                                    structure,
@@ -134,7 +161,7 @@ if args.load_velocity:
                                                    initial_cut=args.read_from,
                                                    final_cut=args.read_to)
     structure_file = args.load_velocity[0]
-else:
+if args.md_file:
     trajectory_reading_function = reading.check_trajectory_file_type(args.md_file)
     trajectory = trajectory_reading_function(args.md_file,
                                              structure,
@@ -142,22 +169,29 @@ else:
                                              initial_cut=args.read_from,
                                              end_cut=args.read_to)
 
+if args.generate_trajectory:
+    trajectory = reading.generate_test_trajectory(structure,
+                                                  total_time=args.generate_trajectory[0],
+                                                  time_step=args.generate_trajectory[1],
+                                                  temperature=args.generate_trajectory[2],
+                                                  super_cell=args.dim)
+
+
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
     print('Loading projected velocity only (limited features only)')
     calculation = dynaphopy.Calculation(trajectory[2], vc=trajectory[0], last_steps=args.n)
-    calculation.parameters.reduced_q_vector = trajectory[1]
-    calculation.parameters.use_symmetry = False
+    input_parameters.update({'_reduced_q_vector': trajectory[1], '_use_symmetry': False})
 
 else:
     calculation = dynaphopy.Calculation(trajectory, last_steps=args.n)
 
-if '_band_ranges' in input_parameters:
-    calculation.set_band_ranges(input_parameters['_band_ranges'])
+
+calculation.parameters.get_data_from_dict(input_parameters)
+
 
 # Set Parameters
 calculation.parameters.silent = args.silent
 calculation.parameters.use_asymmetric_peaks = args.asymmetric_peaks
-calculation.parameters.zero_padding = args.zero_padding
 calculation.parameters.degenerate = args.fcsymm
 
 if args.no_symmetry:
@@ -165,6 +199,9 @@ if args.no_symmetry:
 
 
 # Process properties arguments
+if args.resolution:
+    calculation.set_spectra_resolution(args.resolution[0])
+
 if args.q:
     calculation.set_reduced_q_vector(np.array([float(Fraction(s)) for s in args.q]))
 
@@ -183,7 +220,11 @@ if args.save_velocity:
 
 # Process calculation arguments
 if args.frequency_range:
-    calculation.set_frequency_range(np.linspace(*args.frequency_range))
+    calculation.set_frequency_limits(args.frequency_range)
+ #   calculation.set_frequency_range(np.linspace(*args.frequency_range))
+
+if args.save_force_constants:
+    calculation.write_renormalized_constants(args.save_force_constants[0])
 
 if args.save_direct:
     calculation.write_power_spectrum_full(args.save_direct[0])
@@ -203,17 +244,12 @@ if args.plot_wave_vector:
 if args.plot_phonon_mode:
     calculation.plot_power_spectrum_phonon()
 
-if args.interactive:
-    interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
-
 if args.plot_atomic_displacements:
     calculation.plot_trajectory_distribution([float(Fraction(i)) for i in args.plot_atomic_displacements])
 
 if args.save_atomic_displacements:
     calculation.write_atomic_displacements([float(Fraction(i)) for i in args.save_atomic_displacements[0:3]],
                                            args.save_atomic_displacements[3])
-if args.save_force_constants:
-    calculation.write_renormalized_constants(args.save_force_constants[0])
 
 if args.coefficient_scan_analysis:
     calculation.phonon_width_scan_analysis()
@@ -223,3 +259,9 @@ if args.peak_analysis:
 
 if args.adp:
     calculation.get_anisotropic_displacement_parameters()
+
+if args.interactive:
+    if isinstance(trajectory, list) or isinstance(trajectory, tuple):
+        print('Interactive mode cannot be used loading wave vector projected velocity')
+        exit()
+    interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)

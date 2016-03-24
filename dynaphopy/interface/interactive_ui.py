@@ -1,11 +1,13 @@
-from time import sleep
 import sys
 import curses
 import numpy as np
 import phonopy.file_IO as file_IO
+import textwrap
+import dynaphopy
+
+from time import sleep
 from fractions import Fraction
 from os.path import isfile
-import textwrap
 
 def list_on_screen(screen, pile, posx, posy):
 
@@ -37,7 +39,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
     screen = curses.initscr()
     screen.border(0)
-    screen.addstr(5, 7, "Welcome   to   DynaPhoPy 1.7")
+    screen.addstr(5, 7, "Welcome   to   DynaPhoPy " + dynaphopy.__version__)
     screen.refresh()
     sleep(3)
     curses.endwin()
@@ -49,20 +51,25 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.border(0)
 
         #Show parameters right screen
-        screen.addstr(2,45,"Input file: "+args.input_file[0][-20:])
+        screen.addstr(2,45,"Input file: " + args.input_file[0][-20:])
         if args.load_velocity:
-            screen.addstr(4,45,"hdf5 file: "+ args.load_velocity[0][-20:])
+            screen.addstr(4,45,"hdf5 file: " + args.load_velocity[0][-20:])
         else:
-            screen.addstr(3,45,"Structure file: "+ structure_file[-14:])
-            screen.addstr(4,45,"MD file: "+ args.md_file[-20:])
+            screen.addstr(3,45,"Structure file: " + structure_file[-14:])
+            if args.md_file:
+                screen.addstr(4,45,"MD file: " + args.md_file[-20:])
+            else:
+                screen.addstr(4,45, "Test trajectory")
 
-        screen.addstr(6,45,"Wave vector: "+str(calculation.get_reduced_q_vector()))
-        screen.addstr(7,45,"Frequency range: "+str(calculation.get_frequency_range()[0])+' - '
-                                              +str(calculation.get_frequency_range()[-1])+' THz')
-        screen.addstr(9,45,"Primitive cell atoms: "+str(trajectory.structure.get_number_of_primitive_atoms()))
-        screen.addstr(10,45,"Unit cell atoms: "+str(trajectory.structure.get_number_of_atoms()))
-        screen.addstr(11,45,"MD  cell atoms: "+str(trajectory.get_number_of_atoms()))
-        screen.addstr(12,45,"Number of MD time steps: "+str(len(trajectory.velocity)))
+        screen.addstr(6,45,"Wave vector: {0} ".format(calculation.get_reduced_q_vector()))
+        screen.addstr(7,45,"Frequency range: {0} - {1} THz".format(calculation.get_frequency_range()[0],
+                                                                   calculation.get_frequency_range()[-1]))
+        screen.addstr(8,45,"Spectrum resolution: {0} THz".format(calculation.parameters.spectrum_resolution))
+
+        screen.addstr(10,45,"Primitive cell atoms: {0}".format(trajectory.structure.get_number_of_primitive_atoms()))
+        screen.addstr(11,45,"Unit cell atoms: {0}".format(trajectory.structure.get_number_of_atoms()))
+        screen.addstr(12,45,"MD  cell atoms: {0} ".format(trajectory.get_number_of_atoms()))
+        screen.addstr(13,45,"Number of MD time steps: {0}".format(len(trajectory.velocity)))
 
 
         #Option values left screen
@@ -93,12 +100,12 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.addstr(2, 2, "Display...")
                 screen.addstr(4, 4, "1 - Show harmonic frequencies")
                 screen.addstr(5, 4, "2 - Show harmonic eigenvectors")
-                screen.addstr(6, 4, "3 - Plot phonon dispersion bands")
-                screen.addstr(8, 4, "0 - Return")
+                screen.addstr(6, 4, "3 - Plot phonon dispersion relations")
+                screen.addstr(7, 4, "4 - Plot phonon density of states")
+                screen.addstr(9, 4, "0 - Return")
                 screen.refresh()
 
                 x2 = screen.getch()
-
 
                 if x2 == ord('1'):
                     curses.endwin()
@@ -108,15 +115,12 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     screen.clear()
                     screen.border()
 
-                    screen.addstr(2,4,"Frequencies (THz)")
-                    screen.addstr(3,4,"-----------------")
+                    screen.addstr(2, 4, "Frequencies (THz)")
+                    screen.addstr(3, 4, "-----------------")
 
-                    list_on_screen(screen,freq,5,4)
+                    list_on_screen(screen, freq, 5, 4)
 
-      #              for i,freq in enumerate(freq):
-      #                  screen.addstr(4+i,4,str(i)+": "+str(freq))
                     screen.getch()
-
 
                 if x2 == ord('2'):
                     curses.endwin()
@@ -126,6 +130,10 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 if x2 == ord('3'):
                     curses.endwin()
                     calculation.get_phonon_dispersion_bands()
+
+                if x2 == ord('4'):
+                    curses.endwin()
+                    calculation.plot_dos_phonopy()
 
 ######## OPTION 2 :  DEFINE WAVE VECTOR
         if x == ord('2'):
@@ -137,9 +145,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 ######## OPTION 3 :  DEFINE FREQUENCY RANGE
         if x == ord('3'):
             frequency_limits = np.array([float(Fraction(s)) for s in
-                                         get_param(screen, "Insert frequency range (min, max, number of points)").split(',')])
+                                         get_param(screen, "Insert frequency range (min, max)").split(',')])
             print(frequency_limits)
-            calculation.set_frequency_range(np.linspace(*frequency_limits))
+            calculation.set_frequency_limits(frequency_limits)
             curses.endwin()
 
 ######## OPTION 4 :  BOLTZMANN DISTRIBUTION
@@ -200,7 +208,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             curses.endwin()
             calculation.plot_trajectory_distribution(direction)
 
-
 ######## OPTION 9 :  PREFERENCES  (UNDER DEVELOPMENT)
         if x == ord('9'):
 
@@ -212,19 +219,17 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 screen.addstr(2, 2, "Preferences...")
                 screen.addstr(4, 4, "1 - Power spectrum algorithm")
-                screen.addstr(5, 4, "2 - Non analytical corrections (dispersion spectrum only): " +
-                            str(calculation.parameters.use_NAC))
-                screen.addstr(6, 4, "3 - Number of MEM coefficients: " +
-                              str(calculation.parameters.number_of_coefficients_mem))
-                screen.addstr(7, 4, "4 - Number of bins in histograms (Boltzmann/displacements): " +
-                              str(calculation.parameters.number_of_bins_histogram))
-                screen.addstr(8, 4, "5 - Eigenvectors display vector scale: " +
-                              str(calculation.parameters.modes_vectors_scale))
-                screen.addstr(9, 4, "6 - Use asymmetric lorentzian: " +
-                            str(calculation.parameters.use_asymmetric_peaks))
-                screen.addstr(10, 4, "7 - Zero padding (FFT only): " +
-                            str(calculation.parameters.zero_padding))
-
+                screen.addstr(5, 4, "2 - Non analytical corrections (dispersion spectrum only): {0}".format(
+                        calculation.parameters.use_NAC))
+                screen.addstr(6, 4, "3 - Number of MEM coefficients: {0}".format(
+                        calculation.parameters.number_of_coefficients_mem))
+                screen.addstr(7, 4, "4 - Number of bins in histograms (Boltzmann/displacements): {0}".format(
+                        calculation.parameters.number_of_bins_histogram))
+                screen.addstr(8, 4, "5 - Eigenvectors display vector scale: {0}".format(
+                        calculation.parameters.modes_vectors_scale))
+                screen.addstr(9, 4, "6 - Use asymmetric lorentzian: {0}".format(
+                        calculation.parameters.use_asymmetric_peaks))
+                screen.addstr(10, 4, "7 - Change spectrum resolution")
 
                 screen.addstr(12, 4, "0 - Return")
                 screen.refresh()
@@ -320,10 +325,10 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
 
                 if x2 == ord('7'):
-                    calculation.parameters.zero_padding = int(get_param(screen, "Insert number of zeros"))
+                    resolution =float(get_param(screen, "Insert resolution in THz"))
+                    calculation.set_spectra_resolution(resolution)
                     calculation.power_spectra_clear()
                     curses.endwin()
-
 
     curses.endwin()
 
