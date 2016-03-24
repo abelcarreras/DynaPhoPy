@@ -15,7 +15,7 @@ def check_trajectory_file_type(file_name, bytes_to_check=1000000):
 
     #Check file exists
     if not os.path.isfile(file_name):
-        print file_name + ' file does not exists'
+        print file_name + ' file does not exist'
         exit()
 
     file_size = os.stat(file_name).st_size
@@ -318,7 +318,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
 
 #Just for testing (use with care)
 def generate_test_trajectory(structure, super_cell=(1, 1, 1),
-                             save_to_file='/home/abel/LAMMPS/GaN/test.xyz',
+                             save_to_file=None,
                              minimum_frequency=0.1,  # THz
                              total_time=2,           # picoseconds
                              time_step=0.002,        # picoseconds
@@ -699,6 +699,11 @@ def write_correlation_to_file(frequency_range,correlation_vector,file_name):
 def read_parameters_from_input_file(file_name):
 
     input_parameters = {'structure_file_name_poscar': 'POSCAR'}
+
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print file_name + ' file does not exist'
+        exit()
 
     input_file = open(file_name, "r").readlines()
     for i, line in enumerate(input_file):
