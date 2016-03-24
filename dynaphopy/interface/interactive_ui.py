@@ -1,11 +1,13 @@
-from time import sleep
 import sys
 import curses
 import numpy as np
 import phonopy.file_IO as file_IO
+import textwrap
+import dynaphopy
+
+from time import sleep
 from fractions import Fraction
 from os.path import isfile
-import textwrap
 
 def list_on_screen(screen, pile, posx, posy):
 
@@ -37,7 +39,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
     screen = curses.initscr()
     screen.border(0)
-    screen.addstr(5, 7, "Welcome   to   DynaPhoPy " + calculation.__version__)
+    screen.addstr(5, 7, "Welcome   to   DynaPhoPy " + dynaphopy.__version__)
     screen.refresh()
     sleep(3)
     curses.endwin()
