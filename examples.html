@@ -33,9 +33,10 @@
 <h3>Silicon</h3>
 <p>Crystalline silicon is a well studied prototypical material that due to its simple cubic crystalline 
 structure becomes very suitable as a working example.</p>
-<h5>Preparations</h5>
 
-<p>In order to calculate the anharmonic effects fist it is necessary to define the unit cell in a VASP POSCAR type file: </p>
+<div id="preparations_silicon"></div>  
+<h5>Preparations</h5>
+<p>In order to calculate the anharmonic effects fist it is necessary to define the unit cell in a VASP <strong>POSCAR</strong> type file: </p>
 <pre><code> Si                                     
    1.00000000000000     
      5.4365330000000000    0.0000000000000000    0.0000000000000000
@@ -53,15 +54,27 @@ Direct
   0.6250000000000000  0.1250000000000000  0.6250000000000000
   0.6250000000000000  0.6250000000000000  0.1250000000000000
 </code></pre>
-<p>Using <a href="http://phonopy.sourceforge.net">Phonopy</a> the harmonic forces can be calculated as detailed in phonopy <a href="http://phonopy.sourceforge.net/procedure.html">online</a> tutorial. During the calculation, a SPOSCAR file which contains a supercell of the original POSCAR file is generated. This file can be used to calculate the MD in VASP.
-<br><em>Note: The supercell used in Phonopy to calculate the harmonic forces and the one used to calculate the MD in VASP can be different.
-Phonopy can easly generate a supercell with the desired size using the command:</em></p>
+
+<p>Using <a href="http://phonopy.sourceforge.net">Phonopy</a> the harmonic forces can be calculated as detailed in phonopy <a href="http://phonopy.sourceforge.net/procedure.html">online</a> tutorial. During the calculation, a <strong>SPOSCAR</strong> file which contains a super cell of the original <strong>POSCAR</strong> file is generated. This file can be used to calculate the MD in VASP.
+<br><em>Note: The super cell used in Phonopy to calculate the harmonic forces and the one used to calculate the MD in VASP can be different. Phonopy can easly generate a super cell with the desired size using the command:</em></p>
 
 <pre><code> $ phonopy -d --dim="2 2 2" -c POSCAR_unitcell                                    
 </code></pre>
 
-<p>This generates a SPOSCAR file containing a 2x2x2 supercell of POSCAR_unitcell file.
-<br>VASP MD calculation can be carried out using this supercell (changing its name from SPOSCAR to POSCAR) and defining a regular VASP MD input like this: </p>
+<p>This generates a <strong>SPOSCAR</strong> file containing a 2x2x2 super cell of POSCAR_unitcell file.
+                Alternativelly, DynaPhoPy can also be used to generate a super cell in VASP <strong>POSCAR</strong> format using the command:</p>
+
+<pre><code> $ dynaphopy input_file --dim 2 2 2 -c_poscar SPOSCAR                                   
+</code></pre>
+
+<p><strong>input_file</strong> is a plain text file contains the information of which unitcell is used to build the super cell. This is a short example of the contains of this file (other keywords may be included):</p>
+
+<pre><code>STRUCTURE FILE POSCAR
+/home/user/Si-phonopy/POSCAR_unitcell
+</code></pre>
+
+<p>This file can also be empty, in this case DynaPhoPy will use a <strong>POSCAR</strong> named file placed in the work directory as unit cell, but <em>input_file</em> should exist.  
+    <br>VASP MD calculation is carried out using the generated super cell (<strong>SPOSCAR</strong>) and defining a regular VASP MD input like this example: </p>
   
 <pre><code>      PREC = Normal                  # Precision
     IBRION = 0
@@ -260,9 +273,17 @@ Structure file  (data.si):
  .. . ....... ....... .......
 </code></pre>
 <p>This file can contain information about the atoms coordinates, simulations cell size and
-atoms masses. This information can be also specified in LAMMPS input, but keeping it together
+atoms masses. DynaPhoPy can be used to generate this file by using <strong>-c_lammps</strong> flag.</p>
+
+<pre><code> $ dynaphopy input_file --dim 2 2 2 -c_lammps data.si                                    
+</code></pre>
+
+<p><em>Note: This information can be also specified in LAMMPS input, but keeping it together
 in a structure file facilitates the reusability of inputs.
-</p>
+</em></p>
+
+<p>Lammps input file constains all the parameters regarding to the MD simulation. All atom types defined in <em>data file</em> should be assigned to a potential. This is an example:</p>
+
 LAMMPS input file:
 <pre><code>units           metal                       #Use this units for DynaPhoPy
 atom_style      atomic
@@ -300,7 +321,7 @@ the number specified in <strong>run command</strong>, it will also depend on the
 <a href="http://lammps.sandia.gov/doc/dump.html">LAMMPS manual</a>.</em></p>
 <p>
 The use of LAMMPS trajectory file is equivalent to VASP output OUTCAR file. DynaPhoPy will automatically recognize 
-the file type. If needed the time step has to be specified.
+the file type. If needed, time step should be specified by flag <strong>-ts</strong>.
 
 <pre><code>$ dynaphopy input_file trajectory.lammpstrj -n 500000 -ts 0.001
 </code></pre>

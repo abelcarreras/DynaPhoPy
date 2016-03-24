@@ -63,16 +63,21 @@ power spectra interpolating the velocity using a polynomia which depends on a ce
 <UL>
 <LI><h5>Full power spectra</h5>
 <p> 
-This options calculate the power spectra directly from cartesian coordinates velocity without peforming any projection. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps and MD cell size limit, this power spectrum tends to the vibrational density of states (VDoS).
+This options calculate the power spectrum of the autocorrelation function of the atomic velocity. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps and MD cell size limit, this power spectrum tends to the vibrational density of states (VDoS).
 
 <br><em>Notice that the super cell size limit is practically unreachable. This is <strong>not</strong> a good method at all to calculate the VDoS. For this purpose is better to interpolate a larger set of q points within the Brillouin zone. Refere to <a href="#renormalized_forces">force renormalization</a> section. </em>
-
 
 </p>
 <p>Plot spectrum in a matplotlib X window:</p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -pd
 </code></pre>
-<p>Save spectrum to file:</p>
+<p>Along with the full power spectrum, the vibrational density of states (VDoS) is also displayed for comparison. If 
+    the renormalized force constants are calculated, also the VDoS calculated with the renormalized force constants is shown. VDoS is obtained interfacing with Phonopy.</p>    
+
+<img src="images/full_projection_gan.png" alt="Interactive" style="width:630px">    
+<em>Power spectrum of GaN at 300K calculated using maximum entropy method. MD has been computed using LAMMPS in a cell of 3456 atoms.</em>
+
+<p>To save spectrum to file (VDoS is not saved, for this purpose use phonopy) :</p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -sd filename
 </code></pre>
 
