@@ -317,11 +317,12 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
 
 
 #Just for testing (use with care)
-def generate_test_trajectory(structure, super_cell=(4, 4, 4),
-                             save_to_file=None,
-                             total_time=2,     # picoseconds
-                             time_step=0.002,  # picoseconds
-                             temperature=400): # Kelvin
+def generate_test_trajectory(structure, super_cell=(1, 1, 1),
+                             save_to_file='/home/abel/LAMMPS/GaN/test.xyz',
+                             minimum_frequency=0.1,  # THz
+                             total_time=2,           # picoseconds
+                             time_step=0.002,        # picoseconds
+                             temperature=400):       # Kelvin
 
     from dynaphopy.power_spectrum import progress_bar
 
@@ -386,7 +387,7 @@ def generate_test_trajectory(structure, super_cell=(4, 4, 4),
                 for i_long in range(q_vector_list.shape[0]):
                     q_vector = np.dot(q_vector_list[i_long,:], 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
 
-                    if abs(frequencies_r[i_long][i_freq]) > 0.01: # Prevent dividing by 0
+                    if abs(frequencies_r[i_long][i_freq]) > minimum_frequency: # Prevent error due to small frequencies
                         # Amplitude is normalized to be equal area for all phonon projected power spectra.
                         amplitude = np.sqrt(2 * kb_boltzmann * temperature / number_of_primitive_cells)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
                         normal_mode_coordinate = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
@@ -396,6 +397,10 @@ def generate_test_trajectory(structure, super_cell=(4, 4, 4),
                                        eigenvectors_r[i_long][i_freq, atom_type[i_atom]] *
                                        phase *
                                        normal_mode_coordinate).real
+       #                 print (coordinate)
+       #                 if coordinate.any() > 0.1:
+       #                     print('TEST')
+                       #     exit()
                         coordinate = coordinate.real
 
 
