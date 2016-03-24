@@ -329,6 +329,14 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     print('Generating ideal harmonic data for testing')
     kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
 
+
+    number_of_unit_cells_phonopy = np.prod(np.diag(structure.get_super_cell_phonon()))
+    number_of_unit_cells = np.prod(super_cell)
+    atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
+
+#    print(number_of_unit_cells_phonopy, number_of_unit_cells)
+
+
     #Recover dump trajectory from file (test only)
     if False:
         dump_file = open( "trajectory.save", "r" )
@@ -343,9 +351,10 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     masses = structure.get_masses(super_cell=super_cell)
 
 
-    for i in range(structure.get_number_of_dimensions()):
-        number_of_atoms *= super_cell[i]
-#    print('At Num',number_of_atoms)
+    number_of_atoms = number_of_atoms*number_of_unit_cells
+ #   print('At Num',number_of_atoms)
+
+ #   exit()
 
     number_of_primitive_cells = number_of_atoms/number_of_primitive_atoms
 
@@ -389,7 +398,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
                     if abs(frequencies_r[i_long][i_freq]) > minimum_frequency: # Prevent error due to small frequencies
                         # Amplitude is normalized to be equal area for all phonon projected power spectra.
-                        amplitude = np.sqrt(2 * kb_boltzmann * temperature / number_of_primitive_cells)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
+                        amplitude = np.sqrt(2 * kb_boltzmann * temperature / number_of_primitive_cells * atoms_relation)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
                         normal_mode_coordinate = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
                         phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions[i_atom, :]))
 
@@ -397,10 +406,6 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                                        eigenvectors_r[i_long][i_freq, atom_type[i_atom]] *
                                        phase *
                                        normal_mode_coordinate).real
-       #                 print (coordinate)
-       #                 if coordinate.any() > 0.1:
-       #                     print('TEST')
-                       #     exit()
                         coordinate = coordinate.real
 
 
