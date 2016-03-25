@@ -23,7 +23,6 @@ def boltzmann_distribution(trajectory, parameters):
     temperature = pow(params[1],2)/ kb_boltzmann
     print('Temperature fit: {0:7.6f} K'.format(temperature))
 
-
     if not parameters.silent:
         x = np.linspace(0, average + 3 * deviation, 100)
         fig = plt.figure()
@@ -42,3 +41,6 @@ def boltzmann_distribution(trajectory, parameters):
         plt.show()
 
     print("***End of velocity analysis***\n")
+
+
+    return temperature

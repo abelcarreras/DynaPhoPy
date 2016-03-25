@@ -83,6 +83,10 @@ parser.add_argument('-sfc', '--save_force_constants', metavar='file', type=str, 
 parser.add_argument('-adp', action='store_true',
                     help='print anisotropic displacement parameters')
 
+parser.add_argument('-thm', action='store_true',
+                    help='print thermal properties')
+
+
 # Extra options
 
 
@@ -259,6 +263,9 @@ if args.peak_analysis:
 
 if args.adp:
     calculation.get_anisotropic_displacement_parameters()
+
+if args.thm:
+    calculation.display_thermal_properties()
 
 if args.interactive:
     if isinstance(trajectory, list) or isinstance(trajectory, tuple):

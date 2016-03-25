@@ -596,6 +596,14 @@ class Calculation:
     def show_boltzmann_distribution(self):
         energy.boltzmann_distribution(self.dynamic, self.parameters)
 
+    def get_temperature_from_bolzmann_analysis(self):
+
+        save_status = self.parameters.silent
+        self.parameters.silent = True
+        temperature = energy.boltzmann_distribution(self.dynamic, self.parameters)
+        self.parameters.silent = save_status
+        return temperature
+
     #Other
     def get_algorithm_list(self):
         return power_spectrum_functions.values()
@@ -663,6 +671,28 @@ class Calculation:
         force_constants = self.get_renormalized_constants()
         pho_interface.save_force_constants_to_file(force_constants, filename)
 
+
+    def display_thermal_properties(self, temperature=None):
+
+      #  temperture = self.show_boltzmann_distribution()
+        temperture = self.get_temperature_from_bolzmann_analysis()
+
+        harmonic_properties = pho_interface.obtain_phonopy_thermal_properties(self.dynamic.structure,
+                                                                              temperture,
+                                                                              mesh=self.parameters.mesh_phonopy)
+
+        anharmonic_properties = pho_interface.obtain_phonopy_thermal_properties(self.dynamic.structure,
+                                                                                temperture,
+                                                                                mesh=self.parameters.mesh_phonopy,
+                                                                                force_constants=self.get_renormalized_constants())
+
+        print('\nThermal properties per unit cell ({0:.2f} K)\n'
+              '----------------------------------------------').format(temperture)
+        print('               Harmonic    Renormalized\n')
+
+        print('Free energy:   {0:.4f}       {3:.4f}     KJ/mol\n'
+              'Entropy:       {1:.4f}       {4:.4f}     J/K/mol\n'
+              'Cv:            {2:.4f}       {5:.4f}     J/K/mol\n'.format(*(harmonic_properties + anharmonic_properties)))
 
     def get_anisotropic_displacement_parameters(self, coordinate_type='uvrs', print_on_screen=True):
 

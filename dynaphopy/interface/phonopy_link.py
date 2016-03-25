@@ -116,6 +116,20 @@ def obtain_phonopy_dos(structure, mesh=(20, 20, 20), force_constants=None, freq_
     return phonon.get_total_DOS()
 
 
+def obtain_phonopy_thermal_properties(structure, temperature, mesh=(20, 20, 20), force_constants=None):
+
+    from types import NoneType
+    phonon = get_phonon(structure, calculate_force_constants=isinstance(force_constants, NoneType))
+
+    if force_constants is not None:
+        phonon.set_force_constants(force_constants)
+
+    phonon.set_mesh(mesh)
+    phonon.set_thermal_properties(t_step=1, t_min=temperature, t_max=temperature)
+    t, free_energy, entropy, cv = np.array(phonon.get_thermal_properties()).T[0]
+
+    return free_energy, entropy, cv
+
 def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_constants, NAC=False, band_resolution=30):
 
     print('Getting renormalized phonon dispersion bands')
