@@ -413,7 +413,8 @@ class Calculation:
                                         self.parameters.frequency_range,
                                         harmonic_frequencies=self.get_frequencies(),
                                         show_plots=not self.parameters.silent,
-                                        asymmetric_peaks=self.parameters.use_asymmetric_peaks)
+                                        asymmetric_peaks=self.parameters.use_asymmetric_peaks,
+                                        use_degeneracy=self.parameters.use_symmetry)
         return
 
     def plot_power_spectrum_full(self):
@@ -644,7 +645,8 @@ class Calculation:
                                     self.parameters.frequency_range,
                                     harmonic_frequencies=self.get_frequencies(),
                                     show_plots=False,
-                                    asymmetric_peaks=self.parameters.use_asymmetric_peaks)
+                                    asymmetric_peaks=self.parameters.use_asymmetric_peaks,
+                                    use_degeneracy=self.parameters.use_symmetry)
 
                 positions = data['positions']
                 if (reduced_q_point == [0, 0, 0]).all():
