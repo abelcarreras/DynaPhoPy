@@ -184,7 +184,7 @@ def get_equivalent_q_points_by_symmetry(q_point, structure):
     return np.vstack({tuple(row) for row in tot_points})
 
 
-def get_renormalized_force_constants(renormalized_frequencies, com_points, structure, symmetrize=False):
+def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, com_points, structure, symmetrize=False):
 
     phonon = get_phonon(structure)
 
@@ -193,9 +193,11 @@ def get_renormalized_force_constants(renormalized_frequencies, com_points, struc
 
     dynmat2fc = DynmatToForceConstants(primitive, supercell)
 
+
+    print(np.array(eigenvectors).shape)
     phonon.set_qpoints_phonon(com_points, is_eigenvectors=True)
     frequencies, eigenvectors = phonon.get_qpoints_phonon()
-
+    print(np.array(eigenvectors).shape)
 
     dynmat2fc.set_dynamical_matrices(renormalized_frequencies / VaspToTHz, eigenvectors)
     dynmat2fc.run()

@@ -253,13 +253,14 @@ class Calculation:
         plt.suptitle('Density of states')
         plt.show()
 
-    def check_commensurate(self, q_vector):
+    def check_commensurate(self, q_vector, decimals=4):
         super_cell= self.dynamic.get_super_cell_matrix()
 
         commensurate = False
         primitive_matrix = self.dynamic.structure.get_primitive_matrix()
         q_point_unit_cell = np.dot(q_vector, np.linalg.inv(primitive_matrix))
         q_point_unit_cell = np.multiply(q_point_unit_cell, super_cell)*2
+        q_point_unit_cell = np.around(q_point_unit_cell, decimals=decimals)
 
         if np.all(np.equal(np.mod(q_point_unit_cell, 1), 0)):
             commensurate = True
@@ -272,7 +273,7 @@ class Calculation:
             print("Projecting into wave vector")
             #Check if commensurate point
             if not self.check_commensurate(self.get_reduced_q_vector()):
-                print("warning! Defined wave vector is not a commensurate q-point in this cell")
+                print("warning! Defined wave vector may not be a commensurate q-point in phonopy cell")
             self._vc = projection.project_onto_wave_vector(self.dynamic, self.get_q_vector())
         return self._vc
 
@@ -617,6 +618,7 @@ class Calculation:
             initial_reduced_q_point = self.get_reduced_q_vector()
 
             renormalized_frequencies = []
+            eigenvectors = []
             linewidths = []
             q_points_list = []
 
@@ -627,6 +629,7 @@ class Calculation:
                 q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(reduced_q_point, self.dynamic.structure)
                 q_index = vector_in_list(q_points_equivalent, q_points_list)
                 q_points_list.append(reduced_q_point)
+                eigenvectors.append(self.get_eigenvectors())
 
                 if q_index != 0 and self.parameters.use_symmetry:
                     renormalized_frequencies.append(renormalized_frequencies[q_index])
@@ -659,6 +662,7 @@ class Calculation:
 
 
             self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
+                                                                                                eigenvectors,
                                                                                                 com_points,
                                                                                                 self.dynamic.structure,
                                                                                                 symmetrize=self.parameters.symmetrize)
@@ -693,6 +697,7 @@ class Calculation:
         print('Free energy:   {0:.4f}       {3:.4f}     KJ/mol\n'
               'Entropy:       {1:.4f}       {4:.4f}     J/K/mol\n'
               'Cv:            {2:.4f}       {5:.4f}     J/K/mol\n'.format(*(harmonic_properties + anharmonic_properties)))
+
 
     def get_anisotropic_displacement_parameters(self, coordinate_type='uvrs', print_on_screen=True):
 
