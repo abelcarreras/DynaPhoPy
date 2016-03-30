@@ -138,9 +138,12 @@ class Calculation:
          return self.parameters.frequency_range
 
     #Wave vector related methods
-    def set_reduced_q_vector(self,q_vector):
-        self.full_clear()
+    def set_reduced_q_vector(self, q_vector):
+        if (np.array(q_vector) != self.parameters.reduced_q_vector).any():
+            self.full_clear()
+
         self.parameters.reduced_q_vector = np.array(q_vector)
+
 
     def get_reduced_q_vector(self):
         return self.parameters.reduced_q_vector
@@ -243,9 +246,7 @@ class Calculation:
     def plot_dos_phonopy(self):
 
         phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
-                                                       mesh=self.parameters.mesh_phonopy,
-                                                       freq_min=self.get_frequency_range()[0],
-                                                       freq_max=self.get_frequency_range()[-1])
+                                                       mesh=self.parameters.mesh_phonopy)
 
         plt.plot(phonopy_dos[0], phonopy_dos[1], 'r-')
         plt.ylabel('Density of states')
@@ -627,10 +628,13 @@ class Calculation:
 
                 print ("\nQpoint: {0} / {1}      {2}".format(i+1, len(com_points), reduced_q_point))
 
+                self.set_reduced_q_vector(reduced_q_point)
+                eigenvectors.append(self.get_eigenvectors())
+
                 q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(reduced_q_point, self.dynamic.structure)
                 q_index = vector_in_list(q_points_equivalent, q_points_list)
                 q_points_list.append(reduced_q_point)
-                eigenvectors.append(self.get_eigenvectors())
+
 
                 if q_index != 0 and self.parameters.use_symmetry:
                     renormalized_frequencies.append(renormalized_frequencies[q_index])
@@ -659,13 +663,12 @@ class Calculation:
                 linewidths.append(data['widths'])
 
             renormalized_frequencies = np.array(renormalized_frequencies)
-#            np.savetxt('test_freq', renormalized_frequencies)
+            np.savetxt('test_freq', renormalized_frequencies)
 #            np.savetxt('test_line', linewidths)
 
 
             self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
                                                                                                 eigenvectors,
-                                                                                                com_points,
                                                                                                 self.dynamic.structure,
                                                                                                 symmetrize=self.parameters.symmetrize)
             self.set_reduced_q_vector(initial_reduced_q_point)

@@ -167,8 +167,10 @@ def read_from_file_structure_poscar(file_name):
     data_lines = poscar_file.read().split('\n')
     poscar_file.close()
 
+    multiply = float(data_lines[1])
     direct_cell = np.array([data_lines[i].split()
                             for i in range(2,5)],dtype=float).T
+    direct_cell *= multiply
     try:
         number_of_types = np.array(data_lines[6].split(),dtype=int)
         scaled_positions = np.array([data_lines[8+k].split()[0:3]

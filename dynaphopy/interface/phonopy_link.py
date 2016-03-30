@@ -51,7 +51,7 @@ def get_phonon(structure, NAC=False, calculate_force_constants=True):
     return phonon
 
 
-def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthonormal=False):
+def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthonormal=False, print_data=True):
 
     phonon = get_phonon(structure)
 
@@ -74,17 +74,16 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthon
     number_of_dimensions = structure.get_number_of_dimensions()
     number_of_primitive_atoms = structure.get_number_of_primitive_atoms()
 
-
     arranged_ev = np.array([[[eigenvectors [j*number_of_dimensions+k, i]
                                     for k in range(number_of_dimensions)]
                                     for j in range(number_of_primitive_atoms)]
                                     for i in range(number_of_primitive_atoms*number_of_dimensions)])
 
-    print("Harmonic frequencies:")
-    print(frequencies)
+    if print_data:
+        print("Harmonic frequencies:")
+        print(frequencies)
 
     return arranged_ev, frequencies
-
 
 def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_resolution=30):
 
@@ -184,20 +183,17 @@ def get_equivalent_q_points_by_symmetry(q_point, structure):
     return np.vstack({tuple(row) for row in tot_points})
 
 
-def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, com_points, structure, symmetrize=False):
+def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, structure, symmetrize=False):
 
-    phonon = get_phonon(structure)
+    phonon = get_phonon(structure, calculate_force_constants=False)
 
     primitive = phonon.get_primitive()
     supercell = phonon.get_supercell()
 
     dynmat2fc = DynmatToForceConstants(primitive, supercell)
 
-
-    print(np.array(eigenvectors).shape)
-    phonon.set_qpoints_phonon(com_points, is_eigenvectors=True)
-    frequencies, eigenvectors = phonon.get_qpoints_phonon()
-    print(np.array(eigenvectors).shape)
+    size = structure.get_number_of_dimensions() * structure.get_number_of_primitive_atoms()
+    eigenvectors = np.array([eigenvector.reshape(size, size, order='C').T for eigenvector in eigenvectors ])
 
     dynmat2fc.set_dynamical_matrices(renormalized_frequencies / VaspToTHz, eigenvectors)
     dynmat2fc.run()
