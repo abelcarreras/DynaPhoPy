@@ -2,8 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit, minimize_scalar, root
 
-h_planck = 4.135667662E-3  # eV/ps
-kb_bolzman = 8.6173324E-5  # eV/K
+h_planck = 4.135667662e-3  # eV/ps
+h_planck_bar = 6.58211951e-4  # eV/ps
+kb_boltzmann = 8.6173324e-5  # eV/K
 
 
 def lorentzian(x, a, b, c, d):
@@ -134,8 +135,11 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         Q2_lor = dt_Q2_lor / pow(frequency * 2 * np.pi, 2)
         Q2_tot = dt_Q2_tot / pow(frequency * 2 * np.pi,2)
 
-        occupancy_lor = dt_Q2_lor / (frequency * h_planck) - 0.5
-        occupancy_tot = dt_Q2_tot / (frequency * h_planck) - 0.5
+        occupancy_lor = dt_Q2_lor / (frequency * h_planck_bar) - 0.5
+        occupancy_tot = dt_Q2_tot / (frequency * h_planck_bar) - 0.5
+
+    #    fit_temperature = dt_Q2_lor / kb_boltzmann # High temperature limit
+        fit_temperature = h_planck_bar * frequency / (kb_boltzmann * np.log((1.0 / occupancy_lor + 1.0)))
 
         #Print section
         print ('\nPeak # {0}'.format(i+1))
@@ -150,7 +154,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
  #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
         print ('Occupation number          {0:15.6f}'.format(occupancy_lor))
  #       print 'Occupation number(tot): ', occupancy_tot
-        print ('Fit temperature            {0:15.6f} K'.format(dt_Q2_lor / kb_bolzman))
+        print ('Fit temperature            {0:15.6f} K'.format(fit_temperature))
  #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
         print ('Base line                  {0:15.6f} eV * ps'.format(base_line))
         print ('Maximum height             {0:15.6f} eV * ps'.format(maximum))
