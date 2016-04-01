@@ -21,11 +21,11 @@ def boltzmann_distribution(trajectory, parameters):
     params = maxwell.fit(velocity, floc=0)
     print('Distribution parameter: {0:3.7e} Angstrom/ps'.format(params[1]))
 
-    temperature = pow(params[1],2)/ kb_boltzmann
+    temperature = pow(params[1], 2)/ kb_boltzmann
     print('Temperature fit: {0:7.6f} K'.format(temperature))
 
     if not parameters.silent:
-        x = np.linspace(0, average + 3 * deviation, 100)
+        x = np.linspace(0, float(average + 3 * deviation), 100)
         fig = plt.figure()
         ax = fig.add_subplot(111)
         plt.xlabel('Velocity [Angstrom/ps]')
