@@ -74,10 +74,10 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
         #Option values left screen
         screen.addstr(2, 2, "Please enter option number...")
-        screen.addstr(4, 4, "1 - Harmonic data")
+        screen.addstr(4, 4, "1 - Harmonic calculations")
         screen.addstr(5, 4, "2 - Change wave vector")
         screen.addstr(6, 4, "3 - Change frequency range")
-        screen.addstr(7, 4, "4 - Boltzmann analysis")
+        screen.addstr(7, 4, "4 - Maxwell-Boltzmann analysis")
         screen.addstr(8, 4, "5 - Power spectrum")
         screen.addstr(9, 4, "6 - Renormalized phonon dispersion")
         screen.addstr(10, 4, "7 - Peak analysis")

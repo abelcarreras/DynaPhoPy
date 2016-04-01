@@ -7,7 +7,7 @@ kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
 
 def boltzmann_distribution(trajectory, parameters):
 
-    print("\nBoltzmann distribution analysis")
+    print("\nMaxwell-Boltzmann distribution analysis")
     print("--------------------------------")
 
     velocity = np.reshape(np.linalg.norm(trajectory.get_velocity_mass_average(), axis=2), -1)
