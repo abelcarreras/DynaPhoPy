@@ -9,7 +9,7 @@ class Structure:
                  scaled_positions = None,
                  masses = None,
                  cell = None,
-                 force_set = None,
+                 force_sets = None,
                  force_constants = None,
                  atomic_numbers = None,
                  atomic_types = None,
@@ -32,9 +32,9 @@ class Structure:
         self._cell = np.array(cell, dtype='double')
         self._masses = np.array(masses, dtype='double')
         self._atomic_numbers = np.array(atomic_numbers, dtype='double')
-        self._force_constants = np.array(force_constants, dtype='double')
 
-        self._force_set = force_set
+        self._force_constants = force_constants
+        self._force_sets = force_sets
         self._atomic_types = atomic_types
         self._atom_type_index = atom_type_index
         self._scaled_positions = scaled_positions
@@ -190,22 +190,21 @@ class Structure:
 
 
     def set_force_set(self, force_set):
-        self._force_set = force_set
+        self._force_sets = force_set
 
 
-    def get_force_set(self):
-        if self._force_set is None:
-            print('No force sets specified!')
-            exit()
+    def get_force_sets(self):
 
-        force_atoms_file = self._force_set['natom']
-        force_atoms_input = np.product(np.diagonal(self.get_super_cell_phonon()))*self.get_number_of_atoms()
+        if not isinstance(self._force_sets,type(None)):
 
-        if force_atoms_file != force_atoms_input:
-            print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
-            exit()
+            force_atoms_file = self._force_sets['natom']
+            force_atoms_input = np.product(np.diagonal(self.get_super_cell_phonon()))*self.get_number_of_atoms()
 
-        return self._force_set
+            if force_atoms_file != force_atoms_input:
+                print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
+                exit()
+
+        return self._force_sets
 
 
     def set_masses(self, masses):

@@ -7,7 +7,7 @@ import dynaphopy.interface.interactive_ui as interactive_ui
 import dynaphopy.generate_cell as generate
 
 from fractions import Fraction
-from dynaphopy.interface.phonopy_link import get_force_sets_from_file
+from dynaphopy.interface.phonopy_link import get_force_sets_from_file, get_force_constants_from_file
 
 # Define arguments
 parser = argparse.ArgumentParser(description='DynaPhoPy options')
@@ -139,10 +139,17 @@ else:
     structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
     structure_file = input_parameters['structure_file_name_poscar']
 
-if 'force_constants_file_name' in input_parameters:
-    structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_constants_file_name']))
+if 'force_sets_file_name' in input_parameters:
+    structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_sets_file_name']))
     structure.get_data_from_dict(input_parameters)
 
+if 'force_constants_file_name' in input_parameters:
+    structure.set_force_constants(get_force_constants_from_file(file_name=input_parameters['force_constants_file_name']))
+    structure.get_data_from_dict(input_parameters)
+
+if 'force_sets_file_name' in input_parameters and 'force_constants_file_name' in input_parameters:
+    print('Both FORCE SETS and FORCE CONSTANTS are found in input file, only one is allowed')
+    exit()
 
 if args.c_poscar:
     f = open(args.c_poscar[0], 'w')

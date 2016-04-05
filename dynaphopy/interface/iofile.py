@@ -718,11 +718,12 @@ def read_parameters_from_input_file(file_name):
             input_parameters.update({'structure_file_name_poscar': input_file[i+1].replace('\n','')})
 
         if "FORCE SETS" in line:
-            input_parameters.update({'force_constants_file_name': input_file[i+1].replace('\n','')})
+            input_parameters.update({'force_sets_file_name': input_file[i+1].replace('\n','')})
 
         if "FORCE CONSTANTS" in line:
-            print('Warning!: FORCE CONSTANTS label in input has changed. Please use FORCE SETS instead')
-            exit()
+            input_parameters.update({'force_constants_file_name': input_file[i+1].replace('\n','')})
+       #     print('Warning!: FORCE CONSTANTS label in input has changed. Please use FORCE SETS instead')
+       #     exit()
 
         if "PRIMITIVE MATRIX" in line:
             primitive_matrix = [input_file[i+1].replace('\n','').split(),
