@@ -26,11 +26,10 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
         for i, position in enumerate(arangement):
             trajectory[:,i,:] = original_trajectory[:, position,:]
 
-#    for i in trajectory[0,:,:]:
-#        print 'Si {0} {1} {2}'.format(*i.real)
+#    for i in reference[:,:]:
+#        print '{0} {1} {2}'.format(*i.real)
 
     return trajectory
-
 
 def get_correct_arangement(reference, structure):
 
@@ -147,6 +146,11 @@ class Dynamics:
             self._structure = None
 
         if trajectory is not None:
+  #          from dynaphopy.analysis.coordinates import average_positions
+  #          average_positions(self)
+     #       exit()
+
+            #---------------#
             self._trajectory = check_trajectory_structure(trajectory, structure)
 
 # A bit messy, has to be fixed

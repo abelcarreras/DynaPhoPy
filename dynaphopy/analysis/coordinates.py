@@ -45,6 +45,7 @@ def relativize_trajectory(dynamic):
 
 def relativize_trajectory_py(dynamic):
 
+    print('Using python rutine for calculating atomic displacements')
     cell = dynamic.get_super_cell()
     number_of_atoms = dynamic.trajectory.shape[1]
     super_cell = dynamic.get_super_cell_matrix()
@@ -60,11 +61,54 @@ def relativize_trajectory_py(dynamic):
 
          #   difference_matrix = np.array(np.dot(np.linalg.inv(cell),(IniSep)),dtype=int)
             difference_matrix = np.around(np.dot(np.linalg.inv(cell), difference), decimals=0)
-            normalized_trajectory[i, j, :] -= np.dot(difference_matrix, cell) + position[j]
+            normalized_trajectory[i, j, :] -= np.dot(difference_matrix, cell.T) + position[j]
 
         progress_bar(float(j+1)/number_of_atoms)
 
     return normalized_trajectory
+
+
+def average_positions(dynamic, number_of_samples=8000):
+
+    cell = dynamic.get_super_cell()
+    number_of_atoms = dynamic.trajectory.shape[1]
+    super_cell = dynamic.get_super_cell_matrix()
+    position = dynamic.structure.get_positions(super_cell=super_cell)
+
+    if dynamic.trajectory.shape[0] < number_of_samples:
+        number_of_samples = dynamic.trajectory.shape[0]
+
+    length = dynamic.trajectory.shape[0]
+    positions = np.random.random_integers(length, size=(number_of_samples,))-1
+
+    normalized_trajectory = dynamic.trajectory[positions, :]
+
+    progress_bar(0)
+
+    for j in range(number_of_atoms):
+        for i in range(normalized_trajectory.shape[0]):
+
+            difference = normalized_trajectory[i, j, :] - position[j]
+
+            difference_matrix = np.around(np.dot(np.linalg.inv(cell), difference), decimals=0)
+            normalized_trajectory[i, j, :] -= np.dot(difference_matrix, cell.T) + position[j]
+
+        progress_bar(float(j+1)/number_of_atoms)
+
+    reference = np.average(normalized_trajectory, axis=0)
+    reference = reference+position
+
+    for j in range(number_of_atoms):
+
+        difference_matrix = np.around(np.dot(np.linalg.inv(cell), reference[j, :] - 0.5 * np.dot(np.ones((3)), cell.T)), decimals=0)
+        print(difference_matrix)
+        reference[j, :] -= np.dot(difference_matrix, cell.T)
+
+    for i in reference:
+        print '{0} {1} {2}'.format(*i.real)
+
+    return normalized_trajectory
+
 
 def trajectory_projection(dynamic, direction):
 
