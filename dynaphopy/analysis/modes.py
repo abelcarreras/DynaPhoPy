@@ -7,7 +7,6 @@ import numpy as np
 import numpy
 from mpl_toolkits.mplot3d import proj3d
 
-
 class Arrow3D(FancyArrowPatch):
     def __init__(self, xs, ys, zs, *args, **kwargs):
         FancyArrowPatch.__init__(self, (0.0, 0.0), (0.0, 0.0), *args, **kwargs)
@@ -46,7 +45,8 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
 
         ax = fig.add_subplot(111, projection='3d')
 
-        color_atom=['g','b','m', 'c', 'y', 'k', 'w', 'g', 'b', 'm', 'c', 'y', 'k', 'w']
+        color_atom=['g','b','m', 'c', 'y', 'k', 'w', 'g', 'b', 'm', 'c', 'y', 'k', 'w','g','b','m', 'c', 'y',
+                    'k', 'w', 'g', 'b', 'm', 'c', 'y', 'k', 'w','g','b','m', 'c', 'y', 'k', 'w', 'g', 'b']
 
         if by_element:
             elements_unique = np.unique(elements, return_inverse=True)[1]

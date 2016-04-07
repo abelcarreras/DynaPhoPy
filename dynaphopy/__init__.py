@@ -702,7 +702,7 @@ class Calculation:
         print('Free energy:   {0:.4f}       {3:.4f}     KJ/mol\n'
               'Entropy:       {1:.4f}       {4:.4f}     J/K/mol\n'
               'Cv:            {2:.4f}       {5:.4f}     J/K/mol\n'.format(*(harmonic_properties + anharmonic_properties)))
-
+        print('Note: Free energy using renormalized force constants does not include correction term')
 
     def get_anisotropic_displacement_parameters(self, coordinate_type='uvrs', print_on_screen=True):
 

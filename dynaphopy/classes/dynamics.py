@@ -146,12 +146,8 @@ class Dynamics:
             self._structure = None
 
         if trajectory is not None:
-  #          from dynaphopy.analysis.coordinates import average_positions
-  #          average_positions(self)
-     #       exit()
-
-            #---------------#
             self._trajectory = check_trajectory_structure(trajectory, structure)
+
 
 # A bit messy, has to be fixed
     def crop_trajectory(self, last_steps):
@@ -273,6 +269,28 @@ class Dynamics:
             self._mean_displacement_matrix = mean_displacement_matrix / (number_of_equivalent_atoms * number_of_data)
 
         return self._mean_displacement_matrix
+
+
+    def average_positions(self, number_of_samples=8000):
+
+        cell = self.get_super_cell()
+        number_of_atoms = self.trajectory.shape[1]
+        super_cell = self.get_super_cell_matrix()
+        positions = self.structure.get_positions(super_cell=super_cell)
+
+        normalized_trajectory = self.get_relative_trajectory()
+
+        reference = np.average(normalized_trajectory, axis=0) + positions
+
+        for j in range(number_of_atoms):
+
+            difference_matrix = np.around(np.dot(np.linalg.inv(cell), reference[j, :] - 0.5 * np.dot(np.ones((3)), cell.T)), decimals=0)
+            reference[j, :] -= np.dot(difference_matrix, cell.T)
+
+        for i in reference:
+            print '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*i.real)
+
+        return reference
 
 
     # Properties

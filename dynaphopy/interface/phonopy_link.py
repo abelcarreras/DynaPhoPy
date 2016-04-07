@@ -231,3 +231,4 @@ if __name__ == "__main__":
     structure.set_super_cell_phonon(input_parameters['_super_cell_phonon'])
     structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_constants_file_name']))
     obtain_phonopy_dos(structure)
+
