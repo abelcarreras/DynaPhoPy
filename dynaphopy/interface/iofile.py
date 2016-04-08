@@ -2,7 +2,6 @@ import mmap
 import pickle
 import os
 import numpy as np
-import h5py
 
 import dynaphopy.classes.dynamics as dyn
 import dynaphopy.classes.atoms as atomtest
@@ -790,6 +789,8 @@ def write_xsf_file(file_name,structure):
 # Save & load HDF5 data file
 
 def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, vc=None, reduced_q_vector=None):
+    import h5py
+
     hdf5_file = h5py.File(file_name, "w")
 
     if trajectory is not None:
@@ -813,6 +814,8 @@ def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, 
 
 
 def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initial_cut=1, final_cut=None):
+    import h5py
+
     print("Reading data from hdf5 file: " + file_name)
 
     trajectory = None

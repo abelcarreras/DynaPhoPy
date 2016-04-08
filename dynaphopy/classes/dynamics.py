@@ -24,7 +24,7 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
     if arangement:
         original_trajectory = trajectory.copy()
         for i, position in enumerate(arangement):
-            trajectory[:,i,:] = original_trajectory[:, position,:]
+            trajectory[:,i,:] = original_trajectory[:, position, :]
 
 #    for i in reference[:,:]:
 #        print '{0} {1} {2}'.format(*i.real)
