@@ -289,7 +289,6 @@ class Dynamics:
 
         return reference
 
-
     # Properties
     @property
     def structure(self):
