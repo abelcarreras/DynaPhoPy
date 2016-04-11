@@ -126,6 +126,8 @@ group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
 group.add_argument('-c_lammps', metavar='file', type=str, default=None, nargs=1,
                     help='Generate a LAMMPS data structure file')
 
+parser.add_argument('-average', action='store_true',
+                    help='returns average atomic positions from MD')
 
 args = parser.parse_args()
 
@@ -273,6 +275,11 @@ if args.adp:
 
 if args.thm:
     calculation.display_thermal_properties()
+
+if args.average:
+    reference = calculation.dynamic.average_positions()
+    for i in reference:
+        print '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*i.real)
 
 if args.interactive:
     if isinstance(trajectory, list) or isinstance(trajectory, tuple):

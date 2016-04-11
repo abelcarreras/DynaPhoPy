@@ -287,9 +287,6 @@ class Dynamics:
             difference_matrix = np.around(np.dot(np.linalg.inv(cell), reference[j, :] - 0.5 * np.dot(np.ones((3)), cell.T)), decimals=0)
             reference[j, :] -= np.dot(difference_matrix, cell.T)
 
-        for i in reference:
-            print '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*i.real)
-
         return reference
 
 
