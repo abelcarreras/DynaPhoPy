@@ -26,6 +26,7 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
 
     return trajectory
 
+
 def get_correct_arangement(reference, structure):
 
     unit_coordinates = []
@@ -59,7 +60,6 @@ def get_correct_arangement(reference, structure):
         if order_type == 1:
             print ('Using alternative atoms order 1')
             list_target = [(type_1(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]
-
         if order_type == 2:
             print ('Using alternative atoms order 2 (untested!)')
             list_target = [(type_2(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]
@@ -69,6 +69,7 @@ def get_correct_arangement(reference, structure):
             for i, target in enumerate(list_target):
                 if (target == reference).all():
                     list_trans.append(i)
+                    break
 
         return list_trans
 

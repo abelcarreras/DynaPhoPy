@@ -24,8 +24,6 @@ def check_trajectory_file_type(file_name, bytes_to_check=1000000):
                     file_map.find('ITEM: NUMBER OF ATOMS'),
                     file_map.find('ITEM: BOX BOUNDS')]
 
-    file_map.close()
-
     if not -1 in num_test:
             return read_lammps_trajectory
 
@@ -35,8 +33,6 @@ def check_trajectory_file_type(file_name, bytes_to_check=1000000):
         num_test = [file_map.find('NIONS'),
                     file_map.find('POMASS'),
                     file_map.find('direct lattice vectors')]
-
-    file_map.close()
 
     if not -1 in num_test:
             return read_vasp_trajectory
