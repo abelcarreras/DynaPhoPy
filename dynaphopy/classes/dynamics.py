@@ -19,15 +19,10 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
 
     reference = averaged_positions(trajectory)
 
-    arangement = get_correct_arangement(reference, structure)
+    arrangement = get_correct_arangement(reference, structure)
 
-    if arangement:
-        original_trajectory = trajectory.copy()
-        for i, position in enumerate(arangement):
-            trajectory[:,i,:] = original_trajectory[:, position, :]
-
-#    for i in reference[:,:]:
-#        print '{0} {1} {2}'.format(*i.real)
+    if arrangement:
+        trajectory = trajectory[:, np.array(arrangement), :]
 
     return trajectory
 
