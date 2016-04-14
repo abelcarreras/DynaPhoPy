@@ -176,8 +176,6 @@ if args.load_velocity:
     structure_file = args.load_velocity[0]
 if args.md_file:
     trajectory_reading_function = reading.check_trajectory_file_type(args.md_file)
-    print(args.read_from)
-    print(args.read_to)
     trajectory = trajectory_reading_function(args.md_file,
                                              structure,
                                              args.time_step,
