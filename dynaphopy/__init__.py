@@ -697,7 +697,7 @@ class Calculation:
                                                                                 mesh=self.parameters.mesh_phonopy,
                                                                                 force_constants=self.get_renormalized_constants())
 
-        print('\nThermal properties per unit cell ({0:.2f} K)\n'
+        print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy]\n'
               '----------------------------------------------').format(temperature)
         print('                               Harmonic    Renormalized\n')
 
@@ -750,7 +750,7 @@ class Calculation:
                                                            self.dynamic.structure.get_number_of_dimensions())
 
             power_spectrum_properties = [free_energy, entropy, c_v, integration]
-            print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy]\n'
+            print('\nThermal properties per unit cell ({0:.2f} K)\n'
               '----------------------------------------------').format(temperature)
             print('                         Harmonic    Renormalized   Power spectrum\n')
             print('Free energy (KJ/mol): {0:12.4f}  {4:12.4f}  {8:12.4f}\n'
