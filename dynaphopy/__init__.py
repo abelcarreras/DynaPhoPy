@@ -13,6 +13,7 @@ import dynaphopy.analysis.energy as energy
 import dynaphopy.analysis.fitting as fitting
 import dynaphopy.analysis.modes as modes
 import dynaphopy.analysis.coordinates as trajdist
+import dynaphopy.analysis.thermal_properties as thm
 
 power_spectrum_functions = {
     0: [power_spectrum.get_fourier_spectra_par_openmp, 'Fourier transform'],
@@ -681,7 +682,7 @@ class Calculation:
         pho_interface.save_force_constants_to_file(force_constants, filename)
 
 
-    def display_thermal_properties(self, temperature=None):
+    def display_thermal_properties(self, temperature=None, from_power_spectrum=False):
 
         #  temperture = self.show_boltzmann_distribution()
         if not temperature:
@@ -691,22 +692,21 @@ class Calculation:
                                                                               temperature,
                                                                               mesh=self.parameters.mesh_phonopy)
 
-        anharmonic_properties = pho_interface.obtain_phonopy_thermal_properties(self.dynamic.structure,
+        renormalized_properties = pho_interface.obtain_phonopy_thermal_properties(self.dynamic.structure,
                                                                                 temperature,
                                                                                 mesh=self.parameters.mesh_phonopy,
                                                                                 force_constants=self.get_renormalized_constants())
 
         print('\nThermal properties per unit cell ({0:.2f} K)\n'
               '----------------------------------------------').format(temperature)
-        print('               Harmonic    Renormalized\n')
+        print('                               Harmonic    Renormalized\n')
 
-        print('Free energy:   {0:.4f}       {3:.4f}     KJ/mol\n'
-              'Entropy:       {1:.4f}       {4:.4f}     J/K/mol\n'
-              'Cv:            {2:.4f}       {5:.4f}     J/K/mol\n'.format(*(harmonic_properties + anharmonic_properties)))
-        print('Note: Free energy using renormalized force constants does not include correction term')
+        print('Free energy (not corrected):   {0:.4f}       {3:.4f}     KJ/mol\n'
+              'Entropy:                       {1:.4f}       {4:.4f}     J/K/mol\n'
+              'Cv:                            {2:.4f}       {5:.4f}     J/K/mol\n'.format(*(harmonic_properties + renormalized_properties)))
 
 
-        import analysis.thermal_properties as thm
+
         phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                        mesh=self.parameters.mesh_phonopy,
                                                        freq_min=self.get_frequency_range()[0],
@@ -719,36 +719,54 @@ class Calculation:
                                                          force_constants=self._renormalized_force_constants)
         frequency = self.get_frequency_range()
 
-
-        print ('\nHARMONIC')
-        print ('-------------------------')
-
+        # Harmonic force constants
         free_energy = thm.get_free_energy(temperature, phonopy_dos[0], phonopy_dos[1])
         entropy = thm.get_entropy(temperature, phonopy_dos[0], phonopy_dos[1])
         c_v = thm.get_cv(temperature, phonopy_dos[0], phonopy_dos[1])
-
-        print ('Free energy: {0} KJ/K/mol'.format(free_energy))
-        print ('Entropy: {0} J/K/mol'.format(entropy))
-        print ('Cv: {0} J/K/mol'.format(c_v))
-        print (np.trapz(phonopy_dos[1], x=phonopy_dos[0])/(self.dynamic.structure.get_number_of_atoms()*
-                                                       self.dynamic.structure.get_number_of_dimensions()))
-
-        normalization = np.prod(self.dynamic.get_super_cell_matrix())
-        print(normalization)
-
-        power_spectrum = thm.get_dos(temperature, frequency, self.get_power_spectrum_direct(), normalization)
-        free_energy = thm.get_free_energy(temperature, frequency, power_spectrum)
-        entropy = thm.get_entropy(temperature, frequency, power_spectrum)
-        c_v = thm.get_cv(temperature, frequency, power_spectrum)
-
-        print ('\nFROM MD')
-        print ('-------------------------')
-
-        print ('Free energy: {0} KJ/K/mol'.format(free_energy))
-        print ('Entropy: {0} J/K/mol'.format(entropy))
-        print ('Cv: {0} J/K/mol'.format(c_v))
-        print (np.trapz(power_spectrum, x=frequency))/(self.dynamic.structure.get_number_of_atoms()*
+        integration = np.trapz(phonopy_dos[1], x=phonopy_dos[0])/(self.dynamic.structure.get_number_of_atoms()*
                                                        self.dynamic.structure.get_number_of_dimensions())
+        harmonic_properties = [free_energy, entropy, c_v, integration]
+
+        # Renormalized force constants
+        free_energy = thm.get_free_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
+                      thm.get_free_energy_correction_aprox(temperature, phonopy_dos[0], phonopy_dos_r[1], phonopy_dos[1])
+        entropy = thm.get_entropy(temperature, phonopy_dos_r[0], phonopy_dos_r[1])
+        c_v = thm.get_cv(temperature, phonopy_dos_r[0], phonopy_dos_r[1])
+        integration = np.trapz(phonopy_dos_r[1], x=phonopy_dos_r[0])/(self.dynamic.structure.get_number_of_atoms()*
+                                                       self.dynamic.structure.get_number_of_dimensions())
+        renormalized_properties = [free_energy, entropy, c_v, integration]
+
+
+        if from_power_spectrum:
+            normalization = np.prod(self.dynamic.get_super_cell_matrix())
+
+            power_spectrum = thm.get_dos(temperature, frequency, self.get_power_spectrum_direct(), normalization)
+            free_energy = thm.get_free_energy(temperature, frequency, power_spectrum)
+            entropy = thm.get_entropy(temperature, frequency, power_spectrum)
+            c_v = thm.get_cv(temperature, frequency, power_spectrum)
+
+            integration = np.trapz(power_spectrum, x=frequency)/(self.dynamic.structure.get_number_of_atoms()*
+                                                           self.dynamic.structure.get_number_of_dimensions())
+
+            power_spectrum_properties = [free_energy, entropy, c_v, integration]
+            print('\nThermal properties per unit cell ({0:.2f} K) \n'
+              '----------------------------------------------').format(temperature)
+            print('                         Harmonic    Renormalized   Power spectrum\n')
+            print('Free energy (KJ/mol): {0:12.4f}  {4:12.4f}  {8:12.4f}\n'
+                  'Entropy    (J/K/mol): {1:12.4f}  {5:12.4f}  {9:12.4f}\n'
+                  'Cv         (J/K/mol): {2:12.4f}  {6:12.4f}  {10:12.4f}\n'
+                  'Integration:          {3:12.4f}  {7:12.4f}  {11:12.4f}\n'.format(*(harmonic_properties +
+                                                                               renormalized_properties +
+                                                                               power_spectrum_properties)))
+
+        else:
+            print('\nThermal properties per unit cell ({0:.2f} K)\n'
+              '----------------------------------------------').format(temperature)
+            print('                        Harmonic    Renormalized\n')
+            print('Free energy  (KJ/mol): {0:12.4f}  {4:12.4f}\n'
+                  'Entropy     (J/K/mol): {1:12.4f}  {5:12.4f}\n'
+                  'Cv          (J/K/mol): {2:12.4f}  {6:12.4f}\n'
+                  'Integration:           {3:12.4f}  {7:12.4f}\n'.format(*(harmonic_properties + renormalized_properties)))
 
 
     def get_anisotropic_displacement_parameters(self, coordinate_type='uvrs', print_on_screen=True):
