@@ -713,7 +713,7 @@ class Calculation:
 
         phonopy_dos_r = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                          mesh=self.parameters.mesh_phonopy,
-                                                         freq_min=0,
+                                                         freq_min=0.01,
                                       #                   freq_max=self.get_frequency_range()[-1],
                                                          force_constants=self._renormalized_force_constants)
 
