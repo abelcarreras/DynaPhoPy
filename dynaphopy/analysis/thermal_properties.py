@@ -31,7 +31,7 @@ def get_free_energy(temperature, frequency, dos):
     free_energy = np.nan_to_num([dos[i] * k_b * temperature * np.log(2 * np.sinh(h_bar * freq / (2 * k_b * temperature)))
                                  for i, freq in enumerate(frequency)])
 
-    free_energy = np.trapz(free_energy[1:], frequency[1:]) * N_a / 1000 # KJ/K/mol
+    free_energy = np.trapz(free_energy, frequency) * N_a / 1000 # KJ/K/mol
     return free_energy
 
 def get_free_energy_correction(temperature, frequency, dos, shift):
