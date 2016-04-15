@@ -86,6 +86,9 @@ parser.add_argument('-adp', action='store_true',
 parser.add_argument('-thm', action='store_true',
                     help='print thermal properties')
 
+parser.add_argument('--thm_full', action='store_true',
+                    help='print thermal properties from power spectrum')
+
 
 # Extra options
 
@@ -275,6 +278,10 @@ if args.adp:
 
 if args.thm:
     calculation.display_thermal_properties()
+
+if args.thm_full:
+    calculation.display_thermal_properties(from_power_spectrum=True)
+
 
 if args.average:
     reference = calculation.dynamic.average_positions()
