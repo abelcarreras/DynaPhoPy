@@ -3,14 +3,14 @@
 import numpy as np
 import phonopy.file_IO as file_IO
 import dynaphopy.interface.iofile as reading
-import dynaphopy as controller
+import dynaphopy
 
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure OUTCAR are placed
 # FORCE_SETS : force set file obtained from PHONOPY calculation
 # OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
-directory ='/home/abel/VASP/Si-phonon/4x4x4B/'
+directory ='/home/abel/VASP/Si/Si-phonon/4x4x4B/'
 
 structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
 structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
@@ -38,12 +38,12 @@ structure.set_super_cell_phonon([[4, 0, 0],
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR/LAMMPS file containing the Molecular Dynamics trajectory
 
-trajectory = reading.read_vasp_trajectory('/home/abel/VASP/Si-dynamic_300/RUN1/OUTCAR', structure)
+trajectory = reading.read_vasp_trajectory('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_400/No1/OUTCAR', structure)
 # or
-#trajectory = reading.read_lammps_trajectory('/home/abel/LAMMPS/GaN/gan_400.lammpstrj', structure, initial_cut=10000, end_cut=12000)
+#trajectory = reading.read_lammps_trajectory('/home/abel/LAMMPS/Si/Si_400.lammpstrj', structure, initial_cut=10000, end_cut=12000)
 
 
-calculation = controller.Calculation(trajectory)
+calculation = dynaphopy.Calculation(trajectory)
 
 
 ############################## DEFINE CALCULATION REQUESTS #####################################
@@ -81,7 +81,7 @@ calculation.plot_power_spectrum_phonon()
 #calculation.write_correlation_wave_vector('Data Files/correlation_wave_vector.out')
 
 # 5j. Request save phonon projected velocity correlation function into file
-calculation.write_power_spectrum_phonon('Data Files/correlation_phonon.out')
+calculation.write_power_spectrum_phonon('~/mem_phonon.out')
 
 #5k. Request calculation of renormalized force constants
 calculation.write_renormalized_constants(filename="FORCE_CONSTANTS")

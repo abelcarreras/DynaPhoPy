@@ -24,12 +24,12 @@ python setup.py install --user
 Executing the program
 ---------------------------------------------------------
 1) Command line method
-./dynaphopy input_file vasp_MD_OUTCAR [Options]
+./dynaphopy input_file MD_file [Options]
 execute ./dynaphopy -h for detailed description of available options
 
 2) Interactive mode
 Use -i option from command line method and follow the instructions
-./dynaphopy input_file vasp_MD_OUTCAR -i
+./dynaphopy input_file MD_file -i
 
 3) Scripting method (as a module)
 Create/edit script like input.py and execute it
