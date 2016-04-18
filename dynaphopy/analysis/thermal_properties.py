@@ -46,7 +46,7 @@ def get_free_energy_correction(temperature, frequency, dos, shift):
     return free_energy_c
 
 
-def get_free_energy_correction_aprox(temperature, frequency, dos, dos_r):
+def get_free_energy_correction_2(temperature, frequency, dos, dos_r):
 
     def n(temp, freq):
         return pow(np.exp(freq*h_bar/(k_b*temp))-1, -1)
@@ -141,9 +141,9 @@ if __name__ == "__main__":
     #free_energy = get_free_energy(temp,frequency,dos) + get_free_energy_correction(temp, frequency, dos, shift)
 
     print (get_free_energy_correction(temp, frequency, dos, shift),
-           get_free_energy_correction_aprox(temp, frequency, dos, dos_r))
+           get_free_energy_correction_2(temp, frequency, dos, dos_r))
 
-    free_energy = get_free_energy(temp, frequency_r, dos_r) + get_free_energy_correction_aprox(temp, frequency, dos_r, dos)
+    free_energy = get_free_energy(temp, frequency_r, dos_r) + get_free_energy_correction_2(temp, frequency, dos_r, dos)
     entropy = get_entropy(temp, frequency_r, dos_r)
     c_v = get_cv(temp, frequency_r, dos_r)
     print ('Renormalized')

@@ -92,6 +92,8 @@ parser.add_argument('--thm_full', action='store_true',
 
 # Extra options
 
+parser.add_argument('--temperature', metavar='F', type=float, default=None,
+                    help='set temperature (thermal properties)')
 
 parser.add_argument('--silent', action='store_true',
                     help='executes without showing plots')
@@ -277,10 +279,10 @@ if args.adp:
     calculation.get_anisotropic_displacement_parameters()
 
 if args.thm:
-    calculation.display_thermal_properties()
+    calculation.display_thermal_properties(temperature=args.temperature)
 
 if args.thm_full:
-    calculation.display_thermal_properties(from_power_spectrum=True)
+    calculation.display_thermal_properties(temperature=args.temperature, from_power_spectrum=True)
 
 
 if args.average:
