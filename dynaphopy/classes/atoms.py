@@ -43,6 +43,7 @@ class Structure:
 
         self._super_cell_matrix = None
         self._super_cell_phonon = None
+        self._super_cell_phonon_renormalized = None
         self._number_of_cell_atoms = None
         self._number_of_atoms = None
         self._number_of_atom_types = None
@@ -101,8 +102,18 @@ class Structure:
 
     def get_super_cell_phonon(self):
         if self._super_cell_phonon is None:
-            self._super_cell_phonon = np.identity(self.get_number_of_dimensions(),dtype=int)
+            self._super_cell_phonon = np.identity(self.get_number_of_dimensions(), dtype=int)
         return self._super_cell_phonon
+
+    def set_super_cell_phonon_renormalized(self, super_cell_phonon):
+        self._super_cell_phonon_renormalized = super_cell_phonon
+
+
+    def get_super_cell_phonon_renormalized(self):
+        if self._super_cell_phonon_renormalized is None:
+            self._super_cell_phonon_renormalized = self.get_super_cell_phonon()
+        return self._super_cell_phonon_renormalized
+
 
 
     def set_super_cell_matrix(self,super_cell_matrix):

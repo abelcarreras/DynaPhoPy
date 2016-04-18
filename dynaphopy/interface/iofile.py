@@ -364,7 +364,9 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
         xyz_file = open(save_to_file, 'w')
 
     #Generate additional wave vectors sample
-    q_vector_list = pho_interface.get_commensurate_points(structure, supercell=super_cell)
+    structure.set_super_cell_phonon_renormalized(np.diag(super_cell))
+
+    q_vector_list = pho_interface.get_commensurate_points(structure, from_MD_supercell=True)
 
 
     atoms_relation = float(len(q_vector_list)*number_of_primitive_atoms)/number_of_atoms

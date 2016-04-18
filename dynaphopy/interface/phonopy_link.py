@@ -30,19 +30,19 @@ def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
 
 def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
+    super_cell_phonon = structure.get_super_cell_phonon()
+    if custom_supercell:
+        super_cell_phonon = structure.get_super_cell_phonon_renormalized()
+
+
     #Preparing the bulk type object
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
                         scaled_positions=structure.get_scaled_positions(),
                         cell=structure.get_cell().T)
 
-    phonon = Phonopy(bulk, structure.get_super_cell_phonon(),
+    phonon = Phonopy(bulk, super_cell_phonon,
                      primitive_matrix=structure.get_primitive_matrix(),
                      is_auto_displacements=False)
-
-    if custom_supercell:
-        phonon = Phonopy(bulk, np.diag(custom_supercell),
-                         primitive_matrix=structure.get_primitive_matrix(),
-                         is_auto_displacements=False)
 
 
     #Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
@@ -118,10 +118,12 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_reso
     return phonon.get_band_structure()
 
 
-def obtain_phonopy_dos(structure, mesh=(20, 20, 20), force_constants=None, freq_min=None, freq_max=None):
+def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_min=None, freq_max=None):
 
     from types import NoneType
-    phonon = get_phonon(structure, setup_forces=isinstance(force_constants, NoneType))
+    phonon = get_phonon(structure,
+                        setup_forces=isinstance(force_constants, NoneType),
+                        custom_supercell=not(isinstance(force_constants, NoneType)))
 
     if force_constants is not None:
         phonon.set_force_constants(force_constants)
@@ -138,7 +140,9 @@ def obtain_phonopy_dos(structure, mesh=(20, 20, 20), force_constants=None, freq_
 def obtain_phonopy_thermal_properties(structure, temperature, mesh=(20, 20, 20), force_constants=None):
 
     from types import NoneType
-    phonon = get_phonon(structure, setup_forces=isinstance(force_constants, NoneType))
+    phonon = get_phonon(structure,
+                        setup_forces=isinstance(force_constants, NoneType),
+                        custom_supercell=not(isinstance(force_constants, NoneType)))
 
     if force_constants is not None:
         phonon.set_force_constants(force_constants)
@@ -158,7 +162,7 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(20, 20, 20),
 def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_constants, NAC=False, band_resolution=30):
 
     print('Getting renormalized phonon dispersion bands')
-    phonon = get_phonon(structure, NAC=False, setup_forces=False)
+    phonon = get_phonon(structure, NAC=False, setup_forces=False, custom_supercell=True)
 
     phonon.set_force_constants(force_constants)
 
@@ -173,9 +177,9 @@ def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_c
     return phonon.get_band_structure()
 
 
-def get_commensurate_points(structure, supercell=None):
+def get_commensurate_points(structure, from_MD_supercell=None):
 
-    phonon = get_phonon(structure, setup_forces=False, custom_supercell=supercell)
+    phonon = get_phonon(structure, setup_forces=False, custom_supercell=from_MD_supercell)
 
     primitive = phonon.get_primitive()
     supercell = phonon.get_supercell()
@@ -211,7 +215,7 @@ def get_equivalent_q_points_by_symmetry(q_point, structure):
 
 def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, structure, symmetrize=False):
 
-    phonon = get_phonon(structure, setup_forces=False)
+    phonon = get_phonon(structure, setup_forces=False, custom_supercell=True)
 
     primitive = phonon.get_primitive()
     supercell = phonon.get_supercell()

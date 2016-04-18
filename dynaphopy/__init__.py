@@ -41,7 +41,6 @@ class Calculation:
         self._bands = None
         self._renormalized_bands = None
         self._renormalized_force_constants = None
-
         self._parameters = parameters.Parameters()
         self.crop_trajectory(last_steps)
       #  print('Using {0} time steps for calculation'.format(len(self.dynamic.velocity)))
@@ -273,7 +272,7 @@ class Calculation:
             print("Projecting into wave vector")
             #Check if commensurate point
             if not self.check_commensurate(self.get_reduced_q_vector()):
-                print("warning! Defined wave vector may not be a commensurate q-point in phonopy cell")
+                print("warning! Defined wave vector may not be a commensurate q-point in MD supercell")
             self._vc = projection.project_onto_wave_vector(self.dynamic, self.get_q_vector())
         return self._vc
 
@@ -614,7 +613,13 @@ class Calculation:
     def get_renormalized_constants(self):
 
         if self._renormalized_force_constants is None:
-            com_points = pho_interface.get_commensurate_points(self.dynamic.structure)
+            if self.parameters.use_MD_cell_commensurate:
+                self.dynamic.structure.set_super_cell_phonon_renormalized(np.diag(self.dynamic.get_super_cell_matrix()))
+
+       #     self.dynamic.structure.set_super_cell_phonon_renormalized(None)
+
+            com_points = pho_interface.get_commensurate_points(self.dynamic.structure,
+                                                               from_MD_supercell=self.parameters.use_MD_cell_commensurate)
 
             initial_reduced_q_point = self.get_reduced_q_vector()
 

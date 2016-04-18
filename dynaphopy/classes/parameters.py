@@ -45,7 +45,10 @@ class Parameters:
                  modes_vectors_scale=10,
 
                  #Density of states mesh (phonopy)
-                 mesh_phonopy=(40, 40, 40)
+                 mesh_phonopy=(40, 40, 40),
+
+                 #Use supercell
+                 use_MD_cell_commensurate = False,
                  ):
 
         self._silent = silent
@@ -68,7 +71,7 @@ class Parameters:
 
         self._modes_vectors_scale = modes_vectors_scale
         self._mesh_phonopy = mesh_phonopy
-
+        self._use_MD_cell_commensurate = use_MD_cell_commensurate
 
     def get_data_from_dict(self, data_dictionary):
         for data in self.__dict__:
@@ -222,3 +225,11 @@ class Parameters:
     @mesh_phonopy.setter
     def mesh_phonopy(self, mesh_phonopy):
         self._mesh_phonopy = mesh_phonopy
+
+    @property
+    def use_MD_cell_commensurate(self):
+        return self._use_MD_cell_commensurate
+
+    @use_MD_cell_commensurate.setter
+    def use_MD_cell_commensurate(self, use_MD_cell_commensurate):
+        self._use_MD_cell_commensurate = use_MD_cell_commensurate
