@@ -1,7 +1,7 @@
 import numpy as np
 from phonopy.api_phonopy import Phonopy
 from phonopy.structure.atoms import Atoms as PhonopyAtoms
-from phonopy.file_IO import parse_BORN, parse_FORCE_SETS, write_FORCE_CONSTANTS
+from phonopy.file_IO import parse_BORN, parse_FORCE_SETS, write_FORCE_CONSTANTS, parse_FORCE_CONSTANTS
 from phonopy.harmonic.dynmat_to_fc import DynmatToForceConstants
 from phonopy.harmonic.force_constants import set_tensor_symmetry_PJ
 from phonopy.units import VaspToTHz
@@ -18,13 +18,17 @@ def get_force_sets_from_file(file_name='FORCE_SETS'):
     force_sets = parse_FORCE_SETS(filename=file_name)
     return force_sets
 
+def get_force_constants_from_file(file_name='FORCE_CONSTANTS'):
+    #Just a wrapper to phonopy function
+    force_constants = parse_FORCE_CONSTANTS(filename=file_name)
+    return force_constants
 
 def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
     #Just a wrapper to phonopy function
     write_FORCE_CONSTANTS(force_constants, filename=filename)
 
 
-def get_phonon(structure, NAC=False, calculate_force_constants=True):
+def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
     #Preparing the bulk type object
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
@@ -35,6 +39,12 @@ def get_phonon(structure, NAC=False, calculate_force_constants=True):
                      primitive_matrix=structure.get_primitive_matrix(),
                      is_auto_displacements=False)
 
+    if custom_supercell:
+        phonon = Phonopy(bulk, np.diag(custom_supercell),
+                         primitive_matrix=structure.get_primitive_matrix(),
+                         is_auto_displacements=False)
+
+
     #Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
     if NAC:
         print("Phonopy warning: Using Non Analytical Corrections")
@@ -43,15 +53,22 @@ def get_phonon(structure, NAC=False, calculate_force_constants=True):
         nac_params = parse_BORN(primitive, get_is_symmetry)
         phonon.set_nac_params(nac_params=nac_params)
 
-    if calculate_force_constants:
-        phonon.set_displacement_dataset(structure.get_force_set())
-        phonon.produce_force_constants(computation_algorithm="svd")
 
+
+    if setup_forces:
+        if not np.array(structure.get_force_constants()).any() and not np.array(structure.get_force_sets()).any():
+            print('No force sets/constants available!')
+            exit()
+        if np.array(structure.get_force_constants()).any():
+            phonon.set_force_constants(structure.get_force_constants())
+        else:
+            phonon.set_displacement_dataset(structure.get_force_sets())
+            phonon.produce_force_constants(computation_algorithm="svd")
 
     return phonon
 
 
-def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthonormal=False):
+def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthonormal=False, print_data=True):
 
     phonon = get_phonon(structure)
 
@@ -74,17 +91,16 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthon
     number_of_dimensions = structure.get_number_of_dimensions()
     number_of_primitive_atoms = structure.get_number_of_primitive_atoms()
 
-
     arranged_ev = np.array([[[eigenvectors [j*number_of_dimensions+k, i]
                                     for k in range(number_of_dimensions)]
                                     for j in range(number_of_primitive_atoms)]
                                     for i in range(number_of_primitive_atoms*number_of_dimensions)])
 
-    print("Harmonic frequencies:")
-    print(frequencies)
+    if print_data:
+        print("Harmonic frequencies:")
+        print(frequencies)
 
     return arranged_ev, frequencies
-
 
 def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_resolution=30):
 
@@ -105,21 +121,44 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_reso
 def obtain_phonopy_dos(structure, mesh=(20, 20, 20), force_constants=None, freq_min=None, freq_max=None):
 
     from types import NoneType
-    phonon = get_phonon(structure, calculate_force_constants=isinstance(force_constants, NoneType))
+    phonon = get_phonon(structure, setup_forces=isinstance(force_constants, NoneType))
 
     if force_constants is not None:
         phonon.set_force_constants(force_constants)
 
     phonon.set_mesh(mesh)
     phonon.set_total_DOS(freq_min=freq_min, freq_max=freq_max)
-#    phonon.plot_total_DOS().show()
-    return phonon.get_total_DOS()
+    total_dos = np.array(phonon.get_total_DOS())
 
+    #Normalize to unit cell
+    total_dos[1, :] *= float(structure.get_number_of_atoms())/structure.get_number_of_primitive_atoms()
+    return total_dos
+
+
+def obtain_phonopy_thermal_properties(structure, temperature, mesh=(20, 20, 20), force_constants=None):
+
+    from types import NoneType
+    phonon = get_phonon(structure, setup_forces=isinstance(force_constants, NoneType))
+
+    if force_constants is not None:
+        phonon.set_force_constants(force_constants)
+
+    phonon.set_mesh(mesh)
+    phonon.set_thermal_properties(t_step=1, t_min=temperature, t_max=temperature)
+    t, free_energy, entropy, cv = np.array(phonon.get_thermal_properties()).T[0]
+
+    #Normalize to unit cell
+    unit_cell_relation = float(structure.get_number_of_atoms())/structure.get_number_of_primitive_atoms()
+    free_energy *= unit_cell_relation
+    entropy *= unit_cell_relation
+    cv *= unit_cell_relation
+
+    return free_energy, entropy, cv
 
 def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_constants, NAC=False, band_resolution=30):
 
     print('Getting renormalized phonon dispersion bands')
-    phonon = get_phonon(structure, NAC=False, calculate_force_constants=False)
+    phonon = get_phonon(structure, NAC=False, setup_forces=False)
 
     phonon.set_force_constants(force_constants)
 
@@ -134,9 +173,9 @@ def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_c
     return phonon.get_band_structure()
 
 
-def get_commensurate_points(structure):
+def get_commensurate_points(structure, supercell=None):
 
-    phonon = get_phonon(structure, calculate_force_constants=False)
+    phonon = get_phonon(structure, setup_forces=False, custom_supercell=supercell)
 
     primitive = phonon.get_primitive()
     supercell = phonon.get_supercell()
@@ -170,18 +209,17 @@ def get_equivalent_q_points_by_symmetry(q_point, structure):
     return np.vstack({tuple(row) for row in tot_points})
 
 
-def get_renormalized_force_constants(renormalized_frequencies, com_points, structure, symmetrize=False):
+def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, structure, symmetrize=False):
 
-    phonon = get_phonon(structure)
+    phonon = get_phonon(structure, setup_forces=False)
 
     primitive = phonon.get_primitive()
     supercell = phonon.get_supercell()
 
     dynmat2fc = DynmatToForceConstants(primitive, supercell)
 
-    phonon.set_qpoints_phonon(com_points, is_eigenvectors=True)
-    frequencies, eigenvectors = phonon.get_qpoints_phonon()
-
+    size = structure.get_number_of_dimensions() * structure.get_number_of_primitive_atoms()
+    eigenvectors = np.array([eigenvector.reshape(size, size, order='C').T for eigenvector in eigenvectors ])
 
     dynmat2fc.set_dynamical_matrices(renormalized_frequencies / VaspToTHz, eigenvectors)
     dynmat2fc.run()
@@ -208,3 +246,4 @@ if __name__ == "__main__":
     structure.set_super_cell_phonon(input_parameters['_super_cell_phonon'])
     structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_constants_file_name']))
     obtain_phonopy_dos(structure)
+

@@ -34,9 +34,11 @@ def get_renormalized_constants(freq_filename, structure, symmetrize=False, degen
 
     com_points = pho_interface.get_commensurate_points(structure)
 
+    eigenvectors = [pho_interface.obtain_eigenvectors_from_phonopy(structure, point, print_data=False)[0] for point in com_points]
+
     renormalized_frequencies = np.loadtxt(freq_filename)
     renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
-                                                                                  com_points,
+                                                                                  eigenvectors,
                                                                                   structure,
                                                                                   symmetrize=symmetrize)
 
@@ -80,7 +82,8 @@ else:
 # Process options
 if args.cp:
     com_points = pho_interface.get_commensurate_points(structure)
-    print(com_points)
+    for q_point in com_points:
+        print(q_point)
     exit()
 
 renormalized_force_constants = get_renormalized_constants(args.frequency_file, structure, symmetrize=args.fcsymm)

@@ -7,7 +7,6 @@ import numpy as np
 import numpy
 from mpl_toolkits.mplot3d import proj3d
 
-
 class Arrow3D(FancyArrowPatch):
     def __init__(self, xs, ys, zs, *args, **kwargs):
         FancyArrowPatch.__init__(self, (0.0, 0.0), (0.0, 0.0), *args, **kwargs)
@@ -23,12 +22,13 @@ class Arrow3D(FancyArrowPatch):
 def plot_phonon_modes(structure, eigenvectors, q_vector,
                       super_cell=(1, 1, 1),
                       draw_primitive=False,
-                      vectors_scale=10):
+                      vectors_scale=10,
+                      by_element=True):
 
-    atom_type = structure.get_atom_type_index(super_cell=super_cell)
-    positions = structure.get_positions(super_cell=super_cell)
-    masses = structure.get_masses(super_cell=super_cell)
-    elements = structure.get_atomic_types(super_cell=super_cell)
+    atom_type = structure.get_atom_type_index(supercell=super_cell)
+    positions = structure.get_positions(supercell=super_cell)
+    masses = structure.get_masses(supercell=super_cell)
+    elements = structure.get_atomic_types(supercell=super_cell)
     np.set_printoptions(precision=8, suppress=True)
 
     cell_t = structure.get_cell().T
@@ -45,10 +45,17 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
 
         ax = fig.add_subplot(111, projection='3d')
 
-        color_atom=['g','b','m','c','y','k','w']
+        color_atom=['g','b','m', 'c', 'y', 'k', 'w', 'g', 'b', 'm', 'c', 'y', 'k', 'w','g','b','m', 'c', 'y',
+                    'k', 'w', 'g', 'b', 'm', 'c', 'y', 'k', 'w','g','b','m', 'c', 'y', 'k', 'w', 'g', 'b']
+
+        if by_element:
+            elements_unique = np.unique(elements, return_inverse=True)[1]
+        else:
+            elements_unique = atom_type
+
         # Atom positions
-        for i,atom in enumerate(positions):
-            ax.plot(atom[0][None], atom[1][None], atom[2][None], 'o', markersize=atom_radius[elements[i]]*30, color=color_atom[atom_type[i]], alpha=0.8)
+        for i, atom in enumerate(positions):
+            ax.plot(atom[0][None], atom[1][None], atom[2][None], 'o', markersize=atom_radius[elements[i]]*30, color=color_atom[elements_unique[i]], alpha=0.8)
 
         # Cell frame
         for i in range(3):
@@ -78,8 +85,15 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
             ax.add_artist(a)
 
         # Legend
-        atom_type_index_unique = np.unique(atom_type, return_index=True)[1]
-        atomic_types_unique = [elements[i] for i in atom_type_index_unique]
+        atom_type_index_unique = np.unique(atom_type, return_index=True)[0]
+
+
+
+        if by_element:
+            atomic_types_unique = np.unique(elements, return_inverse=True)[0]
+        else:
+            atomic_types_unique = [elements[i] for i in atom_type_index_unique]
+
 
         legend_atoms =  [ lines.Line2D([0],[0], linestyle='none', c=color_atom[i], marker='o') for i, element in enumerate(atomic_types_unique)]
         ax.legend(legend_atoms, atomic_types_unique, numpoints = 1)

@@ -9,7 +9,7 @@ class Structure:
                  scaled_positions = None,
                  masses = None,
                  cell = None,
-                 force_set = None,
+                 force_sets = None,
                  force_constants = None,
                  atomic_numbers = None,
                  atomic_types = None,
@@ -32,9 +32,9 @@ class Structure:
         self._cell = np.array(cell, dtype='double')
         self._masses = np.array(masses, dtype='double')
         self._atomic_numbers = np.array(atomic_numbers, dtype='double')
-        self._force_constants = np.array(force_constants, dtype='double')
 
-        self._force_set = force_set
+        self._force_constants = force_constants
+        self._force_sets = force_sets
         self._atomic_types = atomic_types
         self._atom_type_index = atom_type_index
         self._scaled_positions = scaled_positions
@@ -87,10 +87,10 @@ class Structure:
         self._cell = np.array(cell, dtype='double')
 
 
-    def get_cell(self, super_cell=None):
+    def get_cell(self, supercell=None):
 
-        if super_cell is not None:
-            return np.dot(self._cell, np.diag(super_cell))
+        if supercell is not None:
+            return np.dot(self._cell, np.diag(supercell))
 
         return self._cell
 
@@ -145,7 +145,7 @@ class Structure:
         self._scaled_positions = np.dot(cart_positions, np.linalg.inv(self.get_cell().T))
 
 
-    def get_positions(self, super_cell=None):
+    def get_positions(self, supercell=None):
         if self._positions is None:
             if self._scaled_positions is None:
                 print('No positions provided')
@@ -153,26 +153,26 @@ class Structure:
             else:
                 self._positions = np.dot(self._scaled_positions, self.get_cell().T)
 
-        if super_cell is None:
-            super_cell = self.get_number_of_dimensions() * [1]
+        if supercell is None:
+            supercell = self.get_number_of_dimensions() * [1]
 
         position_super_cell = []
         for k in range(self._positions.shape[0]):
-            for r in itertools.product(*[range (i) for i in super_cell[::-1]]):
+            for r in itertools.product(*[range (i) for i in supercell[::-1]]):
                 position_super_cell.append(self._positions[k,:] + np.dot(np.array(r[::-1]),self.get_cell().T))
         position_super_cell = np.array(position_super_cell)
 
         return position_super_cell
 
 
-    def get_scaled_positions(self, super_cell=None):
+    def get_scaled_positions(self, supercell=None):
 
         if self._scaled_positions is None:
             self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self.get_cell().T))
 
-        if super_cell is not None:
-            cell = np.dot(self.get_cell() , np.diag(super_cell))
-            scaled_positions = np.dot(self.get_positions(super_cell), np.linalg.inv(cell.T))
+        if supercell is not None:
+            cell = np.dot(self.get_cell(), np.diag(supercell))
+            scaled_positions = np.dot(self.get_positions(supercell), np.linalg.inv(cell.T))
             return scaled_positions
 
         return self._scaled_positions
@@ -190,35 +190,34 @@ class Structure:
 
 
     def set_force_set(self, force_set):
-        self._force_set = force_set
+        self._force_sets = force_set
 
 
-    def get_force_set(self):
-        if self._force_set is None:
-            print('No force sets specified!')
-            exit()
+    def get_force_sets(self):
 
-        force_atoms_file = self._force_set['natom']
-        force_atoms_input = np.product(np.diagonal(self.get_super_cell_phonon()))*self.get_number_of_atoms()
+        if not isinstance(self._force_sets,type(None)):
 
-        if force_atoms_file != force_atoms_input:
-            print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
-            exit()
+            force_atoms_file = self._force_sets['natom']
+            force_atoms_input = np.product(np.diagonal(self.get_super_cell_phonon()))*self.get_number_of_atoms()
 
-        return self._force_set
+            if force_atoms_file != force_atoms_input:
+                print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
+                exit()
+
+        return self._force_sets
 
 
     def set_masses(self, masses):
         self._masses = np.array(masses, dtype='double')
 
 
-    def get_masses(self,super_cell=None):
-        if super_cell is None:
-            super_cell = self.get_number_of_dimensions() * [1]
+    def get_masses(self, supercell=None):
+        if supercell is None:
+            supercell = self.get_number_of_dimensions() * [1]
 
         mass_super_cell = []
         for j in range(self.get_number_of_cell_atoms()):
-            mass_super_cell += [ self._masses[j] ] * np.prod(super_cell)
+            mass_super_cell += [ self._masses[j] ] * np.prod(supercell)
         return mass_super_cell
 
 
@@ -233,13 +232,13 @@ class Structure:
         return self.get_cell().shape[0]
 
 
-    def get_atomic_numbers(self,super_cell=None):
-        if super_cell is None:
-            super_cell = self.get_number_of_dimensions() * [1]
+    def get_atomic_numbers(self, supercell=None):
+        if supercell is None:
+            supercell = self.get_number_of_dimensions() * [1]
 
         atomic_numbers_super_cell = []
         for j in range(self.get_number_of_cell_atoms()):
-            atomic_numbers_super_cell += [self._atomic_numbers[j] ] * np.prod(super_cell)
+            atomic_numbers_super_cell += [self._atomic_numbers[j] ] * np.prod(supercell)
 
         return np.array(atomic_numbers_super_cell,dtype=int)
 
@@ -272,13 +271,13 @@ class Structure:
 
 
     #Atomic types related methods
-    def get_atomic_types(self, super_cell=None, unique=False):
-        if super_cell is None:
-            super_cell = self.get_number_of_dimensions() * [1]
+    def get_atomic_types(self, supercell=None, unique=False):
+        if supercell is None:
+            supercell = self.get_number_of_dimensions() * [1]
 
         atomic_types = []
         for j in range(self.get_number_of_cell_atoms()):
-            atomic_types += [self._atomic_types[j] ] * np.prod(super_cell)
+            atomic_types += [self._atomic_types[j] ] * np.prod(supercell)
         return atomic_types
 
 
@@ -291,10 +290,10 @@ class Structure:
                         self._atom_type_index[i] = index
 
 
-    def get_atom_type_index(self,super_cell=None):
+    def get_atom_type_index(self, supercell=None):
 
 #       Tolerance for accepting equivalent atoms in super cell
-        masses = self.get_masses(super_cell=super_cell)
+        masses = self.get_masses(supercell=supercell)
         tolerance = 0.001
         if self._atom_type_index is None:
             primitive_cell_inverse = np.linalg.inv(self.get_primitive_cell())
@@ -317,21 +316,21 @@ class Structure:
                         self._atom_type_index[j] = self._atom_type_index[i]
         self._atom_type_index = np.array(self._atom_type_index,dtype=int)
 
-        if super_cell is None:
-            super_cell = self.get_number_of_dimensions() * [1]
+        if supercell is None:
+            supercell = self.get_number_of_dimensions() * [1]
 
         atom_type_index_super_cell = []
         for j in range(self.get_number_of_cell_atoms()):
-            atom_type_index_super_cell += [self._atom_type_index[j] ] * np.prod(super_cell)
+            atom_type_index_super_cell += [self._atom_type_index[j] ] * np.prod(supercell)
         return  atom_type_index_super_cell
 
 
-    def get_cell_parameters(self, super_cell=None):
+    def get_cell_parameters(self, supercell=None):
 
-        if super_cell is None:
-            super_cell = self.get_number_of_dimensions() * [1]
+        if supercell is None:
+            supercell = self.get_number_of_dimensions() * [1]
 
-        cell = self.get_cell(super_cell=super_cell)
+        cell = self.get_cell(supercell=supercell)
         a = np.linalg.norm(cell.T[0])
         b = np.linalg.norm(cell.T[1])
         c = np.linalg.norm(cell.T[2])
@@ -342,22 +341,22 @@ class Structure:
 
         return a, b, c, alpha, beta, gamma
 
-    def get_commensurate_points(self, super_cell=None):
+    def get_commensurate_points(self, supercell=None):
 
-        if super_cell is None:
-            super_cell = self.get_number_of_dimensions() * [1]
+        if supercell is None:
+            supercell = self.get_number_of_dimensions() * [1]
 
         primitive_matrix = self.get_primitive_matrix()
 
         commensurate_points = []
-        for k1 in np.arange(-0.5, 0.5, 1./(super_cell[0]*2)):
-            for k2 in np.arange(-0.5, 0.5, 1./(super_cell[1]*2)):
-                for k3 in np.arange(-0.5, 0.5, 1./(super_cell[2]*2)):
+        for k1 in np.arange(-0.5, 0.5, 1./(supercell[0]*2)):
+            for k2 in np.arange(-0.5, 0.5, 1./(supercell[1]*2)):
+                for k3 in np.arange(-0.5, 0.5, 1./(supercell[2]*2)):
     
                     q_point = [np.around(k1,decimals=5), np.around(k2,decimals=5), np.around(k3,decimals=5)]
     
                     q_point_unit_cell = np.dot(q_point, np.linalg.inv(primitive_matrix))
-                    q_point_unit_cell = np.multiply(q_point_unit_cell, super_cell)*2
+                    q_point_unit_cell = np.multiply(q_point_unit_cell, supercell) * 2
     
                     if np.all(np.equal(np.mod(q_point_unit_cell, 1), 0)):
                         commensurate_points.append(q_point)

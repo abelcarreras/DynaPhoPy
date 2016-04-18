@@ -7,7 +7,7 @@ import dynaphopy.interface.interactive_ui as interactive_ui
 import dynaphopy.generate_cell as generate
 
 from fractions import Fraction
-from dynaphopy.interface.phonopy_link import get_force_sets_from_file
+from dynaphopy.interface.phonopy_link import get_force_sets_from_file, get_force_constants_from_file
 
 # Define arguments
 parser = argparse.ArgumentParser(description='DynaPhoPy options')
@@ -83,8 +83,17 @@ parser.add_argument('-sfc', '--save_force_constants', metavar='file', type=str, 
 parser.add_argument('-adp', action='store_true',
                     help='print anisotropic displacement parameters')
 
+parser.add_argument('-thm', action='store_true',
+                    help='print thermal properties')
+
+parser.add_argument('--thm_full', action='store_true',
+                    help='print thermal properties from power spectrum')
+
+
 # Extra options
 
+parser.add_argument('--temperature', metavar='F', type=float, default=None,
+                    help='set temperature (thermal properties)')
 
 parser.add_argument('--silent', action='store_true',
                     help='executes without showing plots')
@@ -95,10 +104,10 @@ parser.add_argument('--velocity_only', action='store_true',
 parser.add_argument('--asymmetric_peaks', action='store_true',
                     help='uses asymmetric Lorentzian functions to fit spectra')
 
-parser.add_argument('--read_from', metavar='N', type=int, default=1, nargs=1,
+parser.add_argument('--read_from', metavar='N', type=int, default=1,
                     help='define interval of trajectory to read (default: 1)')
 
-parser.add_argument('--read_to', metavar='N', type=int, default=None, nargs=1,
+parser.add_argument('--read_to', metavar='N', type=int, default=None,
                     help='define interval of trajectory to read (default: end)')
 
 parser.add_argument('--fcsymm', action='store_true',
@@ -114,13 +123,17 @@ parser.add_argument('--dim', metavar='N', type=int, default=[1, 1, 1], nargs=3,
                     help='Set the dimensions of generate structures (Default: [1, 1, 1])')
 
 group.add_argument('--generate_trajectory', metavar='F', type=float, default=None, nargs=3,
-                    help='Generate a test harmonic trajectory from force constants [total time, time step, temperature]')
+                    help='Generate a test harmonic trajectory from force constants [total time (ps), time step (ps), energy (Kelvin)]')
 
 group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
                     help='Generate a VASP POSCAR structure file')
 
 group.add_argument('-c_lammps', metavar='file', type=str, default=None, nargs=1,
                     help='Generate a LAMMPS data structure file')
+
+parser.add_argument('-average', action='store_true',
+                    help='returns average atomic positions from MD')
+
 
 
 args = parser.parse_args()
@@ -135,20 +148,27 @@ else:
     structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
     structure_file = input_parameters['structure_file_name_poscar']
 
-if 'force_constants_file_name' in input_parameters:
-    structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_constants_file_name']))
+if 'force_sets_file_name' in input_parameters:
+    structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_sets_file_name']))
     structure.get_data_from_dict(input_parameters)
 
+if 'force_constants_file_name' in input_parameters:
+    structure.set_force_constants(get_force_constants_from_file(file_name=input_parameters['force_constants_file_name']))
+    structure.get_data_from_dict(input_parameters)
+
+if 'force_sets_file_name' in input_parameters and 'force_constants_file_name' in input_parameters:
+    print('Both FORCE SETS and FORCE CONSTANTS are found in input file, only one is allowed')
+    exit()
 
 if args.c_poscar:
     f = open(args.c_poscar[0], 'w')
-    f.write(generate.generate_VASP_structure(structure, scaled=True, super_cell=args.dim))
+    f.write(generate.generate_VASP_structure(structure, scaled=True, supercell=args.dim))
     f.close()
     exit()
 
 if args.c_lammps:
     f = open(args.c_lammps[0], 'w')
-    f.write(generate.generate_LAMMPS_structure(structure, super_cell=args.dim))
+    f.write(generate.generate_LAMMPS_structure(structure, supercell=args.dim))
     f.close()
     exit()
 
@@ -259,6 +279,18 @@ if args.peak_analysis:
 
 if args.adp:
     calculation.get_anisotropic_displacement_parameters()
+
+if args.thm:
+    calculation.display_thermal_properties(temperature=args.temperature)
+
+if args.thm_full:
+    calculation.display_thermal_properties(temperature=args.temperature, from_power_spectrum=True)
+
+
+if args.average:
+    reference = calculation.dynamic.average_positions()
+    for i in reference:
+        print '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*i.real)
 
 if args.interactive:
     if isinstance(trajectory, list) or isinstance(trajectory, tuple):

@@ -19,15 +19,10 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
 
     reference = averaged_positions(trajectory)
 
-    arangement = get_correct_arangement(reference, structure)
+    arrangement = get_correct_arangement(reference, structure)
 
-    if arangement:
-        original_trajectory = trajectory.copy()
-        for i, position in enumerate(arangement):
-            trajectory[:,i,:] = original_trajectory[:, position,:]
-
-#    for i in trajectory[0,:,:]:
-#        print 'Si {0} {1} {2}'.format(*i.real)
+    if arrangement:
+        trajectory = trajectory[:, np.array(arrangement), :]
 
     return trajectory
 
@@ -65,7 +60,6 @@ def get_correct_arangement(reference, structure):
         if order_type == 1:
             print ('Using alternative atoms order 1')
             list_target = [(type_1(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]
-
         if order_type == 2:
             print ('Using alternative atoms order 2 (untested!)')
             list_target = [(type_2(i, cell_size, number_of_cell_atoms)) for i in range(len(unit_coordinates))]
@@ -75,6 +69,7 @@ def get_correct_arangement(reference, structure):
             for i, target in enumerate(list_target):
                 if (target == reference).all():
                     list_trans.append(i)
+                    break
 
         return list_trans
 
@@ -149,6 +144,7 @@ class Dynamics:
         if trajectory is not None:
             self._trajectory = check_trajectory_structure(trajectory, structure)
 
+
 # A bit messy, has to be fixed
     def crop_trajectory(self, last_steps):
 
@@ -213,7 +209,7 @@ class Dynamics:
             super_cell = self.get_super_cell_matrix()
             for i in range(self.get_number_of_atoms()):
                 self._velocity_mass_average[:, i, :] = (self.velocity[:, i, :] *
-                                                        np.sqrt(self.structure.get_masses(super_cell=super_cell)[i]))
+                                                        np.sqrt(self.structure.get_masses(supercell=super_cell)[i]))
 
         return np.array(self._velocity_mass_average)
 
@@ -253,7 +249,7 @@ class Dynamics:
         if self._mean_displacement_matrix is None:
 
             super_cell = self.get_super_cell_matrix()
-            atom_type_index = self.structure.get_atom_type_index(super_cell=super_cell)
+            atom_type_index = self.structure.get_atom_type_index(supercell=super_cell)
             number_of_atom_types = self.structure.get_number_of_atom_types()
             displacements = self.get_relative_trajectory()
             number_of_data = displacements.shape[0]
@@ -270,6 +266,24 @@ class Dynamics:
 
         return self._mean_displacement_matrix
 
+
+    def average_positions(self, number_of_samples=8000):
+
+        cell = self.get_super_cell()
+        number_of_atoms = self.trajectory.shape[1]
+        super_cell = self.get_super_cell_matrix()
+        positions = self.structure.get_positions(supercell=super_cell)
+
+        normalized_trajectory = self.get_relative_trajectory()
+
+        reference = np.average(normalized_trajectory, axis=0) + positions
+
+        for j in range(number_of_atoms):
+
+            difference_matrix = np.around(np.dot(np.linalg.inv(cell), reference[j, :] - 0.5 * np.dot(np.ones((3)), cell.T)), decimals=0)
+            reference[j, :] -= np.dot(difference_matrix, cell.T)
+
+        return reference
 
     # Properties
     @property

@@ -2,7 +2,6 @@ import mmap
 import pickle
 import os
 import numpy as np
-import h5py
 
 import dynaphopy.classes.dynamics as dyn
 import dynaphopy.classes.atoms as atomtest
@@ -25,8 +24,6 @@ def check_trajectory_file_type(file_name, bytes_to_check=1000000):
                     file_map.find('ITEM: NUMBER OF ATOMS'),
                     file_map.find('ITEM: BOX BOUNDS')]
 
-    file_map.close()
-
     if not -1 in num_test:
             return read_lammps_trajectory
 
@@ -36,8 +33,6 @@ def check_trajectory_file_type(file_name, bytes_to_check=1000000):
         num_test = [file_map.find('NIONS'),
                     file_map.find('POMASS'),
                     file_map.find('direct lattice vectors')]
-
-    file_map.close()
 
     if not -1 in num_test:
             return read_vasp_trajectory
@@ -167,8 +162,10 @@ def read_from_file_structure_poscar(file_name):
     data_lines = poscar_file.read().split('\n')
     poscar_file.close()
 
+    multiply = float(data_lines[1])
     direct_cell = np.array([data_lines[i].split()
                             for i in range(2,5)],dtype=float).T
+    direct_cell *= multiply
     try:
         number_of_types = np.array(data_lines[6].split(),dtype=int)
         scaled_positions = np.array([data_lines[8+k].split()[0:3]
@@ -331,7 +328,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
     number_of_unit_cells_phonopy = np.prod(np.diag(structure.get_super_cell_phonon()))
     number_of_unit_cells = np.prod(super_cell)
-    atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
+#    atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
 
 #    print(number_of_unit_cells_phonopy, number_of_unit_cells)
 
@@ -346,8 +343,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     number_of_primitive_atoms = structure.get_number_of_primitive_atoms()
     number_of_dimensions = structure.get_number_of_dimensions()
 
-    positions = structure.get_positions(super_cell=super_cell)
-    masses = structure.get_masses(super_cell=super_cell)
+    positions = structure.get_positions(supercell=super_cell)
+    masses = structure.get_masses(supercell=super_cell)
 
 
     number_of_atoms = number_of_atoms*number_of_unit_cells
@@ -357,7 +354,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
     number_of_primitive_cells = number_of_atoms/number_of_primitive_atoms
 
-    atom_type = structure.get_atom_type_index(super_cell=super_cell)
+    atom_type = structure.get_atom_type_index(supercell=super_cell)
 #    print('At type',atom_type)
 
     #Generate an xyz file for checking
@@ -367,7 +364,11 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
         xyz_file = open(save_to_file, 'w')
 
     #Generate additional wave vectors sample
-    q_vector_list = pho_interface.get_commensurate_points(structure)
+    q_vector_list = pho_interface.get_commensurate_points(structure, supercell=super_cell)
+
+
+    atoms_relation = float(len(q_vector_list)*number_of_primitive_atoms)/number_of_atoms
+
 
     #Generate frequencies and eigenvectors for the testing wave vector samples
     print('Wave vectors included in test (commensurate points)')
@@ -408,7 +409,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                         coordinate = coordinate.real
 
 
-            xyz_file.write(structure.get_atomic_types(super_cell=super_cell)[i_atom]+'\t' +
+            xyz_file.write(structure.get_atomic_types(supercell=super_cell)[i_atom] + '\t' +
                            '\t'.join([str(item) for item in coordinate]) + '\n')
 
             coordinates.append(coordinate)
@@ -716,11 +717,12 @@ def read_parameters_from_input_file(file_name):
             input_parameters.update({'structure_file_name_poscar': input_file[i+1].replace('\n','')})
 
         if "FORCE SETS" in line:
-            input_parameters.update({'force_constants_file_name': input_file[i+1].replace('\n','')})
+            input_parameters.update({'force_sets_file_name': input_file[i+1].replace('\n','')})
 
         if "FORCE CONSTANTS" in line:
-            print('Warning!: FORCE CONSTANTS label in input has changed. Please use FORCE SETS instead')
-            exit()
+            input_parameters.update({'force_constants_file_name': input_file[i+1].replace('\n','')})
+       #     print('Warning!: FORCE CONSTANTS label in input has changed. Please use FORCE SETS instead')
+       #     exit()
 
         if "PRIMITIVE MATRIX" in line:
             primitive_matrix = [input_file[i+1].replace('\n','').split(),
@@ -787,6 +789,8 @@ def write_xsf_file(file_name,structure):
 # Save & load HDF5 data file
 
 def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, vc=None, reduced_q_vector=None):
+    import h5py
+
     hdf5_file = h5py.File(file_name, "w")
 
     if trajectory is not None:
@@ -810,6 +814,8 @@ def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, 
 
 
 def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initial_cut=1, final_cut=None):
+    import h5py
+
     print("Reading data from hdf5 file: " + file_name)
 
     trajectory = None
@@ -851,6 +857,7 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
     time = hdf5_file['time'][:]
     super_cell = hdf5_file['super_cell'][:]
     hdf5_file.close()
+
 
     if vc is None:
         return dyn.Dynamics(structure=structure,
