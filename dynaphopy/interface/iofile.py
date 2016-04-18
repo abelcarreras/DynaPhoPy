@@ -330,6 +330,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     number_of_unit_cells = np.prod(super_cell)
     atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
 
+
 #    print(number_of_unit_cells_phonopy, number_of_unit_cells)
 
 
@@ -364,7 +365,11 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
         xyz_file = open(save_to_file, 'w')
 
     #Generate additional wave vectors sample
-    q_vector_list = pho_interface.get_commensurate_points(structure)
+    q_vector_list = pho_interface.get_commensurate_points(structure, supercell=super_cell)
+
+
+    atoms_relation = float(len(q_vector_list)*number_of_primitive_atoms)/number_of_atoms
+
 
     #Generate frequencies and eigenvectors for the testing wave vector samples
     print('Wave vectors included in test (commensurate points)')
