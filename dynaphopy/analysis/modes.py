@@ -25,10 +25,10 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
                       vectors_scale=10,
                       by_element=True):
 
-    atom_type = structure.get_atom_type_index(super_cell=super_cell)
-    positions = structure.get_positions(super_cell=super_cell)
-    masses = structure.get_masses(super_cell=super_cell)
-    elements = structure.get_atomic_types(super_cell=super_cell)
+    atom_type = structure.get_atom_type_index(supercell=super_cell)
+    positions = structure.get_positions(supercell=super_cell)
+    masses = structure.get_masses(supercell=super_cell)
+    elements = structure.get_atomic_types(supercell=super_cell)
     np.set_printoptions(precision=8, suppress=True)
 
     cell_t = structure.get_cell().T

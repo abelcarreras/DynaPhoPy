@@ -28,7 +28,7 @@ def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
     write_FORCE_CONSTANTS(force_constants, filename=filename)
 
 
-def get_phonon(structure, NAC=False, setup_forces=True):
+def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
     #Preparing the bulk type object
     bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
@@ -38,6 +38,12 @@ def get_phonon(structure, NAC=False, setup_forces=True):
     phonon = Phonopy(bulk, structure.get_super_cell_phonon(),
                      primitive_matrix=structure.get_primitive_matrix(),
                      is_auto_displacements=False)
+
+    if custom_supercell:
+        phonon = Phonopy(bulk, np.diag(custom_supercell),
+                         primitive_matrix=structure.get_primitive_matrix(),
+                         is_auto_displacements=False)
+
 
     #Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
     if NAC:
@@ -167,9 +173,9 @@ def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_c
     return phonon.get_band_structure()
 
 
-def get_commensurate_points(structure):
+def get_commensurate_points(structure, supercell=None):
 
-    phonon = get_phonon(structure, setup_forces=False)
+    phonon = get_phonon(structure, setup_forces=False, custom_supercell=supercell)
 
     primitive = phonon.get_primitive()
     supercell = phonon.get_supercell()

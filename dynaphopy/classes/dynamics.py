@@ -209,7 +209,7 @@ class Dynamics:
             super_cell = self.get_super_cell_matrix()
             for i in range(self.get_number_of_atoms()):
                 self._velocity_mass_average[:, i, :] = (self.velocity[:, i, :] *
-                                                        np.sqrt(self.structure.get_masses(super_cell=super_cell)[i]))
+                                                        np.sqrt(self.structure.get_masses(supercell=super_cell)[i]))
 
         return np.array(self._velocity_mass_average)
 
@@ -249,7 +249,7 @@ class Dynamics:
         if self._mean_displacement_matrix is None:
 
             super_cell = self.get_super_cell_matrix()
-            atom_type_index = self.structure.get_atom_type_index(super_cell=super_cell)
+            atom_type_index = self.structure.get_atom_type_index(supercell=super_cell)
             number_of_atom_types = self.structure.get_number_of_atom_types()
             displacements = self.get_relative_trajectory()
             number_of_data = displacements.shape[0]
@@ -272,7 +272,7 @@ class Dynamics:
         cell = self.get_super_cell()
         number_of_atoms = self.trajectory.shape[1]
         super_cell = self.get_super_cell_matrix()
-        positions = self.structure.get_positions(super_cell=super_cell)
+        positions = self.structure.get_positions(supercell=super_cell)
 
         normalized_trajectory = self.get_relative_trajectory()
 

@@ -1,10 +1,10 @@
 import numpy as np
 
-def generate_VASP_structure(structure, scaled=False, super_cell=(1, 1, 1)):
+def generate_VASP_structure(structure, scaled=False, supercell=(1, 1, 1)):
 
-    cell = structure.get_cell(super_cell=super_cell)
+    cell = structure.get_cell(supercell=supercell)
 
-    types = structure.get_atomic_types(super_cell=super_cell)
+    types = structure.get_atomic_types(supercell=supercell)
     atom_type_unique = np.unique(types, return_counts=True)
 
     elements = atom_type_unique[0]
@@ -19,13 +19,13 @@ def generate_VASP_structure(structure, scaled=False, super_cell=(1, 1, 1)):
     vasp_POSCAR += ' '.join([str(i) for i in elements_count])
 
     if scaled:
-        scaled_positions = structure.get_scaled_positions(super_cell=super_cell)
+        scaled_positions = structure.get_scaled_positions(supercell=supercell)
         vasp_POSCAR += '\nDirect\n'
         for row in scaled_positions:
             vasp_POSCAR += '{0:15.15f}   {1:15.15f}   {2:15.15f}\n'.format(*row)
 
     else:
-        positions = structure.get_positions(super_cell=super_cell)
+        positions = structure.get_positions(supercell=supercell)
         vasp_POSCAR += '\nCartesian\n'
         for row in positions:
             vasp_POSCAR += '{0:20.10f} {1:20.10f} {2:20.10f}\n'.format(*row)
@@ -33,10 +33,10 @@ def generate_VASP_structure(structure, scaled=False, super_cell=(1, 1, 1)):
     return vasp_POSCAR
 
 
-def generate_LAMMPS_structure(structure, super_cell=(1, 1, 1), by_element=True):
+def generate_LAMMPS_structure(structure, supercell=(1, 1, 1), by_element=True):
 
-    cell = structure.get_cell(super_cell=super_cell)
-    types = structure.get_atomic_types(super_cell=super_cell)
+    cell = structure.get_cell(supercell=supercell)
+    types = structure.get_atomic_types(supercell=supercell)
 
     if by_element:
         count_index_unique = np.unique(types, return_counts=True)[1]
@@ -46,13 +46,13 @@ def generate_LAMMPS_structure(structure, super_cell=(1, 1, 1), by_element=True):
             atom_index += [i for j in range(index)]
 
     else:
-        atom_index = structure.get_atom_type_index(super_cell=super_cell)
+        atom_index = structure.get_atom_type_index(supercell=supercell)
 
     atom_index_unique = np.unique(atom_index, return_index=True)[1]
 
-    masses = structure.get_masses(super_cell=super_cell)
+    masses = structure.get_masses(supercell=supercell)
 
-    positions = structure.get_positions(super_cell=super_cell)
+    positions = structure.get_positions(supercell=supercell)
     number_of_atoms = len(positions)
 
 
@@ -61,7 +61,7 @@ def generate_LAMMPS_structure(structure, super_cell=(1, 1, 1), by_element=True):
 
     lammps_data_file += '{0} atom types\n\n'.format(len(atom_index_unique))
 
-    a, b, c, alpha, beta, gamma = structure.get_cell_parameters(super_cell=super_cell)
+    a, b, c, alpha, beta, gamma = structure.get_cell_parameters(supercell=supercell)
 
     xhi = a
     xy = b * np.cos(gamma)

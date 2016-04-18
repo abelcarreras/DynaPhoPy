@@ -12,7 +12,7 @@ def project_onto_wave_vector(trajectory, q_vector):
     super_cell = trajectory.get_super_cell_matrix()
 
     coordinates = trajectory.structure.get_positions(super_cell)
-    atom_type = trajectory.structure.get_atom_type_index(super_cell=super_cell)
+    atom_type = trajectory.structure.get_atom_type_index(supercell=super_cell)
 
 
     velocity_projected = np.zeros((velocity.shape[0], number_of_primitive_atoms, number_of_dimensions), dtype=complex)

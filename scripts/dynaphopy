@@ -160,13 +160,13 @@ if 'force_sets_file_name' in input_parameters and 'force_constants_file_name' in
 
 if args.c_poscar:
     f = open(args.c_poscar[0], 'w')
-    f.write(generate.generate_VASP_structure(structure, scaled=True, super_cell=args.dim))
+    f.write(generate.generate_VASP_structure(structure, scaled=True, supercell=args.dim))
     f.close()
     exit()
 
 if args.c_lammps:
     f = open(args.c_lammps[0], 'w')
-    f.write(generate.generate_LAMMPS_structure(structure, super_cell=args.dim))
+    f.write(generate.generate_LAMMPS_structure(structure, supercell=args.dim))
     f.close()
     exit()
 

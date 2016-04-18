@@ -343,8 +343,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     number_of_primitive_atoms = structure.get_number_of_primitive_atoms()
     number_of_dimensions = structure.get_number_of_dimensions()
 
-    positions = structure.get_positions(super_cell=super_cell)
-    masses = structure.get_masses(super_cell=super_cell)
+    positions = structure.get_positions(supercell=super_cell)
+    masses = structure.get_masses(supercell=super_cell)
 
 
     number_of_atoms = number_of_atoms*number_of_unit_cells
@@ -354,7 +354,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
     number_of_primitive_cells = number_of_atoms/number_of_primitive_atoms
 
-    atom_type = structure.get_atom_type_index(super_cell=super_cell)
+    atom_type = structure.get_atom_type_index(supercell=super_cell)
 #    print('At type',atom_type)
 
     #Generate an xyz file for checking
@@ -405,7 +405,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                         coordinate = coordinate.real
 
 
-            xyz_file.write(structure.get_atomic_types(super_cell=super_cell)[i_atom]+'\t' +
+            xyz_file.write(structure.get_atomic_types(supercell=super_cell)[i_atom] + '\t' +
                            '\t'.join([str(item) for item in coordinate]) + '\n')
 
             coordinates.append(coordinate)
