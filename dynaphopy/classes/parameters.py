@@ -45,7 +45,7 @@ class Parameters:
                  modes_vectors_scale=10,
 
                  #Density of states mesh (phonopy)
-                 mesh_phonopy=(20, 20, 20)
+                 mesh_phonopy=(40, 40, 40)
                  ):
 
         self._silent = silent

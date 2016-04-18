@@ -56,6 +56,7 @@ class Calculation:
         else:
             if last_steps is not None:
                 self._vc = self._vc[-last_steps:, :, :]
+                print("Using {0} steps".format(len(self._vc)))
 
     #Memory clear methods
     def full_clear(self):
@@ -686,6 +687,8 @@ class Calculation:
 
         if not temperature:
             temperature = self.get_temperature_from_bolzmann_analysis()
+
+        print('Using mesh: {0}'.format(self.parameters.mesh_phonopy))
 
         harmonic_properties = pho_interface.obtain_phonopy_thermal_properties(self.dynamic.structure,
                                                                               temperature,

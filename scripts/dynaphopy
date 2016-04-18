@@ -123,7 +123,7 @@ parser.add_argument('--dim', metavar='N', type=int, default=[1, 1, 1], nargs=3,
                     help='Set the dimensions of generate structures (Default: [1, 1, 1])')
 
 group.add_argument('--generate_trajectory', metavar='F', type=float, default=None, nargs=3,
-                    help='Generate a test harmonic trajectory from force constants [total time, time step, temperature]')
+                    help='Generate a test harmonic trajectory from force constants [total time (ps), time step (ps), energy (Kelvin)]')
 
 group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
                     help='Generate a VASP POSCAR structure file')
@@ -133,6 +133,8 @@ group.add_argument('-c_lammps', metavar='file', type=str, default=None, nargs=1,
 
 parser.add_argument('-average', action='store_true',
                     help='returns average atomic positions from MD')
+
+
 
 args = parser.parse_args()
 

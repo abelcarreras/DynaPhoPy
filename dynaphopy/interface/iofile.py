@@ -328,8 +328,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
     number_of_unit_cells_phonopy = np.prod(np.diag(structure.get_super_cell_phonon()))
     number_of_unit_cells = np.prod(super_cell)
-    atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
-
+#    atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
 
 #    print(number_of_unit_cells_phonopy, number_of_unit_cells)
 
@@ -858,6 +857,7 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
     time = hdf5_file['time'][:]
     super_cell = hdf5_file['super_cell'][:]
     hdf5_file.close()
+
 
     if vc is None:
         return dyn.Dynamics(structure=structure,
