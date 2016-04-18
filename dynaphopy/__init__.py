@@ -1,5 +1,5 @@
+__version__='1.10'
 
-__version__='1.9'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,11 +22,8 @@ power_spectrum_functions = {
     3: [power_spectrum.get_fft_fftw_spectra,           'Fast Fourier transform (FFTW)']
 }
 
-class Calculation:
 
-    @property
-    def __version__(self):
-        return '1.8'
+class Calculation:
 
     def __init__(self,
                  dynamic,
