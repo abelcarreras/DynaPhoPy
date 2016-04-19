@@ -759,7 +759,7 @@ def read_parameters_from_input_file(file_name):
             input_parameters.update ({'_band_ranges':bands})
 
         if "MESH PHONOPY" in line:
-            input_parameters.update({'_mesh_phonopy': input_file[i+1].replace('\n','').split()})
+            input_parameters.update({'_mesh_phonopy': np.array(input_file[i+1].replace('\n','').split(),dtype=int)})
 
 
     return input_parameters

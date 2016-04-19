@@ -26,6 +26,18 @@ def get_dos(temp, frequency, power_spectrum, n_size):
                          for i, freq in enumerate(frequency)])
     return dos
 
+def get_total_energy(temperature, frequency, dos):
+
+    def n(temp, freq):
+        return pow(np.exp(freq*h_bar/(k_b*temp))-1, -1)
+
+    total_energy = np.nan_to_num([dos[i] * h_bar*freq*(0.5 + n(temperature, freq))
+                                 for i, freq in enumerate(frequency)])
+
+    total_energy = np.trapz(total_energy, frequency) * N_a / 1000 # KJ/K/mol
+    return total_energy
+
+
 def get_free_energy(temperature, frequency, dos):
 
     free_energy = np.nan_to_num([dos[i] * k_b * temperature * np.log(2 * np.sinh(h_bar * freq / (2 * k_b * temperature)))
@@ -34,7 +46,7 @@ def get_free_energy(temperature, frequency, dos):
     free_energy = np.trapz(free_energy, frequency) * N_a / 1000 # KJ/K/mol
     return free_energy
 
-def get_free_energy_correction(temperature, frequency, dos, shift):
+def get_free_energy_correction_shift(temperature, frequency, dos, shift):
 
     def n(temp, freq):
         return pow(np.exp(freq*h_bar/(k_b*temp))-1, -1)
@@ -46,7 +58,7 @@ def get_free_energy_correction(temperature, frequency, dos, shift):
     return free_energy_c
 
 
-def get_free_energy_correction_2(temperature, frequency, dos, dos_r):
+def get_free_energy_correction_dos(temperature, frequency, dos, dos_r):
 
     def n(temp, freq):
         return pow(np.exp(freq*h_bar/(k_b*temp))-1, -1)
@@ -140,10 +152,10 @@ if __name__ == "__main__":
 
     #free_energy = get_free_energy(temp,frequency,dos) + get_free_energy_correction(temp, frequency, dos, shift)
 
-    print (get_free_energy_correction(temp, frequency, dos, shift),
-           get_free_energy_correction_2(temp, frequency, dos, dos_r))
+    print (get_free_energy_correction_shift(temp, frequency, dos, shift),
+           get_free_energy_correction_dos(temp, frequency, dos, dos_r))
 
-    free_energy = get_free_energy(temp, frequency_r, dos_r) + get_free_energy_correction_2(temp, frequency, dos_r, dos)
+    free_energy = get_free_energy(temp, frequency_r, dos_r) + get_free_energy_correction_dos(temp, frequency, dos_r, dos)
     entropy = get_entropy(temp, frequency_r, dos_r)
     c_v = get_cv(temp, frequency_r, dos_r)
     print ('Renormalized')

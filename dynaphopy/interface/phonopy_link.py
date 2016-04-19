@@ -124,7 +124,7 @@ def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_
     return total_dos
 
 
-def obtain_phonopy_thermal_properties(structure, temperature, mesh=(20, 20, 20), force_constants=None):
+def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40), force_constants=None):
 
     if force_constants is None:
         phonon = get_phonon(structure,
