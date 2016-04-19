@@ -618,10 +618,8 @@ class Calculation:
             if self.parameters.use_MD_cell_commensurate:
                 self.dynamic.structure.set_super_cell_phonon_renormalized(np.diag(self.dynamic.get_super_cell_matrix()))
 
-       #     self.dynamic.structure.set_super_cell_phonon_renormalized(None)
-
             com_points = pho_interface.get_commensurate_points(self.dynamic.structure,
-                                                               from_MD_supercell=self.parameters.use_MD_cell_commensurate)
+                                                               custom_supercell=self.dynamic.structure.get_super_cell_phonon_renormalized())
 
             initial_reduced_q_point = self.get_reduced_q_vector()
 
