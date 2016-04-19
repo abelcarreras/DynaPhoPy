@@ -780,7 +780,7 @@ class Calculation:
             total_energy = thm.get_total_energy(temperature, phonopy_dos[0], phonopy_dos[1])
             total_energy_r = thm.get_total_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
                              thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos_r[1], phonopy_dos[1])
-            print('Total energy (KJ/mol):  {3:12.4f}  {7:12.4f}'.format(total_energy, total_energy_r))
+            print('Total energy (KJ/mol):  {0:12.4f}  {1:12.4f}'.format(total_energy, total_energy_r))
 
 
 
