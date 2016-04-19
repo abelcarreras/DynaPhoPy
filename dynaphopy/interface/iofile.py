@@ -443,6 +443,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
     print(np.dot(np.diagflat(super_cell),structure.get_cell()))
 
+    structure.set_super_cell_phonon_renormalized(None)
+
     return dyn.Dynamics(structure=structure,
                         trajectory=np.array(trajectory,dtype=complex),
                         energy=np.array(energy),
