@@ -259,9 +259,9 @@ class Calculation:
         commensurate = False
         primitive_matrix = self.dynamic.structure.get_primitive_matrix()
 
-        q_point = np.around(q_point, decimals=decimals)
         transform = np.dot(q_point, np.linalg.inv(primitive_matrix))
         transform = np.multiply(transform, super_cell)
+        transform = np.around(transform, decimals=decimals)
 
         if np.all(np.equal(np.mod(transform, 1), 0)):
             commensurate = True
@@ -274,7 +274,7 @@ class Calculation:
             print("Projecting into wave vector")
             #Check if commensurate point
             if not self.check_commensurate(self.get_reduced_q_vector()):
-                print("warning! Defined wave vector may not be a commensurate q-point in MD supercell")
+                print("warning! Defined wave vector is not a commensurate q-point in MD supercell")
             self._vc = projection.project_onto_wave_vector(self.dynamic, self.get_q_vector())
         return self._vc
 
