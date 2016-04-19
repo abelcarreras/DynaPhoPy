@@ -252,16 +252,18 @@ class Calculation:
         plt.suptitle('Density of states')
         plt.show()
 
-    def check_commensurate(self, q_vector, decimals=4):
+
+    def check_commensurate(self, q_point, decimals=4):
         super_cell= self.dynamic.get_super_cell_matrix()
 
         commensurate = False
         primitive_matrix = self.dynamic.structure.get_primitive_matrix()
-        q_point_unit_cell = np.dot(q_vector, np.linalg.inv(primitive_matrix))
-        q_point_unit_cell = np.multiply(q_point_unit_cell, super_cell)*2
-        q_point_unit_cell = np.around(q_point_unit_cell, decimals=decimals)
 
-        if np.all(np.equal(np.mod(q_point_unit_cell, 1), 0)):
+        q_point = np.around(q_point, decimals=decimals)
+        transform = np.dot(q_point, np.linalg.inv(primitive_matrix))
+        transform = np.multiply(transform, super_cell)
+
+        if np.all(np.equal(np.mod(transform, 1), 0)):
             commensurate = True
 
         return commensurate

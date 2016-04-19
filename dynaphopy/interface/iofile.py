@@ -330,7 +330,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     number_of_unit_cells = np.prod(super_cell)
 #    atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
 
-#    print(number_of_unit_cells_phonopy, number_of_unit_cells)
+
 
 
     #Recover dump trajectory from file (test only)
@@ -367,7 +367,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     structure.set_super_cell_phonon_renormalized(np.diag(super_cell))
 
     q_vector_list = pho_interface.get_commensurate_points(structure, from_MD_supercell=True)
-
+   # print(q_vector_list)
+   # exit()
 
     atoms_relation = float(len(q_vector_list)*number_of_primitive_atoms)/number_of_atoms
 
@@ -441,7 +442,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
         dump_file.close()
 
-    print(np.dot(np.diagflat(super_cell),structure.get_cell()))
+#    print(np.dot(np.diagflat(super_cell),structure.get_cell()))
 
     structure.set_super_cell_phonon_renormalized(None)
 
