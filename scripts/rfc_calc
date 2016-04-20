@@ -26,6 +26,10 @@ parser.add_argument('-s', metavar='FORCE_CONSTANTS', type=str, nargs=1,
 parser.add_argument('--fcsymm', action='store_true',
                     help='symmetrize force constants')
 
+parser.add_argument('--dim', metavar='N', type=int, nargs=3, default=None,
+                    help='define custom supercell')
+
+
 args = parser.parse_args()
 
 def get_renormalized_constants(freq_filename, structure, symmetrize=False, degenerate=True):
@@ -81,7 +85,11 @@ else:
 
 # Process options
 if args.cp:
-    com_points = pho_interface.get_commensurate_points(structure)
+    if isinstance(args.dim,type(None)):
+        com_points = pho_interface.get_commensurate_points(structure)
+    else:
+        com_points = pho_interface.get_commensurate_points(structure, custom_supercell=np.diag(args.dim))
+
     for q_point in com_points:
         print(q_point)
     exit()
