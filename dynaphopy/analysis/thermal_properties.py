@@ -80,18 +80,20 @@ def get_entropy(temperature, frequency, dos):
     def coth(x):
         return  np.cosh(x)/np.sinh(x)
 
-    entropy = np.nan_to_num([dos[i]*(1.0 / (2. * temperature) * h_bar * freq * coth(h_bar * freq / (2 * k_b * temperature)) - k_b * np.log(2 * np.sinh(h_bar * freq / (2 * k_b * temperature))))
+    entropy = np.nan_to_num([dos[i]*(1.0 / (2. * temperature) * h_bar * freq * coth(h_bar * freq / (2 * k_b * temperature))
+                                     - k_b * np.log(2 * np.sinh(h_bar * freq / (2 * k_b * temperature))))
                              for i, freq in enumerate(frequency)])
     entropy = np.trapz(entropy, frequency) * N_a # J/K/mol
     return entropy
 
-#Alternative way to calculate entropy
+#Alternative way to calculate entropy (also works)
 def get_entropy2(temperature, frequency, dos):
 
     def n(temp, freq):
         return pow(np.exp(freq*h_bar/(k_b*temp))-1, -1)
 
-    entropy = np.nan_to_num([dos[i] * k_b * ((n(temperature, freq) + 1) * np.log(n(temperature, freq) + 1) - n(temperature, freq) * np.log(n(temperature, freq)))
+    entropy = np.nan_to_num([dos[i] * k_b * ((n(temperature, freq) + 1) * np.log(n(temperature, freq) + 1)
+                                             - n(temperature, freq) * np.log(n(temperature, freq)))
                          for i, freq in enumerate(frequency)])
     entropy = np.trapz(entropy, frequency) * N_a # J/K/mol
     return entropy
