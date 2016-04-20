@@ -731,57 +731,58 @@ class Calculation:
         c_v = thm.get_cv(temperature, phonopy_dos[0], phonopy_dos[1])
         integration = np.trapz(phonopy_dos[1], x=phonopy_dos[0])/(self.dynamic.structure.get_number_of_atoms()*
                                                        self.dynamic.structure.get_number_of_dimensions())
-        harmonic_properties = [free_energy, entropy, c_v, integration]
+        total_energy = thm.get_total_energy(temperature, phonopy_dos[0], phonopy_dos[1])
+
+        harmonic_properties = [free_energy, entropy, c_v, total_energy, integration]
 
         # Renormalized force constants
         free_energy = thm.get_free_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
                       thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos_r[1], phonopy_dos[1])
         entropy = thm.get_entropy(temperature, phonopy_dos_r[0], phonopy_dos_r[1])
         c_v = thm.get_cv(temperature, phonopy_dos_r[0], phonopy_dos_r[1])
+        total_energy = thm.get_total_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
+                       thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos_r[1], phonopy_dos[1])
+
         integration = np.trapz(phonopy_dos_r[1], x=phonopy_dos_r[0])/(self.dynamic.structure.get_number_of_atoms()*
                                                        self.dynamic.structure.get_number_of_dimensions())
-        renormalized_properties = [free_energy, entropy, c_v, integration]
+        renormalized_properties = [free_energy, entropy, c_v, total_energy, integration]
         print('Free energy correction: {0:12.4f} KJ/mol'.format(thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos_r[1], phonopy_dos[1])))
 
         if from_power_spectrum:
             normalization = np.prod(self.dynamic.get_super_cell_matrix())
 
-            power_spectrum = thm.get_dos(temperature, frequency_range, self.get_power_spectrum_direct(), normalization)
-            free_energy = thm.get_free_energy(temperature, frequency_range, power_spectrum)
-            entropy = thm.get_entropy(temperature, frequency_range, power_spectrum)
-            c_v = thm.get_cv(temperature, frequency_range, power_spectrum)
+            power_spectrum_dos = thm.get_dos(temperature, frequency_range, self.get_power_spectrum_direct(), normalization)
+            free_energy = thm.get_free_energy(temperature, frequency_range, power_spectrum_dos)
+            entropy = thm.get_entropy(temperature, frequency_range, power_spectrum_dos)
+            c_v = thm.get_cv(temperature, frequency_range, power_spectrum_dos)
+            total_energy = thm.get_total_energy(temperature, frequency_range, power_spectrum_dos)
 
-
-            integration = np.trapz(power_spectrum, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
+            integration = np.trapz(power_spectrum_dos, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
                                                            self.dynamic.structure.get_number_of_dimensions())
 
-            power_spectrum_properties = [free_energy, entropy, c_v, integration]
+            power_spectrum_properties = [free_energy, entropy, c_v, total_energy, integration]
             print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
               '----------------------------------------------').format(temperature)
-            print('                         Harmonic    Renormalized   Power spectrum\n')
-            print('Free energy (KJ/mol): {0:12.4f}  {4:12.4f}  {8:12.4f}\n'
-                  'Entropy    (J/K/mol): {1:12.4f}  {5:12.4f}  {9:12.4f}\n'
-                  'Cv         (J/K/mol): {2:12.4f}  {6:12.4f}  {10:12.4f}\n'
-                  'Integration:          {3:12.4f}  {7:12.4f}  {11:12.4f}\n'.format(*(harmonic_properties +
+            print('                             Harmonic    Renormalized   Power spectrum\n')
+            print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}  {10:12.4f}\n'
+                  'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}  {11:12.4f}\n'
+                  'Cv           (J/K/mol): {2:12.4f}  {7:12.4f}  {12:12.4f}\n'
+                  'Total energy (KJ//mol): {3:12.4f}  {8:12.4f}  {13:12.4f}\n'
+                  'Integration:            {4:12.4f}  {9:12.4f}  {14:12.4f}\n'.format(*(harmonic_properties +
                                                                                       renormalized_properties +
                                                                                       power_spectrum_properties)))
             if not self.parameters.silent:
-                plt.plot(frequency_range, power_spectrum, 'r-', label='Molecular dynamics')
+                plt.plot(frequency_range, power_spectrum_dos, 'r-', label='Molecular dynamics')
 
         else:
             print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
               '----------------------------------------------').format(temperature)
-            print('                        Harmonic    Renormalized\n')
-            print('Free energy  (KJ/mol): {0:12.4f}  {4:12.4f}\n'
-                  'Entropy     (J/K/mol): {1:12.4f}  {5:12.4f}\n'
-                  'Cv          (J/K/mol): {2:12.4f}  {6:12.4f}\n'
-                  'Integration:           {3:12.4f}  {7:12.4f}\n'.format(*(harmonic_properties + renormalized_properties)))
-
-            total_energy = thm.get_total_energy(temperature, phonopy_dos[0], phonopy_dos[1])
-            total_energy_r = thm.get_total_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
-                             thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos_r[1], phonopy_dos[1])
-            print('Total energy (KJ/mol):  {0:12.4f}  {1:12.4f}'.format(total_energy, total_energy_r))
-
+            print('                            Harmonic    Renormalized\n')
+            print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}\n'
+                  'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}\n'
+                  'Cv           (J/K/mol): {2:12.4f}  {7:12.4f}\n'
+                  'Total energy (KJ//mol): {3:12.4f}  {8:12.4f}\n'
+                  'Integration:            {4:12.4f}  {9:12.4f}\n'.format(*(harmonic_properties + renormalized_properties)))
 
 
         if not self.parameters.silent:
