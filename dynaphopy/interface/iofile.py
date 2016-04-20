@@ -317,7 +317,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                              minimum_frequency=0.1,  # THz
                              total_time=2,           # picoseconds
                              time_step=0.002,        # picoseconds
-                             temperature=400):       # Kelvin
+                             temperature=400,        # Kelvin
+                             silent=False):
 
     import random
     from dynaphopy.power_spectrum import progress_bar
@@ -385,7 +386,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     number_of_frequencies = len(frequencies_r[0])
 
     #Generating trajectory
-    progress_bar(0, 'generating')
+    if not silent:
+        progress_bar(0, 'generating')
 
     trajectory = []
     for time in np.arange(total_time, step=time_step):
@@ -417,8 +419,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
             coordinates.append(coordinate)
         trajectory.append(coordinates)
-        progress_bar(float(time+time_step)/total_time,'generating', )
-
+        if not silent:
+          progress_bar(float(time+time_step)/total_time,'generating', )
 
     xyz_file.close()
 
