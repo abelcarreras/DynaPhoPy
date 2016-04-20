@@ -83,6 +83,9 @@ else:
     structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
     structure.get_data_from_dict(input_parameters)
 
+if not(isinstance(args.dim, type(None))):
+    structure.set_super_cell_phonon_renormalized(np.diag(np.array(args.dim,dtype=int)))
+
 # Process options
 if args.cp:
     if isinstance(args.dim,type(None)):
