@@ -453,7 +453,7 @@ class Calculation:
 
       #  print(handles)
 
-        plt.legend(handles, ['Molecular dynamics PS', 'DoS (Harmonic Aprox.)', 'DoS (renormalized)'])
+        plt.legend(handles, ['Molecular dynamics', 'DoS (Harmonic)', 'DoS (Renormalized)'])
 
 
 #        plt.legend()
