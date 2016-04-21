@@ -766,7 +766,7 @@ class Calculation:
             print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}  {10:12.4f}\n'
                   'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}  {11:12.4f}\n'
                   'Cv           (J/K/mol): {2:12.4f}  {7:12.4f}  {12:12.4f}\n'
-                  'Total energy (KJ//mol): {3:12.4f}  {8:12.4f}  {13:12.4f}\n'
+                  'Total energy  (KJ/mol): {3:12.4f}  {8:12.4f}  {13:12.4f}\n'
                   'Integration:            {4:12.4f}  {9:12.4f}  {14:12.4f}\n'.format(*(harmonic_properties +
                                                                                       renormalized_properties +
                                                                                       power_spectrum_properties)))
@@ -780,7 +780,7 @@ class Calculation:
             print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}\n'
                   'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}\n'
                   'Cv           (J/K/mol): {2:12.4f}  {7:12.4f}\n'
-                  'Total energy (KJ//mol): {3:12.4f}  {8:12.4f}\n'
+                  'Total energy  (KJ/mol): {3:12.4f}  {8:12.4f}\n'
                   'Integration:            {4:12.4f}  {9:12.4f}\n'.format(*(harmonic_properties + renormalized_properties)))
 
 
