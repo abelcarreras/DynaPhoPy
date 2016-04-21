@@ -450,12 +450,7 @@ class Calculation:
         handles2, labels = ax2.get_legend_handles_labels()
 
         handles = handles1 + handles2
-
-      #  print(handles)
-
         plt.legend(handles, ['Molecular dynamics', 'DoS (Harmonic)', 'DoS (Renormalized)'])
-
-
 #        plt.legend()
         plt.show()
 
@@ -555,11 +550,15 @@ class Calculation:
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_power_spectrum_direct()[None].T,
                                           file_name)
+        total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
+        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_wave_vector(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_power_spectrum_wave_vector()[None].T,
                                           file_name)
+        total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())/(2 * np.pi)
+        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_phonon(self,file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
