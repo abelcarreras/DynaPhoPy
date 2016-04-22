@@ -166,12 +166,22 @@ def read_from_file_structure_poscar(file_name):
     direct_cell = np.array([data_lines[i].split()
                             for i in range(2,5)],dtype=float).T
     direct_cell *= multiply
+    scaled_positions = None
+    positions = None
+
     try:
         number_of_types = np.array(data_lines[6].split(),dtype=int)
-        scaled_positions = np.array([data_lines[8+k].split()[0:3]
-                                     for k in range(np.sum(number_of_types))],dtype=float)
-        atomic_types = []
 
+        coordinates_type = data_lines[7][0]
+        if coordinates_type == 'D' or coordinates_type == 'd' :
+
+            scaled_positions = np.array([data_lines[8+k].split()[0:3]
+                                         for k in range(np.sum(number_of_types))],dtype=float)
+        else:
+            positions = np.array([data_lines[8+k].split()[0:3]
+                                  for k in range(np.sum(number_of_types))],dtype=float)
+
+        atomic_types = []
         for i,j in enumerate(data_lines[5].split()):
             atomic_types.append([j]*number_of_types[i])
         atomic_types = [item for sublist in atomic_types for item in sublist]
@@ -182,8 +192,14 @@ def read_from_file_structure_poscar(file_name):
     except ValueError:
         print "Reading old style POSCAR"
         number_of_types = np.array(data_lines[5].split(), dtype=int)
-        scaled_positions = np.array([data_lines[7+k].split()[0:3]
-                                     for k in range(np.sum(number_of_types))],dtype=float)
+        coordinates_type = data_lines[6][0]
+        if coordinates_type == 'D' or coordinates_type == 'd':
+            scaled_positions = np.array([data_lines[7+k].split()[0:3]
+                                         for k in range(np.sum(number_of_types))], dtype=float)
+        else:
+            positions = np.array([data_lines[7+k].split()[0:3]
+                                  for k in range(np.sum(number_of_types))], dtype=float)
+
         atomic_types = []
         for i,j in enumerate(data_lines[0].split()):
             atomic_types.append([j]*number_of_types[i])
@@ -191,6 +207,7 @@ def read_from_file_structure_poscar(file_name):
        # atomic_types = np.array(atomic_types).flatten().tolist()
     return atomtest.Structure(cell= direct_cell,
                               scaled_positions=scaled_positions,
+                              positions=positions,
                               atomic_types=atomic_types,
 #                              primitive_cell=primitive_cell
                               )
