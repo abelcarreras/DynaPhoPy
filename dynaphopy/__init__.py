@@ -736,16 +736,16 @@ class Calculation:
 
         # Renormalized force constants
         free_energy = thm.get_free_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
-                      thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos_r[1], phonopy_dos[1])
+                      thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])
         entropy = thm.get_entropy(temperature, phonopy_dos_r[0], phonopy_dos_r[1])
         c_v = thm.get_cv(temperature, phonopy_dos_r[0], phonopy_dos_r[1])
         total_energy = thm.get_total_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
-                       thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos_r[1], phonopy_dos[1])
+                       thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])
 
         integration = np.trapz(phonopy_dos_r[1], x=phonopy_dos_r[0])/(self.dynamic.structure.get_number_of_atoms()*
                                                        self.dynamic.structure.get_number_of_dimensions())
         renormalized_properties = [free_energy, entropy, c_v, total_energy, integration]
-        print('Free energy correction: {0:12.4f} KJ/mol'.format(thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos_r[1], phonopy_dos[1])))
+        print('Free energy correction: {0:12.4f} KJ/mol'.format(thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])))
 
         if from_power_spectrum:
             normalization = np.prod(self.dynamic.get_super_cell_matrix())
