@@ -372,7 +372,7 @@ class Calculation:
                 initial_reduced_q_point = self.get_reduced_q_vector()
                 power_spectrum_wave_vector = []
                 q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(self.get_reduced_q_vector(), self.dynamic.structure)
-                print(q_points_equivalent)
+#                print(q_points_equivalent)
                 for q_point in q_points_equivalent:
                     self.set_reduced_q_vector(q_point)
                     power_spectrum_wave_vector.append((

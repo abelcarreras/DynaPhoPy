@@ -152,7 +152,7 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
 def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_resolution=30):
 
     print('Getting phonon dispersion bands')
-    phonon = get_phonon(structure, NAC=False)
+    phonon = get_phonon(structure, NAC=NAC)
 
     bands =[]
     for q_start, q_end in bands_ranges:
