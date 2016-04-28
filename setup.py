@@ -21,7 +21,7 @@ displacements = Extension('dynaphopy.displacements',
 
 
 setup(name='dynaphopy',
-      version='1.10',
+      version='1.11',
       description='dynaphopy module',
       author='Abel Carreras',
       url='https://github.com/abelcarreras/DynaPhoPy',
