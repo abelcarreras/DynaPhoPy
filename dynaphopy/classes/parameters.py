@@ -17,7 +17,7 @@ class Parameters:
 
                  # Fourier transform Method
                  correlation_function_step=10,
-                 integration_method = 1,  # 0: Trapezoid  1:Rectangles
+                 integration_method=1,  # 0: Trapezoid  1:Rectangles
 
                  # Fast Fourier tranform Method
                  zero_padding=0,
@@ -33,13 +33,13 @@ class Parameters:
                  frequency_range=np.arange(0, 40.05, 0.05),
 
                  # Phonon dispersion diagram
-                 use_NAC = False,
+                 use_NAC=False,
                  band_ranges=([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]]),
-                 number_of_bins_histogram = 30,
+                 number_of_bins_histogram=30,
 
                  # Force constants
-                 symmetrize = False,
-                 use_symmetry = True,
+                 symmetrize=False,
+                 use_symmetry=True,
 
                  # Modes (eigenvectors) display
                  modes_vectors_scale=10,
@@ -48,12 +48,12 @@ class Parameters:
                  mesh_phonopy=(40, 40, 40),
 
                  #Use supercell
-                 use_MD_cell_commensurate = False,
+                 use_MD_cell_commensurate=False,
                  ):
 
         self._silent = silent
-        self._number_of_coefficients_mem=number_of_coefficients_mem
-        self._mem_scan_range=mem_scan_range
+        self._number_of_coefficients_mem = number_of_coefficients_mem
+        self._mem_scan_range = mem_scan_range
         self._correlation_function_step = correlation_function_step
         self._integration_method = integration_method
         self._power_spectra_algorithm = power_spectra_algorithm
