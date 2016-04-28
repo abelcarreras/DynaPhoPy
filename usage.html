@@ -89,21 +89,31 @@ The order of the atoms within the cell has to be kept in both cells to work prop
 <br> All these parameters are optional, in case of not beeing explicitly especificated dynaphopy will use default ones.
 <br> Each parameter is preceded by a label which indicates the kind of parameter it is. Altering this label may prevent the parameters to be recognized correctly, be carefull. The order of the parameters inside input file is not important, neither the blank lines used between them. The only requisite is to not leave any blank line between labels and parameters. Comments can be added to the input file while not interfearing with the parameters labels. To avoid future inconvenients it is recomended to start each comment line with some special character.</p>
 
-<UL><LI><h5>POSCAR and FORCE_SETS files location</h5>
-<p>Define the file name and path in which a POSCAR type file containing the crystal unit cell in <strong>fractional coordinates</strong> and FORCE_SETS containing atom forces files are stored. 
-If POSCAR file is not specified DynaPhoPy will use POSCAR file name stored in the working directory as default. If FORCE_SETS is not specified DynaPhoPy will not read any FORCE_SETS file (features will be limited)</p>
-
+<UL><LI><h5>Unit cell and atomic forces files location</h5>
+<p>Unit cell is defined using a POSCAR type file. Alternativelly a OUTCAR file can be used to read the unit cell.
 <pre><code>STRUCTURE FILE POSCAR
 /home/user/phonopy/calculation/POSCAR_unitcell
 </code></pre>
-<p></p>
-<pre><code>FORCE SETS
-/home/user/phonopy/calculation/FORCE_SETS
-</code></pre>
-<p>Alternatively to POSCAR file, an OUTCAR file can be used to read the cell estructure<p>
+<p>Instead of POSCAR file, an OUTCAR file can be used to read the cell estructure using</p>
 <pre><code>STRUCTURE FILE OUTCAR
 /home/user/phonopy/calculation/OUTCAR_unitcell
 </code></pre>
+If POSCAR file is not specified DynaPhoPy will use POSCAR file name stored in the working directory as default.
+    
+<br> Atomic forces are needed to perform phonon related calculations. Forces can be introduced via 
+   phonopy FORCE_SETS type file or FORCE_CONSTANTS type file.
+ If FORCE_SETS or FORCE_CONSTANTS file are not specified DynaPhoPy will not read forces (features will be limited)</p>
+
+<p>Using FORCE_SETS:</p>
+<pre><code>FORCE SETS
+/home/user/phonopy/calculation/FORCE_SETS
+</code></pre>
+<p>Using FORCE_CONSTANTS:</p>
+<pre><code>FORCE CONSTANTS
+/home/user/phonopy/calculation/FORCE_CONSTANTS
+</code></pre>
+
+
 
 <LI><h5>Primitive matrix definition</h5>
 <p>This matrix defines the primitive cell size respect to the unit cell. The rows of this matrix corresponds to the primitive axis defined in <a href="http://atztogo.github.io/phonopy/setting-tags.html?highlight=tag#primitive-axis">phonopy manual</a>. If not defined it takes identity matrix meaning that primitive cell and unit cell are the same.
