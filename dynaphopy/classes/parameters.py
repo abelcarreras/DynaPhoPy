@@ -17,7 +17,7 @@ class Parameters:
 
                  # Fourier transform Method
                  correlation_function_step=10,
-                 integration_method = 1,  # 0: Trapezoid  1:Rectangles
+                 integration_method=1,  # 0: Trapezoid  1:Rectangles
 
                  # Fast Fourier tranform Method
                  zero_padding=0,
@@ -33,24 +33,27 @@ class Parameters:
                  frequency_range=np.arange(0, 40.05, 0.05),
 
                  # Phonon dispersion diagram
-                 use_NAC = False,
+                 use_NAC=False,
                  band_ranges=([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]]),
-                 number_of_bins_histogram = 30,
+                 number_of_bins_histogram=30,
 
                  # Force constants
-                 symmetrize = False,
-                 use_symmetry = True,
+                 symmetrize=False,
+                 use_symmetry=True,
 
                  # Modes (eigenvectors) display
                  modes_vectors_scale=10,
 
                  #Density of states mesh (phonopy)
-                 mesh_phonopy=(40, 40, 40)
+                 mesh_phonopy=(40, 40, 40),
+
+                 #Use supercell
+                 use_MD_cell_commensurate=False,
                  ):
 
         self._silent = silent
-        self._number_of_coefficients_mem=number_of_coefficients_mem
-        self._mem_scan_range=mem_scan_range
+        self._number_of_coefficients_mem = number_of_coefficients_mem
+        self._mem_scan_range = mem_scan_range
         self._correlation_function_step = correlation_function_step
         self._integration_method = integration_method
         self._power_spectra_algorithm = power_spectra_algorithm
@@ -68,7 +71,7 @@ class Parameters:
 
         self._modes_vectors_scale = modes_vectors_scale
         self._mesh_phonopy = mesh_phonopy
-
+        self._use_MD_cell_commensurate = use_MD_cell_commensurate
 
     def get_data_from_dict(self, data_dictionary):
         for data in self.__dict__:
@@ -222,3 +225,11 @@ class Parameters:
     @mesh_phonopy.setter
     def mesh_phonopy(self, mesh_phonopy):
         self._mesh_phonopy = mesh_phonopy
+
+    @property
+    def use_MD_cell_commensurate(self):
+        return self._use_MD_cell_commensurate
+
+    @use_MD_cell_commensurate.setter
+    def use_MD_cell_commensurate(self, use_MD_cell_commensurate):
+        self._use_MD_cell_commensurate = use_MD_cell_commensurate

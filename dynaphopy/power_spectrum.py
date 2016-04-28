@@ -37,7 +37,8 @@ def get_fourier_spectra_par_openmp(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
     psd_vector = []
-    progress_bar(0, "Fourier")
+    if not(parameters.silent):
+        progress_bar(0, "Fourier")
     for i in range(vq.shape[1]):
         psd_vector.append(correlation.correlation_par(test_frequency_range,
                                                       vq[:, i],
@@ -45,7 +46,8 @@ def get_fourier_spectra_par_openmp(vq, trajectory, parameters):
                                                       trajectory.get_time_step_average(),
                                                       step=parameters.correlation_function_step,
                                                       integration_method=parameters.integration_method))
-        progress_bar(float(i+1)/vq.shape[1], "Fourier")
+        if not(parameters.silent):
+            progress_bar(float(i+1)/vq.shape[1], "Fourier")
 
     psd_vector = np.array(psd_vector).T
 
@@ -63,14 +65,16 @@ def get_mem_spectra_par_openmp(vq, trajectory, parameters):
         exit()
 
     psd_vector = []
-    progress_bar(0, 'M. Entropy')
+    if not(parameters.silent):
+        progress_bar(0, 'M. Entropy')
     for i in range(vq.shape[1]):
         psd_vector.append(mem(test_frequency_range,
                               vq[:, i],
                               trajectory.get_time_step_average(),
                               coefficients=parameters.number_of_coefficients_mem))
 
-        progress_bar(float(i+1)/vq.shape[1], 'M. Entropy')
+        if not(parameters.silent):
+            progress_bar(float(i+1)/vq.shape[1], 'M. Entropy')
 
     psd_vector = np.array(psd_vector).T
 
@@ -86,7 +90,8 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         fit_data = []
         scan_params = []
         power_spectra = []
-        progress_bar(0, 'M.E. Method')
+        if not(parameters.silent):
+            progress_bar(0, 'M.E. Method')
         for number_of_coefficients in parameters.mem_scan_range:
 
             power_spectrum = mem(test_frequency_range,
@@ -118,7 +123,8 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
             scan_params.append(fit_params)
             power_spectra.append(power_spectrum)
 
-            progress_bar(float(number_of_coefficients+1)/parameters.mem_scan_range[-1], "M.E. Method")
+            if not(parameters.silent):
+                progress_bar(float(number_of_coefficients+1)/parameters.mem_scan_range[-1], "M.E. Method")
 
         fit_data = np.array(fit_data).T
 
@@ -239,13 +245,15 @@ def get_fft_spectra(vq, trajectory, parameters):
         print('If you need higher resolution increase the number of data')
 
     psd_vector = []
-    progress_bar(0, 'FFT')
+    if not(parameters.silent):
+        progress_bar(0, 'FFT')
     for i in range(vq.shape[1]):
         psd_vector.append(fft_power(test_frequency_range,vq[:, i],
                                     trajectory.get_time_step_average()),
                           )
 
-        progress_bar(float(i+1)/vq.shape[1], 'FFT')
+        if not(parameters.silent):
+            progress_bar(float(i+1)/vq.shape[1], 'FFT')
 
     psd_vector = np.array(psd_vector).T
 
@@ -281,13 +289,15 @@ def get_fft_fftw_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
     psd_vector = []
-    progress_bar(0, 'FFTW')
+    if not(parameters.silent):
+        progress_bar(0, 'FFTW')
     for i in range(vq.shape[1]):
         psd_vector.append(fftw_power(test_frequency_range,vq[:, i],
                                      trajectory.get_time_step_average()),
                           )
 
-        progress_bar(float(i+1)/vq.shape[1], 'FFTW')
+        if not(parameters.silent):
+            progress_bar(float(i+1)/vq.shape[1], 'FFTW')
 
     psd_vector = np.array(psd_vector).T
 

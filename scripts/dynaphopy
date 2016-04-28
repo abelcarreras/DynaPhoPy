@@ -134,6 +134,8 @@ group.add_argument('-c_lammps', metavar='file', type=str, default=None, nargs=1,
 parser.add_argument('-average', action='store_true',
                     help='returns average atomic positions from MD')
 
+parser.add_argument('--MD_commensurate', action='store_true',
+                    help='use commensurate points in MD cell instead of phonon cell')
 
 
 args = parser.parse_args()
@@ -194,7 +196,8 @@ if args.generate_trajectory:
                                                   total_time=args.generate_trajectory[0],
                                                   time_step=args.generate_trajectory[1],
                                                   temperature=args.generate_trajectory[2],
-                                                  super_cell=args.dim)
+                                                  super_cell=args.dim,
+                                                  silent=args.silent)
 
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
@@ -213,6 +216,7 @@ calculation.parameters.get_data_from_dict(input_parameters)
 calculation.parameters.silent = args.silent
 calculation.parameters.use_asymmetric_peaks = args.asymmetric_peaks
 calculation.parameters.degenerate = args.fcsymm
+calculation.parameters.use_MD_cell_commensurate = args.MD_commensurate
 
 if args.no_symmetry:
     calculation.parameters.use_symmetry = False

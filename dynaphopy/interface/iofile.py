@@ -166,12 +166,22 @@ def read_from_file_structure_poscar(file_name):
     direct_cell = np.array([data_lines[i].split()
                             for i in range(2,5)],dtype=float).T
     direct_cell *= multiply
+    scaled_positions = None
+    positions = None
+
     try:
         number_of_types = np.array(data_lines[6].split(),dtype=int)
-        scaled_positions = np.array([data_lines[8+k].split()[0:3]
-                                     for k in range(np.sum(number_of_types))],dtype=float)
-        atomic_types = []
 
+        coordinates_type = data_lines[7][0]
+        if coordinates_type == 'D' or coordinates_type == 'd' :
+
+            scaled_positions = np.array([data_lines[8+k].split()[0:3]
+                                         for k in range(np.sum(number_of_types))],dtype=float)
+        else:
+            positions = np.array([data_lines[8+k].split()[0:3]
+                                  for k in range(np.sum(number_of_types))],dtype=float)
+
+        atomic_types = []
         for i,j in enumerate(data_lines[5].split()):
             atomic_types.append([j]*number_of_types[i])
         atomic_types = [item for sublist in atomic_types for item in sublist]
@@ -182,8 +192,14 @@ def read_from_file_structure_poscar(file_name):
     except ValueError:
         print "Reading old style POSCAR"
         number_of_types = np.array(data_lines[5].split(), dtype=int)
-        scaled_positions = np.array([data_lines[7+k].split()[0:3]
-                                     for k in range(np.sum(number_of_types))],dtype=float)
+        coordinates_type = data_lines[6][0]
+        if coordinates_type == 'D' or coordinates_type == 'd':
+            scaled_positions = np.array([data_lines[7+k].split()[0:3]
+                                         for k in range(np.sum(number_of_types))], dtype=float)
+        else:
+            positions = np.array([data_lines[7+k].split()[0:3]
+                                  for k in range(np.sum(number_of_types))], dtype=float)
+
         atomic_types = []
         for i,j in enumerate(data_lines[0].split()):
             atomic_types.append([j]*number_of_types[i])
@@ -191,6 +207,7 @@ def read_from_file_structure_poscar(file_name):
        # atomic_types = np.array(atomic_types).flatten().tolist()
     return atomtest.Structure(cell= direct_cell,
                               scaled_positions=scaled_positions,
+                              positions=positions,
                               atomic_types=atomic_types,
 #                              primitive_cell=primitive_cell
                               )
@@ -317,7 +334,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                              minimum_frequency=0.1,  # THz
                              total_time=2,           # picoseconds
                              time_step=0.002,        # picoseconds
-                             temperature=400):       # Kelvin
+                             temperature=400,        # Kelvin
+                             silent=False):
 
     import random
     from dynaphopy.power_spectrum import progress_bar
@@ -330,7 +348,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     number_of_unit_cells = np.prod(super_cell)
 #    atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
 
-#    print(number_of_unit_cells_phonopy, number_of_unit_cells)
+
 
 
     #Recover dump trajectory from file (test only)
@@ -364,8 +382,11 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
         xyz_file = open(save_to_file, 'w')
 
     #Generate additional wave vectors sample
-    q_vector_list = pho_interface.get_commensurate_points(structure, supercell=super_cell)
+#    structure.set_super_cell_phonon_renormalized(np.diag(super_cell))
 
+    q_vector_list = pho_interface.get_commensurate_points(structure, custom_supercell=np.diag(super_cell))
+   # print(q_vector_list)
+   # exit()
 
     atoms_relation = float(len(q_vector_list)*number_of_primitive_atoms)/number_of_atoms
 
@@ -382,7 +403,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     number_of_frequencies = len(frequencies_r[0])
 
     #Generating trajectory
-    progress_bar(0, 'generating')
+    if not silent:
+        progress_bar(0, 'generating')
 
     trajectory = []
     for time in np.arange(total_time, step=time_step):
@@ -414,8 +436,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
             coordinates.append(coordinate)
         trajectory.append(coordinates)
-        progress_bar(float(time+time_step)/total_time,'generating', )
-
+        if not silent:
+          progress_bar(float(time+time_step)/total_time,'generating', )
 
     xyz_file.close()
 
@@ -439,7 +461,9 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
         dump_file.close()
 
-    print(np.dot(np.diagflat(super_cell),structure.get_cell()))
+#    print(np.dot(np.diagflat(super_cell),structure.get_cell()))
+
+    structure.set_super_cell_phonon_renormalized(None)
 
     return dyn.Dynamics(structure=structure,
                         trajectory=np.array(trajectory,dtype=complex),
@@ -754,7 +778,7 @@ def read_parameters_from_input_file(file_name):
             input_parameters.update ({'_band_ranges':bands})
 
         if "MESH PHONOPY" in line:
-            input_parameters.update({'_mesh_phonopy': input_file[i+1].replace('\n','').split()})
+            input_parameters.update({'_mesh_phonopy': np.array(input_file[i+1].replace('\n','').split(),dtype=int)})
 
 
     return input_parameters

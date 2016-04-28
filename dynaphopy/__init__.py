@@ -1,5 +1,5 @@
+__version__='1.10'
 
-__version__='1.9'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,11 +22,8 @@ power_spectrum_functions = {
     3: [power_spectrum.get_fft_fftw_spectra,           'Fast Fourier transform (FFTW)']
 }
 
-class Calculation:
 
-    @property
-    def __version__(self):
-        return '1.8'
+class Calculation:
 
     def __init__(self,
                  dynamic,
@@ -44,7 +41,6 @@ class Calculation:
         self._bands = None
         self._renormalized_bands = None
         self._renormalized_force_constants = None
-
         self._parameters = parameters.Parameters()
         self.crop_trajectory(last_steps)
       #  print('Using {0} time steps for calculation'.format(len(self.dynamic.velocity)))
@@ -256,16 +252,18 @@ class Calculation:
         plt.suptitle('Density of states')
         plt.show()
 
-    def check_commensurate(self, q_vector, decimals=4):
+
+    def check_commensurate(self, q_point, decimals=4):
         super_cell= self.dynamic.get_super_cell_matrix()
 
         commensurate = False
         primitive_matrix = self.dynamic.structure.get_primitive_matrix()
-        q_point_unit_cell = np.dot(q_vector, np.linalg.inv(primitive_matrix))
-        q_point_unit_cell = np.multiply(q_point_unit_cell, super_cell)*2
-        q_point_unit_cell = np.around(q_point_unit_cell, decimals=decimals)
 
-        if np.all(np.equal(np.mod(q_point_unit_cell, 1), 0)):
+        transform = np.dot(q_point, np.linalg.inv(primitive_matrix))
+        transform = np.multiply(transform, super_cell)
+        transform = np.around(transform, decimals=decimals)
+
+        if np.all(np.equal(np.mod(transform, 1), 0)):
             commensurate = True
 
         return commensurate
@@ -276,7 +274,7 @@ class Calculation:
             print("Projecting into wave vector")
             #Check if commensurate point
             if not self.check_commensurate(self.get_reduced_q_vector()):
-                print("warning! Defined wave vector may not be a commensurate q-point in phonopy cell")
+                print("warning! Defined wave vector is not a commensurate q-point in MD supercell")
             self._vc = projection.project_onto_wave_vector(self.dynamic, self.get_q_vector())
         return self._vc
 
@@ -452,12 +450,7 @@ class Calculation:
         handles2, labels = ax2.get_legend_handles_labels()
 
         handles = handles1 + handles2
-
-      #  print(handles)
-
-        plt.legend(handles, ['Molecular dynamics PS', 'DoS (Harmonic Aprox.)', 'DoS (renormalized)'])
-
-
+        plt.legend(handles, ['Molecular dynamics', 'DoS (Harmonic)', 'DoS (Renormalized)'])
 #        plt.legend()
         plt.show()
 
@@ -557,11 +550,15 @@ class Calculation:
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_power_spectrum_direct()[None].T,
                                           file_name)
+        total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
+        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_wave_vector(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_power_spectrum_wave_vector()[None].T,
                                           file_name)
+        total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())/(2 * np.pi)
+        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_phonon(self,file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
@@ -617,7 +614,11 @@ class Calculation:
     def get_renormalized_constants(self):
 
         if self._renormalized_force_constants is None:
-            com_points = pho_interface.get_commensurate_points(self.dynamic.structure)
+            if self.parameters.use_MD_cell_commensurate:
+                self.dynamic.structure.set_super_cell_phonon_renormalized(np.diag(self.dynamic.get_super_cell_matrix()))
+
+            com_points = pho_interface.get_commensurate_points(self.dynamic.structure,
+                                                               custom_supercell=self.dynamic.structure.get_super_cell_phonon_renormalized())
 
             initial_reduced_q_point = self.get_reduced_q_vector()
 
@@ -729,50 +730,59 @@ class Calculation:
         c_v = thm.get_cv(temperature, phonopy_dos[0], phonopy_dos[1])
         integration = np.trapz(phonopy_dos[1], x=phonopy_dos[0])/(self.dynamic.structure.get_number_of_atoms()*
                                                        self.dynamic.structure.get_number_of_dimensions())
-        harmonic_properties = [free_energy, entropy, c_v, integration]
+        total_energy = thm.get_total_energy(temperature, phonopy_dos[0], phonopy_dos[1])
+
+        harmonic_properties = [free_energy, entropy, c_v, total_energy, integration]
 
         # Renormalized force constants
         free_energy = thm.get_free_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
-                      thm.get_free_energy_correction_2(temperature, phonopy_dos[0], phonopy_dos_r[1], phonopy_dos[1])
+                      thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])
         entropy = thm.get_entropy(temperature, phonopy_dos_r[0], phonopy_dos_r[1])
         c_v = thm.get_cv(temperature, phonopy_dos_r[0], phonopy_dos_r[1])
+        total_energy = thm.get_total_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
+                       thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])
+
         integration = np.trapz(phonopy_dos_r[1], x=phonopy_dos_r[0])/(self.dynamic.structure.get_number_of_atoms()*
                                                        self.dynamic.structure.get_number_of_dimensions())
-        renormalized_properties = [free_energy, entropy, c_v, integration]
-        print('Free energy correction: {0:12.4f} KJ/mol'.format(thm.get_free_energy_correction_2(temperature, phonopy_dos[0], phonopy_dos_r[1], phonopy_dos[1])))
+        renormalized_properties = [free_energy, entropy, c_v, total_energy, integration]
+        print('Free energy correction: {0:12.4f} KJ/mol'.format(thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])))
 
         if from_power_spectrum:
             normalization = np.prod(self.dynamic.get_super_cell_matrix())
 
-            power_spectrum = thm.get_dos(temperature, frequency_range, self.get_power_spectrum_direct(), normalization)
-            free_energy = thm.get_free_energy(temperature, frequency_range, power_spectrum)
-            entropy = thm.get_entropy(temperature, frequency_range, power_spectrum)
-            c_v = thm.get_cv(temperature, frequency_range, power_spectrum)
+            power_spectrum_dos = thm.get_dos(temperature, frequency_range, self.get_power_spectrum_direct(), normalization)
+            free_energy = thm.get_free_energy(temperature, frequency_range, power_spectrum_dos)
+            entropy = thm.get_entropy(temperature, frequency_range, power_spectrum_dos)
+            c_v = thm.get_cv(temperature, frequency_range, power_spectrum_dos)
+            total_energy = thm.get_total_energy(temperature, frequency_range, power_spectrum_dos)
 
-            integration = np.trapz(power_spectrum, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
+            integration = np.trapz(power_spectrum_dos, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
                                                            self.dynamic.structure.get_number_of_dimensions())
 
-            power_spectrum_properties = [free_energy, entropy, c_v, integration]
+            power_spectrum_properties = [free_energy, entropy, c_v, total_energy, integration]
             print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
               '----------------------------------------------').format(temperature)
-            print('                         Harmonic    Renormalized   Power spectrum\n')
-            print('Free energy (KJ/mol): {0:12.4f}  {4:12.4f}  {8:12.4f}\n'
-                  'Entropy    (J/K/mol): {1:12.4f}  {5:12.4f}  {9:12.4f}\n'
-                  'Cv         (J/K/mol): {2:12.4f}  {6:12.4f}  {10:12.4f}\n'
-                  'Integration:          {3:12.4f}  {7:12.4f}  {11:12.4f}\n'.format(*(harmonic_properties +
+            print('                             Harmonic    Renormalized   Power spectrum\n')
+            print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}  {10:12.4f}\n'
+                  'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}  {11:12.4f}\n'
+                  'Cv           (J/K/mol): {2:12.4f}  {7:12.4f}  {12:12.4f}\n'
+                  'Total energy  (KJ/mol): {3:12.4f}  {8:12.4f}  {13:12.4f}\n'
+                  'Integration:            {4:12.4f}  {9:12.4f}  {14:12.4f}\n'.format(*(harmonic_properties +
                                                                                       renormalized_properties +
                                                                                       power_spectrum_properties)))
             if not self.parameters.silent:
-                plt.plot(frequency_range, power_spectrum, 'r-', label='Molecular dynamics')
+                plt.plot(frequency_range, power_spectrum_dos, 'r-', label='Molecular dynamics')
 
         else:
             print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
               '----------------------------------------------').format(temperature)
-            print('                        Harmonic    Renormalized\n')
-            print('Free energy  (KJ/mol): {0:12.4f}  {4:12.4f}\n'
-                  'Entropy     (J/K/mol): {1:12.4f}  {5:12.4f}\n'
-                  'Cv          (J/K/mol): {2:12.4f}  {6:12.4f}\n'
-                  'Integration:           {3:12.4f}  {7:12.4f}\n'.format(*(harmonic_properties + renormalized_properties)))
+            print('                            Harmonic    Renormalized\n')
+            print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}\n'
+                  'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}\n'
+                  'Cv           (J/K/mol): {2:12.4f}  {7:12.4f}\n'
+                  'Total energy  (KJ/mol): {3:12.4f}  {8:12.4f}\n'
+                  'Integration:            {4:12.4f}  {9:12.4f}\n'.format(*(harmonic_properties + renormalized_properties)))
+
 
         if not self.parameters.silent:
             plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-',label='Harmonic aprox.')
