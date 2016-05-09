@@ -700,7 +700,7 @@ class Calculation:
                                                                                 mesh=self.parameters.mesh_phonopy,
                                                                                 force_constants=self.get_renormalized_constants())
 
-        print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy]\n'
+        print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy (Reference)]\n'
               '----------------------------------------------').format(temperature)
         print('                               Harmonic    Renormalized\n')
 
@@ -745,7 +745,7 @@ class Calculation:
         integration = np.trapz(phonopy_dos_r[1], x=phonopy_dos_r[0])/(self.dynamic.structure.get_number_of_atoms()*
                                                        self.dynamic.structure.get_number_of_dimensions())
         renormalized_properties = [free_energy, entropy, c_v, total_energy, integration]
-        print('Free energy correction: {0:12.4f} KJ/mol'.format(thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])))
+        print('Free energy/total energy correction: {0:12.4f} KJ/mol'.format(thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])))
 
         if from_power_spectrum:
             normalization = np.prod(self.dynamic.get_super_cell_matrix())

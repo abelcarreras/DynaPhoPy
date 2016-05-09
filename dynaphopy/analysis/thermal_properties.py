@@ -15,10 +15,10 @@ def get_dos(temp, frequency, power_spectrum, n_size):
     def n(temp, freq):
         return pow(np.exp(freq*h_bar/(k_b*temp))-1, -1)
 
-    def energy(freq, temp):
+    def energy2(freq, temp):
         return h_bar*freq*(0.5+n(temp, freq))
 
-    def energy2(freq, temp):
+    def energy(freq, temp):
         return k_b * temp
 
 
@@ -43,6 +43,7 @@ def get_free_energy(temperature, frequency, dos):
     free_energy = np.nan_to_num([dos[i] * k_b * temperature * np.log(2 * np.sinh(h_bar * freq / (2 * k_b * temperature)))
                                  for i, freq in enumerate(frequency)])
 
+    free_energy[0] = 0
     free_energy = np.trapz(free_energy, frequency) * N_a / 1000 # KJ/K/mol
     return free_energy
 
