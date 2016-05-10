@@ -389,15 +389,29 @@ class Calculation:
                                                                                            self.dynamic,
                                                                                            self.parameters)
 
-        return np.sum(self._power_spectrum_wave_vector,axis=1)
+        return np.sum(self._power_spectrum_wave_vector, axis=1)
 
-    def get_power_spectrum_direct(self):
+    def get_power_spectrum_direct(self, atom_type_projection=-1):
         if self._power_spectrum_direct is None:
             print("Calculation full power spectrum")
-            size = self.dynamic.get_velocity_mass_average().shape[1]*self.dynamic.get_velocity_mass_average().shape[2]
+
+            velocity_mass_average = self.dynamic.get_velocity_mass_average()
+
+            if atom_type_projection >= 0:
+                print('Power spectrum projected on atom type {0}'.format(atom_type_projection))
+                supercell = self.dynamic.get_super_cell_matrix()
+                atom_types = np.array(self.dynamic.structure.get_atom_type_index(supercell=supercell))
+                atom_indices= np.argwhere(atom_types == atom_type_projection).flatten()
+                if len(atom_indices) == 0:
+                    print('Atom type {0} does not exist'.format(atom_type_projection))
+                    exit()
+
+                velocity_mass_average = velocity_mass_average[:, atom_indices]
+
+            size = velocity_mass_average.shape[1]*velocity_mass_average.shape[2]
 
             self._power_spectrum_direct = (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
-                self.dynamic.get_velocity_mass_average().swapaxes(1, 2).reshape(-1, size),
+                velocity_mass_average.swapaxes(1, 2).reshape(-1, size),
                 self.dynamic,
                 self.parameters)
 
@@ -785,8 +799,8 @@ class Calculation:
 
 
         if not self.parameters.silent:
-            plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-',label='Harmonic aprox.')
-            plt.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-',label='Renormalized')
+            plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-', label='Harmonic aprox.')
+            plt.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized')
 
             plt.title('Density of states')
             plt.xlabel('Frequency [THz]')

@@ -4,27 +4,29 @@ import warnings
 
 N_a = 6.022140857e23
 k_b = 1.38064852e-23  # J /K
-h_bar = 6.626070040e-22 # J * ps
+h_bar = 6.626070040e-22  # J * ps
 
 warnings.simplefilter("ignore")
 
-def get_dos(temp, frequency, power_spectrum, n_size):
+
+def get_dos(temp, frequency, power_spectrum, n_size, bose_einstein_statistics=False):
 
     conversion_factor = 1.60217662e-19 # eV/J
 
     def n(temp, freq):
         return pow(np.exp(freq*h_bar/(k_b*temp))-1, -1)
 
-    def energy2(freq, temp):
-        return h_bar*freq*(0.5+n(temp, freq))
-
-    def energy(freq, temp):
-        return k_b * temp
-
+    if bose_einstein_statistics:
+        def energy(freq, temp):
+            return h_bar*freq*(0.5+n(temp, freq))
+    else:
+        def energy(freq, temp):
+            return k_b * temp
 
     dos = np.nan_to_num([4./(2*np.pi)*conversion_factor*power_spectrum[i]/(energy(freq, temp)*n_size)
                          for i, freq in enumerate(frequency)])
     return dos
+
 
 def get_total_energy(temperature, frequency, dos):
 
@@ -34,7 +36,7 @@ def get_total_energy(temperature, frequency, dos):
     total_energy = np.nan_to_num([dos[i] * h_bar*freq*(0.5 + n(temperature, freq))
                                  for i, freq in enumerate(frequency)])
 
-    total_energy = np.trapz(total_energy, frequency) * N_a / 1000 # KJ/K/mol
+    total_energy = np.trapz(total_energy, frequency) * N_a / 1000  # KJ/K/mol
     return total_energy
 
 
@@ -44,8 +46,9 @@ def get_free_energy(temperature, frequency, dos):
                                  for i, freq in enumerate(frequency)])
 
     free_energy[0] = 0
-    free_energy = np.trapz(free_energy, frequency) * N_a / 1000 # KJ/K/mol
+    free_energy = np.trapz(free_energy, frequency) * N_a / 1000  # KJ/K/mol
     return free_energy
+
 
 def get_free_energy_correction_shift(temperature, frequency, dos, shift):
 
