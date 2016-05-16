@@ -775,10 +775,12 @@ class Calculation:
             integration = np.trapz(power_spectrum_dos, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
                                                            self.dynamic.structure.get_number_of_dimensions())
 
-            if normalize_dos and self.parameters.project_on_atom < -1:
-                power_spectrum_dos /=integration
+            if normalize_dos:
+                power_spectrum_dos *=integration
                 integration = 1.0
-
+                if self.parameters.project_on_atom > -1:
+                    power_spectrum_dos *=self.dynamic.structure.get_number_of_primitive_atoms()
+                    integration /=self.dynamic.structure.get_number_of_primitive_atoms()
 
             free_energy = thm.get_free_energy(temperature, frequency_range, power_spectrum_dos)
             entropy = thm.get_entropy(temperature, frequency_range, power_spectrum_dos)
