@@ -9,7 +9,7 @@ h_bar = 6.626070040e-22  # J * ps
 warnings.simplefilter("ignore")
 
 
-def get_dos(temp, frequency, power_spectrum, n_size, bose_einstein_statistics=False):
+def get_dos(temp, frequency, power_spectrum, n_size, bose_einstein_statistics=True):
 
     conversion_factor = 1.60217662e-19 # eV/J
 
@@ -45,7 +45,7 @@ def get_free_energy(temperature, frequency, dos):
     free_energy = np.nan_to_num([dos[i] * k_b * temperature * np.log(2 * np.sinh(h_bar * freq / (2 * k_b * temperature)))
                                  for i, freq in enumerate(frequency)])
 
-    free_energy[0] = 0
+#    free_energy[0] = 0
     free_energy = np.trapz(free_energy, frequency) * N_a / 1000  # KJ/K/mol
     return free_energy
 
