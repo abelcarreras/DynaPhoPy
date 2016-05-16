@@ -698,7 +698,7 @@ class Calculation:
         pho_interface.save_force_constants_to_file(force_constants, filename)
 
 
-    def display_thermal_properties(self, temperature=None, from_power_spectrum=False):
+    def display_thermal_properties(self, temperature=None, from_power_spectrum=False, normalize=True):
 
         if not temperature:
             temperature = self.get_temperature_from_bolzmann_analysis()
@@ -765,13 +765,18 @@ class Calculation:
             normalization = np.prod(self.dynamic.get_super_cell_matrix())
 
             power_spectrum_dos = thm.get_dos(temperature, frequency_range, self.get_power_spectrum_direct(), normalization)
+            integration = np.trapz(power_spectrum_dos, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
+                                                           self.dynamic.structure.get_number_of_dimensions())
+
+            if normalize:
+                power_spectrum_dos /=integration
+                integration = 1.0
+
             free_energy = thm.get_free_energy(temperature, frequency_range, power_spectrum_dos)
             entropy = thm.get_entropy(temperature, frequency_range, power_spectrum_dos)
             c_v = thm.get_cv(temperature, frequency_range, power_spectrum_dos)
             total_energy = thm.get_total_energy(temperature, frequency_range, power_spectrum_dos)
 
-            integration = np.trapz(power_spectrum_dos, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
-                                                           self.dynamic.structure.get_number_of_dimensions())
 
             power_spectrum_properties = [free_energy, entropy, c_v, total_energy, integration]
             print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
