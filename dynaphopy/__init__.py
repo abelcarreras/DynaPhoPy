@@ -391,7 +391,10 @@ class Calculation:
 
         return np.sum(self._power_spectrum_wave_vector, axis=1)
 
-    def get_power_spectrum_direct(self, atom_type_projection=-1):
+    def get_power_spectrum_direct(self):
+        #temporal interface
+        atom_type_projection = self.parameters.project_on_atom
+
         if self._power_spectrum_direct is None:
             print("Calculation full power spectrum")
 
@@ -437,7 +440,8 @@ class Calculation:
         phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                        mesh=self.parameters.mesh_phonopy,
                                                        freq_min=self.get_frequency_range()[0],
-                                                       freq_max=self.get_frequency_range()[-1])
+                                                       freq_max=self.get_frequency_range()[-1],
+                                                       projected_on_atom=self.parameters.project_on_atom)
 
         fig, ax1 = plt.subplots()
 
@@ -454,7 +458,8 @@ class Calculation:
                                                              mesh=self.parameters.mesh_phonopy,
                                                              freq_min=self.get_frequency_range()[0],
                                                              freq_max=self.get_frequency_range()[-1],
-                                                             force_constants=self._renormalized_force_constants)
+                                                             force_constants=self._renormalized_force_constants,
+                                                             projected_on_atom=self.parameters.project_on_atom)
 
             ax2.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized DoS')
 
@@ -698,7 +703,7 @@ class Calculation:
         pho_interface.save_force_constants_to_file(force_constants, filename)
 
 
-    def display_thermal_properties(self, temperature=None, from_power_spectrum=False, normalize=True):
+    def display_thermal_properties(self, temperature=None, from_power_spectrum=False, normalize_dos=False):
 
         if not temperature:
             temperature = self.get_temperature_from_bolzmann_analysis()
@@ -727,13 +732,15 @@ class Calculation:
         phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                        freq_min=0.01,
                                                        freq_max=self.get_frequency_range()[-1],
-                                                       mesh=self.parameters.mesh_phonopy)
+                                                       mesh=self.parameters.mesh_phonopy,
+                                                       projected_on_atom=self.parameters.project_on_atom)
 
         phonopy_dos_r = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                          mesh=self.parameters.mesh_phonopy,
                                                          freq_min=0.01,
                                                          freq_max=self.get_frequency_range()[-1],
-                                                         force_constants=self._renormalized_force_constants)
+                                                         force_constants=self._renormalized_force_constants,
+                                                         projected_on_atom=self.parameters.project_on_atom)
 
         self.set_frequency_limits([0, np.max(phonopy_dos[0])*1.2])
         frequency_range = self.get_frequency_range()
@@ -768,9 +775,10 @@ class Calculation:
             integration = np.trapz(power_spectrum_dos, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
                                                            self.dynamic.structure.get_number_of_dimensions())
 
-            if normalize:
+            if normalize_dos and self.parameters.project_on_atom < -1:
                 power_spectrum_dos /=integration
                 integration = 1.0
+
 
             free_energy = thm.get_free_energy(temperature, frequency_range, power_spectrum_dos)
             entropy = thm.get_entropy(temperature, frequency_range, power_spectrum_dos)

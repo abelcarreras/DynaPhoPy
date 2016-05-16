@@ -137,6 +137,15 @@ parser.add_argument('-average', action='store_true',
 parser.add_argument('--MD_commensurate', action='store_true',
                     help='use commensurate points in MD cell instead of phonon cell')
 
+parser.add_argument('--normalize_dos', action='store_true',
+                    help='normalize DoS obtained from PS in thermal properties calculation')
+
+
+#Temporal interface on development
+
+parser.add_argument('--project_on_atom', metavar='N', type=int, default=-1,
+                    help='calculate PS projected onto one atom')
+
 
 args = parser.parse_args()
 
@@ -217,6 +226,7 @@ calculation.parameters.silent = args.silent
 calculation.parameters.use_asymmetric_peaks = args.asymmetric_peaks
 calculation.parameters.degenerate = args.fcsymm
 calculation.parameters.use_MD_cell_commensurate = args.MD_commensurate
+calculation.parameters.project_on_atom = args.project_on_atom
 
 if args.no_symmetry:
     calculation.parameters.use_symmetry = False
@@ -288,7 +298,9 @@ if args.thm:
     calculation.display_thermal_properties(temperature=args.temperature)
 
 if args.thm_full:
-    calculation.display_thermal_properties(temperature=args.temperature, from_power_spectrum=True)
+    calculation.display_thermal_properties(temperature=args.temperature,
+                                           from_power_spectrum=True,
+                                           normalize_dos=args.normalize_dos)
 
 
 if args.average:
