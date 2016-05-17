@@ -244,7 +244,8 @@ class Calculation:
     def plot_dos_phonopy(self):
 
         phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
-                                                       mesh=self.parameters.mesh_phonopy)
+                                                       mesh=self.parameters.mesh_phonopy,
+                                                       projected_on_atom=self.parameters.project_on_atom)
 
         plt.plot(phonopy_dos[0], phonopy_dos[1], 'r-')
         plt.ylabel('Density of states')
