@@ -74,6 +74,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 
     widths = []
     positions = []
+    errors = []
+    dt_Q2_s = []
 
     for i in range(original.shape[1]):
 
@@ -105,6 +107,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             print('Warning: Fitting error in phonon {0}. Try to increase the spectrum resolution'.format(i))
             positions.append(0)
             widths.append(0)
+            errors.append(0)
+            dt_Q2_s.append(0)
             continue
 
 
@@ -168,6 +172,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 
         positions.append(frequency)
         widths.append(width)
+        errors.append(error/maximum)
+        dt_Q2_s.append(dt_Q2_lor)
 
         if show_plots:
             plt.figure(i+1)
@@ -203,4 +209,6 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         plt.show()
 
     return {'positions': positions,
-            'widths': widths}
+            'widths': widths,
+            'error': errors,
+            'dt_Q2': dt_Q2_s}
