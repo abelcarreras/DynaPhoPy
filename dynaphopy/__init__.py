@@ -777,10 +777,10 @@ class Calculation:
                                                            self.dynamic.structure.get_number_of_dimensions())
 
             if normalize_dos:
-                power_spectrum_dos *=integration
+                power_spectrum_dos /=integration
                 integration = 1.0
                 if self.parameters.project_on_atom > -1:
-                    power_spectrum_dos *=self.dynamic.structure.get_number_of_primitive_atoms()
+                    power_spectrum_dos /=self.dynamic.structure.get_number_of_primitive_atoms()
                     integration /=self.dynamic.structure.get_number_of_primitive_atoms()
 
             free_energy = thm.get_free_energy(temperature, frequency_range, power_spectrum_dos)
