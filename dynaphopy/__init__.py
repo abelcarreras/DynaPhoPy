@@ -207,7 +207,7 @@ class Calculation:
         if self._renormalized_bands is None:
             self._renormalized_bands = pho_interface.obtain_renormalized_phonon_dispersion_bands(self.dynamic.structure,
                                                                                                  self.parameters.band_ranges,
-                                                                                                 self.get_renormalized_constants(),
+                                                                                                 self.get_renormalized_force_constants(),
                                                                                                  NAC=self.parameters.use_NAC)
 
 
@@ -470,7 +470,7 @@ class Calculation:
         handles2, labels = ax2.get_legend_handles_labels()
 
         handles = handles1 + handles2
-        plt.legend(handles, ['Molecular dynamics', 'DoS (Harmonic)', 'DoS (Renormalized)'])
+        plt.legend(handles, ['Power spectrum (MD)', 'DoS (Harmonic)', 'DoS (Renormalized)'])
 #        plt.legend()
         plt.show()
 
@@ -490,7 +490,7 @@ class Calculation:
     def plot_power_spectrum_phonon(self):
         for i in range(self.get_power_spectrum_phonon().shape[1]):
             plt.figure(i)
-            plt.suptitle('Projection onto phonon {0} (two sided)'.format(i+1))
+            plt.suptitle('Projection onto phonon mode {0} (two sided)'.format(i+1))
             plt.plot(self.get_frequency_range(), self.get_power_spectrum_phonon()[:, i])
             plt.xlabel('Frequency [THz]')
             plt.ylabel('eV * ps')
@@ -631,7 +631,7 @@ class Calculation:
         return power_spectrum_functions.values()
 
 
-    def get_renormalized_constants(self):
+    def get_renormalized_force_constants(self):
 
         if self._renormalized_force_constants is None:
             if self.parameters.use_MD_cell_commensurate:
@@ -700,34 +700,34 @@ class Calculation:
         return self._renormalized_force_constants
 
     def write_renormalized_constants(self, filename="FORCE_CONSTANTS"):
-        force_constants = self.get_renormalized_constants()
+        force_constants = self.get_renormalized_force_constants()
         pho_interface.save_force_constants_to_file(force_constants, filename)
 
 
-    def display_thermal_properties(self, temperature=None, from_power_spectrum=False, normalize_dos=False):
+    def display_thermal_properties(self, temperature=None, from_power_spectrum=False, normalize_dos=False, print_phonopy=False):
 
         if not temperature:
             temperature = self.get_temperature_from_bolzmann_analysis()
 
         print('Using mesh: {0}'.format(self.parameters.mesh_phonopy))
 
-        harmonic_properties = pho_interface.obtain_phonopy_thermal_properties(self.dynamic.structure,
-                                                                              temperature,
-                                                                              mesh=self.parameters.mesh_phonopy)
+        if print_phonopy:
+            harmonic_properties = pho_interface.obtain_phonopy_thermal_properties(self.dynamic.structure,
+                                                                                  temperature,
+                                                                                  mesh=self.parameters.mesh_phonopy)
 
-        renormalized_properties = pho_interface.obtain_phonopy_thermal_properties(self.dynamic.structure,
-                                                                                temperature,
-                                                                                mesh=self.parameters.mesh_phonopy,
-                                                                                force_constants=self.get_renormalized_constants())
+            renormalized_properties = pho_interface.obtain_phonopy_thermal_properties(self.dynamic.structure,
+                                                                                      temperature,
+                                                                                      mesh=self.parameters.mesh_phonopy,
+                                                                                      force_constants=self.get_renormalized_force_constants())
 
-        print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy (Reference)]\n'
-              '----------------------------------------------').format(temperature)
-        print('                               Harmonic    Renormalized\n')
+            print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy (Reference)]\n'
+                  '----------------------------------------------').format(temperature)
+            print('                               Harmonic    Renormalized\n')
 
-        print('Free energy (not corrected):   {0:.4f}       {3:.4f}     KJ/mol\n'
-              'Entropy:                       {1:.4f}       {4:.4f}     J/K/mol\n'
-              'Cv:                            {2:.4f}       {5:.4f}     J/K/mol\n'.format(*(harmonic_properties + renormalized_properties)))
-
+            print('Free energy (not corrected):   {0:.4f}       {3:.4f}     KJ/mol\n'
+                  'Entropy:                       {1:.4f}       {4:.4f}     J/K/mol\n'
+                  'Cv:                            {2:.4f}       {5:.4f}     J/K/mol\n'.format(*(harmonic_properties + renormalized_properties)))
 
 
         phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
@@ -740,7 +740,7 @@ class Calculation:
                                                          mesh=self.parameters.mesh_phonopy,
                                                          freq_min=0.01,
                                                          freq_max=self.get_frequency_range()[-1],
-                                                         force_constants=self._renormalized_force_constants,
+                                                         force_constants=self.get_renormalized_force_constants(),
                                                          projected_on_atom=self.parameters.project_on_atom)
 
         self.set_frequency_limits([0, np.max(phonopy_dos[0])*1.2])
