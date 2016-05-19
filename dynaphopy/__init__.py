@@ -815,7 +815,7 @@ class Calculation:
 
 
         if not self.parameters.silent:
-            plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-', label='Harmonic aprox.')
+            plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-', label='Harmonic')
             plt.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized')
 
             plt.title('Density of states')
