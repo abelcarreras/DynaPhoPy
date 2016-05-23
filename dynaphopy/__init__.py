@@ -41,6 +41,7 @@ class Calculation:
         self._bands = None
         self._renormalized_bands = None
         self._renormalized_force_constants = None
+        self._temperature = None
         self._parameters = parameters.Parameters()
         self.crop_trajectory(last_steps)
       #  print('Using {0} time steps for calculation'.format(len(self.dynamic.velocity)))
@@ -619,12 +620,15 @@ class Calculation:
         energy.boltzmann_distribution(self.dynamic, self.parameters)
 
     def get_temperature_from_bolzmann_analysis(self):
+        if not self._temperature:
+            save_status = self.parameters.silent
+            self.parameters.silent = True
+            self._temperature = energy.boltzmann_distribution(self.dynamic, self.parameters)
+            self.parameters.silent = save_status
+        return self._temperature
 
-        save_status = self.parameters.silent
-        self.parameters.silent = True
-        temperature = energy.boltzmann_distribution(self.dynamic, self.parameters)
-        self.parameters.silent = save_status
-        return temperature
+    def set_temperature(self, temperature):
+        self._temperature = temperature
 
     #Other
     def get_algorithm_list(self):
@@ -706,10 +710,9 @@ class Calculation:
         pho_interface.save_force_constants_to_file(force_constants, filename)
 
 
-    def display_thermal_properties(self, temperature=None, from_power_spectrum=False, normalize_dos=False, print_phonopy=False):
+    def display_thermal_properties(self, from_power_spectrum=False, normalize_dos=False, print_phonopy=False):
 
-        if not temperature:
-            temperature = self.get_temperature_from_bolzmann_analysis()
+        temperature = self.get_temperature_from_bolzmann_analysis()
 
         print('Using mesh: {0}'.format(self.parameters.mesh_phonopy))
 

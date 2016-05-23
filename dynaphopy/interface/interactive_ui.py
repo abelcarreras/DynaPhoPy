@@ -35,7 +35,7 @@ def get_param(screen, prompt_string):
     return input_data
 
 
-def interactive_interface(calculation, trajectory, args, structure_file, temperature):
+def interactive_interface(calculation, trajectory, args, structure_file):
 
     screen = curses.initscr()
     screen.border(0)
@@ -145,7 +145,7 @@ def interactive_interface(calculation, trajectory, args, structure_file, tempera
 ######## OPTION 3 :  THERMAL PROPERTIES
         if x == ord('3'):
             curses.endwin()
-            calculation.display_thermal_properties(temperature=temperature)
+            calculation.display_thermal_properties()
             curses.endwin()
 
        #     curses.endwin()
