@@ -619,7 +619,7 @@ class Calculation:
     def show_boltzmann_distribution(self):
         energy.boltzmann_distribution(self.dynamic, self.parameters)
 
-    def get_temperature_from_bolzmann_analysis(self):
+    def get_temperature(self):
         if not self._temperature:
             save_status = self.parameters.silent
             self.parameters.silent = True
@@ -712,7 +712,7 @@ class Calculation:
 
     def display_thermal_properties(self, from_power_spectrum=False, normalize_dos=False, print_phonopy=False):
 
-        temperature = self.get_temperature_from_bolzmann_analysis()
+        temperature = self.get_temperature()
 
         print('Using mesh: {0}'.format(self.parameters.mesh_phonopy))
 
