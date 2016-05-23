@@ -649,7 +649,7 @@ class Calculation:
 
             for i, reduced_q_point in enumerate(com_points):
 
-                print ("\nQpoint: {0} / {1}      {2}".format(i+1, len(com_points), reduced_q_point))
+                print ("\nQ-point: {0} / {1}      {2}".format(i+1, len(com_points), reduced_q_point))
 
                 self.set_reduced_q_vector(reduced_q_point)
                 eigenvectors.append(self.get_eigenvectors())
@@ -674,6 +674,8 @@ class Calculation:
                                     show_plots=False,
                                     asymmetric_peaks=self.parameters.use_asymmetric_peaks,
                                     use_degeneracy=self.parameters.use_symmetry)
+
+
 
                 positions = data['positions']
                 if (reduced_q_point == [0, 0, 0]).all():
