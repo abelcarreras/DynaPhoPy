@@ -312,4 +312,4 @@ if args.interactive:
     if isinstance(trajectory, list) or isinstance(trajectory, tuple):
         print('Interactive mode cannot be used loading wave vector projected velocity')
         exit()
-    interactive_ui.interactive_interface(calculation, trajectory, args, structure_file)
+    interactive_ui.interactive_interface(calculation, trajectory, args, structure_file, args.temperature)
