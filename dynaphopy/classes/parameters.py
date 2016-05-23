@@ -49,6 +49,9 @@ class Parameters:
 
                  #Use supercell
                  use_MD_cell_commensurate=False,
+
+                 #(On development (temporal))
+                 project_on_atom=-1
                  ):
 
         self._silent = silent
@@ -72,6 +75,8 @@ class Parameters:
         self._modes_vectors_scale = modes_vectors_scale
         self._mesh_phonopy = mesh_phonopy
         self._use_MD_cell_commensurate = use_MD_cell_commensurate
+
+        self._project_on_atom = project_on_atom
 
     def get_data_from_dict(self, data_dictionary):
         for data in self.__dict__:
@@ -233,3 +238,13 @@ class Parameters:
     @use_MD_cell_commensurate.setter
     def use_MD_cell_commensurate(self, use_MD_cell_commensurate):
         self._use_MD_cell_commensurate = use_MD_cell_commensurate
+
+# On development ---------
+    @property
+    def project_on_atom(self):
+        return self._project_on_atom
+
+    @project_on_atom.setter
+    def project_on_atom(self, project_on_atom):
+        self._project_on_atom = project_on_atom
+# ----------------------

@@ -18,7 +18,7 @@ def boltzmann_distribution(trajectory, parameters):
     print('Deviation: {0:3.7e} Angstrom/ps'.format(deviation))
     maxwell = stats.maxwell
 
-    params = maxwell.fit(velocity, floc=0)
+    params = maxwell.fit(velocity, floc=0, scale=np.average([average, deviation]))
     print('Distribution parameter: {0:3.7e} Angstrom/ps'.format(params[1]))
 
     temperature = pow(params[1], 2)/ kb_boltzmann

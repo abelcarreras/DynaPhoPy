@@ -76,7 +76,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(2, 2, "Please enter option number...")
         screen.addstr(4, 4, "1 - Harmonic calculations")
         screen.addstr(5, 4, "2 - Change wave vector")
-        screen.addstr(6, 4, "3 - Change frequency range")
+        screen.addstr(6, 4, "3 - Thermal properties")
         screen.addstr(7, 4, "4 - Maxwell-Boltzmann analysis")
         screen.addstr(8, 4, "5 - Power spectrum")
         screen.addstr(9, 4, "6 - Renormalized phonon dispersion")
@@ -142,13 +142,13 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             calculation.set_reduced_q_vector(q_vector)
             curses.endwin()
 
-######## OPTION 3 :  DEFINE FREQUENCY RANGE
+######## OPTION 3 :  THERMAL PROPERTIES
         if x == ord('3'):
-            frequency_limits = np.array([float(Fraction(s)) for s in
-                                         get_param(screen, "Insert frequency range (min, max)").split(',')])
-            print(frequency_limits)
-            calculation.set_frequency_limits(frequency_limits)
             curses.endwin()
+            calculation.display_thermal_properties()
+            curses.endwin()
+
+       #     curses.endwin()
 
 ######## OPTION 4 :  BOLTZMANN DISTRIBUTION
         if x == ord('4'):
@@ -230,8 +230,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.addstr(9, 4, "6 - Use asymmetric lorentzian: {0}".format(
                         calculation.parameters.use_asymmetric_peaks))
                 screen.addstr(10, 4, "7 - Change spectrum resolution")
+                screen.addstr(11, 4, "8 - Change frequency range")
 
-                screen.addstr(12, 4, "0 - Return")
+                screen.addstr(13, 4, "0 - Return")
                 screen.refresh()
 
                 x2 = screen.getch()
@@ -329,6 +330,15 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     calculation.set_spectra_resolution(resolution)
                     calculation.power_spectra_clear()
                     curses.endwin()
+
+                if x2 == ord('8'):
+                    frequency_limits = np.array([float(Fraction(s)) for s in
+                                                 get_param(screen, "Insert frequency range (min, max)").split(',')])
+                    print(frequency_limits)
+                    calculation.set_frequency_limits(frequency_limits)
+                    curses.endwin()
+
+
 
     curses.endwin()
 

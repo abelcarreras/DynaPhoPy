@@ -103,7 +103,7 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthon
 
 
 
-def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_min=None, freq_max=None):
+def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_min=None, freq_max=None, projected_on_atom=-1):
 
     if force_constants is None:
         phonon = get_phonon(structure,
@@ -115,9 +115,21 @@ def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_
                         custom_supercell=structure.get_super_cell_phonon_renormalized())
         phonon.set_force_constants(force_constants)
 
-    phonon.set_mesh(mesh)
-    phonon.set_total_DOS(freq_min=freq_min, freq_max=freq_max)
-    total_dos = np.array(phonon.get_total_DOS())
+    if projected_on_atom < 0:
+        phonon.set_mesh(mesh)
+        phonon.set_total_DOS(freq_min=freq_min, freq_max=freq_max)
+        total_dos = np.array(phonon.get_total_DOS())
+
+    else:
+        phonon.set_mesh(mesh, is_eigenvectors=True, is_mesh_symmetry=False)
+        phonon.set_partial_DOS(freq_min=freq_min, freq_max=freq_max)
+
+        if projected_on_atom >= len(phonon.get_partial_DOS()[1]):
+            print('No atom type {0}'.format(projected_on_atom))
+            exit()
+
+        total_dos = np.array([phonon.get_partial_DOS()[0], phonon.get_partial_DOS()[1][projected_on_atom]])
+
 
     #Normalize to unit cell
     total_dos[1, :] *= float(structure.get_number_of_atoms())/structure.get_number_of_primitive_atoms()
@@ -152,7 +164,7 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
 def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_resolution=30):
 
     print('Getting phonon dispersion bands')
-    phonon = get_phonon(structure, NAC=False)
+    phonon = get_phonon(structure, NAC=NAC)
 
     bands =[]
     for q_start, q_end in bands_ranges:

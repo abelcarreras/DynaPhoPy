@@ -1,9 +1,10 @@
 ---------------------------------------------------------
-DYNAPHOPY 1.10
+DYNAPHOPY 1.11
 ---------------------------------------------------------
-Program to calculate crystal anharmonic frequency shifts
-and phonon linewidths from molecular dynamics simulations
-performed with VASP code using PHONOPY harmonic eigenvalues.
+Software to calculate crystal microscopical anharmonic properties
+from molecular dynamics using the normal-mode-decomposition technique.
+VASP or LAMMPS codes can be used to calculate MD. PHONOPY code
+is used to obtain harmonic eigenvalues.
 
 ---------------------------------------------------------
 Installation instructions
@@ -21,7 +22,7 @@ h5py
 python setup.py install --user
 
 ---------------------------------------------------------
-Executing the program
+Executing this software
 ---------------------------------------------------------
 1) Command line method
 ./dynaphopy input_file MD_file [Options]
@@ -32,11 +33,11 @@ Use -i option from command line method and follow the instructions
 ./dynaphopy input_file MD_file -i
 
 3) Scripting method (as a module)
-Create/edit script like input.py and execute it
+Dynaphopy can be imported as a python module
+In Example directory an example script is available (input.py)
 The comments in the script makes it (hopefully) self explained.
-    Example: input.py
 
-Input files for several materials can be found in Example directory
+Input files for several materials can be found in the same Example directory
 More information at: http://abelcarreras.github.io/DynaPhoPy
 
 ---------------------------------------------------------
@@ -45,5 +46,5 @@ Contact info
 Abel Carreras
 abelcarreras83@gmail.com
 
-Department of Materials Science
+Department of Materials Science and Engineering
 Kyoto University
