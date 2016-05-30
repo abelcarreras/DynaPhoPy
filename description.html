@@ -65,7 +65,7 @@ power spectra interpolating the velocity using a polynomia which depends on a ce
 <p> 
 This options calculate the power spectrum of the autocorrelation function of the atomic velocity. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps and MD cell size limit, this power spectrum tends to the vibrational density of states (VDoS).
 
-<br><em>Notice that the super cell size limit is practically unreachable. This is <strong>not</strong> a good method at all to calculate the VDoS. For this purpose is better to interpolate a larger set of q points within the Brillouin zone. Refere to <a href="#renormalized_forces">force renormalization</a> section. </em>
+<br><em>Notice that the super cell size limit is practically unreachable. This is <strong>not</strong> a good method at all to calculate the VDoS. For this purpose is better to interpolate a larger set of q points within the Brillouin zone. Refere to <a href="#renormalized_forces">renormalized force constants</a> section. </em>
 
 </p>
 <p>Plot spectrum in a matplotlib X window:</p>
@@ -287,7 +287,7 @@ coordinate.
     
     
 <div id="renormalized_forces"></div> 
-<h3>Obtaining the renormalized forces</h3>
+<h3>Renormalized force constants</h3>
 <p> The phonon information that can be obtained from MD is limited to the size of the simulation cell.
 DynaPhoPy can only extract the information on the commensurate points so in order to obtain a good sampling
 of the Brillouin zone to calculate crystal macroscopical properties it is necessary to resort to interpolation methods.
@@ -310,7 +310,7 @@ To enforce space group symmetry to force constants use option <strong>--fcsymm</
 
 <p>
 
-Using this new force constants it is possible to calculate all the properties available in phonopy using a set of renormalized forces obtained at finite temperature. One of the most intersting applications is the renormalization of imaginary frequencies in materials that are stable at high temperatures but inestable at 0 K. 
+Using this new force constants it is possible to calculate all the properties available in phonopy using a set of renormalized force constants obtained at finite temperature. One of the most intersting applications is the renormalization of imaginary frequencies in materials that are stable at high temperatures but inestable at 0 K. 
 </p>
 <img src="images/renormalized_phonon_dispersion.png" alt="Interactive" style="width:630px">
 <p style="text-align:center">
@@ -376,7 +376,7 @@ Integration:                  1.0000        1.0000        0.9838
 <p>Obtaining a good DOS directly from the power is usually dificult and requieres a large MD simulation cell and long simulation times. That makes that usually the integration of the DOS is not 1 and may affect the calculated thermal properties. To mitigate this problem the DOS can be forced to be normalized to 1. This is done by using option <strong>--normalize_dos</strong>. I it strongly recommended to use it specially at low temperatures.
 </p>
 <pre><code>$ dynaphopy input_file TRAJECTORY --thm_full --normalize_dos</code></pre>
-    <p>Be carefull: The calculation of the DoS is affected by other options defined in <a href="#additional_options">power spectra</a> and <a href="#renormalized_forces">renormalized forces</a> sections.  
+    <p>Be carefull: The calculation of the DoS is affected by other options defined in <a href="#additional_options">power spectra</a> and <a href="#renormalized_forces">renormalized force constants</a> sections.  
 </p>
     
     
