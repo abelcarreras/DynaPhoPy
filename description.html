@@ -138,8 +138,8 @@ The main one is <strong>-n</strong> flag. This flag defines the number of steps 
 <pre><code>$ dynaphopy input_file TRAJECTORY -n 5000
 </code></pre>
 
-<p>All these option can be combined to obtain the desired results. In interactive mode these options can also be used as initial 
-parameters that can be changed inside interactive menus. The only exception is <strong>-n</strong> flag that can not be changed. 
+<p>All these option can be combined. In interactive mode these options can also be used as initial 
+parameters that can be changed inside by menus. The only exception is <strong>-n</strong> flag that can not be changed. 
 For very long MD the amount of RAM memory needed to do the calculations can be huge so the initial discarted time steps are erased from memory at the begining of the execution.
 <br><em>However, it is still necessary to keep the full MD trajectory in memory at the beginning before removing the initial steps. For detailed information about to work with huge MD data refere to special features</em>
 </p>
@@ -147,7 +147,7 @@ For very long MD the amount of RAM memory needed to do the calculations can be h
 
 </UL>
 
-<h3>Obtaining anharmonic phonon properties</h5>
+<h3>Anharmonic phonon properties</h5>
 <p> 
 Phonon linewidhts and frequency shifts can be obtained by direct analysis of power spectra. Using phonon modes projections
 are the best way to analize the individual phonons since they are completly separated in individual power spectra containing only
@@ -242,7 +242,7 @@ DynaPhoPy calculates the phonon frequency (&omega;max) at the maximum of this as
 To request assymetric lorentzian fitting use frag <strong>--asymmetric_peaks</strong>. This option can also be set in the interactive interface in preferences menu.
 </p>
     <em>[1] Stancik A L and  Brauns E B. A simple asymmetric lineshape for fitting infrared absorption spectra. Vibrational Spectroscopy, 47(1), 66–69 (2008)</em>
-<h3>Atomic displacements calculation</h3>
+<h3>Atomic displacements</h3>
 <p>
 DynaPhoPy allows to calculate the atomic displacements from the MD trajectory respect to a desired direction. 
 The calculation of the atomic displacements requires (obviously) the previous load of the trajectory coordinates
@@ -359,7 +359,7 @@ Integration:                  0.9998        0.9999
         This option also works in the calculation is requested via interactive interface but can not be changed once the interactive interface is launched.
     </p>
     <pre><code>$ dynaphopy input_file TRAJECTORY -thm --temperature 800</code></pre>
-    <p>The DOS can be also calculated directly from the full power spectrum. However, in order to have a good phonon modes sampling it is necessary to use a very large supercell to calculate the MD. To request the calculation of the DOS and thermal properties from the power spectrum use <strong>--thm_full</strong>. This option can not be requested in interactive interface. 
+    <p>The DOS can be also calculated directly from the full power spectrum. However, in order to have a good phonon modes sampling it is necessary to use a very large supercell to calculate the MD. To request the calculation of the DOS and thermal properties from the power spectrum use <strong>--thm_full</strong>. This option can not be requested using interactive interface. 
     </p>
     <pre><code>$ dynaphopy input_file TRAJECTORY --thm_full</code></pre>
     <p></p>
