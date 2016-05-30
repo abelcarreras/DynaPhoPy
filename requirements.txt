@@ -1,5 +1,0 @@
-phonopy>=1.9.6
-numpy
-scipy
-matplotlib
-h5py
