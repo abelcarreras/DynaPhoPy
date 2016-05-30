@@ -124,7 +124,7 @@ takes 3 real numbers (wave vector in reduced coordinates).
 <pre><code>$ dynaphopy input_file TRAJECTORY -q 0.5 0 0.5
 </code></pre>
 
-<p>The number of time steps used to calculate the power spectra may have great influence in the final result. Using more time steps will lead to more converged results, however, this will imply a increase of the computational time (specially for Fourier transform method. Additionally, usually the MD simulation will take some time to equilibrate. Those initial time steps cannot be used and must be removed from the calculation. 
+<p>The number of time steps used to calculate the power spectra may have great influence in the final result. Using more time steps will lead to more converged results, however, this will imply a increase of the computational time (specially for Fourier transform method. Additionally, usually the MD simulation will take some time to equilibrate. Those initial time steps can not be used and must be removed from the calculation. 
 For this purpose DynaPhoPy includes some options to manipulate the input MD data.
 The main one is <strong>-n</strong> flag. This flag defines the number of steps used in the calculations starting from the back. In other words, it will take the last N steps of the MD file.
 
@@ -134,7 +134,7 @@ The main one is <strong>-n</strong> flag. This flag defines the number of steps 
 </code></pre>
 
 <p>All these option can be combined to obtain the desired results. In interactive mode these options can also be used as initial 
-parameters that can be changed inside interactive menus. The only exception is <strong>-n</strong> flag that cannot be changed. 
+parameters that can be changed inside interactive menus. The only exception is <strong>-n</strong> flag that can not be changed. 
 For very long MD the amount of RAM memory needed to do the calculations can be huge so the initial discarted time steps are erased from memory at the begining of the execution.
 <br><em>However, it is still necessary to keep the full MD trajectory in memory at the beginning before removing the initial steps. For detailed information about to work with huge MD data refere to special features</em>
 </p>
@@ -209,7 +209,7 @@ This is another good method to know how good is the phonon decomposition techniq
 </p>    
 <img src="images/peak_analysis_7.png" alt="Interactive" style="width:630px">
 <p>
-This is very convenient for visual analysis of short MD trajectories, but when the calculations are long, specially using Fourier transform, and the calculations are done in cluster computers, xwindows cannot be displayed and the calculation may crash.
+This is very convenient for visual analysis of short MD trajectories, but when the calculations are long, specially using Fourier transform, and the calculations are done in cluster computers, xwindows can not be displayed and the calculation may crash.
 
 <br><p>In this case flag <strong>--silent</strong> may be used. Using this flag only the text data is shown in the screen and the phonon information wich can be stored redirecting the output to a file.   
 </p>
@@ -286,7 +286,7 @@ coordinate.
 <p> The phonon information that can be obtained from MD is limited to the size of the simulation cell.
 DynaPhoPy can only extract the information on the commensurate points so in order to obtain a good sampling
 of the Brillouin zone to calculate crystal macroscopical properties it is necessary to resort to interpolation methods.
-<br>Phonopy now can renormalize the force constants from a set of renormalized frequencies in the commensurate points. 
+<br>Phonopy now can renormalize the force constants from a set of renormalized frequencies at the commensurate points. 
 DynaPhoPy interfaces with phonopy to provide a new set of renormalized frequencies extracted from MD for all commensurate points and obtain the renormalized force constants from phonopy using <strong>-sfc</strong> flag.</p>
 <pre><code>$ dynaphopy input_file TRAJECTORY --sfc FORCE_CONSTANTS
 </code></pre>
@@ -311,7 +311,12 @@ Using this new force constants it is possible to calculate all the properties av
 <p style="text-align:center">
 <em>Phonon dispersion bands of cubic zirconia (ZrO2) renormalized at 1000 K </em>
 </p>
-
+    <p><strong>Important note</strong>: The commensurate points used in the calculation of the renormalized force constants coresponds to the commensurate points in the cell defined in PHONOPY CELL. That means that in order to obtain a good renormalized force constants the commensurate points in PHONOPY cell should be also commensurate in the MD simulation cell. Usually that menans that MD simulation cell should be a multiple of PHONOPY CELL. This behavior can be changed by option <strong>--MD_commensurate</strong>
+    </p>
+    <pre><code>$ dynaphopy --sfc FORCE_CONSTANTS --MD_commensurate
+</code></pre>  
+    <p>Using this option the commensurate points of the MD simulation cell are used. Non comensurate points in the PHONOPY CELL are interpolated to calculate the projected power spectra. Notice that the dimension of the force constants change respect to the harmonic force constants to meet the dimensions of the MD simulation cell. Using large MD simulation cells in very symmetric crystals may greatly increase the number of commensurate points.</p>
+    
 <div id="symmetry"></div> 
 <h3>Crystallographic symmetry</h3>
     <p> DynaPhoPy uses crystallographic symmetry to determine the equivalent q-ponts in the simulation cell. This information is used to average the power spectra of all the equivalent q-points to increase the precision of the phonon properties calculation. Dynaphopy also determines the degenerate phonons within a phonon branch to  also average the power spectra of the degenerated phonon. This procedure is carried out by default but can be deactivated using the option <strong>--no_symmetry</strong> (command line support only).     
@@ -320,9 +325,53 @@ Using this new force constants it is possible to calculate all the properties av
     <p>
 </p>
 
-
+<div id="thermal"></div> 
+<h3>Thermal properties</h3>
+    <p> Constant volume themal properties are calculated from de density of states (DOS). These properties include free energy, entropy, heat capacity (Cv) and total energy. The DOS is calculated from the renormalized force constants. As reference DynaPhoPy also shows the calaculated thermal properties using the harmonic DOS.
+        <br>To request the calculation of the thermal properties use <strong>-thm</strong>. Alternaltivelly this calculation can be requested using the interactive interface.
+    </p>
     
+    <pre><code>$ dynaphopy input_file TRAJECTORY -thm</code></pre>
+    
+    <p>Thermal properites are calculated per unit cell. By default when thermal properites are shown also a plot with the DOS calculated using the harmonic force constants and renormalized force constants is displayed. To not show <strong>--silent</strong> option.</p>
+    <pre><code>Thermal properties per unit cell (746.93 K) [From DoS]
+----------------------------------------------
+                            Harmonic    Renormalized
 
+Free energy   (KJ/mol):    -232.8661     -237.1722
+Entropy      (J/K/mol):     512.6232      518.3902
+Cv           (J/K/mol):     198.1759      198.2365
+Total energy  (KJ/mol):     150.0030      150.0008
+Integration:                  0.9998        0.9999
+</code></pre>
+<p>
+    <strong>Integration</strong> corresponds to the total integral of the DOS (from 0 to infinity) normalized to one phonon mode. This value should be very close to 1. If it is not true try to increase the precision of the power spectrum or make sure that the frequency range contains all the density. 
+</p>
+
+<img src="images/CdTe_thm.png" alt="Interactive" style="width:630px">
+    <p>
+        The temperature is a parameter needed to calculate the themal properties. By default it is obtained by Maxwell-Boltzmann analysis, but can be set by <strong>--temperature</strong>. This option requires a numeric value corresponding to the temperature in Kelvin. It is <strong>specially recomended</strong> to use this option when the MD simulation cell is relativelly small and Maxwell-Boltzmann analysis is not able to reproduce the temperature correctly. 
+        This option also works in the calculation is requested via interactive interface but can not be changed once the interactive interface is launched.
+    </p>
+    <pre><code>$ dynaphopy input_file TRAJECTORY -thm --temperature 800</code></pre>
+    <p>The DOS can be also calculated directly from the full power spectrum. However, in order to have a good phonon modes sampling it is necessary to use a very large supercell to calculate the MD. To request the calculation of the DOS and thermal properties from the power spectrum use <strong>--thm_full</strong>. This option can not be requested in interactive interface. 
+    </p>
+    <pre><code>$ dynaphopy input_file TRAJECTORY --thm_full</code></pre>
+    <p></p>
+    <pre><code>Thermal properties per unit cell (798.74 K) [From DoS]
+----------------------------------------------
+                             Harmonic    Renormalized   Power spectrum
+
+Free energy   (KJ/mol):     -83.2447      -93.3198      -89.5185
+Entropy      (J/K/mol):     311.6827      319.3117      315.6884
+Cv           (J/K/mol):     191.8066      189.6462      189.1828
+Total energy (KJ//mol):     165.7074      161.7258      162.6330
+Integration:                  1.0000        1.0000        0.9838
+</code></pre>
+    <p>Obtaining a good DOS directly from the power is usually dificult and requieres a large MD simulation cell and long simulation times. That makes that usually the integration of the DOS is not 1 and may affect the calculated thermal properties. To mitigate this problem the DOS can be forced to be normalized to 1. This is done by using option <strong>--normalize_dos</strong>. I it strongly recommended to use it specially at low temperatures.
+    </p>
+    <pre><code>$ dynaphopy input_file TRAJECTORY --thm_full --normalize_dos</code></pre>
+    
     
     </section>
     </div>
