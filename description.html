@@ -116,8 +116,12 @@ to higher frequency.
 </code></pre>
 
 <LI><h5>Additional options</h5>
-<p>Use <strong>-r</strong> option to change the power spectrum range and resolution (start, end, number of points).</p>
-<pre><code>$ dynaphopy input_file TRAJECTORY -r 0 25 100
+<p>Use <strong>-r</strong> option to change the power spectrum range and resolution (start, end).</p>
+<pre><code>$ dynaphopy input_file TRAJECTORY -r 25 100
+</code></pre>
+<p>The resolution of the power spectrum is defined by default to 0.05 THz. It can be changed by using <strong>--resolution</strong> option. Resolution is defined in THz. This option can also be modified using the interactive interface. 
+<br>DynaPhoPy uses this value to optimize the calculation of the power spectra using FFT.  Changing this value may affect the precision of the power spectra.</p>
+<pre><code>$ dynaphopy input_file TRAJECTORY --resolution 0.01
 </code></pre>
 <p>Use <strong>-q</strong> to change the recirpocal space point (wave vector) into which the velocity is projected. This option
 takes 3 real numbers (wave vector in reduced coordinates).
