@@ -1,0 +1,21 @@
+STRUCTURE FILE POSCAR
+/home/abel/VASP/GaN/GaN-phonon/2x2x2/POSCAR
+
+FORCE SETS
+/home/abel/VASP/GaN/GaN-phonon/2x2x2/FORCE_SETS
+
+PRIMITIVE MATRIX
+1.0 0.0 0.0
+0.0 1.0 0.0
+0.0 0.0 1.0
+
+SUPERCELL MATRIX PHONOPY
+2 0 0
+0 2 0
+0 0 2
+
+BANDS
+0.0, 0.0, 0.0      0.33, 0.33, 0.0
+0.33, 0.33, 0.0    0.5, 0.0, 0.0
+0.5, 0.0, 0.0      0.0 ,0.0, 0.0
+0.0, 0.0, 0.0      0.0, 0.0, 0.5
