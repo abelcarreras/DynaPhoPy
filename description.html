@@ -316,7 +316,7 @@ Using this new force constants it is possible to calculate all the properties av
 <p style="text-align:center">
 <em>Phonon dispersion bands of cubic zirconia (ZrO2) renormalized at 1000 K </em>
 </p>
-    <p><strong>Important note</strong>: The commensurate points used in the calculation of the renormalized force constants coresponds to the commensurate points in the cell defined in PHONOPY CELL. That means that in order to obtain a good renormalized force constants the commensurate points in PHONOPY cell should be also commensurate in the MD simulation cell. Usually that menans that MD simulation cell should be a multiple of PHONOPY CELL. This behavior can be changed by option <strong>--MD_commensurate</strong>
+    <p><strong>Important note</strong>: The commensurate points used in the calculation of the renormalized force constants coresponds to the commensurate points in the cell defined in <a href="usage.html#phonopy_matrix">PHONOPY SUPERCELL</a>. That means that in order to obtain a good renormalized force constants the commensurate points in PHONOPY SUPERCELL should be also commensurate in the MD simulation cell. Usually that menans that MD simulation cell should be a multiple of PHONOPY SUPERCELL. This behavior can be changed by option <strong>--MD_commensurate</strong>
     </p>
     <pre><code>$ dynaphopy --sfc FORCE_CONSTANTS --MD_commensurate
 </code></pre>  

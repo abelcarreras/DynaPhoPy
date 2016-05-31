@@ -114,7 +114,6 @@ If POSCAR file is not specified DynaPhoPy will use POSCAR file name stored in th
 </code></pre>
 
 
-
 <LI><h5>Primitive matrix definition</h5>
 <p>This matrix defines the primitive cell size respect to the unit cell. The rows of this matrix corresponds to the primitive axis defined in <a href="http://atztogo.github.io/phonopy/setting-tags.html?highlight=tag#primitive-axis">phonopy manual</a>. If not defined it takes identity matrix meaning that primitive cell and unit cell are the same.
 </p><pre><code>PRIMITIVE MATRIX
@@ -123,6 +122,7 @@ If POSCAR file is not specified DynaPhoPy will use POSCAR file name stored in th
 0.5 0.5 0.0
 </code></pre>
 
+<div id="phonopy_matrix"></div> 
 <LI><h5>Supercell matrix used in lattice dynamics calculation</h5>
 <p>In order to interface correctly with Phonopy, Dynaphopy needs to know the size of the supercell used to calculate the forces in Phonopy. 
 This is specified with  <strong>--dim</strong> flag in Phonopy. For further information, please check Phonopy online<a href="http://atztogo.github.io/phonopy/procedure.html"> tutorial</a> .
@@ -145,11 +145,12 @@ path.
 </code></pre>
 
 <LI><h5>Mesh</h5>
-<p>Interfacing with Phonopy, Dynaphopy can obtain the vibrational density of states (VDoS). This can be directly compared with the full power spectra of the velocity autocorrection function. MESH keyword determines the number of sampling q-points  used to calculate the DoS calculation. This keyword is equivalent to <a href="http://atztogo.github.io/phonopy/setting-tags.html#mp-mesh">MESH tag</a> in Phonopy. For additional information refere to phonopy manual. For additional features please use <a href="http://atztogo.github.io/phonopy/">phonopy</a> directly.</em>
+<p>Interfacing with Phonopy, Dynaphopy can obtain the density of states (DOS). This can be directly compared with the full power spectra of the velocity autocorrection function. MESH keyword determines the number of sampling q-points  used to calculate the DoS calculation. This keyword is equivalent to <a href="http://atztogo.github.io/phonopy/setting-tags.html#mp-mesh">MESH tag</a> in Phonopy. For additional information refere to phonopy manual. For additional features please use <a href="http://atztogo.github.io/phonopy/">phonopy</a> directly.</em>
 </p><pre><code>MESH PHONOPY
 8 8 8
 </code></pre>
-
+<p>Since the calculation of thermal properties rely on the DOS, MESH also influence the results of harmonic thermal properties and renormalized thermal properties. Thermal properties obtained from power spectra are not affected. 
+    </p>    
 </UL>
 
 <h3>Execute Dynaphopy</h3>
