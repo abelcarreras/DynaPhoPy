@@ -318,9 +318,9 @@ class Calculation:
         plt.legend()
         plt.show()
 
-    def save_vc(self,file_name):
+    def save_vc(self,file_name, atom=0):
         print("Saving wave vector projection to file")
-        np.savetxt(file_name, self.get_vc()[:, 0, :].real)
+        np.savetxt(file_name, self.get_vc()[:, atom, :].real)
 
     def save_vq(self,file_name):
         print("Saving phonon projection to file")
@@ -823,7 +823,7 @@ class Calculation:
             plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-', label='Harmonic')
             plt.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized')
 
-            plt.title('Density of states')
+            plt.title('Density of states (Normalized to unit cell)')
             plt.xlabel('Frequency [THz]')
             plt.ylabel('Density of states')
             plt.legend()
