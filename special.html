@@ -154,7 +154,7 @@ be noisy and a post processing may be needed to improve the fitting quality.
 <br>In dynaphopy package, <strong>fitdata</strong> script is included in scripts folder to extract the anharmonic information from a power 
 spectrum file obtained with Dynaphopy throught <strong>-sw</strong> or <strong>-sp</strong> options. This allows to first calculate the 
 power spectrum using Dynaphopy in a cluster computer, saving it in a file and later extract the information in a local machine.
-Additionally this script allows to smooth the spectrum using <a href="http://en.wikipedia.org/wiki/Local_regression">LOWSS</a> method before fitting it with a Lorentzian function.
+Additionally this script allows to smooth the spectrum using <a href="http://en.wikipedia.org/wiki/Local_regression">LOESS</a> method before fitting it with a Lorentzian function.
 <br>During the execution it shows the smoothing result and the fitting result for each spectrum present in the spectrum file allowing to test
 different smoothing parameters to obtain the best results.
 </p>
