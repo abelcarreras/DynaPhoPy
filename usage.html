@@ -171,12 +171,16 @@ $ dynaphopy input_file LAMMPS.lammpstrj -ts 0.002	(LAMMPS)
 <p>This command does essentially nothing, since no calculation has been requested. It just checks that all the necessary files exists and can be loaded correctly.
 <br>To request a calculation, additional flags have to be set. Using <strong>-h</strong> flag shows all available options.</p>
 </p><pre><code>$ dynaphopy -h
-usage: dynaphopy [-h] [-lv file] [-i] [-q N N N] [-r N N N] [-n N] [-ts step]
+usage: dynaphopy [-h] [-lv file] [-i] [-q F F F] [-r F F] [-n N] [-ts step]
                  [-pd] [-pw] [-pp] [-sd file] [-sw file] [-sp file] [-sv file]
-                 [-svc file] [-psm N] [-cf N] [-csa] [-pa] [-pad N N N]
-                 [-sad X X X X] [-sfc file] [--silent] [--velocity_only]
-                 [--asymmetric_peaks] [--read_from N] [--read_to N]
-                 [--zero_padding N] [--fcsymm]
+                 [-svc file] [-psm N] [-cf N] [-csa] [-pa] [-pad F F F]
+                 [-sad S S S S] [-sfc file] [-adp] [-thm] [--thm_full]
+                 [--temperature F] [--silent] [--velocity_only]
+                 [--asymmetric_peaks] [--read_from N] [--read_to N] [--fcsymm]
+                 [--no_symmetry] [--resolution F] [--dim N N N]
+                 [--generate_trajectory F F F] [-c_poscar file]
+                 [-c_lammps file] [-average] [--MD_commensurate]
+                 [--normalize_dos] [--project_on_atom N]
                  data_file [trajectory]
 
 DynaPhoPy options
@@ -190,11 +194,10 @@ optional arguments:
   -lv file, --load_velocity file
                         load velocity from hdf5 file
   -i, --interactive     enter interactive mode
-  -q N N N              wave vector used to calculate projections (default: 0
+  -q F F F              wave vector used to calculate projections (default: 0
                         0 0)
-  -r N N N, --frequency_range N N N
-                        frequency range for correlation function calculation
-                        (min, max, number of points)
+  -r F F, --frequency_range F F
+                        frequency range of power spectrum in THz (min, max)
   -n N                  number of MD last steps to take (default: All)
   -ts step, --time_step step
                         time step in ps (default: Read from trajectory file)
@@ -222,22 +225,39 @@ optional arguments:
   -csa, --coefficient_scan_analysis
                         request coefficient scan analysis
   -pa, --peak_analysis  request a peak analysis
-  -pad N N N, --plot_atomic_displacements N N N
+  -pad F F F, --plot_atomic_displacements F F F
                         plot atomic displacements respect to specified
-                        direction [N N N]
-  -sad X X X X, --save_atomic_displacements X X X X
-                        save atomic displacements into a file [ N N N filename
+                        direction [F F F]
+  -sad S S S S, --save_atomic_displacements S S S S
+                        save atomic displacements into a file [ F F F filename
                         ]
   -sfc file, --save_force_constants file
                         save the renormalized force constants to a file
+  -adp                  print anisotropic displacement parameters
+  -thm                  print thermal properties
+  --thm_full            print thermal properties from power spectrum
+  --temperature F       set temperature (thermal properties)
   --silent              executes without showing plots
   --velocity_only       loads only velocity data from hdf5 file
   --asymmetric_peaks    uses asymmetric Lorentzian functions to fit spectra
   --read_from N         define interval of trajectory to read (default: 1)
   --read_to N           define interval of trajectory to read (default: end)
-  --zero_padding N      number of padding zeros (default: 0) [FFT only]
   --fcsymm              symmetrize force constants
-
+  --no_symmetry         do not use crystal symmetry
+  --resolution F        define power spectrum resolution in THz (default 0.05)
+  --dim N N N           Set the dimensions of generate structures (Default:
+                        [1, 1, 1])
+  --generate_trajectory F F F
+                        Generate a test harmonic trajectory from force
+                        constants [total time (ps), time step (ps), energy
+                        (Kelvin)]
+  -c_poscar file        Generate a VASP POSCAR structure file
+  -c_lammps file        Generate a LAMMPS data structure file
+  -average              returns average atomic positions from MD
+  --MD_commensurate     use commensurate points in MD cell instead of phonon
+                        cell
+  --normalize_dos       normalize DoS obtained from PS in thermal properties
+                        calculation
 </code></pre>
 
 
