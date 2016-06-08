@@ -29,7 +29,6 @@ parser.add_argument('--fcsymm', action='store_true',
 parser.add_argument('--dim', metavar='N', type=int, nargs=3, default=None,
                     help='define custom supercell')
 
-
 args = parser.parse_args()
 
 def get_renormalized_constants(freq_filename, structure, symmetrize=False, degenerate=True):
@@ -103,3 +102,4 @@ if args.s:
     pho_interface.write_FORCE_CONSTANTS(renormalized_force_constants,filename=args.s[0])
 if args.p:
     plot_renormalized_phonon_bands(structure, renormalized_force_constants)
+if args.thm:
