@@ -73,8 +73,9 @@ Direct
 /home/user/Si-phonopy/POSCAR_unitcell
 </code></pre>
 
-<p>This file can also be empty, in this case DynaPhoPy will use a <strong>POSCAR</strong> named file placed in the work directory as unit cell, but <em>input_file</em> should exist.  
-    <br>VASP MD calculation is carried out using the generated super cell (<strong>SPOSCAR</strong>) and defining a regular VASP MD input like this example: </p>
+<p>This file can also be empty, in this case DynaPhoPy will use a <strong>POSCAR</strong> named file placed in the work directory as unit cell, but <em>input_file</em> should exist.
+        <br><em>Warning: You may need to update numpy if this command fails </em>
+<br>VASP MD calculation is carried out using the generated super cell  and defining a regular VASP MD input like this example: </p>
   
 <pre><code>      PREC = Normal                  # Precision
     IBRION = 0
@@ -308,7 +309,7 @@ thermo          10000
 velocity        all create $t 3627941 dist gaussian mom yes
 velocity        all scale $t
 
-fix             int all nvt temp $t $t 0.5  #Canonical ensemble
+fix             int all nvt temp $t $t 0.05  #Canonical ensemble
 
 dump             dynaphopy all custom 1 trajectory.lammpstrj x y z
 dump_modify      dynaphopy sort id
