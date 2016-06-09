@@ -309,7 +309,7 @@ thermo          10000
 velocity        all create $t 3627941 dist gaussian mom yes
 velocity        all scale $t
 
-fix             int all nvt temp $t $t 0.05  #Canonical ensemble
+fix             int all nvt temp $t $t 0.5  #Canonical ensemble
 
 dump             dynaphopy all custom 1 trajectory.lammpstrj x y z
 dump_modify      dynaphopy sort id
