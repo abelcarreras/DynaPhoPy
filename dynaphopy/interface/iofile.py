@@ -337,7 +337,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                              total_time=2,           # picoseconds
                              time_step=0.002,        # picoseconds
                              temperature=400,        # Kelvin
-                             silent=False):
+                             silent=False,
+                             memmap=False):
 
     import random
     from dynaphopy.power_spectrum import progress_bar
@@ -471,7 +472,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                         trajectory=np.array(trajectory,dtype=complex),
                         energy=np.array(energy),
                         time=time,
-                        super_cell=np.dot(np.diagflat(super_cell),structure.get_cell()))
+                        super_cell=np.dot(np.diagflat(super_cell),structure.get_cell()),
+                        memmap=memmap)
 
 
 #Testing function

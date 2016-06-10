@@ -212,7 +212,8 @@ if args.generate_trajectory:
                                                   time_step=args.generate_trajectory[1],
                                                   temperature=args.generate_trajectory[2],
                                                   super_cell=args.dim,
-                                                  silent=args.silent)
+                                                  silent=args.silent,
+                                                  memmap=args.memmap)
 
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
