@@ -4,13 +4,20 @@ from dynaphopy.displacements import atomic_displacement
 import os
 
 
-def check_trajectory_structure(dynamics, tolerance=0.2):
+def averaged_positions(trajectory, number_of_samples=1000):
 
-    reference = dynamics.average_positions(number_of_samples=1000)
-    trajectory = dynamics.trajectory
-    structure = dynamics.structure
+    if trajectory.shape[0] < number_of_samples:
+        number_of_samples = trajectory.shape[0]
 
-  #  reference = averaged_positions(trajectory)
+    lenght = trajectory.shape[0]
+    positions = np.random.random_integers(lenght, size=(number_of_samples,))-1
+
+    return np.average(trajectory[positions,:], axis=0)
+
+
+def check_trajectory_structure(trajectory, structure, tolerance=0.2):
+
+    reference = averaged_positions(trajectory)
 
     arrangement = get_correct_arrangement(reference, structure)
 
@@ -137,7 +144,7 @@ class Dynamics:
             self._structure = None
 
         if trajectory is not None:
-            self._trajectory = check_trajectory_structure(self)
+            self._trajectory = check_trajectory_structure(trajectory, structure)
 
     def __del__(self):
         if self._memmap:
