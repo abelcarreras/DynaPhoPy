@@ -552,7 +552,8 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                            limit_number_steps=10000000,
                            last_steps=None,
                            initial_cut=1,
-                           end_cut=None):
+                           end_cut=None,
+                           memmap=True):
 
  #Time in picoseconds
  #Coordinates in Angstroms
@@ -583,6 +584,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
     time = []
     trajectory = []
     counter = 0
+
 
     with open(file_name, "r+") as f:
 
@@ -658,6 +660,9 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 beta = np.arccos(xz/c)
                 gamma = np.arccos(xy/b)
 #End testing cell
+                if memmap:
+                    trajectory = np.memmap('/home/abel/trajectory.map', dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
+
 
 
             position_number = file_map.find('ITEM: ATOMS')
@@ -675,7 +680,10 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
 
             try:
-                trajectory.append(np.array(read_coordinates, dtype=float)) #in angstroms
+                if memmap:
+                    trajectory[counter-initial_cut, :, :] = np.array(read_coordinates, dtype=float) #in angstroms
+                else:
+                    trajectory.append(np.array(read_coordinates, dtype=float)) #in angstroms
 
             except ValueError:
                 print("Error reading step {0}".format(counter))
@@ -693,11 +701,15 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 
     file_map.close()
 
+
     time = np.array(time) * time_step
-    trajectory = np.array(trajectory, dtype=complex)
-    if last_steps is not None:
-        trajectory = trajectory[-last_steps:, :, :]
-        time = time[-last_steps:]
+
+    if not memmap:
+        trajectory = np.array(trajectory, dtype=complex)
+
+        if last_steps is not None:
+            trajectory = trajectory[-last_steps:, :, :]
+            time = time[-last_steps:]
 
 
     return dyn.Dynamics(structure=structure,

@@ -203,9 +203,13 @@ class Dynamics:
     def set_structure(self, structure):
         self._structure = structure
 
-    def get_velocity_mass_average(self):
+    def get_velocity_mass_average(self, memmap=True):
         if self._velocity_mass_average is None:
-            self._velocity_mass_average = np.empty_like(self.velocity)
+            if memmap:
+                self._velocity_mass_average = np.memmap('/home/abel/velocity_mass.map', dtype='complex', mode='w+', shape=self.velocity.shape)
+            else:
+                self._velocity_mass_average = np.empty_like(self.velocity)
+
             super_cell = self.get_super_cell_matrix()
             for i in range(self.get_number_of_atoms()):
                 self._velocity_mass_average[:, i, :] = (self.velocity[:, i, :] *
@@ -300,9 +304,13 @@ class Dynamics:
 
     @property
     def velocity(self):
+        memmap=True
         if self._velocity is None:
             print('No velocity provided! calculating it from coordinates...')
-            self._velocity = np.zeros_like(self.get_relative_trajectory(), dtype=complex)
+            if memmap:
+                self._velocity = np.memmap('/home/abel/velocity.map', dtype='complex', mode='w+', shape=self.get_relative_trajectory().shape)
+            else:
+                self._velocity = np.zeros_like(self.get_relative_trajectory(), dtype=complex)
             for i in range(self.get_number_of_atoms()):
                 for j in range(self.structure.get_number_of_dimensions()):
                     self._velocity[:,i,j] = np.gradient(self.get_relative_trajectory()[:,i,j],self.get_time_step_average())
