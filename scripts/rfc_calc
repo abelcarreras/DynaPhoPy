@@ -102,4 +102,3 @@ if args.s:
     pho_interface.write_FORCE_CONSTANTS(renormalized_force_constants,filename=args.s[0])
 if args.p:
     plot_renormalized_phonon_bands(structure, renormalized_force_constants)
-if args.thm:
