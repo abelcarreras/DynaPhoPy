@@ -282,7 +282,7 @@ class Calculation:
 
     def get_vq(self):
         if self._vq is None:
-            print("Projecting into phonon")
+            print("Projecting into phonon mode")
             self._vq =  projection.project_onto_phonon(self.get_vc(),self.get_eigenvectors())
         return self._vq
 
