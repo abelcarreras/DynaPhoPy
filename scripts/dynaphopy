@@ -140,6 +140,10 @@ parser.add_argument('--MD_commensurate', action='store_true',
 parser.add_argument('--normalize_dos', action='store_true',
                     help='normalize DoS obtained from PS in thermal properties calculation')
 
+parser.add_argument('--memmap', action='store_true',
+                    help='map trajectory/velocity memory into files (reduce RAM usage)')
+
+
 
 #Temporal interface on development
 
@@ -190,7 +194,8 @@ if args.load_velocity:
                                                    structure,
                                                    read_trajectory=not args.velocity_only,
                                                    initial_cut=args.read_from,
-                                                   final_cut=args.read_to)
+                                                   final_cut=args.read_to,
+                                                   memmap=args.memmap)
     structure_file = args.load_velocity[0]
 if args.md_file:
     trajectory_reading_function = reading.check_trajectory_file_type(args.md_file)
@@ -198,7 +203,8 @@ if args.md_file:
                                              structure,
                                              args.time_step,
                                              initial_cut=args.read_from,
-                                             end_cut=args.read_to)
+                                             end_cut=args.read_to,
+                                             memmap=args.memmap)
 
 if args.generate_trajectory:
     trajectory = reading.generate_test_trajectory(structure,

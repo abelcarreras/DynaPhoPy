@@ -217,7 +217,8 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                          limit_number_steps=10000000,  # Maximum number of steps read (for security)
                          last_steps=None,
                          initial_cut=1,
-                         end_cut=None):
+                         end_cut=None,
+                         memmap=False):
 
 
     #Check file exists
@@ -325,7 +326,8 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                             trajectory=np.array(trajectory, dtype=complex),
                             energy=np.array(energy),
                             time=time,
-                            super_cell=super_cell)
+                            super_cell=super_cell,
+                            memmap=memmap)
 
 
 #Just for testing (use with care)
@@ -662,7 +664,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 #End testing cell
                 if memmap:
                     if end_cut:
-                        trajectory = np.memmap('/home/abel/trajectory.map', dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
+                        trajectory = np.memmap('trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
                     else:
                         print('Memory mapping requires to define reading range (use read_from/read_to option)')
                         exit()
@@ -718,7 +720,8 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
     return dyn.Dynamics(structure=structure,
                         trajectory=trajectory,
                         time=time,
-                        super_cell=super_cell)
+                        super_cell=super_cell,
+                        memmap=memmap)
 
 
 
@@ -852,7 +855,7 @@ def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, 
     hdf5_file.close()
 
 
-def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initial_cut=1, final_cut=None):
+def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initial_cut=1, final_cut=None, memmap=False):
     import h5py
 
     print("Reading data from hdf5 file: " + file_name)
@@ -903,10 +906,12 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
                             trajectory=trajectory,
                             velocity=velocity,
                             time=time,
-                            super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()))
+                            super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()),
+                            memmap=memmap)
     else:
         return vc, reduced_q_vector, dyn.Dynamics(structure=structure,
                                 time=time,
-                                super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()))
+                                super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()),
+                                memmap=memmap)
 
 
