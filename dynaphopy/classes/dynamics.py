@@ -1,7 +1,6 @@
 import numpy as np
 from dynaphopy.classes import atoms
-#from dynaphopy.analysis.coordinates import relativize_trajectory_py as relativize_trajectory
-from dynaphopy.analysis.coordinates import relativize_trajectory as relativize_trajectory
+from dynaphopy.displacements import atomic_displacement
 
 
 def averaged_positions(trajectory, number_of_samples=1000):
@@ -119,13 +118,15 @@ class Dynamics:
                  velocity=None,
                  energy=None,
                  time=None,
-                 super_cell=None):
+                 super_cell=None,
+                 memmap=True):
 
         self._time = time
         self._trajectory = trajectory
         self._energy = energy
         self._velocity = velocity
         self._super_cell = super_cell
+        self._memmap=memmap
 
         self._time_step_average = None
         self._velocity_mass_average = None
@@ -203,9 +204,9 @@ class Dynamics:
     def set_structure(self, structure):
         self._structure = structure
 
-    def get_velocity_mass_average(self, memmap=True):
+    def get_velocity_mass_average(self):
         if self._velocity_mass_average is None:
-            if memmap:
+            if self._memmap:
                 self._velocity_mass_average = np.memmap('/home/abel/velocity_mass.map', dtype='complex', mode='w+', shape=self.velocity.shape)
             else:
                 self._velocity_mass_average = np.empty_like(self.velocity)
@@ -219,7 +220,23 @@ class Dynamics:
 
     def get_relative_trajectory(self):
         if self._relative_trajectory is None:
-                self._relative_trajectory = relativize_trajectory(self)
+
+            cell = self.get_super_cell()
+            number_of_atoms = self.trajectory.shape[1]
+            super_cell = self.get_super_cell_matrix()
+            position = self.structure.get_positions(supercell=super_cell)
+
+            trajectory = self.trajectory
+
+            if self._memmap:
+                normalized_trajectory = np.memmap('/home/abel/r_trajectory.map', dtype='complex', mode='w+', shape=trajectory.shape)
+            else:
+                normalized_trajectory = self.trajectory.copy()
+
+            for i in range(number_of_atoms):
+                normalized_trajectory[:, i, :] = atomic_displacement(trajectory[:, i, :], position[i], cell)
+
+            self._relative_trajectory = normalized_trajectory
 
         return self._relative_trajectory
 
@@ -304,10 +321,9 @@ class Dynamics:
 
     @property
     def velocity(self):
-        memmap=True
         if self._velocity is None:
             print('No velocity provided! calculating it from coordinates...')
-            if memmap:
+            if self._memmap:
                 self._velocity = np.memmap('/home/abel/velocity.map', dtype='complex', mode='w+', shape=self.get_relative_trajectory().shape)
             else:
                 self._velocity = np.zeros_like(self.get_relative_trajectory(), dtype=complex)

@@ -661,8 +661,11 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 gamma = np.arccos(xy/b)
 #End testing cell
                 if memmap:
-                    trajectory = np.memmap('/home/abel/trajectory.map', dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
-
+                    if end_cut:
+                        trajectory = np.memmap('/home/abel/trajectory.map', dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
+                    else:
+                        print('Memory mapping requires to define reading range (use read_from/read_to option)')
+                        exit()
 
 
             position_number = file_map.find('ITEM: ATOMS')

@@ -24,7 +24,7 @@ def progress_bar(progress):
 
 #print(disp.relative_trajectory(cell, traj ,pos))
 
-def relativize_trajectory(dynamic, memmap=True):
+def relativize_trajectory(dynamic, memmap=False):
 
     cell = dynamic.get_super_cell()
     number_of_atoms = dynamic.trajectory.shape[1]
