@@ -19,7 +19,7 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
 
     reference = averaged_positions(trajectory)
 
-    arrangement = get_correct_arangement(reference, structure)
+    arrangement = get_correct_arrangement(reference, structure)
 
     if arrangement:
         trajectory = trajectory[:, np.array(arrangement), :]
@@ -27,7 +27,7 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
     return trajectory
 
 
-def get_correct_arangement(reference, structure):
+def get_correct_arrangement(reference, structure):
 
     unit_coordinates = []
     for coordinate in reference:
