@@ -136,15 +136,25 @@ class Dynamics:
         self._number_of_atoms = None
         self._mean_displacement_matrix = None
 
-
         if structure:
             self._structure = structure
         else:
             print('Warning: Initialization without structure')
             self._structure = None
 
+        #Check order of atoms
         if trajectory is not None:
             self._trajectory = check_trajectory_structure(trajectory, structure)
+
+        #Read environtment variables
+        try:
+            self._temp_directory = os.environ["DYNAPHOPY_TEMPDIR"]
+            if os.path.isdir(self._temp_directory):
+                self._temp_directory = self._temp_directory + '/'
+            else:
+                self._temp_directory = ''
+        except KeyError:
+            self._temp_directory = ''
 
     def __del__(self):
         if self._memmap:
@@ -154,13 +164,13 @@ class Dynamics:
             del self._velocity_mass_average
 
             try:
-                os.remove('velocity.{0}'.format(os.getpid()))
-                os.remove('velocity_mass.{0}'.format(os.getpid()))
+                os.remove(self._temp_directory+'velocity.{0}'.format(os.getpid()))
+                os.remove(self._temp_directory+'velocity_mass.{0}'.format(os.getpid()))
             except OSError:
                 pass
             try:
-                os.remove('trajectory.{0}'.format(os.getpid()))
-                os.remove('r_trajectory.{0}'.format(os.getpid()))
+                os.remove(self._temp_directory+'trajectory.{0}'.format(os.getpid()))
+                os.remove(self._temp_directory+'r_trajectory.{0}'.format(os.getpid()))
             except OSError:
                 pass
 
@@ -225,7 +235,8 @@ class Dynamics:
     def get_velocity_mass_average(self):
         if self._velocity_mass_average is None:
             if self._memmap:
-                self._velocity_mass_average = np.memmap('velocity_mass.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=self.velocity.shape)
+                self._velocity_mass_average = np.memmap(self._temp_directory+'velocity_mass.{0}'.format(os.getpid()),
+                                                        dtype='complex', mode='w+', shape=self.velocity.shape)
             else:
                 self._velocity_mass_average = np.empty_like(self.velocity)
 
@@ -247,7 +258,8 @@ class Dynamics:
             trajectory = self.trajectory
 
             if self._memmap:
-                normalized_trajectory = np.memmap('r_trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=trajectory.shape)
+                normalized_trajectory = np.memmap(self._temp_directory+'r_trajectory.{0}'.format(os.getpid()),
+                                                  dtype='complex', mode='w+', shape=trajectory.shape)
             else:
                 normalized_trajectory = self.trajectory.copy()
 
@@ -350,7 +362,7 @@ class Dynamics:
         if self._velocity is None:
             print('No velocity provided! calculating it from coordinates...')
             if self._memmap:
-                self._velocity = np.memmap('velocity.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=self.get_relative_trajectory().shape)
+                self._velocity = np.memmap(self._temp_directory+'velocity.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=self.get_relative_trajectory().shape)
             else:
                 self._velocity = np.zeros_like(self.get_relative_trajectory(), dtype=complex)
             for i in range(self.get_number_of_atoms()):

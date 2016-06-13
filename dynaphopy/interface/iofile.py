@@ -562,7 +562,16 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
  #Time in picoseconds
  #Coordinates in Angstroms
 
-
+    #Read environtment variables
+    try:
+        temp_directory = os.environ["DYNAPHOPY_TEMPDIR"]
+        if os.path.isdir(temp_directory):
+            print('Set temporal directory: {0}'.format(temp_directory))
+            temp_directory += '/'
+        else:
+            temp_directory = ''
+    except KeyError:
+        temp_directory = ''
 
     number_of_atoms = None
     bounds = None
@@ -666,7 +675,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 #End testing cell
                 if memmap:
                     if end_cut:
-                        trajectory = np.memmap('trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
+                        trajectory = np.memmap(temp_directory+'trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
                     else:
                         print('Memory mapping requires to define reading range (use read_from/read_to option)')
                         exit()
