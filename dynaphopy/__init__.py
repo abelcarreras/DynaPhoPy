@@ -355,8 +355,8 @@ class Calculation:
                                                                                self.dynamic,
                                                                                self.parameters))
 
+                self.set_reduced_q_vector(initial_reduced_q_point)
                 self._power_spectrum_phonon = np.average(power_spectrum_phonon, axis=0)
-                self.parameters.reduced_q_vector = initial_reduced_q_point
             else:
                 self._power_spectrum_phonon = (
                     power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
@@ -383,8 +383,9 @@ class Calculation:
                                                                                            self.parameters))
 
                 power_spectrum_wave_vector = np.array(power_spectrum_wave_vector)
+                self.set_reduced_q_vector(initial_reduced_q_point)
                 self._power_spectrum_wave_vector = np.average(power_spectrum_wave_vector, axis=0)
-                self.parameters.reduced_q_vector = initial_reduced_q_point
+
             else:
                 self._power_spectrum_wave_vector = (
                         power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vc().swapaxes(1, 2).reshape(-1, size),
