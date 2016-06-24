@@ -158,21 +158,13 @@ class Dynamics:
 
     def __del__(self):
         if self._memmap:
-            del self._velocity
-            del self._trajectory
-            del self._relative_trajectory
-            del self._velocity_mass_average
-
-            try:
-                os.remove(self._temp_directory+'velocity.{0}'.format(os.getpid()))
-                os.remove(self._temp_directory+'velocity_mass.{0}'.format(os.getpid()))
-            except OSError:
-                pass
-            try:
-                os.remove(self._temp_directory+'trajectory.{0}'.format(os.getpid()))
-                os.remove(self._temp_directory+'r_trajectory.{0}'.format(os.getpid()))
-            except OSError:
-                pass
+            for mapped_array in [self._velocity, self._trajectory, self._relative_trajectory, self._velocity_mass_average ]:
+                try:
+                    filename = mapped_array.filename
+                except AttributeError:
+                    continue
+                del mapped_array
+                os.remove(filename)
 
 # A bit messy, has to be fixed
     def crop_trajectory(self, last_steps):
@@ -196,7 +188,14 @@ class Dynamics:
         self.velocity = self.velocity[-last_steps:, :, :]
 
         self._velocity_mass_average = None
-        self._relative_trajectory = None
+
+        if self._memmap:
+            filename = self._relative_trajectory.filename
+            self._relative_trajectory = None
+            os.remove(filename)
+        else:
+            self._relative_trajectory = None
+
 
         print("Using {0} steps".format(self.velocity.shape[0]))
 
@@ -245,7 +244,7 @@ class Dynamics:
                 self._velocity_mass_average[:, i, :] = (self.velocity[:, i, :] *
                                                         np.sqrt(self.structure.get_masses(supercell=super_cell)[i]))
 
-        return np.array(self._velocity_mass_average)
+        return self._velocity_mass_average
 
     def get_relative_trajectory(self):
         if self._relative_trajectory is None:
@@ -267,7 +266,6 @@ class Dynamics:
                 normalized_trajectory[:, i, :] = atomic_displacement(trajectory[:, i, :], position[i], cell)
 
             self._relative_trajectory = normalized_trajectory
-
         return self._relative_trajectory
 
     def get_super_cell_matrix(self,tolerance=0.01):
