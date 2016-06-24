@@ -158,7 +158,7 @@ class Dynamics:
 
     def __del__(self):
         if self._memmap:
-            for mapped_array in [self._velocity, self._trajectory, self._relative_trajectory, self._velocity_mass_average ]:
+            for mapped_array in [self._velocity, self._trajectory, self._relative_trajectory, self._velocity_mass_average]:
                 try:
                     filename = mapped_array.filename
                 except AttributeError:
