@@ -309,7 +309,8 @@ class Dynamics:
 
             for i in range(displacements.shape[1]):
                 primtive_normalization = atom_primitive_equivalent[atom_type_index[i]]
-                mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(np.conj(displacements[:, i, :]).T, displacements[:, i, :]).real/primtive_normalization
+                mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(np.conj(displacements[:, i, :]).T,
+                                                                             displacements[:, i, :]).real/primtive_normalization
 
             self._mean_displacement_matrix = mean_displacement_matrix / (number_of_equivalent_atoms * number_of_data)
 
@@ -337,7 +338,9 @@ class Dynamics:
 
         for j in range(number_of_atoms):
 
-            difference_matrix = np.around(np.dot(np.linalg.inv(cell), reference[j, :] - 0.5 * np.dot(np.ones((3)), cell.T)), decimals=0)
+            difference_matrix = np.around(np.dot(np.linalg.inv(cell),
+                                                 reference[j, :] - 0.5 * np.dot(np.ones((3)), cell.T)),
+                                          decimals=0)
             reference[j, :] -= np.dot(difference_matrix, cell.T)
 
         return reference
@@ -360,12 +363,16 @@ class Dynamics:
         if self._velocity is None:
             print('No velocity provided! calculating it from coordinates...')
             if self._memmap:
-                self._velocity = np.memmap(self._temp_directory+'velocity.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=self.get_relative_trajectory().shape)
+                self._velocity = np.memmap(self._temp_directory+'velocity.{0}'.format(os.getpid()),
+                                           dtype='complex',
+                                           mode='w+',
+                                           shape=self.get_relative_trajectory().shape)
             else:
                 self._velocity = np.zeros_like(self.get_relative_trajectory(), dtype=complex)
             for i in range(self.get_number_of_atoms()):
                 for j in range(self.structure.get_number_of_dimensions()):
-                    self._velocity[:,i,j] = np.gradient(self.get_relative_trajectory()[:,i,j],self.get_time_step_average())
+                    self._velocity[:, i, j] = np.gradient(self.get_relative_trajectory()[:, i, j],
+                                                          self.get_time_step_average())
 
         return self._velocity
 

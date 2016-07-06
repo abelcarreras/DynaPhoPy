@@ -440,21 +440,26 @@ class Calculation:
 
     def plot_power_spectrum_full(self):
 
-        phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
-                                                       mesh=self.parameters.mesh_phonopy,
-                                                       freq_min=self.get_frequency_range()[0],
-                                                       freq_max=self.get_frequency_range()[-1],
-                                                       projected_on_atom=self.parameters.project_on_atom)
+        print(self.dynamic.structure.get_force_constants())
 
         fig, ax1 = plt.subplots()
 
         ax1.plot(self.get_frequency_range(), self.get_power_spectrum_direct(), 'r-', label='Power spectrum (MD)')
         ax1.set_xlabel('Frequency [THz]')
         ax1.set_ylabel('eV * ps')
-
         ax2 = ax1.twinx()
-        ax2.plot(phonopy_dos[0], phonopy_dos[1],'b-',label='DoS (Lattice dynamics)')
-        ax2.set_ylabel('Density of states')
+
+        if  np.array(self.dynamic.structure.get_force_constants()).any() or np.array(self.dynamic.structure.get_force_sets()).any():
+            phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
+                                                           mesh=self.parameters.mesh_phonopy,
+                                                           freq_min=self.get_frequency_range()[0],
+                                                           freq_max=self.get_frequency_range()[-1],
+                                                           projected_on_atom=self.parameters.project_on_atom)
+
+
+
+            ax2.plot(phonopy_dos[0], phonopy_dos[1],'b-',label='DoS (Lattice dynamics)')
+            ax2.set_ylabel('Density of states')
 
         if self._renormalized_force_constants is not None:
             phonopy_dos_r = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
