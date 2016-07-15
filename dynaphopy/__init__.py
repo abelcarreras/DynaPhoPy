@@ -1,4 +1,4 @@
-__version__='1.11'
+__version__='1.12'
 
 
 import numpy as np
@@ -14,6 +14,8 @@ import dynaphopy.analysis.fitting as fitting
 import dynaphopy.analysis.modes as modes
 import dynaphopy.analysis.coordinates as trajdist
 import dynaphopy.analysis.thermal_properties as thm
+
+from scipy import integrate
 
 power_spectrum_functions = {
     0: [power_spectrum.get_fourier_spectra_par_openmp, 'Fourier transform'],
@@ -282,7 +284,7 @@ class Calculation:
 
     def get_vq(self):
         if self._vq is None:
-            print("Projecting into phonon")
+            print("Projecting into phonon mode")
             self._vq =  projection.project_onto_phonon(self.get_vc(),self.get_eigenvectors())
         return self._vq
 
@@ -318,9 +320,9 @@ class Calculation:
         plt.legend()
         plt.show()
 
-    def save_vc(self,file_name):
+    def save_vc(self,file_name, atom=0):
         print("Saving wave vector projection to file")
-        np.savetxt(file_name, self.get_vc()[:, 0, :].real)
+        np.savetxt(file_name, self.get_vc()[:, atom, :].real)
 
     def save_vq(self,file_name):
         print("Saving phonon projection to file")
@@ -355,8 +357,8 @@ class Calculation:
                                                                                self.dynamic,
                                                                                self.parameters))
 
+                self.set_reduced_q_vector(initial_reduced_q_point)
                 self._power_spectrum_phonon = np.average(power_spectrum_phonon, axis=0)
-                self.parameters.reduced_q_vector = initial_reduced_q_point
             else:
                 self._power_spectrum_phonon = (
                     power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
@@ -383,8 +385,9 @@ class Calculation:
                                                                                            self.parameters))
 
                 power_spectrum_wave_vector = np.array(power_spectrum_wave_vector)
+                self.set_reduced_q_vector(initial_reduced_q_point)
                 self._power_spectrum_wave_vector = np.average(power_spectrum_wave_vector, axis=0)
-                self.parameters.reduced_q_vector = initial_reduced_q_point
+
             else:
                 self._power_spectrum_wave_vector = (
                         power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vc().swapaxes(1, 2).reshape(-1, size),
@@ -439,21 +442,26 @@ class Calculation:
 
     def plot_power_spectrum_full(self):
 
-        phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
-                                                       mesh=self.parameters.mesh_phonopy,
-                                                       freq_min=self.get_frequency_range()[0],
-                                                       freq_max=self.get_frequency_range()[-1],
-                                                       projected_on_atom=self.parameters.project_on_atom)
+        print(self.dynamic.structure.get_force_constants())
 
         fig, ax1 = plt.subplots()
 
         ax1.plot(self.get_frequency_range(), self.get_power_spectrum_direct(), 'r-', label='Power spectrum (MD)')
         ax1.set_xlabel('Frequency [THz]')
         ax1.set_ylabel('eV * ps')
-
         ax2 = ax1.twinx()
-        ax2.plot(phonopy_dos[0], phonopy_dos[1],'b-',label='DoS (Lattice dynamics)')
-        ax2.set_ylabel('Density of states')
+
+        if self.dynamic.structure.forces_available():
+            phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
+                                                           mesh=self.parameters.mesh_phonopy,
+                                                           freq_min=self.get_frequency_range()[0],
+                                                           freq_max=self.get_frequency_range()[-1],
+                                                           projected_on_atom=self.parameters.project_on_atom)
+
+
+
+            ax2.plot(phonopy_dos[0], phonopy_dos[1],'b-',label='DoS (Lattice dynamics)')
+            ax2.set_ylabel('Density of states')
 
         if self._renormalized_force_constants is not None:
             phonopy_dos_r = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
@@ -475,7 +483,7 @@ class Calculation:
 #        plt.legend()
         plt.show()
 
-        total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
+        total_integral = integrate.simps(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
@@ -484,7 +492,7 @@ class Calculation:
         plt.xlabel('Frequency [THz]')
         plt.ylabel('eV * ps')
         plt.show()
-        total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())/(2 * np.pi)
+        total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())/(2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
 
@@ -571,14 +579,14 @@ class Calculation:
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_power_spectrum_direct()[None].T,
                                           file_name)
-        total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
+        total_integral = integrate.simps(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_wave_vector(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_power_spectrum_wave_vector()[None].T,
                                           file_name)
-        total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())/(2 * np.pi)
+        total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())/(2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_phonon(self,file_name):
@@ -755,7 +763,7 @@ class Calculation:
         free_energy = thm.get_free_energy(temperature, phonopy_dos[0], phonopy_dos[1])
         entropy = thm.get_entropy(temperature, phonopy_dos[0], phonopy_dos[1])
         c_v = thm.get_cv(temperature, phonopy_dos[0], phonopy_dos[1])
-        integration = np.trapz(phonopy_dos[1], x=phonopy_dos[0])/(self.dynamic.structure.get_number_of_atoms()*
+        integration = integrate.simps(phonopy_dos[1], x=phonopy_dos[0])/(self.dynamic.structure.get_number_of_atoms()*
                                                        self.dynamic.structure.get_number_of_dimensions())
         total_energy = thm.get_total_energy(temperature, phonopy_dos[0], phonopy_dos[1])
 
@@ -769,7 +777,7 @@ class Calculation:
         total_energy = thm.get_total_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
                        thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])
 
-        integration = np.trapz(phonopy_dos_r[1], x=phonopy_dos_r[0])/(self.dynamic.structure.get_number_of_atoms()*
+        integration = integrate.simps(phonopy_dos_r[1], x=phonopy_dos_r[0])/(self.dynamic.structure.get_number_of_atoms()*
                                                        self.dynamic.structure.get_number_of_dimensions())
         renormalized_properties = [free_energy, entropy, c_v, total_energy, integration]
         print('Free energy/total energy correction: {0:12.4f} KJ/mol'.format(thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])))
@@ -778,7 +786,7 @@ class Calculation:
             normalization = np.prod(self.dynamic.get_super_cell_matrix())
 
             power_spectrum_dos = thm.get_dos(temperature, frequency_range, self.get_power_spectrum_direct(), normalization)
-            integration = np.trapz(power_spectrum_dos, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
+            integration = integrate.simps(power_spectrum_dos, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
                                                            self.dynamic.structure.get_number_of_dimensions())
 
             if normalize_dos:
@@ -823,7 +831,7 @@ class Calculation:
             plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-', label='Harmonic')
             plt.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized')
 
-            plt.title('Density of states')
+            plt.title('Density of states (Normalized to unit cell)')
             plt.xlabel('Frequency [THz]')
             plt.ylabel('Density of states')
             plt.legend()

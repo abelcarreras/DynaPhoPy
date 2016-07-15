@@ -1,7 +1,7 @@
 import numpy as np
 from dynaphopy.classes import atoms
-#from dynaphopy.analysis.coordinates import relativize_trajectory_py as relativize_trajectory
-from dynaphopy.analysis.coordinates import relativize_trajectory as relativize_trajectory
+from dynaphopy.displacements import atomic_displacement
+import os
 
 
 def averaged_positions(trajectory, number_of_samples=1000):
@@ -19,7 +19,7 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
 
     reference = averaged_positions(trajectory)
 
-    arrangement = get_correct_arangement(reference, structure)
+    arrangement = get_correct_arrangement(reference, structure)
 
     if arrangement:
         trajectory = trajectory[:, np.array(arrangement), :]
@@ -27,7 +27,7 @@ def check_trajectory_structure(trajectory, structure, tolerance=0.2):
     return trajectory
 
 
-def get_correct_arangement(reference, structure):
+def get_correct_arrangement(reference, structure):
 
     unit_coordinates = []
     for coordinate in reference:
@@ -119,13 +119,15 @@ class Dynamics:
                  velocity=None,
                  energy=None,
                  time=None,
-                 super_cell=None):
+                 super_cell=None,
+                 memmap=False):
 
         self._time = time
         self._trajectory = trajectory
         self._energy = energy
         self._velocity = velocity
         self._super_cell = super_cell
+        self._memmap=memmap
 
         self._time_step_average = None
         self._velocity_mass_average = None
@@ -134,16 +136,35 @@ class Dynamics:
         self._number_of_atoms = None
         self._mean_displacement_matrix = None
 
-
         if structure:
             self._structure = structure
         else:
             print('Warning: Initialization without structure')
             self._structure = None
 
+        #Check order of atoms
         if trajectory is not None:
             self._trajectory = check_trajectory_structure(trajectory, structure)
 
+        #Read environtment variables
+        try:
+            self._temp_directory = os.environ["DYNAPHOPY_TEMPDIR"]
+            if os.path.isdir(self._temp_directory):
+                self._temp_directory = self._temp_directory + '/'
+            else:
+                self._temp_directory = ''
+        except KeyError:
+            self._temp_directory = ''
+
+    def __del__(self):
+        if self._memmap:
+            for mapped_array in [self._velocity, self._trajectory, self._relative_trajectory, self._velocity_mass_average]:
+                try:
+                    filename = mapped_array.filename
+                except AttributeError:
+                    continue
+                del mapped_array
+                os.remove(filename)
 
 # A bit messy, has to be fixed
     def crop_trajectory(self, last_steps):
@@ -167,7 +188,14 @@ class Dynamics:
         self.velocity = self.velocity[-last_steps:, :, :]
 
         self._velocity_mass_average = None
-        self._relative_trajectory = None
+
+        if self._memmap:
+            filename = self._relative_trajectory.filename
+            self._relative_trajectory = None
+            os.remove(filename)
+        else:
+            self._relative_trajectory = None
+
 
         print("Using {0} steps".format(self.velocity.shape[0]))
 
@@ -205,18 +233,39 @@ class Dynamics:
 
     def get_velocity_mass_average(self):
         if self._velocity_mass_average is None:
-            self._velocity_mass_average = np.empty_like(self.velocity)
+            if self._memmap:
+                self._velocity_mass_average = np.memmap(self._temp_directory+'velocity_mass.{0}'.format(os.getpid()),
+                                                        dtype='complex', mode='w+', shape=self.velocity.shape)
+            else:
+                self._velocity_mass_average = np.empty_like(self.velocity)
+
             super_cell = self.get_super_cell_matrix()
             for i in range(self.get_number_of_atoms()):
                 self._velocity_mass_average[:, i, :] = (self.velocity[:, i, :] *
                                                         np.sqrt(self.structure.get_masses(supercell=super_cell)[i]))
 
-        return np.array(self._velocity_mass_average)
+        return self._velocity_mass_average
 
     def get_relative_trajectory(self):
         if self._relative_trajectory is None:
-                self._relative_trajectory = relativize_trajectory(self)
 
+            cell = self.get_super_cell()
+            number_of_atoms = self.trajectory.shape[1]
+            super_cell = self.get_super_cell_matrix()
+            position = self.structure.get_positions(supercell=super_cell)
+
+            trajectory = self.trajectory
+
+            if self._memmap:
+                normalized_trajectory = np.memmap(self._temp_directory+'r_trajectory.{0}'.format(os.getpid()),
+                                                  dtype='complex', mode='w+', shape=trajectory.shape)
+            else:
+                normalized_trajectory = self.trajectory.copy()
+
+            for i in range(number_of_atoms):
+                normalized_trajectory[:, i, :] = atomic_displacement(trajectory[:, i, :], position[i], cell)
+
+            self._relative_trajectory = normalized_trajectory
         return self._relative_trajectory
 
     def get_super_cell_matrix(self,tolerance=0.01):
@@ -260,14 +309,15 @@ class Dynamics:
 
             for i in range(displacements.shape[1]):
                 primtive_normalization = atom_primitive_equivalent[atom_type_index[i]]
-                mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(np.conj(displacements[:, i, :]).T, displacements[:, i, :]).real/primtive_normalization
+                mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(np.conj(displacements[:, i, :]).T,
+                                                                             displacements[:, i, :]).real/primtive_normalization
 
             self._mean_displacement_matrix = mean_displacement_matrix / (number_of_equivalent_atoms * number_of_data)
 
         return self._mean_displacement_matrix
 
 
-    def average_positions(self, number_of_samples=8000):
+    def average_positions(self, number_of_samples=None):
 
         cell = self.get_super_cell()
         number_of_atoms = self.trajectory.shape[1]
@@ -276,11 +326,21 @@ class Dynamics:
 
         normalized_trajectory = self.get_relative_trajectory()
 
+        if number_of_samples:
+            length = normalized_trajectory.shape[0]
+            if length < number_of_samples:
+                number_of_samples = normalized_trajectory.shape[0]
+            normalized_trajectory = normalized_trajectory
+            samples = np.random.random_integers(length, size=(number_of_samples,))-1
+            normalized_trajectory = normalized_trajectory[samples, :]
+
         reference = np.average(normalized_trajectory, axis=0) + positions
 
         for j in range(number_of_atoms):
 
-            difference_matrix = np.around(np.dot(np.linalg.inv(cell), reference[j, :] - 0.5 * np.dot(np.ones((3)), cell.T)), decimals=0)
+            difference_matrix = np.around(np.dot(np.linalg.inv(cell),
+                                                 reference[j, :] - 0.5 * np.dot(np.ones((3)), cell.T)),
+                                          decimals=0)
             reference[j, :] -= np.dot(difference_matrix, cell.T)
 
         return reference
@@ -302,10 +362,17 @@ class Dynamics:
     def velocity(self):
         if self._velocity is None:
             print('No velocity provided! calculating it from coordinates...')
-            self._velocity = np.zeros_like(self.get_relative_trajectory(), dtype=complex)
+            if self._memmap:
+                self._velocity = np.memmap(self._temp_directory+'velocity.{0}'.format(os.getpid()),
+                                           dtype='complex',
+                                           mode='w+',
+                                           shape=self.get_relative_trajectory().shape)
+            else:
+                self._velocity = np.zeros_like(self.get_relative_trajectory(), dtype=complex)
             for i in range(self.get_number_of_atoms()):
                 for j in range(self.structure.get_number_of_dimensions()):
-                    self._velocity[:,i,j] = np.gradient(self.get_relative_trajectory()[:,i,j],self.get_time_step_average())
+                    self._velocity[:, i, j] = np.gradient(self.get_relative_trajectory()[:, i, j],
+                                                          self.get_time_step_average())
 
         return self._velocity
 

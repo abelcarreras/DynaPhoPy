@@ -24,7 +24,8 @@ def progress_bar(progress):
 
 #print(disp.relative_trajectory(cell, traj ,pos))
 
-def relativize_trajectory(dynamic):
+#Not used (deprecated)
+def relativize_trajectory(dynamic, memmap=False):
 
     cell = dynamic.get_super_cell()
     number_of_atoms = dynamic.trajectory.shape[1]
@@ -35,6 +36,11 @@ def relativize_trajectory(dynamic):
 
     trajectory = dynamic.trajectory
 
+    if memmap:
+        normalized_trajectory = np.memmap('/home/abel/r_trajectory.map', dtype='complex', mode='w+', shape=trajectory.shape)
+    else:
+        normalized_trajectory = dynamic.trajectory.copy()
+
 #    progress_bar(0)
 
     for i in range(number_of_atoms):
@@ -42,6 +48,7 @@ def relativize_trajectory(dynamic):
 
    #     progress_bar(float(i+1)/number_of_atoms)
     return normalized_trajectory
+#Not used anymore (deprecated)
 
 def relativize_trajectory_py(dynamic):
 

@@ -29,7 +29,7 @@ parser.add_argument('--silent', action='store_true',
                    help='do not show plots')
 
 parser.add_argument('--asymmetric_peaks', action='store_true',
-                   help='Fit usign assymetric Lorentzian function')
+                   help='Fit usign asymmetric Lorentzian function')
 
 args = parser.parse_args()
 

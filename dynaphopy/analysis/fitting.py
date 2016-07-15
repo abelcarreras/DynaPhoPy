@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit, minimize_scalar, root
+from scipy.integrate import simps
 
 h_planck = 4.135667662e-3  # eV/ps
 h_planck_bar = 6.58211951e-4  # eV/ps
@@ -129,7 +130,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         area = fit_params[2] / ( 2 * np.pi)
         base_line = fit_params[3]
 
-        total_integral = np.trapz(power_spectrum, x=test_frequencies_range)/ (2 * np.pi)
+        total_integral = simps(power_spectrum, x=test_frequencies_range)/ (2 * np.pi)
 
         #Calculated properties
         dt_Q2_lor = 2 * 2 * area

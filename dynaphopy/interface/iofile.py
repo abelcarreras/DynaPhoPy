@@ -217,7 +217,8 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                          limit_number_steps=10000000,  # Maximum number of steps read (for security)
                          last_steps=None,
                          initial_cut=1,
-                         end_cut=None):
+                         end_cut=None,
+                         memmap=False):
 
 
     #Check file exists
@@ -325,7 +326,8 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                             trajectory=np.array(trajectory, dtype=complex),
                             energy=np.array(energy),
                             time=time,
-                            super_cell=super_cell)
+                            super_cell=super_cell,
+                            memmap=memmap)
 
 
 #Just for testing (use with care)
@@ -335,7 +337,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                              total_time=2,           # picoseconds
                              time_step=0.002,        # picoseconds
                              temperature=400,        # Kelvin
-                             silent=False):
+                             silent=False,
+                             memmap=False):
 
     import random
     from dynaphopy.power_spectrum import progress_bar
@@ -469,7 +472,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                         trajectory=np.array(trajectory,dtype=complex),
                         energy=np.array(energy),
                         time=time,
-                        super_cell=np.dot(np.diagflat(super_cell),structure.get_cell()))
+                        super_cell=np.dot(np.diagflat(super_cell),structure.get_cell()),
+                        memmap=memmap)
 
 
 #Testing function
@@ -552,12 +556,22 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                            limit_number_steps=10000000,
                            last_steps=None,
                            initial_cut=1,
-                           end_cut=None):
+                           end_cut=None,
+                           memmap=True):
 
  #Time in picoseconds
  #Coordinates in Angstroms
 
-
+    #Read environtment variables
+    try:
+        temp_directory = os.environ["DYNAPHOPY_TEMPDIR"]
+        if os.path.isdir(temp_directory):
+            print('Set temporal directory: {0}'.format(temp_directory))
+            temp_directory += '/'
+        else:
+            temp_directory = ''
+    except KeyError:
+        temp_directory = ''
 
     number_of_atoms = None
     bounds = None
@@ -583,6 +597,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
     time = []
     trajectory = []
     counter = 0
+
 
     with open(file_name, "r+") as f:
 
@@ -658,6 +673,12 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 beta = np.arccos(xz/c)
                 gamma = np.arccos(xy/b)
 #End testing cell
+                if memmap:
+                    if end_cut:
+                        trajectory = np.memmap(temp_directory+'trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
+                    else:
+                        print('Memory mapping requires to define reading range (use read_from/read_to option)')
+                        exit()
 
 
             position_number = file_map.find('ITEM: ATOMS')
@@ -675,7 +696,10 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
 
             try:
-                trajectory.append(np.array(read_coordinates, dtype=float)) #in angstroms
+                if memmap:
+                    trajectory[counter-initial_cut, :, :] = np.array(read_coordinates, dtype=float) #in angstroms
+                else:
+                    trajectory.append(np.array(read_coordinates, dtype=float)) #in angstroms
 
             except ValueError:
                 print("Error reading step {0}".format(counter))
@@ -693,17 +717,22 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 
     file_map.close()
 
+
     time = np.array(time) * time_step
-    trajectory = np.array(trajectory, dtype=complex)
-    if last_steps is not None:
-        trajectory = trajectory[-last_steps:, :, :]
-        time = time[-last_steps:]
+
+    if not memmap:
+        trajectory = np.array(trajectory, dtype=complex)
+
+        if last_steps is not None:
+            trajectory = trajectory[-last_steps:, :, :]
+            time = time[-last_steps:]
 
 
     return dyn.Dynamics(structure=structure,
                         trajectory=trajectory,
                         time=time,
-                        super_cell=super_cell)
+                        super_cell=super_cell,
+                        memmap=memmap)
 
 
 
@@ -837,7 +866,7 @@ def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, 
     hdf5_file.close()
 
 
-def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initial_cut=1, final_cut=None):
+def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initial_cut=1, final_cut=None, memmap=False):
     import h5py
 
     print("Reading data from hdf5 file: " + file_name)
@@ -888,10 +917,12 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
                             trajectory=trajectory,
                             velocity=velocity,
                             time=time,
-                            super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()))
+                            super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()),
+                            memmap=memmap)
     else:
         return vc, reduced_q_vector, dyn.Dynamics(structure=structure,
                                 time=time,
-                                super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()))
+                                super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()),
+                                memmap=memmap)
 
 

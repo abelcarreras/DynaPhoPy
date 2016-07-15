@@ -189,9 +189,15 @@ class Structure:
         return self._scaled_positions
 
 
-
-
     #Force related methods
+
+    def forces_available(self):
+        if np.array(self.get_force_constants()).any() or np.array(self.get_force_sets()).any():
+            return True
+        else:
+            return False
+
+
     def set_force_constants(self, force_constants):
         self._force_constants = np.array(force_constants,dtype='double')
 

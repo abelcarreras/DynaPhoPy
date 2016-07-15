@@ -1,14 +1,15 @@
 import numpy as np
 
+
 def generate_VASP_structure(structure, scaled=False, supercell=(1, 1, 1)):
 
     cell = structure.get_cell(supercell=supercell)
 
     types = structure.get_atomic_types(supercell=supercell)
-    atom_type_unique = np.unique(types, return_counts=True)
 
+    atom_type_unique = np.unique(types, return_index=True)
     elements = atom_type_unique[0]
-    elements_count = atom_type_unique[1]
+    elements_count= np.diff(np.append(atom_type_unique[1], [len(types)]))
 
     vasp_POSCAR = 'Generated using dynaphopy\n'
     vasp_POSCAR += '1.0\n'
@@ -35,11 +36,12 @@ def generate_VASP_structure(structure, scaled=False, supercell=(1, 1, 1)):
 
 def generate_LAMMPS_structure(structure, supercell=(1, 1, 1), by_element=True):
 
-    cell = structure.get_cell(supercell=supercell)
     types = structure.get_atomic_types(supercell=supercell)
 
     if by_element:
-        count_index_unique = np.unique(types, return_counts=True)[1]
+
+        type_index_unique = np.unique(types, return_index=True)[1]
+        count_index_unique = np.diff(np.append(type_index_unique, [len(types)]))
 
         atom_index = []
         for i, index in enumerate(count_index_unique):
@@ -55,10 +57,8 @@ def generate_LAMMPS_structure(structure, supercell=(1, 1, 1), by_element=True):
     positions = structure.get_positions(supercell=supercell)
     number_of_atoms = len(positions)
 
-
     lammps_data_file = 'Generated using dynaphopy\n\n'
     lammps_data_file += '{0} atoms\n\n'.format(number_of_atoms)
-
     lammps_data_file += '{0} atom types\n\n'.format(len(atom_index_unique))
 
     a, b, c, alpha, beta, gamma = structure.get_cell_parameters(supercell=supercell)

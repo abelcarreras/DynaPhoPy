@@ -44,7 +44,6 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
                      is_auto_displacements=False)
 
 
-
     #Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
     if NAC:
         print("Phonopy warning: Using Non Analytical Corrections")
@@ -55,7 +54,8 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
 
     if setup_forces:
-        if not np.array(structure.get_force_constants()).any() and not np.array(structure.get_force_sets()).any():
+        if not structure.forces_available():
+    #    if not np.array(structure.get_force_constants()).any() and not np.array(structure.get_force_sets()).any():
             print('No force sets/constants available!')
             exit()
         if np.array(structure.get_force_constants()).any():

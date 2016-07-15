@@ -59,7 +59,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             if args.md_file:
                 screen.addstr(4,45,"MD file: " + args.md_file[-20:])
             else:
-                screen.addstr(4,45, "Test trajectory")
+                screen.addstr(4,45, "Generated trajectory")
 
         screen.addstr(6,45,"Wave vector: {0} ".format(calculation.get_reduced_q_vector()))
         screen.addstr(7,45,"Frequency range: {0} - {1} THz".format(calculation.get_frequency_range()[0],
@@ -70,6 +70,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(11,45,"Unit cell atoms: {0}".format(trajectory.structure.get_number_of_atoms()))
         screen.addstr(12,45,"MD  cell atoms: {0} ".format(trajectory.get_number_of_atoms()))
         screen.addstr(13,45,"Number of MD time steps: {0}".format(len(trajectory.velocity)))
+        screen.addstr(14,45,"Time step: {0} ps".format(trajectory.get_time_step_average()))
+
 
 
         #Option values left screen
