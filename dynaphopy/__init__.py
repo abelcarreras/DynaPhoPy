@@ -449,7 +449,7 @@ class Calculation:
         ax1.set_ylabel('eV * ps')
         ax2 = ax1.twinx()
 
-        if  np.array(self.dynamic.structure.get_force_constants()).any() or np.array(self.dynamic.structure.get_force_sets()).any():
+        if self.dynamic.structure.forces_available():
             phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                            mesh=self.parameters.mesh_phonopy,
                                                            freq_min=self.get_frequency_range()[0],

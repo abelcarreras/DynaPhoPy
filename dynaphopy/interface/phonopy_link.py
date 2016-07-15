@@ -55,7 +55,8 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
 
     if setup_forces:
-        if not np.array(structure.get_force_constants()).any() and not np.array(structure.get_force_sets()).any():
+        if not structure.forces_available():
+    #    if not np.array(structure.get_force_constants()).any() and not np.array(structure.get_force_sets()).any():
             print('No force sets/constants available!')
             exit()
         if np.array(structure.get_force_constants()).any():
