@@ -44,7 +44,6 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
                      is_auto_displacements=False)
 
 
-
     #Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
     if NAC:
         print("Phonopy warning: Using Non Analytical Corrections")

@@ -15,6 +15,8 @@ import dynaphopy.analysis.modes as modes
 import dynaphopy.analysis.coordinates as trajdist
 import dynaphopy.analysis.thermal_properties as thm
 
+from scipy import integrate
+
 power_spectrum_functions = {
     0: [power_spectrum.get_fourier_spectra_par_openmp, 'Fourier transform'],
     1: [power_spectrum.get_mem_spectra_par_openmp,     'Maximum entropy method'],
@@ -481,7 +483,7 @@ class Calculation:
 #        plt.legend()
         plt.show()
 
-        total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
+        total_integral = integrate.simps(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
@@ -490,7 +492,7 @@ class Calculation:
         plt.xlabel('Frequency [THz]')
         plt.ylabel('eV * ps')
         plt.show()
-        total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())/(2 * np.pi)
+        total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())/(2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
 
@@ -577,14 +579,14 @@ class Calculation:
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_power_spectrum_direct()[None].T,
                                           file_name)
-        total_integral = np.trapz(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
+        total_integral = integrate.simps(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_wave_vector(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
                                           self.get_power_spectrum_wave_vector()[None].T,
                                           file_name)
-        total_integral = np.trapz(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())/(2 * np.pi)
+        total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())/(2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_phonon(self,file_name):
@@ -761,7 +763,7 @@ class Calculation:
         free_energy = thm.get_free_energy(temperature, phonopy_dos[0], phonopy_dos[1])
         entropy = thm.get_entropy(temperature, phonopy_dos[0], phonopy_dos[1])
         c_v = thm.get_cv(temperature, phonopy_dos[0], phonopy_dos[1])
-        integration = np.trapz(phonopy_dos[1], x=phonopy_dos[0])/(self.dynamic.structure.get_number_of_atoms()*
+        integration = integrate.simps(phonopy_dos[1], x=phonopy_dos[0])/(self.dynamic.structure.get_number_of_atoms()*
                                                        self.dynamic.structure.get_number_of_dimensions())
         total_energy = thm.get_total_energy(temperature, phonopy_dos[0], phonopy_dos[1])
 
@@ -775,7 +777,7 @@ class Calculation:
         total_energy = thm.get_total_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
                        thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])
 
-        integration = np.trapz(phonopy_dos_r[1], x=phonopy_dos_r[0])/(self.dynamic.structure.get_number_of_atoms()*
+        integration = integrate.simps(phonopy_dos_r[1], x=phonopy_dos_r[0])/(self.dynamic.structure.get_number_of_atoms()*
                                                        self.dynamic.structure.get_number_of_dimensions())
         renormalized_properties = [free_energy, entropy, c_v, total_energy, integration]
         print('Free energy/total energy correction: {0:12.4f} KJ/mol'.format(thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])))
@@ -784,7 +786,7 @@ class Calculation:
             normalization = np.prod(self.dynamic.get_super_cell_matrix())
 
             power_spectrum_dos = thm.get_dos(temperature, frequency_range, self.get_power_spectrum_direct(), normalization)
-            integration = np.trapz(power_spectrum_dos, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
+            integration = integrate.simps(power_spectrum_dos, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
                                                            self.dynamic.structure.get_number_of_dimensions())
 
             if normalize_dos:
