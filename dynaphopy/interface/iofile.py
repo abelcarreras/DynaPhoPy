@@ -557,7 +557,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                            last_steps=None,
                            initial_cut=1,
                            end_cut=None,
-                           memmap=True):
+                           memmap=False):
 
  #Time in picoseconds
  #Coordinates in Angstroms
@@ -595,9 +595,10 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
     number_of_dimensions = 3
 
     time = []
-    trajectory = []
+    data = []
     counter = 0
 
+    lammps_labels = False
 
     with open(file_name, "r+") as f:
 
@@ -672,10 +673,14 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 alpha = np.arccos((xy*xz + ly*yz)/(b*c))
                 beta = np.arccos(xz/c)
                 gamma = np.arccos(xy/b)
+
+
+
+
 #End testing cell
                 if memmap:
                     if end_cut:
-                        trajectory = np.memmap(temp_directory+'trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
+                        data = np.memmap(temp_directory+'trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
                     else:
                         print('Memory mapping requires to define reading range (use read_from/read_to option)')
                         exit()
@@ -684,7 +689,9 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             position_number = file_map.find('ITEM: ATOMS')
 
             file_map.seek(position_number)
-            file_map.readline()
+            lammps_labels=file_map.readline()
+       #     print(test)
+
 
             #Initial cut control
             if initial_cut > counter:
@@ -697,9 +704,9 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 
             try:
                 if memmap:
-                    trajectory[counter-initial_cut, :, :] = np.array(read_coordinates, dtype=float) #in angstroms
+                    data[counter-initial_cut, :, :] = np.array(read_coordinates, dtype=float) #in angstroms
                 else:
-                    trajectory.append(np.array(read_coordinates, dtype=float)) #in angstroms
+                    data.append(np.array(read_coordinates, dtype=float)) #in angstroms
 
             except ValueError:
                 print("Error reading step {0}".format(counter))
@@ -721,18 +728,26 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
     time = np.array(time) * time_step
 
     if not memmap:
-        trajectory = np.array(trajectory, dtype=complex)
+        data = np.array(data, dtype=complex)
 
         if last_steps is not None:
-            trajectory = trajectory[-last_steps:, :, :]
+            data = data[-last_steps:, :, :]
             time = time[-last_steps:]
 
 
-    return dyn.Dynamics(structure=structure,
-                        trajectory=trajectory,
-                        time=time,
-                        super_cell=super_cell,
-                        memmap=memmap)
+    if 'vx vy vz' in lammps_labels:
+        return dyn.Dynamics(structure=structure,
+                            velocity=np.array(data),
+                            time=time,
+                            super_cell=super_cell,
+                            memmap=memmap)
+
+    else:
+        return dyn.Dynamics(structure=structure,
+                            trajectory=data,
+                            time=time,
+                            super_cell=super_cell,
+                            memmap=memmap)
 
 
 
