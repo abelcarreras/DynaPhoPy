@@ -690,7 +690,6 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 
             file_map.seek(position_number)
             lammps_labels=file_map.readline()
-       #     print(test)
 
 
             #Initial cut control
@@ -737,7 +736,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 
     if 'vx vy vz' in lammps_labels:
         return dyn.Dynamics(structure=structure,
-                            velocity=np.array(data),
+                            velocity=data,
                             time=time,
                             super_cell=super_cell,
                             memmap=memmap)
