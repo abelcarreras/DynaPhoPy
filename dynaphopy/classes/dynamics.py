@@ -157,6 +157,7 @@ class Dynamics:
             self._temp_directory = ''
 
     def __del__(self):
+        #Clean all temporal files from memmap
         if self._memmap:
             for mapped_array in [self._velocity, self._trajectory, self._relative_trajectory, self._velocity_mass_average]:
                 try:
