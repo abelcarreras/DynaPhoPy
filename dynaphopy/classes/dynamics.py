@@ -170,7 +170,7 @@ class Dynamics:
 # A bit messy, has to be fixed
     def crop_trajectory(self, last_steps):
 
-        if last_steps is None or last_steps < 0:
+        if last_steps is None or last_steps <= 0:
             return
 
         if self._trajectory is not None:
@@ -185,6 +185,7 @@ class Dynamics:
 
         if last_steps > self.velocity.shape[0]:
             print("Warning: specified step number larger than available")
+
 
         self.velocity = self.velocity[-last_steps:, :, :]
 
