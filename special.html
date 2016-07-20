@@ -33,14 +33,13 @@
 <p>
 In order to obtain well converged results in the calculation of anharmonic phonon properties, specially in phonon linewidths, 
 usually it becomes necessary to use very long MD simulations. This requires long calculation times and imply to hadle very large 
-files. Fortunatelly, in canonical ensemble the velocity time correlation decreases relativelly fast as the time advances. That means that
+files. Fortunatelly, in canonical ensemble calculations the velocity time correlation usually decreases fast with the time. That means that
 it becomes possible to join several independent MD trajectories to obtain a larger one with almost negligible added error. That allows to
 calculate many independent MD simulations at the same time and join them later to obtain a larger MD trajectory and increase the accuracy of
 the results.
-<br>To support this task Dynaphopy can save the MD information into a hdf5 file to be read afterwards. Additionally I provide an independent
+<br>To support this task DynaPhoPy can save the MD information into a hdf5 file to be read afterwards. Additionally I provide an independent
 script called <strong>concath5</strong> which allows join several hdf5 files into one.
-<br><em>Note: VASP code has to be compiled with advanced features in order to start MD from random velocities and generate different 
-trajectories each run. Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/Advanced_MD_techniques.html">documentation</a> 
+<br><em>Note: VASP code has to be compiled with advanced features in order to start MD from a random seed and generate different trajectories each run. Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/Advanced_MD_techniques.html">documentation</a> 
 for further information.</em></p>
 <UL>
 
