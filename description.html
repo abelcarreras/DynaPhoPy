@@ -373,7 +373,7 @@ Cv           (J/K/mol):     191.8066      189.6462      189.1828
 Total energy (KJ//mol):     165.7074      161.7258      162.6330
 Integration:                  1.0000        1.0000        0.9838
 </code></pre>
-<p>Obtaining a good DOS directly from the power is usually dificult and requieres a large MD simulation cell and long simulation times. That makes that usually the integration of the DOS is not 1 and may affect the calculated thermal properties. To mitigate this problem the DOS can be forced to be normalized to 1. This is done by using option <strong>--normalize_dos</strong>. I it strongly recommended to use it specially at low temperatures.
+<p>Obtaining a good DOS directly from the power is usually dificult and requieres a large MD simulation cell and long simulation times. That makes that usually the integration of the DOS is not 1 and may affect the calculated thermal properties. To avoid this problem the DOS can be forced to be normalized to 1. This is done by using option <strong>--normalize_dos</strong>. It is strongly recommended to use this option specially at low temperatures.
 </p>
 <pre><code>$ dynaphopy input_file TRAJECTORY --thm_full --normalize_dos</code></pre>
     <p>Be carefull: The calculation of the DoS is affected by other options defined in <a href="#additional_options">power spectra</a> and <a href="#renormalized_forces">renormalized force constants</a> sections.  

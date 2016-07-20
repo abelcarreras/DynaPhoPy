@@ -40,7 +40,7 @@ the results.
 <br>To support this task Dynaphopy can save the MD information into a hdf5 file to be read afterwards. Additionally I provide an independent
 script called <strong>concath5</strong> which allows join several hdf5 files into one.
 <br><em>Note: VASP code has to be compiled with advanced features in order to start MD from random velocities and generate different 
-trajectories each run. Please, refere to VASP <a href=http://cms.mpi.univie.ac.at/vasp/vasp/Advanced_MD_techniques.html">documentation</a> 
+trajectories each run. Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/Advanced_MD_techniques.html">documentation</a> 
 for further information.</em></p>
 <UL>
 
@@ -49,19 +49,20 @@ for further information.</em></p>
 
 <LI><h5>Save data into hdf5 file </h5>
 <p>Saving data into hdf5 file can be usefull in order to save space in the hard drive. Since only the necessary information for dynaphopy
-is stored, this hdf5 file size can be around 5 times smaller than the original OUTCAR. Besides it allows to manipulate this information as
+is stored, this hdf5 file size can be around 5 times smaller than the original MD TRAJECTORY file. Besides it allows to manipulate this information as
 an intermediate step using concath5 or other third party software. To request to save MD trajectory into hdf5 file use 
 <strong>-sv</strong> flag follower by the file name. 
-<br>This option can be used alone  or together with other flags but, in any case, all time steps in OUTCAR file will be stored in the hdf5 file (<strong>-n</strong> 
+<br>This option can be used alone  or together with other flags but, in any case, all time steps in TRAJECTORY file will be stored in the hdf5 file (<strong>-n</strong> 
 flag has no effect in the number of time steps stored).</p>
 
-<pre><code>$ dynaphopy input_file OUTCAR -sv filename.h5
+<pre><code>$ dynaphopy input_file TRAJECTORY -sv filename.h5
 </code></pre>
 
 <LI><h5>Load data into hdf5 file </h5>
 <p> Once saved into a hdf5 file, MD data can be load to dynaphopy using <strong>-lv</strong> flag. Loading data from hdf5 is much faster
-than using OUTCAR file, if several calculation using the same data have to be done, it is highly recomended to use this option.
-<br><em>Notice that when loading data this way, OUTCAR file has to not be set.</em></p>
+than using TRAJECTORY file, if several calculation using the same data have to be done, it is highly recomended to use this option.
+than using TRAJECTORY file, if several calculation using the same data have to be done, it is highly recomended to use this option.
+<br><em>Notice that when loading data this way, TRAJECTORY must not not be set.</em></p>
 
 <pre><code>$ dynaphopy input_file -lv filename.h5
 </code></pre>
@@ -92,7 +93,7 @@ can be used. This option makes concath5 script to not store the trajectory in th
 <pre><code>$ concath5 --velocity_only source1.h5 source2.h5 ··· joined.h5
 </code></pre>
 
-<LI><h5>Working with wave vector projected velocity (Saving RAM memory)</h5>
+<LI><h5>Working with wave-vector projected velocity (Saving RAM memory)</h5>
 <p>The amount of physical RAM memory available may strongly limit the size of the trajectory that DyanPhopy can read. Specially for LAMMPS trajectories, whose output files can weight a few tens of Gb for long MD simulations, the memory can become easily full. This is usually no due to the trajectory size itself but the process of it that DynaPhoPy does. 
 <br>To overcome this problem the trajectory can be read by pieces, projected into a wave vector, stored in the disk (hdf5 files), joined and read with DynaPhoPy again to calculate the power spectrum and the phonon properties. 
 <br>Due to the dimensionality of the projected velocity is much lower than the original trajectory the, MD length that can be used is much longer. However, since the velocity is already projected, it only can be used to analyze the phonons in the projected wave vector. That means that for each wave vector to be analyzed this procedure has to be repeated.
@@ -116,7 +117,18 @@ can be used. This option makes concath5 script to not store the trajectory in th
 
 <br><em>It has to be pointed that when reading proj_vel_joined.h5 file the wave vector <strong>must not</strong> to be set. Wave vector is already stored in proj_vel_joined.h5 file. Defining another wave vector using <strong>-q</strong> flag will make DynaPhoPy to stop. Keep in mind that the number of features available reading from a projected velocity file are limited to <strong>power spectrum calculations and peak analysis</strong></em>
 
-</UL>
+<LI><h5>Mapping RAM memory on disk (Saving RAM memory in exchange of storage space)</h5>
+    <p>Alterativelly to divide the MD data into small pieces DynaPhoPy allows to map most part of the RAM memory on disk. This option allow us to work normally with dynaphopy without any pre processing of the data. To activate memory mapping use <strong>--memmap</strong>. This option requieres to define explicitily the amount of data to be loaded by options <strong>--read_from</strong> and <strong>--read_to</strong>
+<pre><code>$ dynaphopy input_file TRAJECTORY --read_to 100000 --memmap
+</code></pre>
+    <p>Memory will be mapped in up to 4 files stored by default in the working directory. These files will be removed once the execution is finished (if DynaPhoPy crashed these files may not be removed). Environment variable <strong>DYNAPHOPY_TEMPDIR</strong> can be set to define an alternative location for these temporal files.
+<pre><code>export DYNAPHOPY_TEMPDIR=/scratch</code></pre>
+        
+    <p><em>Warning: Using memory mapping will decrease the performance of the calculation and the i/o disk access will be intensive. It is recommended to use a local SSD disk for this purpose.</em>
+</p>
+
+    </UL>
+
 
 <h3>MEM coeficient analysis</h3>
 <p>
@@ -127,7 +139,7 @@ Depending on the number of coefficents the peak width of the peaks may significa
 which performs a scan for all peaks anf fits each one to Lorentzian function to extract width information.
 All this information is plotted in 3 matplotlib windows for each phonon. 
 </p>
-<pre><code>$ dynaphopy input_file OUTCAR -csa
+<pre><code>$ dynaphopy input_file TRAJECTORY -csa
 </code></pre>
 
 <img src="images/coef_ana_2.png" alt="Interactive" style="width:605px">
