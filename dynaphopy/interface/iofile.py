@@ -258,7 +258,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
         super_cell = []
         for i in range (number_of_dimensions):
             super_cell.append(file_map.readline().split()[0:number_of_dimensions])
-        super_cell = np.array(super_cell,dtype='double').T
+        super_cell = np.array(super_cell, dtype='double').T
 
         file_map.seek(position_number)
         file_map.readline()
@@ -393,7 +393,6 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
     atoms_relation = float(len(q_vector_list)*number_of_primitive_atoms)/number_of_atoms
 
-
     #Generate frequencies and eigenvectors for the testing wave vector samples
     print('Wave vectors included in test (commensurate points)')
     eigenvectors_r = []
@@ -423,7 +422,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
                     if abs(frequencies_r[i_long][i_freq]) > minimum_frequency: # Prevent error due to small frequencies
                         # Amplitude is normalized to be equal area for all phonon projected power spectra.
-                        amplitude = np.sqrt(2 * kb_boltzmann * temperature / number_of_primitive_cells * atoms_relation)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
+                        amplitude = np.sqrt(number_of_dimensions * kb_boltzmann * temperature / number_of_primitive_cells * atoms_relation)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
+           #             amplitude = np.sqrt(number_of_dimensions * kb_boltzmann * temperature) / (frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
                         normal_mode_coordinate = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
                         phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions[i_atom, :]))
 
@@ -459,7 +459,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                                  trajectory=np.array(trajectory, dtype=complex),
                                  energy=np.array(energy),
                                  time=time,
-                                 super_cell=np.dot(np.diagflat(super_cell),structure.get_cell())),
+                                 super_cell=np.dot(np.diagflat(super_cell), structure.get_cell().T).T),
                     dump_file)
 
         dump_file.close()
@@ -472,7 +472,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                         trajectory=np.array(trajectory,dtype=complex),
                         energy=np.array(energy),
                         time=time,
-                        super_cell=np.dot(np.diagflat(super_cell),structure.get_cell()),
+                        super_cell=np.dot(np.diagflat(super_cell), structure.get_cell().T).T,
                         memmap=memmap)
 
 

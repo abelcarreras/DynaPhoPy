@@ -318,7 +318,6 @@ class Dynamics:
 
         return self._mean_displacement_matrix
 
-
     def average_positions(self, number_of_samples=None):
 
         cell = self.get_super_cell()
