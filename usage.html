@@ -37,6 +37,7 @@
 You can follow the instruction in phonopy <a href="http://atztogo.github.io/phonopy//procedure.html">tutorial</a> to obtain it.
 <br><em>Keep original <strong>POSCAR</strong> file used in the calculation containing the unaltered unit cell (VASP 5.x style prefered)</em></p>
 
+<div id="prepare_MD"></div>  
 <LI><h5>Prepare Molecular Dynamics calculation</h5>
 <p> At the present time DynaPhoPy can read MD trajectories from VASP and LAMMPS.
 
@@ -47,10 +48,16 @@ Obtain an <strong>OUTCAR</strong> output file containing a MD calculation from V
 
 <br><strong>- Using LAMMPS</strong>
 <br>LAMMPS is a extremely flexible software that allows to calculate Molecular dynamics of a large variety of systems using empirical potentials.
-LAMMPS outputs may vary depending on the output style you use. DyanPhoPy only can read lammpstrj outputs using the following output style:
-</p><pre><code>dump         dynaphopy all custom 1 output_file_name.lammpstrj x y z
+LAMMPS outputs may vary depending on the output style you use. DynaPhoPy only can read lammpstrj outputs using the custom dump output style. At this time DynaPhoPy supports reading either atomic positions and atomic velocities. DynaPhoPy will detect automatically the file type. 
+<br>-Reading atomic positions:
+<pre><code>dump         dynaphopy all custom 1 output_file_name.lammpstrj x y z
 dump_modify  dynaphopy sort id
 </code></pre>
+<br>-Reading atomic velocities:
+<pre><code>dump         dynaphopy all custom 1 output_file_name.lammpstrj vx vy vz
+dump_modify  dynaphopy sort id
+</code></pre>   
+    
 <br>Please, refere to LAMMPS <a href="http://lammps.sandia.gov/doc/Manual.html"> online manual</a> for usage and detailed information about output <a href="http://lammps.sandia.gov/doc/dump.html"> formats and styles</a>.
 <br> LAMMPS trajectories do not have information about the time step used in the MD. For this reason the time step has to be introduced manually to DynaPhoPy in order to scale the time correctly. For this purpose <strong>-ts</strong>
 flag is used. This flag accepts a float number that indicated the time step in picoseconds.

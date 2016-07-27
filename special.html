@@ -122,8 +122,10 @@ can be used. This option makes concath5 script to not store the trajectory in th
 </code></pre>
     <p>Memory will be mapped in up to 4 files stored by default in the working directory. These files will be removed once the execution is finished (if DynaPhoPy crashed these files may not be removed). Environment variable <strong>DYNAPHOPY_TEMPDIR</strong> can be set to define an alternative location for these temporal files.
 <pre><code>export DYNAPHOPY_TEMPDIR=/scratch</code></pre>
-        
-    <p><em>Warning: Using memory mapping will decrease the performance of the calculation and the i/o disk access will be intensive. It is recommended to use a local SSD disk for this purpose.</em>
+    <p>When working with LAMMPS MD trajectories, this procedure can be done more efficently reading the atomic velocities directly from LAMMPS output file instead to calculate them from the atomic positions (check <a href="usage.html#prepare_MD">prepare MD</a> section for more information about how to generate a LAMMPS output). This reduces the amount of RAM memmory to be used during the calculation and therefore the amount of storage space when using <strong>--memmap</strong> option.
+
+
+<p><em>Warning: Using memory mapping will decrease the performance of the calculation and the i/o disk access will be intensive. It is recommended to use a local SSD disk for this purpose.</em>
 </p>
 
     </UL>
