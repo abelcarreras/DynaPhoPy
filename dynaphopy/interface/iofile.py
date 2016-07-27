@@ -258,7 +258,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
         super_cell = []
         for i in range (number_of_dimensions):
             super_cell.append(file_map.readline().split()[0:number_of_dimensions])
-        super_cell = np.array(super_cell,dtype='double').T
+        super_cell = np.array(super_cell, dtype='double').T
 
         file_map.seek(position_number)
         file_map.readline()
@@ -393,7 +393,6 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
     atoms_relation = float(len(q_vector_list)*number_of_primitive_atoms)/number_of_atoms
 
-
     #Generate frequencies and eigenvectors for the testing wave vector samples
     print('Wave vectors included in test (commensurate points)')
     eigenvectors_r = []
@@ -423,7 +422,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
                     if abs(frequencies_r[i_long][i_freq]) > minimum_frequency: # Prevent error due to small frequencies
                         # Amplitude is normalized to be equal area for all phonon projected power spectra.
-                        amplitude = np.sqrt(2 * kb_boltzmann * temperature / number_of_primitive_cells * atoms_relation)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
+                        amplitude = np.sqrt(number_of_dimensions * kb_boltzmann * temperature / number_of_primitive_cells * atoms_relation)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
+           #             amplitude = np.sqrt(number_of_dimensions * kb_boltzmann * temperature) / (frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
                         normal_mode_coordinate = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
                         phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions[i_atom, :]))
 
@@ -459,7 +459,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                                  trajectory=np.array(trajectory, dtype=complex),
                                  energy=np.array(energy),
                                  time=time,
-                                 super_cell=np.dot(np.diagflat(super_cell),structure.get_cell())),
+                                 super_cell=np.dot(np.diagflat(super_cell), structure.get_cell().T).T),
                     dump_file)
 
         dump_file.close()
@@ -472,7 +472,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                         trajectory=np.array(trajectory,dtype=complex),
                         energy=np.array(energy),
                         time=time,
-                        super_cell=np.dot(np.diagflat(super_cell),structure.get_cell()),
+                        super_cell=np.dot(np.diagflat(super_cell), structure.get_cell().T).T,
                         memmap=memmap)
 
 
@@ -557,7 +557,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                            last_steps=None,
                            initial_cut=1,
                            end_cut=None,
-                           memmap=True):
+                           memmap=False):
 
  #Time in picoseconds
  #Coordinates in Angstroms
@@ -595,9 +595,10 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
     number_of_dimensions = 3
 
     time = []
-    trajectory = []
+    data = []
     counter = 0
 
+    lammps_labels = False
 
     with open(file_name, "r+") as f:
 
@@ -672,10 +673,14 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 alpha = np.arccos((xy*xz + ly*yz)/(b*c))
                 beta = np.arccos(xz/c)
                 gamma = np.arccos(xy/b)
+
+
+
+
 #End testing cell
                 if memmap:
                     if end_cut:
-                        trajectory = np.memmap(temp_directory+'trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
+                        data = np.memmap(temp_directory+'trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
                     else:
                         print('Memory mapping requires to define reading range (use read_from/read_to option)')
                         exit()
@@ -684,7 +689,8 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             position_number = file_map.find('ITEM: ATOMS')
 
             file_map.seek(position_number)
-            file_map.readline()
+            lammps_labels=file_map.readline()
+
 
             #Initial cut control
             if initial_cut > counter:
@@ -697,9 +703,9 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 
             try:
                 if memmap:
-                    trajectory[counter-initial_cut, :, :] = np.array(read_coordinates, dtype=float) #in angstroms
+                    data[counter-initial_cut, :, :] = np.array(read_coordinates, dtype=float) #in angstroms
                 else:
-                    trajectory.append(np.array(read_coordinates, dtype=float)) #in angstroms
+                    data.append(np.array(read_coordinates, dtype=float)) #in angstroms
 
             except ValueError:
                 print("Error reading step {0}".format(counter))
@@ -721,18 +727,26 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
     time = np.array(time) * time_step
 
     if not memmap:
-        trajectory = np.array(trajectory, dtype=complex)
+        data = np.array(data, dtype=complex)
 
         if last_steps is not None:
-            trajectory = trajectory[-last_steps:, :, :]
+            data = data[-last_steps:, :, :]
             time = time[-last_steps:]
 
 
-    return dyn.Dynamics(structure=structure,
-                        trajectory=trajectory,
-                        time=time,
-                        super_cell=super_cell,
-                        memmap=memmap)
+    if 'vx vy vz' in lammps_labels:
+        return dyn.Dynamics(structure=structure,
+                            velocity=data,
+                            time=time,
+                            super_cell=super_cell,
+                            memmap=memmap)
+
+    else:
+        return dyn.Dynamics(structure=structure,
+                            trajectory=data,
+                            time=time,
+                            super_cell=super_cell,
+                            memmap=memmap)
 
 
 

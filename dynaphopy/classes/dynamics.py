@@ -157,6 +157,7 @@ class Dynamics:
             self._temp_directory = ''
 
     def __del__(self):
+        #Clean all temporal files from memmap
         if self._memmap:
             for mapped_array in [self._velocity, self._trajectory, self._relative_trajectory, self._velocity_mass_average]:
                 try:
@@ -169,7 +170,7 @@ class Dynamics:
 # A bit messy, has to be fixed
     def crop_trajectory(self, last_steps):
 
-        if last_steps is None or last_steps < 0:
+        if last_steps is None or last_steps <= 0:
             return
 
         if self._trajectory is not None:
@@ -184,6 +185,7 @@ class Dynamics:
 
         if last_steps > self.velocity.shape[0]:
             print("Warning: specified step number larger than available")
+
 
         self.velocity = self.velocity[-last_steps:, :, :]
 
@@ -315,7 +317,6 @@ class Dynamics:
             self._mean_displacement_matrix = mean_displacement_matrix / (number_of_equivalent_atoms * number_of_data)
 
         return self._mean_displacement_matrix
-
 
     def average_positions(self, number_of_samples=None):
 
