@@ -279,7 +279,13 @@ class Calculation:
             #Check if commensurate point
             if not self.check_commensurate(self.get_reduced_q_vector()):
                 print("warning! Defined wave vector is not a commensurate q-point in MD supercell")
-            self._vc = projection.project_onto_wave_vector(self.dynamic, self.get_q_vector())
+
+            if self.parameters.project_on_atom > -1:
+                print('Project on atom {}'.format(self.parameters.project_on_atom))
+
+            self._vc = projection.project_onto_wave_vector(self.dynamic,
+                                                           self.get_q_vector(),
+                                                           project_on_atom=self.parameters.project_on_atom)
         return self._vc
 
     def get_vq(self):

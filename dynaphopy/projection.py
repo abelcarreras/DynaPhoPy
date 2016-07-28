@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def project_onto_wave_vector(trajectory, q_vector):
+def project_onto_wave_vector(trajectory, q_vector, project_on_atom=-1):
 
     number_of_primitive_atoms = trajectory.structure.get_number_of_primitive_atoms()
     velocity = trajectory.get_velocity_mass_average()
@@ -24,8 +24,13 @@ def project_onto_wave_vector(trajectory, q_vector):
 
     #Projection into wave vector
     for i in range(number_of_atoms):
+        # Projection on atom
+        if project_on_atom > -1:
+            if atom_type[i] != project_on_atom:
+                continue
+
         for k in range(number_of_dimensions):
-            velocity_projected[:,atom_type[i],k] += velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector, coordinates[i,:]))
+            velocity_projected[:, atom_type[i], k] += velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector, coordinates[i,:]))
 
    #Normalize velocities (method 1)
   #  for i in range(velocity_projected.shape[1]):
