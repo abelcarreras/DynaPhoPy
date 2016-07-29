@@ -460,8 +460,6 @@ class Calculation:
 
     def plot_power_spectrum_full(self):
 
-        print(self.dynamic.structure.get_force_constants())
-
         fig, ax1 = plt.subplots()
 
         ax1.plot(self.get_frequency_range(), self.get_power_spectrum_full(), 'r-', label='Power spectrum (MD)')
