@@ -402,7 +402,8 @@ class Calculation:
 
         return np.sum(self._power_spectrum_wave_vector, axis=1)
 
-    def get_power_spectrum_direct(self):
+    def get_power_spectrum_full(self):
+
         #temporal interface
         atom_type_projection = self.parameters.project_on_atom
 
@@ -424,10 +425,21 @@ class Calculation:
 
             size = velocity_mass_average.shape[1]*velocity_mass_average.shape[2]
 
-            self._power_spectrum_direct = (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
-                velocity_mass_average.swapaxes(1, 2).reshape(-1, size),
-                self.dynamic,
-                self.parameters)
+            #Memory efficient algorithm
+            if self.parameters.silent:
+                self._power_spectrum_direct = np.zeros_like(self.parameters.frequency_range[None].T)
+                for i in range(velocity_mass_average.shape[1]):
+                    for j in range(velocity_mass_average.shape[2]):
+                        self._power_spectrum_direct += (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
+                            velocity_mass_average[:, i, j][None].T,
+                            self.dynamic,
+                            self.parameters)
+
+            else:
+                self._power_spectrum_direct = (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
+                    velocity_mass_average.swapaxes(1, 2).reshape(-1, size),
+                    self.dynamic,
+                    self.parameters)
 
             self._power_spectrum_direct = np.sum(self._power_spectrum_direct, axis=1)
         return self._power_spectrum_direct
@@ -452,7 +464,7 @@ class Calculation:
 
         fig, ax1 = plt.subplots()
 
-        ax1.plot(self.get_frequency_range(), self.get_power_spectrum_direct(), 'r-', label='Power spectrum (MD)')
+        ax1.plot(self.get_frequency_range(), self.get_power_spectrum_full(), 'r-', label='Power spectrum (MD)')
         ax1.set_xlabel('Frequency [THz]')
         ax1.set_ylabel('eV * ps')
         ax2 = ax1.twinx()
@@ -489,7 +501,7 @@ class Calculation:
 #        plt.legend()
         plt.show()
 
-        total_integral = integrate.simps(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
+        total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range()) / (2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
@@ -583,9 +595,9 @@ class Calculation:
     #Printing data to files
     def write_power_spectrum_full(self, file_name):
         reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_power_spectrum_direct()[None].T,
+                                          self.get_power_spectrum_full()[None].T,
                                           file_name)
-        total_integral = integrate.simps(self.get_power_spectrum_direct(), x=self.get_frequency_range())/(2 * np.pi)
+        total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range()) / (2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_wave_vector(self, file_name):
@@ -791,7 +803,7 @@ class Calculation:
         if from_power_spectrum:
             normalization = np.prod(self.dynamic.get_super_cell_matrix())
 
-            power_spectrum_dos = thm.get_dos(temperature, frequency_range, self.get_power_spectrum_direct(), normalization)
+            power_spectrum_dos = thm.get_dos(temperature, frequency_range, self.get_power_spectrum_full(), normalization)
             integration = integrate.simps(power_spectrum_dos, x=frequency_range)/(self.dynamic.structure.get_number_of_atoms()*
                                                            self.dynamic.structure.get_number_of_dimensions())
 
