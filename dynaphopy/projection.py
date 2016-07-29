@@ -14,13 +14,11 @@ def project_onto_wave_vector(trajectory, q_vector, project_on_atom=-1):
     coordinates = trajectory.structure.get_positions(super_cell)
     atom_type = trajectory.structure.get_atom_type_index(supercell=super_cell)
 
-
     velocity_projected = np.zeros((velocity.shape[0], number_of_primitive_atoms, number_of_dimensions), dtype=complex)
 
     if q_vector.shape[0] != coordinates.shape[1]:
         print("Warning!! Q-vector and coordinates dimension do not match")
         exit()
-
 
     #Projection into wave vector
     for i in range(number_of_atoms):
