@@ -489,7 +489,7 @@ class Calculation:
 
             ax2.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized DoS')
 
-        plt.suptitle('Full power spectrum (two sided)')
+        plt.suptitle('Full power spectrum')
 
         handles1, labels = ax1.get_legend_handles_labels()
         handles2, labels = ax2.get_legend_handles_labels()
@@ -503,7 +503,7 @@ class Calculation:
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
-        plt.suptitle('Projection onto wave vector (two sided)')
+        plt.suptitle('Projection onto wave vector')
         plt.plot(self.get_frequency_range(),self.get_power_spectrum_wave_vector(), 'r-')
         plt.xlabel('Frequency [THz]')
         plt.ylabel('eV * ps')
@@ -515,7 +515,7 @@ class Calculation:
     def plot_power_spectrum_phonon(self):
         for i in range(self.get_power_spectrum_phonon().shape[1]):
             plt.figure(i)
-            plt.suptitle('Projection onto phonon mode {0} (two sided)'.format(i+1))
+            plt.suptitle('Projection onto phonon mode {0}'.format(i+1))
             plt.plot(self.get_frequency_range(), self.get_power_spectrum_phonon()[:, i])
             plt.xlabel('Frequency [THz]')
             plt.ylabel('eV * ps')
