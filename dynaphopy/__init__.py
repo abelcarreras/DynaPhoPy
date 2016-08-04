@@ -402,9 +402,10 @@ class Calculation:
 
         return np.sum(self._power_spectrum_wave_vector, axis=1)
 
-    def get_power_spectrum_full(self):
+    def get_power_spectrum_full(self, projection_on_coordinate=-1):
 
         #temporal interface
+        number_of_dimensions = self.dynamic.structure.get_number_of_dimensions()
         atom_type_projection = self.parameters.project_on_atom
 
         if self._power_spectrum_direct is None:
@@ -413,7 +414,7 @@ class Calculation:
             velocity_mass_average = self.dynamic.get_velocity_mass_average()
 
             if atom_type_projection >= 0:
-                print('Power spectrum projected on atom type {0}'.format(atom_type_projection))
+                print('Power spectrum projected onto atom type {0}'.format(atom_type_projection))
                 supercell = self.dynamic.get_super_cell_matrix()
                 atom_types = np.array(self.dynamic.structure.get_atom_type_index(supercell=supercell))
                 atom_indices= np.argwhere(atom_types == atom_type_projection).flatten()
@@ -421,7 +422,15 @@ class Calculation:
                     print('Atom type {0} does not exist'.format(atom_type_projection))
                     exit()
 
-                velocity_mass_average = velocity_mass_average[:, atom_indices]
+                #Only works if project on atom is requested!
+                if projection_on_coordinate >= number_of_dimensions:
+                    print('Projected coordinate should be smaller than {}'.format(number_of_dimensions))
+                    exit()
+                if projection_on_coordinate > -1:
+                    print('Power spectrum projected onto coordinate {}'.format(projection_on_coordinate))
+                    velocity_mass_average = velocity_mass_average[:, atom_indices, projection_on_coordinate, None]
+                else:
+                    velocity_mass_average = velocity_mass_average[:, atom_indices]
 
             size = velocity_mass_average.shape[1]*velocity_mass_average.shape[2]
 
