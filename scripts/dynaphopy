@@ -101,8 +101,8 @@ parser.add_argument('--silent', action='store_true',
 parser.add_argument('--velocity_only', action='store_true',
                     help='loads only velocity data from hdf5 file')
 
-parser.add_argument('--asymmetric_peaks', action='store_true',
-                    help='uses asymmetric Lorentzian functions to fit spectra')
+parser.add_argument('--fitting_function', metavar='N', type=int, default=0,
+                    help='define fitting function (default: Lorentzian)')
 
 parser.add_argument('--read_from', metavar='N', type=int, default=1,
                     help='define interval of trajectory to read (default: 1)')
@@ -230,7 +230,7 @@ calculation.parameters.get_data_from_dict(input_parameters)
 
 # Set Parameters
 calculation.parameters.silent = args.silent
-calculation.parameters.use_asymmetric_peaks = args.asymmetric_peaks
+calculation.parameters.fitting_function = args.fitting_function
 calculation.parameters.degenerate = args.fcsymm
 calculation.parameters.use_MD_cell_commensurate = args.MD_commensurate
 calculation.parameters.project_on_atom = args.project_on_atom

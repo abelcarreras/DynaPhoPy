@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from dynaphopy.mem import mem
 import dynaphopy.correlation as correlation
-from dynaphopy.analysis.fitting import lorentzian, get_error_from_covariance
+from dynaphopy.analysis.fitting.fitting_functions import Lorentzian as Fitting_curve
 
 unit_conversion = 6.651206285e-4 # u * A^2 * THz -> eV*ps
 
@@ -82,6 +82,7 @@ def get_mem_spectra_par_openmp(vq, trajectory, parameters):
 
 # Coefficient analysis for MEM
 def mem_coefficient_scan_analysis(vq, trajectory, parameters):
+    import dynaphopy.analysis.fitting.fitting_functions
 
     mem_full_dict = {}
 
@@ -101,26 +102,33 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
 
             power_spectrum *= unit_conversion
 
-            height = np.max(power_spectrum)
-            position = test_frequency_range[np.argmax(power_spectrum)]
 
-            try:
-                fit_params, fit_covariances = curve_fit(lorentzian,
-                                                        test_frequency_range,
-                                                        power_spectrum,
-                                                        p0=[position, 0.1, height, 0.0])
-            except:
+            guess_height = np.max(power_spectrum)
+            guess_position = test_frequency_range[np.argmax(power_spectrum)]
+
+            Fitting_function_class = fitting_functions.Fitting_functions[fitting_function_type]
+            fitting_function = Fitting_curve(test_frequency_range,
+                                                            power_spectrum,
+                                                            guess_height=guess_height,
+                                                            guess_position=guess_position)
+
+            fitting_parameters = fitting_function.get_fitting()
+
+
+            if not fitting_parameters['all_good']:
                 print('Warning: Fitting error, skipping point {0}'.format(number_of_coefficients))
                 continue
 
 
-            maximum = fit_params[2] / (fit_params[1] * np.pi)
-            error = get_error_from_covariance(fit_covariances)
-            width = 2.0 * fit_params[1]
-            area = fit_params[2]/(2.0*np.pi)
+#            frequency = fitting_parameters['peak_position']
+            area = fitting_parameters['area']
+            width = fitting_parameters['width']
+#            base_line = fitting_parameters['base_line']
+            maximum = fitting_parameters['maximum']
+            error = fitting_parameters['error']
 
             fit_data.append([number_of_coefficients, width, error/maximum, area])
-            scan_params.append(fit_params)
+            scan_params.append(fitting_function._fit_params)
             power_spectra.append(power_spectrum)
 
             if not(parameters.silent):
@@ -172,7 +180,7 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         ax3.set_title('Best curve fitting')
         ax3.plot(test_frequency_range, mem_full_dict[i][0], label='Power spectrum')
         ax3.plot(test_frequency_range,
-                 lorentzian(test_frequency_range, *scan_params[best_index]),
+                 fitting_function._function(test_frequency_range, *scan_params[best_index]),
                  label='Lorentzian fit')
 
         plt.show()

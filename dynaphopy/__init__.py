@@ -278,7 +278,7 @@ class Calculation:
             print("Projecting into wave vector")
             #Check if commensurate point
             if not self.check_commensurate(self.get_reduced_q_vector()):
-                print("warning! Defined wave vector is not a commensurate q-point in MD supercell")
+                print("warning! This wave vector is not a commensurate q-point in MD supercell")
 
             if self.parameters.project_on_atom > -1:
                 print('Project on atom {}'.format(self.parameters.project_on_atom))
@@ -463,7 +463,7 @@ class Calculation:
                                         self.parameters.frequency_range,
                                         harmonic_frequencies=self.get_frequencies(),
                                         show_plots=not self.parameters.silent,
-                                        asymmetric_peaks=self.parameters.use_asymmetric_peaks,
+                                        fitting_function_type=self.parameters.fitting_function,
                                         use_degeneracy=self.parameters.use_symmetry)
         return
 
@@ -709,7 +709,7 @@ class Calculation:
                                     self.parameters.frequency_range,
                                     harmonic_frequencies=self.get_frequencies(),
                                     show_plots=False,
-                                    asymmetric_peaks=self.parameters.use_asymmetric_peaks,
+                                    fitting_function_type=self.parameters.fitting_function,
                                     use_degeneracy=self.parameters.use_symmetry)
 
 
