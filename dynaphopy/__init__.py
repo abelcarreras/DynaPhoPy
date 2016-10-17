@@ -351,6 +351,7 @@ class Calculation:
         from dynaphopy.analysis.fitting.fitting_functions import Fitting_functions
         if function in Fitting_functions.keys():
             if function != self.parameters.fitting_function:
+                self.power_spectra_clear()
                 self.parameters.fitting_function = function
         else:
             print("Fitting function number not found!\nPlease select:")
