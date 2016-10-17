@@ -8,10 +8,10 @@ h_planck_bar = 6.58211951e-4  # eV/ps
 kb_boltzmann = 8.6173324e-5  # eV/K
 
 
-
 def get_error_from_covariance(covariance):
   #  return np.sqrt(np.sum(np.linalg.eigvals(covariance)**2))
     return np.sqrt(np.trace(covariance))
+
 
 class Lorentzian():
     def __init__(self,
@@ -79,8 +79,6 @@ class Lorentzian():
 
     def get_curve(self, frequency_range):
         return self._function(frequency_range, *self._fit_params)
-
-
 
 
 class Lorentzian_asymmetric():
@@ -173,8 +171,6 @@ class Lorentzian_asymmetric():
         return self._function(frequency_range, *self._fit_params)
 
 
-
-
 class Damped_harmonic():
     def __init__(self,
                  test_frequencies_range,
@@ -232,7 +228,6 @@ class Damped_harmonic():
 
             error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
-
 
 
             return {'maximum': maximum,
