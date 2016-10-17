@@ -335,7 +335,7 @@ class Calculation:
         np.savetxt(file_name, self.get_vq().real)
 
     #Power spectra related methods
-    def select_power_spectra_algorithm(self,algorithm):
+    def select_power_spectra_algorithm(self, algorithm):
         if algorithm in power_spectrum_functions.keys():
             if algorithm != self.parameters.power_spectra_algorithm:
                 self.power_spectra_clear()
@@ -346,6 +346,18 @@ class Calculation:
             for i in power_spectrum_functions.keys():
                 print('{0} : {1}'.format(i,power_spectrum_functions[i][1]))
             exit()
+
+    def select_fitting_function(self, function):
+        from dynaphopy.analysis.fitting.fitting_functions import Fitting_functions
+        if function in Fitting_functions.keys():
+            if function != self.parameters.fitting_function:
+                self.parameters.fitting_function = function
+        else:
+            print("Fitting function number not found!\nPlease select:")
+            for i in Fitting_functions.keys():
+                print('{0} : {1}'.format(i, Fitting_functions[i]))
+            exit()
+
 
     def get_power_spectrum_phonon(self):
         if self._power_spectrum_phonon is None:

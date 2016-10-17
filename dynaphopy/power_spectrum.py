@@ -82,7 +82,7 @@ def get_mem_spectra_par_openmp(vq, trajectory, parameters):
 
 # Coefficient analysis for MEM
 def mem_coefficient_scan_analysis(vq, trajectory, parameters):
-    import dynaphopy.analysis.fitting.fitting_functions
+    from dynaphopy.analysis.fitting import fitting_functions
 
     mem_full_dict = {}
 
@@ -106,11 +106,11 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
             guess_height = np.max(power_spectrum)
             guess_position = test_frequency_range[np.argmax(power_spectrum)]
 
-            Fitting_function_class = fitting_functions.Fitting_functions[fitting_function_type]
+            Fitting_curve = fitting_functions.Fitting_functions[parameters.fitting_function_type]
             fitting_function = Fitting_curve(test_frequency_range,
-                                                            power_spectrum,
-                                                            guess_height=guess_height,
-                                                            guess_position=guess_position)
+                                             power_spectrum,
+                                             guess_height=guess_height,
+                                             guess_position=guess_position)
 
             fitting_parameters = fitting_function.get_fitting()
 
@@ -181,7 +181,7 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         ax3.plot(test_frequency_range, mem_full_dict[i][0], label='Power spectrum')
         ax3.plot(test_frequency_range,
                  fitting_function._function(test_frequency_range, *scan_params[best_index]),
-                 label='Lorentzian fit')
+                 label='{} fit'.format(fitting_function.curve_name))
 
         plt.show()
 

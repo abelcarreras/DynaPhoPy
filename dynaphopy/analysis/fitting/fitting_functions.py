@@ -60,6 +60,8 @@ class Lorentzian():
             width = 2.0*fit_params[1]
             frequency = fit_params[0]
             area = fit_params[2]/(2 * np.pi)
+
+
             error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
 
@@ -120,6 +122,7 @@ class Lorentzian_asymmetric():
 
 
     def get_fitting(self):
+        from scipy.integrate import quad
 
         try:
 
@@ -146,7 +149,11 @@ class Lorentzian_asymmetric():
             width = self._g_a(frequency, fit_params[0], fit_params[1], fit_params[4])*2
             asymmetry = fit_params[4]
 
-            area = fit_params[2]/(2 * np.pi)
+            area, error_integration = quad(self._function, 0, self.test_frequencies_range[-1],
+                                           args=tuple(fit_params),
+                                           epsabs=1e-8)
+            area /=2*np.pi
+        #    area = fit_params[2]/(2 * np.pi)
             error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
 
@@ -195,6 +202,7 @@ class Damped_harmonic():
         return c/(((a**2-x**2)**2 + (b*x)**2))+d
 
     def get_fitting(self):
+        from scipy.integrate import quad
 
         try:
 
@@ -214,9 +222,17 @@ class Damped_harmonic():
             width = abs(fit_params[1])
             maximum = fit_params[2]/(width*np.pi)
             frequency = fit_params[0]
-            area = fit_params[2]*np.pi/(fit_params[0]**3*width)
+
+            area, error_integration = quad(self._function, 0, self.test_frequencies_range[-1],
+                                           args=tuple(fit_params),
+                                           epsabs=1e-8)
+            area /=2*np.pi
+#            area = fit_params[2]*np.pi/(fit_params[0]**3*width)
+
+
             error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
+
 
 
             return {'maximum': maximum,
