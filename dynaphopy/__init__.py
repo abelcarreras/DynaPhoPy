@@ -359,7 +359,6 @@ class Calculation:
                 print('{0} : {1}'.format(i, Fitting_functions[i]))
             exit()
 
-
     def get_power_spectrum_phonon(self):
         if self._power_spectrum_phonon is None:
             print("Calculating phonon projection power spectra")

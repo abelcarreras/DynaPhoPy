@@ -255,3 +255,12 @@ Fitting_functions = {
     1: Lorentzian_asymmetric,
     2: Damped_harmonic,
 }
+
+
+#Test for automatic detection (order can change)
+#import sys, inspect
+#list_fitting = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+#Fitting_functions = {}
+#for i, p in enumerate(list_fitting):
+#    Fitting_functions[i] = p[1]
+
