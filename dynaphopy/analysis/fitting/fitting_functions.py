@@ -7,8 +7,10 @@ kb_boltzmann = 8.6173324e-5  # eV/K
 
 
 def get_error_from_covariance(covariance):
-    #  return np.sqrt(np.sum(np.linalg.eigvals(covariance)**2))
-    return np.sqrt(np.trace(covariance))
+    return np.sqrt(np.sum(np.linalg.eigvals(covariance)))
+    # print np.sqrt(np.sum(np.linalg.eigvals(covariance))), np.sqrt(np.trace(covariance))
+    # print(np.max(np.linalg.eigvals(covariance)), np.max(np.diag(covariance)))
+    #return np.sqrt(np.trace(covariance))
 
 
 class Lorentzian:
@@ -38,6 +40,7 @@ class Lorentzian:
         return c/(np.pi*b*(1.0+((x - a)/b)**2))+d
 
     def get_fitting(self):
+        from scipy.integrate import quad
 
         try:
 

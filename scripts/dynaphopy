@@ -198,7 +198,11 @@ if args.load_velocity:
                                                    memmap=args.memmap)
     structure_file = args.load_velocity[0]
 if args.md_file:
-    trajectory_reading_function = reading.check_trajectory_file_type(args.md_file)
+    trajectory_reading_function = reading.get_trajectory_parser(args.md_file)
+    if trajectory_reading_function is None:
+        print('Trajectory file format not recognized')
+        exit()
+
     trajectory = trajectory_reading_function(args.md_file,
                                              structure,
                                              args.time_step,
