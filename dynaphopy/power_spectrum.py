@@ -186,7 +186,7 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
 
 
 #####################################
-#   FFT method                      #
+#   FFT method (NUMPY)              #
 #####################################
 
 def autocorrelation(x):
@@ -266,7 +266,9 @@ def get_fft_spectra(vq, trajectory, parameters):
 
     return psd_vector * unit_conversion
 
-#   FFTW
+#####################################
+#   FFT method (FFTW)               #
+#####################################
 
 def fftw_power(frequency_range, data, time_step):
     import pyfftw
