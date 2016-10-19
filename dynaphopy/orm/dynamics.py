@@ -1,5 +1,5 @@
 import numpy as np
-from dynaphopy.classes import atoms
+from dynaphopy.orm import atoms
 from dynaphopy.displacements import atomic_displacement
 import os
 

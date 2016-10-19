@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import mmap
-import dynaphopy.classes.dynamics as dyn
+import dynaphopy.orm.dynamics as dyn
 
 # VASP OUTCAR file parser
 def read_vasp_trajectory(file_name, structure=None, time_step=None,

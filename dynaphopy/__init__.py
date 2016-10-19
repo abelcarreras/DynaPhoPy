@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 import dynaphopy.projection as projection
 import dynaphopy.power_spectrum as power_spectrum
-import dynaphopy.classes.parameters as parameters
+import dynaphopy.orm.parameters as parameters
 import dynaphopy.interface.phonopy_link as pho_interface
 import dynaphopy.interface.iofile as reading
 import dynaphopy.analysis.energy as energy
@@ -907,8 +907,7 @@ class Calculation:
                                                                                                u[coordinate_type][2, 2],
                                                                                                u[coordinate_type][1, 2],
                                                                                                u[coordinate_type][0, 2],
-                                                                                               u[coordinate_type][
-                                                                                                   0, 1]))
+                                                                                               u[coordinate_type][0, 1]))
 
             anisotropic_displacements.append(u[coordinate_type])
 

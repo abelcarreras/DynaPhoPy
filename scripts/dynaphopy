@@ -5,9 +5,9 @@ import dynaphopy
 import dynaphopy.interface.iofile as reading
 import dynaphopy.interface.interactive_ui as interactive_ui
 import dynaphopy.generate_cell as generate
+from dynaphopy.interface.phonopy_link import get_force_sets_from_file, get_force_constants_from_file
 
 from fractions import Fraction
-from dynaphopy.interface.phonopy_link import get_force_sets_from_file, get_force_constants_from_file
 
 # Define arguments
 parser = argparse.ArgumentParser(description='DynaPhoPy options')
@@ -120,10 +120,10 @@ parser.add_argument('--resolution', metavar='F', type=float, default=None, nargs
                     help='define power spectrum resolution in THz (default 0.05)')
 
 parser.add_argument('--dim', metavar='N', type=int, default=[1, 1, 1], nargs=3,
-                    help='Set the dimensions of generate structures (Default: [1, 1, 1])')
+                    help='Set the dimensions of generated structure/trajectory (Default: [1, 1, 1])')
 
 group.add_argument('--generate_trajectory', metavar='F', type=float, default=None, nargs=3,
-                    help='Generate a test harmonic trajectory from force constants [total time (ps), time step (ps), energy (Kelvin)]')
+                    help='Generate a test harmonic trajectory using force constants [total time (ps), time step (ps), energy (Kelvin)]')
 
 group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
                     help='Generate a VASP POSCAR structure file')
@@ -132,10 +132,10 @@ group.add_argument('-c_lammps', metavar='file', type=str, default=None, nargs=1,
                     help='Generate a LAMMPS data structure file')
 
 parser.add_argument('-average', action='store_true',
-                    help='returns average atomic positions from MD')
+                    help='returns average atomic positions of the MD')
 
 parser.add_argument('--MD_commensurate', action='store_true',
-                    help='use commensurate points in MD cell instead of phonon cell')
+                    help='use commensurate points in MD supercell instead of force constants supercell')
 
 parser.add_argument('--normalize_dos', action='store_true',
                     help='normalize DoS obtained from PS in thermal properties calculation')

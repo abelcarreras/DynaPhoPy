@@ -2,12 +2,11 @@ import numpy as np
 import sys
 
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
 from dynaphopy.mem import mem
 import dynaphopy.correlation as correlation
-from dynaphopy.analysis.fitting.fitting_functions import Lorentzian as Fitting_curve
 
 unit_conversion = 6.651206285e-4 # u * A^2 * THz -> eV*ps
+
 
 def progress_bar(progress, label):
     bar_length = 30

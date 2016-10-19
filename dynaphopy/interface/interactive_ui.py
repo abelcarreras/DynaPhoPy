@@ -343,7 +343,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
 
 
-
     curses.endwin()
 
 #Just for testing

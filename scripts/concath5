@@ -6,8 +6,10 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser(description='concath5')
+
 parser.add_argument('input', metavar='input_files', type=str, nargs='+',
                    help='files to be joined')
+
 parser.add_argument('output', metavar='output_file', type=str, nargs=1,
                    help='joined file')
 
