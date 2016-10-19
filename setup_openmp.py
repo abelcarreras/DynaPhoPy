@@ -3,14 +3,14 @@ import numpy
 
 include_dirs_numpy = [numpy.get_include()]
 
-correlation = Extension('dynaphopy.correlation',
+correlation = Extension('dynaphopy.power_spectrum.correlation',
                         extra_compile_args=['-std=c99', '-fopenmp'],
                         extra_link_args=['-lgomp'],
                         include_dirs = include_dirs_numpy,
                         sources=['Extensions/correlation.c'])
 
 
-mem = Extension('dynaphopy.mem',
+mem = Extension('dynaphopy.power_spectrum.mem',
                 extra_compile_args=['-std=c99', '-fopenmp'],
                 extra_link_args=['-lgomp'],
                 include_dirs = include_dirs_numpy,

@@ -2,8 +2,8 @@ import numpy as np
 import sys
 
 import matplotlib.pyplot as plt
-from dynaphopy.mem import mem
-import dynaphopy.correlation as correlation
+import correlation
+import mem
 
 unit_conversion = 6.651206285e-4 # u * A^2 * THz -> eV*ps
 
@@ -67,10 +67,10 @@ def get_mem_spectra_par_openmp(vq, trajectory, parameters):
     if not(parameters.silent):
         progress_bar(0, 'M. Entropy')
     for i in range(vq.shape[1]):
-        psd_vector.append(mem(test_frequency_range,
-                              vq[:, i],
-                              trajectory.get_time_step_average(),
-                              coefficients=parameters.number_of_coefficients_mem))
+        psd_vector.append(mem.mem(test_frequency_range,
+                                  vq[:, i],
+                                  trajectory.get_time_step_average(),
+                                  coefficients=parameters.number_of_coefficients_mem))
 
         if not(parameters.silent):
             progress_bar(float(i+1)/vq.shape[1], 'M. Entropy')
@@ -94,10 +94,10 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
             progress_bar(0, 'M.E. Method')
         for number_of_coefficients in parameters.mem_scan_range:
 
-            power_spectrum = mem(test_frequency_range,
-                                 vq[:, i],
-                                 trajectory.get_time_step_average(),
-                                 coefficients=number_of_coefficients)
+            power_spectrum = mem.mem(test_frequency_range,
+                                     vq[:, i],
+                                     trajectory.get_time_step_average(),
+                                     coefficients=number_of_coefficients)
 
             power_spectrum *= unit_conversion
 
