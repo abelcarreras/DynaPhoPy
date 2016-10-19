@@ -236,7 +236,7 @@ class Damped_harmonic:
         return self._function(frequency_range, *self._fit_params)
 
 
-Fitting_functions = {
+fitting_functions = {
     0: Lorentzian,
     1: Lorentzian_asymmetric,
     2: Damped_harmonic,

@@ -30,7 +30,9 @@ setup(name='dynaphopy',
                 'dynaphopy.orm',
                 'dynaphopy.power_spectrum',
                 'dynaphopy.analysis',
-                'dynaphopy.interface'],
+                'dynaphopy.analysis.fitting',
+                'dynaphopy.interface',
+                'dynaphopy.interface.iofile'],
       scripts=['scripts/dynaphopy'],
       ext_modules=[correlation, mem, displacements])
 

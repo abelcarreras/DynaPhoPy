@@ -342,15 +342,15 @@ class Calculation:
             exit()
 
     def select_fitting_function(self, function):
-        from dynaphopy.analysis.fitting.fitting_functions import Fitting_functions
-        if function in Fitting_functions.keys():
+        from dynaphopy.analysis.fitting.fitting_functions import fitting_functions
+        if function in fitting_functions.keys():
             if function != self.parameters.fitting_function:
                 self.force_constants_clear()
                 self.parameters.fitting_function = function
         else:
             print("Fitting function number not found!\nPlease select:")
-            for i in Fitting_functions.keys():
-                print('{0} : {1}'.format(i, Fitting_functions[i]))
+            for i in fitting_functions.keys():
+                print('{0} : {1}'.format(i, fitting_functions[i]))
             exit()
 
     def get_power_spectrum_phonon(self):

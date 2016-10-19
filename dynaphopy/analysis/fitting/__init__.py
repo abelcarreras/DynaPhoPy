@@ -56,7 +56,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         guess_height = np.max(power_spectrum)
         guess_position = test_frequencies_range[np.argmax(power_spectrum)]
 
-        Fitting_function_class = fitting_functions.Fitting_functions[fitting_function_type]
+        Fitting_function_class = fitting_functions.fitting_functions[fitting_function_type]
         fitting_function = Fitting_function_class(test_frequencies_range,
                                                   power_spectrum,
                                                   guess_height=guess_height,
