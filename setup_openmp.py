@@ -30,6 +30,7 @@ setup(name='dynaphopy',
       author_email='abelcarreras83@gmail.com',
       packages=['dynaphopy',
                 'dynaphopy.orm',
+                'dynaphopy.power_spectrum'
                 'dynaphopy.analysis',
                 'dynaphopy.interface'],
       scripts=['scripts/dynaphopy'],
