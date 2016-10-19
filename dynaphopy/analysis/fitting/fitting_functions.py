@@ -209,8 +209,11 @@ class Damped_harmonic:
             self._fit_params = fit_params
 
             width = abs(fit_params[1])
+
             maximum = fit_params[2]/(width*np.pi)
             frequency = fit_params[0]
+            maximum = self.get_curve(frequency)
+
 
             area, error_integration = quad(self._function, 0, self.test_frequencies_range[-1],
                                            args=tuple(fit_params),
