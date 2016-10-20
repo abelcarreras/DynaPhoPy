@@ -304,16 +304,16 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
 
                 if x2 == ord('6'):
-                    from dynaphopy.analysis.fitting.fitting_functions import Fitting_functions
+                    from dynaphopy.analysis.fitting.fitting_functions import fitting_functions
                     x3 = 9
-                    while x3 >= len(Fitting_functions):
+                    while x3 >= len(fitting_functions):
                         screen = curses.initscr()
                         screen.clear()
                         screen.border(0)
 
                         screen.addstr(2, 2, "Fitting functions...")
-                        for i in Fitting_functions.keys():
-                            algorithm = Fitting_functions[i]
+                        for i in fitting_functions.keys():
+                            algorithm = fitting_functions[i]
                             if i == calculation.parameters.fitting_function:
                                 screen.addstr(4+i, 3, ">"+str(i) +" : "+ str(algorithm).split('.')[-1].replace('_',' '))
                             else:
