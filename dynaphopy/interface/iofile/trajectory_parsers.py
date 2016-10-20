@@ -318,3 +318,136 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 
     print('LAMMPS parsing error. Data not recognized: {}'.format(lammps_labels))
     exit()
+
+
+
+
+
+def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
+                      limit_number_steps=10000000,
+                      last_steps=None,
+                      initial_cut=1,
+                      end_cut=None,
+                      memmap=False):
+
+ #Time in picoseconds
+ #Coordinates in Angstroms
+
+    #Read environtment variables
+    try:
+        temp_directory = os.environ["DYNAPHOPY_TEMPDIR"]
+        if os.path.isdir(temp_directory):
+            print('Set temporal directory: {0}'.format(temp_directory))
+            temp_directory += '/'
+        else:
+            temp_directory = ''
+    except KeyError:
+        temp_directory = ''
+
+    number_of_atoms = None
+    bounds = None
+
+    #Check file exists
+    if not os.path.isfile(file_name):
+        print('Trajectory file does not exist!')
+        exit()
+
+    #Check time step
+    if time_step is None:
+        print('Warning! XDATCAR file does not contain time step information')
+        print('Using default: 0.001 ps')
+        time_step = 0.001
+
+    #Starting reading
+    print("Reading XDATCAR file")
+    print("This could take long, please wait..")
+
+    #Dimensionality of VASP calculation
+    number_of_dimensions = 3
+
+    time = []
+    data = []
+    counter = 0
+
+    with open(file_name, "r+") as f:
+
+        file_map = mmap.mmap(f.fileno(), 0)
+
+        #Read cell
+        for i in range(2): file_map.readline()
+        a = file_map.readline().split()
+        b = file_map.readline().split()
+        c = file_map.readline().split()
+        super_cell = np.array([a, b, c], dtype='double').T
+
+        for i in range(1): file_map.readline()
+        number_of_atoms = np.array(file_map.readline().split(), dtype=int).sum()
+
+        while True:
+
+            counter += 1
+
+            #Read time steps
+            position_number=file_map.find('Direct configuration')
+            if position_number < 0: break
+
+            file_map.seek(position_number)
+            time.append(float(file_map.readline().split('=')[1]))
+
+            if memmap:
+                if end_cut:
+                    data = np.memmap(temp_directory+'trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
+                else:
+                    print('Memory mapping requires to define reading range (use read_from/read_to option)')
+                    exit()
+
+
+            #Initial cut control
+            if initial_cut > counter:
+                continue
+
+            #Reading coordinates
+            read_coordinates = []
+            for i in range (number_of_atoms):
+                read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
+
+            try:
+                if memmap:
+                    data[counter-initial_cut, :, :] = np.array(read_coordinates, dtype=float) #in angstroms
+                else:
+                    data.append(np.array(read_coordinates, dtype=float)) #in angstroms
+
+            except ValueError:
+                print("Error reading step {0}".format(counter))
+                break
+        #        print(read_coordinates)
+
+            #security routine to limit maximum of steps to read and put in memory
+            if limit_number_steps+initial_cut < counter:
+                print("Warning! maximum number of steps reached! No more steps will be read")
+                break
+
+            if end_cut is not None and end_cut <= counter:
+                break
+
+    file_map.close()
+
+    time = np.array(time) * time_step
+
+    if not memmap:
+        data = np.array(data, dtype=complex)
+
+        if last_steps is not None:
+            data = data[-last_steps:, :, :]
+            time = time[-last_steps:]
+
+
+    return dyn.Dynamics(structure=structure,
+                        scaled_trajectory=data,
+                        time=time,
+                        super_cell=super_cell,
+                        memmap=memmap)
+
+
+if __name__ == "__main__":
+    read_VASP_XDATCAR('/home/abel/VASP/MgO/MgO-FINAL/MgO_0.5_1600/No1/XDATCAR')
