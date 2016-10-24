@@ -67,7 +67,7 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
     return phonon
 
 
-def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthonormal=False, print_data=True):
+def obtain_eigenvectors_and_frequencies(structure, q_vector, NAC=False, test_orthonormal=False, print_data=True):
 
     phonon = get_phonon(structure, NAC=NAC)
 
@@ -150,7 +150,7 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
     phonon.set_thermal_properties(t_step=1, t_min=temperature, t_max=temperature)
     t, free_energy, entropy, cv = np.array(phonon.get_thermal_properties()).T[0]
 
-    #Normalize to unit cell
+    # Normalize to unit cell
     unit_cell_relation = float(structure.get_number_of_atoms())/structure.get_number_of_primitive_atoms()
     free_energy *= unit_cell_relation
     entropy *= unit_cell_relation

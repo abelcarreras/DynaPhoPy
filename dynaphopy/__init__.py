@@ -157,18 +157,18 @@ class Calculation:
         if self._eigenvectors is None:
             print("Getting frequencies & eigenvectors from Phonopy")
             self._eigenvectors, self._frequencies = (
-                pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,
-                                                               self.parameters.reduced_q_vector,
-                                                               NAC=self.parameters.use_NAC))
+                pho_interface.obtain_eigenvectors_and_frequencies(self.dynamic.structure,
+                                                                  self.parameters.reduced_q_vector,
+                                                                  NAC=self.parameters.use_NAC))
         return self._eigenvectors
 
     def get_frequencies(self):
         if self._frequencies is None:
             print("Getting frequencies & eigenvectors from Phonopy")
             self._eigenvectors, self._frequencies = (
-                pho_interface.obtain_eigenvectors_from_phonopy(self.dynamic.structure,
-                                                               self.parameters.reduced_q_vector,
-                                                               NAC=self.parameters.use_NAC))
+                pho_interface.obtain_eigenvectors_and_frequencies(self.dynamic.structure,
+                                                                  self.parameters.reduced_q_vector,
+                                                                  NAC=self.parameters.use_NAC))
         return self._frequencies
 
     def set_band_ranges(self, band_ranges):
