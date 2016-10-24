@@ -204,8 +204,8 @@ def read_from_file_structure_poscar(file_name):
     return atomtest.Structure(cell= direct_cell,
                               scaled_positions=scaled_positions,
                               positions=positions,
-                              atomic_types=atomic_types,
-#                              primitive_cell=primitive_cell
+                              atomic_elements=atomic_types,
+                              #                              primitive_cell=primitive_cell
                               )
 
 
