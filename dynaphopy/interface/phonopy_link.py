@@ -14,17 +14,19 @@ def eigenvectors_normalization(eigenvector):
 
 
 def get_force_sets_from_file(file_name='FORCE_SETS'):
-    #Just a wrapper to phonopy function
+    # Just a wrapper to phonopy function
     force_sets = parse_FORCE_SETS(filename=file_name)
     return force_sets
 
+
 def get_force_constants_from_file(file_name='FORCE_CONSTANTS'):
-    #Just a wrapper to phonopy function
+    # Just a wrapper to phonopy function
     force_constants = parse_FORCE_CONSTANTS(filename=file_name)
     return force_constants
 
+
 def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
-    #Just a wrapper to phonopy function
+    # Just a wrapper to phonopy function
     write_FORCE_CONSTANTS(force_constants, filename=filename)
 
 
@@ -43,15 +45,13 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
                      primitive_matrix=structure.get_primitive_matrix(),
                      is_auto_displacements=False)
 
-
-    #Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
+    # Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
     if NAC:
         print("Phonopy warning: Using Non Analytical Corrections")
         get_is_symmetry = True  #from phonopy:   settings.get_is_symmetry()
         primitive = phonon.get_primitive()
         nac_params = parse_BORN(primitive, get_is_symmetry)
         phonon.set_nac_params(nac_params=nac_params)
-
 
     if setup_forces:
         if not structure.forces_available():
@@ -69,16 +69,15 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
 def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthonormal=False, print_data=True):
 
-    phonon = get_phonon(structure)
+    phonon = get_phonon(structure, NAC=NAC)
 
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
-
 
     if False:
         print('Eigenvectors')
         print(eigenvectors)
 
-    #Making sure eigenvectors are orthonormal (can be omitted)
+    # Making sure eigenvectors are orthonormal (can be omitted)
     if test_orthonormal:
         eigenvectors = eigenvectors_normalization(eigenvectors)
         print('Testing eigenvectors orthonormality')
@@ -100,7 +99,6 @@ def obtain_eigenvectors_from_phonopy(structure, q_vector, NAC=False, test_orthon
         print(frequencies)
 
     return arranged_ev, frequencies
-
 
 
 def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_min=None, freq_max=None, projected_on_atom=-1):
