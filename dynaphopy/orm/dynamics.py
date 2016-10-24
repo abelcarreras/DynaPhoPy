@@ -104,7 +104,7 @@ def type_2(i, size, natom, mpi_lammps=2):
     z = i/(size[1]*half_size*natom)
     k = np.mod(i, natom)
 
-    if i>=total/mpi_lammps:
+    if i>= total/mpi_lammps:
         x += half_size
         z -= half_size
 

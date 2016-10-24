@@ -225,11 +225,11 @@ if args.generate_trajectory:
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
     print('Loading projected velocity only (limited features only)')
-    calculation = dynaphopy.Calculation(trajectory[2], vc=trajectory[0], last_steps=args.n)
+    calculation = dynaphopy.Quasiparticle(trajectory[2], vc=trajectory[0], last_steps=args.n)
     input_parameters.update({'_reduced_q_vector': trajectory[1], '_use_symmetry': False})
 
 else:
-    calculation = dynaphopy.Calculation(trajectory, last_steps=args.n)
+    calculation = dynaphopy.Quasiparticle(trajectory, last_steps=args.n)
 
 
 calculation.parameters.get_data_from_dict(input_parameters)

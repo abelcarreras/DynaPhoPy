@@ -361,5 +361,5 @@ if __name__ == 'test_gui.py':
 
     trajectory = reading.read_from_file_trajectory(trajectory_file_name,structure,last_steps=5000)
 
-    calculation = controller.Calculation(trajectory)
+    calculation = controller.Quasiparticle(trajectory)
     calculation.set_band_ranges(input_parameters['bands'])

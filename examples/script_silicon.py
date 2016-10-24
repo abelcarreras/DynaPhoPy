@@ -44,7 +44,7 @@ trajectory = parsers.read_vasp_trajectory('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_4
 #trajectory = parsers.read_lammps_trajectory('/home/abel/LAMMPS/Si/Si_400.lammpstrj', structure, initial_cut=10000, end_cut=12000)
 
 
-calculation = dynaphopy.Calculation(trajectory)
+calculation = dynaphopy.Quasiparticle(trajectory)
 
 
 ############################## DEFINE CALCULATION REQUESTS #####################################

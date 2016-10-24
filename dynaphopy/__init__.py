@@ -24,7 +24,7 @@ power_spectrum_functions = {
 }
 
 
-class Calculation:
+class Quasiparticle:
     def __init__(self,
                  dynamic,
                  last_steps=None,
