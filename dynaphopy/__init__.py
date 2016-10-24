@@ -53,7 +53,7 @@ class Quasiparticle:
         else:
             if last_steps is not None:
                 self._vc = self._vc[-last_steps:, :, :]
-                print("Using {0} steps".format(len(self._vc)))
+            print("Using {0} steps".format(len(self._vc)))
 
     # Memory clear methods
     def full_clear(self):
