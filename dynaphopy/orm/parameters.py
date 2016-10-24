@@ -36,10 +36,7 @@ class Parameters:
                     # 1: Maximum Entropy Method parallel (OpenMP) [Recommended]
                     # 2: FFT via numpy
                     # 3: FFT via FFTW
-
-                 fitting_function=0,
-
-
+                 fitting_function=0, # Default fitting function
 
                  # Phonon dispersion diagram
                  use_NAC=False,
@@ -49,6 +46,9 @@ class Parameters:
                  # Force constants
                  symmetrize=False,
                  use_symmetry=True,
+
+                # Renormalized frequencies
+                 save_renormalized_frequencies=False,
 
                  # Modes (eigenvectors) display
                  modes_vectors_scale=10,
@@ -80,6 +80,7 @@ class Parameters:
 
         self._symmetrize = symmetrize
         self._use_symmetry = use_symmetry
+        self._save_renormalized_frequencies = save_renormalized_frequencies
 
         self._modes_vectors_scale = modes_vectors_scale
         self._mesh_phonopy = mesh_phonopy
@@ -231,6 +232,14 @@ class Parameters:
     @symmetrize.setter
     def symmetrize(self, symmetrize):
         self._symmetrize = symmetrize
+
+    @property
+    def save_renormalized_frequencies(self):
+        return self._save_renormalized_frequencies
+
+    @save_renormalized_frequencies.setter
+    def save_renormalized_frequencies(self, save_renormalized_frequencies):
+        self._save_renormalized_frequenciese = save_renormalized_frequencies
 
     @property
     def mesh_phonopy(self):

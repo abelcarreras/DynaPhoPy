@@ -116,6 +116,9 @@ parser.add_argument('--fcsymm', action='store_true',
 parser.add_argument('--no_symmetry', action='store_true',
                     help='do not use crystal symmetry')
 
+parser.add_argument('--save_renormalized_frequencies', action='store_true',
+                    help='save renormalized frequencies in a file when renormalized force constants are calculated')
+
 parser.add_argument('--resolution', metavar='F', type=float, default=None, nargs=1,
                     help='define power spectrum resolution in THz (default 0.05)')
 
@@ -238,6 +241,7 @@ calculation.parameters.fitting_function = args.fitting_function
 calculation.parameters.degenerate = args.fcsymm
 calculation.parameters.use_MD_cell_commensurate = args.MD_commensurate
 calculation.parameters.project_on_atom = args.project_on_atom
+calculation.parameters.save_renormalized_frequencies = args.save_renormalized_frequencies
 
 calculation.set_temperature(args.temperature)
 

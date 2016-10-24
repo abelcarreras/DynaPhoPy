@@ -161,29 +161,17 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
     return free_energy, entropy, cv
 
 
-def obtain_phonon_dispersion_bands(structure, bands_ranges, NAC=False, band_resolution=30):
+def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None, NAC=False, band_resolution=30):
 
-    print('Getting phonon dispersion bands')
-    phonon = get_phonon(structure, NAC=NAC)
+    if force_constants is not None:
+        print('Getting renormalized phonon dispersion relations')
+        phonon = get_phonon(structure, NAC=False, setup_forces=False,
+                            custom_supercell=structure.get_super_cell_phonon_renormalized())
 
-    bands =[]
-    for q_start, q_end in bands_ranges:
-        band = []
-        for i in range(band_resolution+1):
-            band.append(np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i)
-        bands.append(band)
-    phonon.set_band_structure(bands)
-
-    return phonon.get_band_structure()
-
-
-def obtain_renormalized_phonon_dispersion_bands(structure, bands_ranges, force_constants, NAC=False, band_resolution=30):
-
-    print('Getting renormalized phonon dispersion bands')
-    phonon = get_phonon(structure, NAC=False, setup_forces=False,
-                        custom_supercell=structure.get_super_cell_phonon_renormalized())
-
-    phonon.set_force_constants(force_constants)
+        phonon.set_force_constants(force_constants)
+    else:
+        print('Getting phonon dispersion relations')
+        phonon = get_phonon(structure, NAC=NAC)
 
     bands =[]
     for q_start, q_end in bands_ranges:

@@ -205,9 +205,9 @@ class Calculation:
                                                                        NAC=self.parameters.use_NAC)
 
         if self._renormalized_bands is None:
-            self._renormalized_bands = pho_interface.obtain_renormalized_phonon_dispersion_bands(self.dynamic.structure,
+            self._renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                                  self.parameters.band_ranges,
-                                                                                                 self.get_renormalized_force_constants(),
+                                                                                                 force_constants=self.get_renormalized_force_constants(),
                                                                                                  NAC=self.parameters.use_NAC)
 
         for i, freq in enumerate(self._renormalized_bands[1]):
@@ -729,7 +729,8 @@ class Calculation:
                 linewidths.append(data['widths'])
 
             renormalized_frequencies = np.array(renormalized_frequencies)
-            np.savetxt('test_freq', renormalized_frequencies)
+            if self.parameters.save_renormalized_frequencies:
+                np.savetxt('renormalized_frequencies', renormalized_frequencies)
             #            np.savetxt('test_line', linewidths)
 
 
