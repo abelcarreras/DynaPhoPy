@@ -50,6 +50,7 @@ class Quasiparticle:
     def crop_trajectory(self, last_steps):
         if self._vc is None:
             self._dynamic.crop_trajectory(last_steps)
+            print("Using {0} steps".format(len(self._dynamic.velocity)))
         else:
             if last_steps is not None:
                 self._vc = self._vc[-last_steps:, :, :]
