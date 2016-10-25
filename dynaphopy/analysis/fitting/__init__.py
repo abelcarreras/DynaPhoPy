@@ -78,7 +78,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         base_line = fitting_parameters['base_line']
         maximum = fitting_parameters['maximum']
         error = fitting_parameters['average_relative_error']
-
+        standard_errors = fitting_parameters['standard_errors']
         total_integral = simps(power_spectrum, x=test_frequencies_range)/ (2 * np.pi)
 
         # Calculated properties
@@ -98,8 +98,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         #Print section
         print ('\nPeak # {0}'.format(i+1))
         print ('----------------------------------------------')
-        print ('Width (FWHM)               {0:15.6f} THz'.format(width))
-        print ('Position                   {0:15.6f} THz'.format(frequency))
+        print ('Width (FWHM)               {0:15.6f} +- {1:8.3e} THz'.format(width, standard_errors[0]))
+        print ('Position                   {0:15.6f} +- {1:8.3e} THz'.format(frequency, standard_errors[1]))
         print ('Area (1/2<K>) ({0:.10s}) {1:15.6f} eV'.format(fitting_function.curve_name, area))      # 1/2 Kinetic energy
         print ('Area (1/2<K>) (Total)      {0:15.6f} eV'.format(total_integral))   # 1/2 Kinetic energy
         print ('<|dQ/dt|^2>                {0:15.6f} eV'.format(dt_Q2_lor))        # Kinetic energy
