@@ -77,7 +77,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         width = fitting_parameters['width']
         base_line = fitting_parameters['base_line']
         maximum = fitting_parameters['maximum']
-        error = fitting_parameters['error']
+        error = fitting_parameters['average_relative_error']
 
         total_integral = simps(power_spectrum, x=test_frequencies_range)/ (2 * np.pi)
 
@@ -113,7 +113,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
      #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
         print ('Base line                  {0:15.6f} eV * ps'.format(base_line))
         print ('Maximum height             {0:15.6f} eV * ps'.format(maximum))
-        print ('Fit Error(RMSD)/ Max.      {0:15.6f}'.format(error/maximum))
+        print ('Fit relative error         {0:15.6f}'.format(error))
 
         if 'asymmetry' in fitting_parameters:
             asymmetry = fitting_parameters['asymmetry']

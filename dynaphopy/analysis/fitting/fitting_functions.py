@@ -6,10 +6,9 @@ h_planck_bar = 6.58211951e-4  # eV/ps
 kb_boltzmann = 8.6173324e-5  # eV/K
 
 
-def get_error_from_covariance(covariance):
-    return np.sqrt(np.sum(np.linalg.eigvals(covariance)))
-    # print np.sqrt(np.sum(np.linalg.eigvals(covariance))), np.sqrt(np.trace(covariance))
-    # print(np.max(np.linalg.eigvals(covariance)), np.max(np.diag(covariance)))
+def get_standard_errors_from_covariance(covariance):
+  #  return np.sqrt(np.sum(np.linalg.eigvals(covariance)))
+    return np.sqrt(np.diag(covariance))
     #return np.sqrt(np.trace(covariance))
 
 
@@ -61,13 +60,18 @@ class Lorentzian:
             frequency = fit_params[0]
             area = fit_params[2]/(2 * np.pi)
 
-            error = get_error_from_covariance(fit_covariances)
+            standard_errors = get_standard_errors_from_covariance(fit_covariances)
+
+            relative_error = np.average([standard_errors[0]/frequency, standard_errors[1]/width])
+
+            #error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
 
             return {'maximum': maximum,
                     'width': width,
                     'peak_position': frequency,
-                    'error': error,
+                    'standard_errors': standard_errors,
+                    'average_relative_error': relative_error,
                     'area': area,
                     'base_line': base_line,
                     'all_good': True}
@@ -146,13 +150,18 @@ class Lorentzian_asymmetric:
                                            epsabs=1e-8)
             area /= 2*np.pi
         #    area = fit_params[2]/(2 * np.pi)
-            error = get_error_from_covariance(fit_covariances)
+
+            standard_errors = get_standard_errors_from_covariance(fit_covariances)
+            relative_error = np.average([standard_errors[0]/frequency, standard_errors[1]/width])
+
+            #error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
 
             return {'maximum': maximum,
                     'width': width,
                     'peak_position': frequency,
-                    'error': error,
+                    'standard_errors': standard_errors,
+                    'average_relative_error': relative_error,
                     'area': area,
                     'base_line': base_line,
                     'asymmetry': asymmetry,
@@ -221,13 +230,17 @@ class Damped_harmonic:
             area /= 2*np.pi
 #            area = fit_params[2]*np.pi/(fit_params[0]**3*width)
 
-            error = get_error_from_covariance(fit_covariances)
+            standard_errors = get_standard_errors_from_covariance(fit_covariances)
+
+            relative_error = np.average([standard_errors[0]/frequency, standard_errors[1]/width])
+            #error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
 
             return {'maximum': maximum,
                     'width': width,
                     'peak_position': frequency,
-                    'error': error,
+                    'standard_errors': standard_errors,
+                    'average_relative_error': relative_error,
                     'area': area,
                     'base_line': base_line,
                     'all_good': True}
