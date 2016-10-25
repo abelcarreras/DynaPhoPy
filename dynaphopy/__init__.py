@@ -400,13 +400,11 @@ class Quasiparticle:
                 #                print(q_points_equivalent)
                 for q_point in q_points_equivalent:
                     self.set_reduced_q_vector(q_point)
-                    power_spectrum_wave_vector.append((
-                                                          power_spectrum_functions[
-                                                              self.parameters.power_spectra_algorithm])[0](
+                    power_spectrum_wave_vector.append((power_spectrum_functions[
+                                                           self.parameters.power_spectra_algorithm])[0](
                         self.get_vc().swapaxes(1, 2).reshape(-1, size),
                         self.dynamic,
                         self.parameters))
-
                 power_spectrum_wave_vector = np.array(power_spectrum_wave_vector)
                 self.set_reduced_q_vector(initial_reduced_q_point)
                 self._power_spectrum_wave_vector = np.average(power_spectrum_wave_vector, axis=0)
@@ -418,7 +416,7 @@ class Quasiparticle:
                     self.dynamic,
                     self.parameters)
 
-        return np.sum(self._power_spectrum_wave_vector, axis=1)
+        return np.nansum(self._power_spectrum_wave_vector, axis=1)
 
     def get_power_spectrum_full(self, projection_on_coordinate=-1):
 
@@ -484,7 +482,7 @@ class Quasiparticle:
                                         show_plots=not self.parameters.silent,
                                         fitting_function_type=self.parameters.fitting_function,
                                         use_degeneracy=self.parameters.use_symmetry,
-                                        show_occupancy=self.parameters.project_on_atom < 0 # temporal interface
+                                        show_occupancy=self.parameters.project_on_atom < 0  # temporal interface
                                         )
         return
 

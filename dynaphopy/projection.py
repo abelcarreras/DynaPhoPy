@@ -37,7 +37,6 @@ def project_onto_wave_vector(trajectory, q_vector, project_on_atom=-1):
    #Normalize velocities (method 2)
     number_of_primitive_cells = number_of_atoms/number_of_primitive_atoms
     velocity_projected /= np.sqrt(number_of_primitive_cells)
-
     return velocity_projected
 
 
