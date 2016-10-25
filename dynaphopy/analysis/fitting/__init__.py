@@ -35,9 +35,10 @@ def average_phonon(index, data, degeneracy):
 
 
 def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None,
-                            fitting_function_type = 0,
+                            fitting_function_type=0,
                             show_plots=True,
-                            use_degeneracy=True):
+                            use_degeneracy=True,
+                            show_occupancy=True):
 
     widths = []
     positions = []
@@ -71,7 +72,6 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             dt_Q2_s.append(0)
             continue
 
-
         frequency = fitting_parameters['peak_position']
         area = fitting_parameters['area']
         width = fitting_parameters['width']
@@ -81,11 +81,11 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 
         total_integral = simps(power_spectrum, x=test_frequencies_range)/ (2 * np.pi)
 
-        #Calculated properties
+        # Calculated properties
         dt_Q2_lor = 2 * 2 * area
         dt_Q2_tot = 2 * 2 * total_integral
 
-        #Only in harmonic approximation
+        # Only within harmonic approximation
         Q2_lor = dt_Q2_lor / pow(frequency * 2 * np.pi, 2)
         Q2_tot = dt_Q2_tot / pow(frequency * 2 * np.pi,2)
 
@@ -106,10 +106,11 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
  #       print '<|dQ/dt|^2> (tot):        ', dt_Q2_tot, 'eV'        # Kinetic energy
  #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
  #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
-        print ('Occupation number          {0:15.6f}'.format(occupancy_lor))
- #       print 'Occupation number(tot): ', occupancy_tot
-        print ('Fit temperature            {0:15.6f} K'.format(fit_temperature))
- #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
+        if show_occupancy:
+            print ('Occupation number          {0:15.6f}'.format(occupancy_lor))
+     #       print 'Occupation number(tot): ', occupancy_tot
+            print ('Fit temperature            {0:15.6f} K'.format(fit_temperature))
+     #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
         print ('Base line                  {0:15.6f} eV * ps'.format(base_line))
         print ('Maximum height             {0:15.6f} eV * ps'.format(maximum))
         print ('Fit Error(RMSD)/ Max.      {0:15.6f}'.format(error/maximum))

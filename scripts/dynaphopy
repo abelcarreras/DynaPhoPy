@@ -240,10 +240,15 @@ calculation.parameters.silent = args.silent
 calculation.parameters.fitting_function = args.fitting_function
 calculation.parameters.degenerate = args.fcsymm
 calculation.parameters.use_MD_cell_commensurate = args.MD_commensurate
-calculation.parameters.project_on_atom = args.project_on_atom
 calculation.parameters.save_renormalized_frequencies = args.save_renormalized_frequencies
-
 calculation.set_temperature(args.temperature)
+
+if args.project_on_atom in range(len(structure.get_atomic_types(unique=False))):
+    calculation.parameters.project_on_atom = args.project_on_atom
+else:
+    print('Atom type {} does not exist'.format(args.project_on_atom))
+    exit()
+
 
 if args.no_symmetry:
     calculation.parameters.use_symmetry = False

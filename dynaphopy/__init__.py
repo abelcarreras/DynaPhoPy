@@ -478,7 +478,9 @@ class Quasiparticle:
                                         harmonic_frequencies=self.get_frequencies(),
                                         show_plots=not self.parameters.silent,
                                         fitting_function_type=self.parameters.fitting_function,
-                                        use_degeneracy=self.parameters.use_symmetry)
+                                        use_degeneracy=self.parameters.use_symmetry,
+                                        show_occupancy=self.parameters.project_on_atom < 0 # temporal interface
+                                        )
         return
 
     def plot_power_spectrum_full(self):
