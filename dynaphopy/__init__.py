@@ -121,7 +121,12 @@ class Quasiparticle:
         self.power_spectra_clear()
         self.parameters.number_of_coefficients_mem = coefficients
 
-    # Frequency ranges related methods  (To be deprecated)
+    def set_projection_onto_atom_type(self, atom_type):
+        if atom_type in range(len(self.dynamic.structure.get_atomic_types(unique=True))):
+            self.parameters.project_on_atom = atom_type
+        else:
+            print('Atom type {} does not exist'.format(atom_type))
+            exit()
 
     def set_frequency_range(self, frequency_range):
         self.power_spectra_clear()
