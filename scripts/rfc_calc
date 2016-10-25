@@ -13,12 +13,12 @@ parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
 
 group = parser.add_mutually_exclusive_group (required=True)
 group.add_argument('-cp', action='store_true',
-                   help='Get commensurate points')
+                   help='get commensurate points')
 group.add_argument('frequency_file', metavar='data_file', type=str, nargs='?',
                     help='input file containing renormalized phonon frequencies')
 
 parser.add_argument('-p', action='store_true',
-                   help='plot bands')
+                   help='plot phonon band structure')
 
 parser.add_argument('-s', metavar='FORCE_CONSTANTS', type=str, nargs=1,
                     help='save force_constants into a file')
