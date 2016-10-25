@@ -122,7 +122,7 @@ class Quasiparticle:
         self.parameters.number_of_coefficients_mem = coefficients
 
     def set_projection_onto_atom_type(self, atom_type):
-        if atom_type in range(len(self.dynamic.structure.get_atomic_types(unique=True))):
+        if atom_type in range(self.dynamic.structure.get_number_of_primitive_atoms()):
             self.parameters.project_on_atom = atom_type
         else:
             print('Atom type {} does not exist'.format(atom_type))

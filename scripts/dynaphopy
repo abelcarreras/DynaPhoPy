@@ -250,7 +250,6 @@ if args.project_on_atom is not None:
 if args.no_symmetry:
     calculation.parameters.use_symmetry = False
 
-
 # Process properties arguments
 if args.resolution:
     calculation.set_spectra_resolution(args.resolution[0])
