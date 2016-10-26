@@ -77,9 +77,9 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         width = fitting_parameters['width']
         base_line = fitting_parameters['base_line']
         maximum = fitting_parameters['maximum']
-        error = fitting_parameters['average_relative_error']
-        standard_errors = fitting_parameters['standard_errors']
-        total_integral = simps(power_spectrum, x=test_frequencies_range)/ (2 * np.pi)
+        error = fitting_parameters['global_error']
+
+        total_integral = simps(power_spectrum, x=test_frequencies_range)/(2 * np.pi)
 
         # Calculated properties
         dt_Q2_lor = 2 * 2 * area
@@ -98,8 +98,8 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         #Print section
         print ('\nPeak # {0}'.format(i+1))
         print ('----------------------------------------------')
-        print ('Width (FWHM)               {0:15.6f} +- {1:8.3e} THz'.format(width, standard_errors[0]))
-        print ('Position                   {0:15.6f} +- {1:8.3e} THz'.format(frequency, standard_errors[1]))
+        print ('Width (FWHM)               {0:15.6f} THz'.format(width))
+        print ('Position                   {0:15.6f} THz'.format(frequency))
         print ('Area (1/2<K>) ({0:.10s}) {1:15.6f} eV'.format(fitting_function.curve_name, area))      # 1/2 Kinetic energy
         print ('Area (1/2<K>) (Total)      {0:15.6f} eV'.format(total_integral))   # 1/2 Kinetic energy
         print ('<|dQ/dt|^2>                {0:15.6f} eV'.format(dt_Q2_lor))        # Kinetic energy
@@ -113,7 +113,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
      #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
         print ('Base line                  {0:15.6f} eV * ps'.format(base_line))
         print ('Maximum height             {0:15.6f} eV * ps'.format(maximum))
-        print ('Fit relative error         {0:15.6f}'.format(error))
+        print ('Fitting global error       {0:15.6f}'.format(error))
 
         if 'asymmetry' in fitting_parameters:
             asymmetry = fitting_parameters['asymmetry']

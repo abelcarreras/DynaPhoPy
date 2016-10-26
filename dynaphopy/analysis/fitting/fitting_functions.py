@@ -62,7 +62,7 @@ class Lorentzian:
 
             standard_errors = get_standard_errors_from_covariance(fit_covariances)
 
-            relative_error = np.average([standard_errors[0]/frequency, standard_errors[1]/width])
+            global_error = np.average(standard_errors[:2])/np.sqrt(area)
 
             #error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
@@ -71,7 +71,7 @@ class Lorentzian:
                     'width': width,
                     'peak_position': frequency,
                     'standard_errors': standard_errors,
-                    'average_relative_error': relative_error,
+                    'global_error': global_error,
                     'area': area,
                     'base_line': base_line,
                     'all_good': True}
@@ -152,7 +152,7 @@ class Lorentzian_asymmetric:
         #    area = fit_params[2]/(2 * np.pi)
 
             standard_errors = get_standard_errors_from_covariance(fit_covariances)
-            relative_error = np.average([standard_errors[0]/frequency, standard_errors[1]/width])
+            global_error = np.average(standard_errors[:2])/np.sqrt(area)
 
             #error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
@@ -160,8 +160,7 @@ class Lorentzian_asymmetric:
             return {'maximum': maximum,
                     'width': width,
                     'peak_position': frequency,
-                    'standard_errors': standard_errors,
-                    'average_relative_error': relative_error,
+                    'global_error': global_error,
                     'area': area,
                     'base_line': base_line,
                     'asymmetry': asymmetry,
@@ -232,15 +231,14 @@ class Damped_harmonic:
 
             standard_errors = get_standard_errors_from_covariance(fit_covariances)
 
-            relative_error = np.average([standard_errors[0]/frequency, standard_errors[1]/width])
+            global_error = np.average(standard_errors[:2])/np.sqrt(area)
             #error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
 
             return {'maximum': maximum,
                     'width': width,
                     'peak_position': frequency,
-                    'standard_errors': standard_errors,
-                    'average_relative_error': relative_error,
+                    'global_error': global_error,
                     'area': area,
                     'base_line': base_line,
                     'all_good': True}
