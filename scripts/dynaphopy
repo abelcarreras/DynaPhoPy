@@ -237,11 +237,11 @@ calculation.parameters.get_data_from_dict(input_parameters)
 
 # Set Parameters
 calculation.parameters.silent = args.silent
-calculation.parameters.fitting_function = args.fitting_function
 calculation.parameters.degenerate = args.fcsymm
 calculation.parameters.use_MD_cell_commensurate = args.MD_commensurate
 calculation.parameters.save_renormalized_frequencies = args.save_renormalized_frequencies
 
+calculation.select_fitting_function(args.fitting_function)
 calculation.set_temperature(args.temperature)
 
 if args.project_on_atom is not None:
