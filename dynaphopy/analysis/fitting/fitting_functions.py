@@ -7,7 +7,7 @@ kb_boltzmann = 8.6173324e-5  # eV/K
 
 
 def get_standard_errors_from_covariance(covariance):
-  #  return np.sqrt(np.sum(np.linalg.eigvals(covariance)))
+   # return np.linalg.eigvals(covariance)
     return np.sqrt(np.diag(covariance))
     #return np.sqrt(np.trace(covariance))
 
