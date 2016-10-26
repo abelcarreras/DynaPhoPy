@@ -153,6 +153,9 @@ parser.add_argument('--memmap', action='store_true',
 parser.add_argument('--project_on_atom', metavar='N', type=int, default=None,
                     help='calculate PS projected onto one atom')
 
+parser.add_argument('--save_power_spectrum_partials', metavar='F', type=str, default=None,
+                    help='store the full power spectrum separated by atom contributions')
+
 
 args = parser.parse_args()
 
@@ -319,6 +322,11 @@ if args.thm_full:
     calculation.display_thermal_properties(from_power_spectrum=True,
                                            normalize_dos=args.normalize_dos)
 
+
+# Temporal interface (name may change)
+if args.save_power_spectrum_partials:
+    calculation.get_power_spectrum_partials(save_to_file=args.save_power_spectrum_partials)
+# -----------------
 
 if args.average:
     reference = calculation.dynamic.average_positions()
