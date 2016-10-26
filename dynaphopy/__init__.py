@@ -38,6 +38,7 @@ class Quasiparticle:
         self._power_spectrum_phonon = None
         self._power_spectrum_wave_vector = None
         self._power_spectrum_direct = None
+        self._power_spectrum_partials = None
         self._bands = None
         self._renormalized_bands = None
         self._renormalized_force_constants = None
@@ -469,6 +470,33 @@ class Quasiparticle:
 
             self._power_spectrum_direct = np.sum(self._power_spectrum_direct, axis=1)
         return self._power_spectrum_direct
+
+
+    def get_power_spectrum_partials(self, save_to_file=None):
+
+        if self._power_spectrum_partials is None:
+            print("Calculation power spectrum partials")
+
+            velocity_mass_average = self.dynamic.get_velocity_mass_average()
+
+            self._power_spectrum_partials = (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
+                        velocity_mass_average[:, :, 0],
+                        self.dynamic,
+                        self.parameters)
+
+            for i in [1, 2]:
+                self._power_spectrum_partials += (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
+                        velocity_mass_average[:, :, i],
+                        self.dynamic,
+                        self.parameters)
+
+        if save_to_file is not None:
+            np.savetxt(save_to_file, np.hstack([self.get_frequency_range()[None].T, self._power_spectrum_partials]))
+
+        return self._power_spectrum_partials
+
+
+
 
     def phonon_width_scan_analysis(self):
         print("Phonon coefficient scan analysis(Maximum entropy method/Symmetric Lorentzian fit only)")

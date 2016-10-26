@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='fitdata')
 parser.add_argument('file', metavar='file', type=str,
                    help='file containing power spectra information')
 
-parser.add_argument('-bi', metavar='indices', type=str, default=None,
+parser.add_argument('-bi', metavar='indices', type=str, nargs='+', default=None,
                    help='band indices (ex: "1,2 3 4, 5")')
 
 parser.add_argument('-sm', '--smooth', action='store_true',
@@ -32,7 +32,6 @@ parser.add_argument('--fitting_function', type=int, default=0, metavar='N',
                    help='Select fitting function')
 
 args = parser.parse_args()
-
 
 
 #LOWESS method definition
@@ -66,7 +65,7 @@ if args.bi is None:
     data_num = len(input_file.readline().split())
     degeneracy = [[i] for i in range(1, data_num)]
 else:
-    degeneracy = [[int(j) for j in i.split()] for i in args.bi.split(',')]
+    degeneracy = [[int(j) for j in i.split()] for i in ' '.join(args.bi).split(',')]
 
 
 initial_data = []
