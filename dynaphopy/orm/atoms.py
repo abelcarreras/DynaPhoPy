@@ -296,7 +296,7 @@ class Structure:
                     projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_primitive_cell(), difference_in_cell_coordinates)
                     separation = pow(np.linalg.norm(projected_coordinates_atom_j - coordinates_atom_i),2)
 
-                    if separation < tolerance and  masses[i] == masses[j]:
+                    if separation < tolerance and masses[i] == masses[j]:
                         self._atom_type_index[j] = self._atom_type_index[i]
         self._atom_type_index = np.array(self._atom_type_index,dtype=int)
 
