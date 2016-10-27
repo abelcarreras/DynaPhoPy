@@ -218,6 +218,32 @@ def get_equivalent_q_points_by_symmetry(q_point, structure):
 
     return np.vstack({tuple(row) for row in tot_points})
 
+def get_equivalent_atoms_by_symmetry(atom_index, structure):
+
+
+    from phonopy.structure.symmetry import Symmetry
+
+    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
+                        scaled_positions=structure.get_scaled_positions(),
+                        cell=structure.get_cell().T)
+
+    atomic_types = structure.get_atomic_numbers()
+    positions = bulk.get_scaled_positions()
+
+    tot_index = []
+    for operation_matrix in Symmetry(bulk).get_pointgroup_operations():
+        print('-----')
+        coordinate_test = np.dot(positions[atom_index], operation_matrix)
+
+        for i, position in enumerate(positions):
+            print(position, coordinate_test)
+            if np.any(np.abs(position - coordinate_test) < 1e-4):
+                if atomic_types[atom_index] == atomic_types[i]:
+                    tot_index.append(i)
+
+    return np.unique(tot_index)
+
+
 
 def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, structure, symmetrize=False):
 

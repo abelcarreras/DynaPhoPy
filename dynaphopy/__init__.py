@@ -471,7 +471,6 @@ class Quasiparticle:
             self._power_spectrum_direct = np.sum(self._power_spectrum_direct, axis=1)
         return self._power_spectrum_direct
 
-
     def get_power_spectrum_partials(self, save_to_file=None):
 
         if self._power_spectrum_partials is None:
@@ -494,9 +493,6 @@ class Quasiparticle:
             np.savetxt(save_to_file, np.hstack([self.get_frequency_range()[None].T, self._power_spectrum_partials]))
 
         return self._power_spectrum_partials
-
-
-
 
     def phonon_width_scan_analysis(self):
         print("Phonon coefficient scan analysis(Maximum entropy method/Symmetric Lorentzian fit only)")
