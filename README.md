@@ -25,6 +25,7 @@ Executing this software
 ---------------------------------------------------------
 
 1. Command line method
+
   ./dynaphopy input_file MD_file [Options]
   execute ./dynaphopy -h for detailed description of available options
 
