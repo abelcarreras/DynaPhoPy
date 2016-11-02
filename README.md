@@ -43,8 +43,8 @@ More information at: http://abelcarreras.github.io/DynaPhoPy
 
 Contact info
 ---------------------------------------------------------
-Abel Carreras
-abelcarreras83@gmail.com
+- Abel Carreras
+- abelcarreras83@gmail.com
 
-Department of Materials Science and Engineering
-Kyoto University
+- Department of Materials Science and Engineering
+- Kyoto University
