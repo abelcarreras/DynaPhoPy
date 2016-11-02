@@ -25,17 +25,17 @@ Executing this software
 ---------------------------------------------------------
 
 1) Command line method
-./dynaphopy input_file MD_file [Options]
-execute ./dynaphopy -h for detailed description of available options
+  ./dynaphopy input_file MD_file [Options]
+  execute ./dynaphopy -h for detailed description of available options
 
 2) Interactive mode
-Use -i option from command line method and follow the instructions
-./dynaphopy input_file MD_file -i
+  Use -i option from command line method and follow the instructions
+  ./dynaphopy input_file MD_file -i
 
 3) Scripting method (as a module)
-Dynaphopy can be imported as a python module
-In Example directory an example script is available (input.py)
-The comments in the script makes it (hopefully) self explained.
+  Dynaphopy can be imported as a python module
+  In Example directory an example script is available (input.py)
+  The comments in the script makes it (hopefully) self explained.
 
 Input files for several materials can be found in the same Example directory
 More information at: http://abelcarreras.github.io/DynaPhoPy
