@@ -9,11 +9,11 @@ Installation instructions
 ---------------------------------------------------------
 
 1. Requirements
-Python 2.7 or higher
-Phonopy 1.9.6 or higher (http://phonopy.sourceforge.net)
-Matplotlib
-Scipy
-h5py
+- Python 2.7 or higher
+- Phonopy 1.9.6 or higher (http://phonopy.sourceforge.net)
+- Matplotlib
+- Scipy
+- h5py
 
 2. Download the source code and place it in the installation directory
 
