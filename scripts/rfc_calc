@@ -60,10 +60,10 @@ def plot_renormalized_phonon_bands(structure, renormalized_force_constants):
                                                          input_parameters['_band_ranges'],
                                                          NAC=False)
 
-    renormalized_bands = pho_interface.obtain_renormalized_phonon_dispersion_bands(structure,
-                                                                                  input_parameters['_band_ranges'],
-                                                                                  renormalized_force_constants,
-                                                                                  NAC=False)
+    renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(structure,
+                                                                      input_parameters['_band_ranges'],
+                                                                      renormalized_force_constants,
+                                                                      NAC=False)
 
     for i,freq in enumerate(renormalized_bands[1]):
         plt.plot(bands[1][i],bands[2][i],color ='b', label='Harmonic (0K)')
