@@ -173,7 +173,7 @@ Occupation number:          0.61054975143
 Fit temperature             1171.15374682 K
 Base line                   0.000124398596919 ev * ps
 Maximum height:             0.102148087007 eV * ps
-Fit Error(RMSD)/ Max. :     0.033406091534
+Fitting global error :      0.033406091534
 Frequency shift:            -0.821624887263 THz
 </code></pre>
 <p>
@@ -200,48 +200,72 @@ $$n = \frac{{\left\langle E \right\rangle }}{{\hbar \omega }} - \frac{1}{2}$$
 where <em>n</em> is the occupation number and <em>&omega;</em> is the phonon frequency (Position).
 <p>
 <br><strong>Frequency shift:</strong> Difference between anharmonic frequency (Position) and harmonic frequency.
-<br><strong>Fit Error(RMSD)/Max.:</strong> Fitting error of the Lorentzian curve with the power spectrum divided by the peak height. RMSD is given by the square root of the trace of the covariance matrix.</p>
+<br><strong>Fitting global error:</strong> Fitting error is calculated as the average of the standard errors of the position and the width divided by the squareroot of the area to make it dimensionless so it can be comparable between diferent peak sizes. The standard errors are obtained from the squareroot of the diagonal elements of the covariance matrix</p>
 <p style="text-align:center">
 $$ 
-RMSD = \sqrt {tr\left( {{\mathop{\rm cov}} } \right)} 
+Global error = \frac{(e_p + e_w)}{2\sqrt(A)}
 $$
 </p>
-<p>
-This is another good method to know how good is the phonon decomposition technique approximation for the studied system. For MEM method it is expected to be very low (<1E-5). In the case of Fourier transform method can depend very much on the noise and the temperature so can only be used as relative reference between peaks. 
-<br><em>Using <strong>fitdata</strong> script, these noisy spectra can be smoothed and a similar low fitting error can be obtained (refere to Advanced features section).</em>
-
-<br><p>When the calculation is finished, for each peak a matplotlib X window apear in the screen showing the result of the fitting for visual inspection. 
+<br><p>By default, when the calculation is finished, a plot is shown for each power spectrum  showing the fitting result for visual inspection. 
 </p>    
 <img src="images/peak_analysis_7.png" alt="Interactive" style="width:630px">
 <p>
-This is very convenient for visual analysis of short MD trajectories, but when the calculations are long, specially using Fourier transform, and the calculations are done in cluster computers, xwindows can not be displayed and the calculation may crash.
+This is very convenient for visual analysis of short MD trajectories, but when the calculations are long, specially using Fourier transform, and the calculations are done in cluster computers, xwindows can not be displayed and the software may crash.
 
 <br><p>In this case flag <strong>--silent</strong> may be used. Using this flag only the text data is shown in the screen and the phonon information wich can be stored redirecting the output to a file.   
 </p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -pa --silent > output.log
 </code></pre>
 <p>
-Sometimes phonon modes present a power spectrum with very asymmetric peaks, specially for soft phonon modes. These peaks can be fitted better usign asymmetric lorentzian functions. The assymetric function used in DynaPhoPy is described in this article[1] and is defined by:
+    
+<LI><h5> Fitting function selection</h5>
+<p>You can select the function used to fit the power spectrum by option <strong>--fitting_function</strong> followed by the function number. If this option is not specified function number 0 is used. 
+</p>
+<p> 
+<pre><code>$ dynaphopy input_file TRAJECTORY -pa --fitting_function 0
+</code></pre>
+
+<p> At the present time there are 3 functions available:
+<p><strong>0: Lorentzian function</strong>
+<br>This is the default fitting function
+<p style="text-align:center">
+$$ 
+G(\omega) = \frac{A/\pi \gamma}{ 1+ [(\omega - \omega_0)/\gamma]^2}+C
+$$
+</p>    
+    where <em>A</em> is the area under the curve, &omega;<sub>0</sub> is the peak center &gamma; the  width, and <em>C</em> the base line.
+    
+<br><strong>1: Asymmetric Lorentzian function</strong>
+<br>
+
+Sometimes phonon modes present a power spectrum with very asymmetric peaks, specially in soft phonon modes. These peaks can be fitted better usign asymmetric lorentzian functions. The asymmetric function used in DynaPhoPy is defined in this article[1] and is defined by:
+</p>
 
 <p style="text-align:center">
 $$ 
-L(\omega) = \frac{2 A/\pi \gamma(\omega)}{ 1+ 4 [(\omega - \omega_0)/\gamma(\omega)]^2} 
+G(\omega) = \frac{B/\pi \gamma(\omega)}{ 1+ [(\omega - \omega_0)/\gamma(\omega)]^2}+C
 $$
 </p>    
-    where <em>A</em> is the total peak area, &omega;<sub>0</sub> is the peak center and &gamma;(&omega;) the variable width defined as:
+    where B is a fitting parameter and &gamma;(&omega;) the variable width defined as:
 <p style="text-align:center">
 $$ 
 \gamma(\omega) = \frac{2 \gamma_0}{1+e^{a(\omega - \omega_0)}} 
 $$
 </p>
 where <em> a </em> is the peak asymmetry. When <em> a = 0 </em> this function is equivalent to a Lorentzian function. 
-DynaPhoPy calculates the phonon frequency (&omega;max) at the maximum of this assymetric function which in general differe from &omega;<sub>0</sub>. Phonon linewidth is calculate as 2&gamma;(&omega;max).    
+DynaPhoPy calculates the phonon frequency (&omega;max) at the maximum of this asymmetric function which in general differe from &omega;<sub>0</sub>. Phonon linewidth is calculate as 2&gamma;(&omega;max).    
 
 <img src="images/asymmetric_peak.png" alt="Interactive" style="width:630px">    
-<p>
-To request assymetric lorentzian fitting use frag <strong>--asymmetric_peaks</strong>. This option can also be set in the interactive interface in preferences menu.
-</p>
-    <em>[1] Stancik A L and  Brauns E B. A simple asymmetric lineshape for fitting infrared absorption spectra. Vibrational Spectroscopy, 47(1), 66–69 (2008)</em>
+<br><strong>2: Damped harmonic oscillator</strong>
+<br> This functions describes the theroretical power spectrum of a damped harmonic oscillator.
+<p style="text-align:center">
+$$ 
+G(\omega) = \frac{B}{(\omega_0^2 - \omega^2)^2 + (\gamma * \omega)^2}+C
+$$
+</p>    
+
+<em>[1] Stancik A L and  Brauns E B. A simple asymmetric lineshape for fitting infrared absorption spectra. Vibrational Spectroscopy, 47(1), 66–69 (2008)</em>
+
 <h3>Atomic displacements</h3>
 <p>
 DynaPhoPy allows to calculate the atomic displacements from the MD trajectory respect to a desired direction. 
