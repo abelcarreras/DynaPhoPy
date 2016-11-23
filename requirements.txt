@@ -1,4 +1,6 @@
-# Requirements to run DynaPhoPY
+######################################
+# Required packages to run DynaPhoPY #
+######################################
 
 # Phonopy
 phonopy>=1.9.6
@@ -9,7 +11,7 @@ numpy>=1.9.0
 # Scipy
 scipy
 
-# These is optional but recommended
+# These are optional but recommended
 matplotlib
 h5py
 
