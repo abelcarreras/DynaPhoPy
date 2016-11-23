@@ -1,5 +1,5 @@
 import numpy as np
-from dynaphopy.classes import atoms
+from dynaphopy.orm import atoms
 from dynaphopy.displacements import atomic_displacement
 import os
 
@@ -104,7 +104,7 @@ def type_2(i, size, natom, mpi_lammps=2):
     z = i/(size[1]*half_size*natom)
     k = np.mod(i, natom)
 
-    if i>=total/mpi_lammps:
+    if i>= total/mpi_lammps:
         x += half_size
         z -= half_size
 
@@ -116,6 +116,7 @@ class Dynamics:
     def __init__(self,
                  structure=atoms.Structure,
                  trajectory=None,
+                 scaled_trajectory=None,
                  velocity=None,
                  energy=None,
                  time=None,
@@ -124,6 +125,7 @@ class Dynamics:
 
         self._time = time
         self._trajectory = trajectory
+        self._scaled_trajectory = scaled_trajectory
         self._energy = energy
         self._velocity = velocity
         self._super_cell = super_cell
@@ -138,13 +140,15 @@ class Dynamics:
 
         if structure:
             self._structure = structure
+
+            #Check order of atoms
+            if trajectory is not None:
+                self._trajectory = check_trajectory_structure(trajectory, structure)
+
+
         else:
             print('Warning: Initialization without structure')
             self._structure = None
-
-        #Check order of atoms
-        if trajectory is not None:
-            self._trajectory = check_trajectory_structure(trajectory, structure)
 
         #Read environtment variables
         try:
@@ -354,10 +358,13 @@ class Dynamics:
     @property
     def trajectory(self):
         if self._trajectory is None:
-            print('No trajectory loaded')
-            exit()
-        else:
-            return self._trajectory
+            if self._scaled_trajectory is not None:
+                self._trajectory = np.dot(self._scaled_trajectory, self.get_super_cell().T)
+            else:
+                print('No trajectory loaded')
+                exit()
+
+        return self._trajectory
 
     @property
     def velocity(self):

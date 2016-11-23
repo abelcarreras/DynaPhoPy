@@ -5,9 +5,9 @@ import dynaphopy
 import dynaphopy.interface.iofile as reading
 import dynaphopy.interface.interactive_ui as interactive_ui
 import dynaphopy.generate_cell as generate
+from dynaphopy.interface.phonopy_link import get_force_sets_from_file, get_force_constants_from_file
 
 from fractions import Fraction
-from dynaphopy.interface.phonopy_link import get_force_sets_from_file, get_force_constants_from_file
 
 # Define arguments
 parser = argparse.ArgumentParser(description='DynaPhoPy options')
@@ -101,8 +101,8 @@ parser.add_argument('--silent', action='store_true',
 parser.add_argument('--velocity_only', action='store_true',
                     help='loads only velocity data from hdf5 file')
 
-parser.add_argument('--asymmetric_peaks', action='store_true',
-                    help='uses asymmetric Lorentzian functions to fit spectra')
+parser.add_argument('--fitting_function', metavar='N', type=int, default=0,
+                    help='define fitting function (default: Lorentzian)')
 
 parser.add_argument('--read_from', metavar='N', type=int, default=1,
                     help='define interval of trajectory to read (default: 1)')
@@ -116,14 +116,17 @@ parser.add_argument('--fcsymm', action='store_true',
 parser.add_argument('--no_symmetry', action='store_true',
                     help='do not use crystal symmetry')
 
+parser.add_argument('--save_renormalized_frequencies', action='store_true',
+                    help='save renormalized frequencies in a file when renormalized force constants are calculated')
+
 parser.add_argument('--resolution', metavar='F', type=float, default=None, nargs=1,
                     help='define power spectrum resolution in THz (default 0.05)')
 
 parser.add_argument('--dim', metavar='N', type=int, default=[1, 1, 1], nargs=3,
-                    help='Set the dimensions of generate structures (Default: [1, 1, 1])')
+                    help='Set the dimensions of generated structure/trajectory (Default: [1, 1, 1])')
 
 group.add_argument('--generate_trajectory', metavar='F', type=float, default=None, nargs=3,
-                    help='Generate a test harmonic trajectory from force constants [total time (ps), time step (ps), energy (Kelvin)]')
+                    help='Generate a test harmonic trajectory using force constants [total time (ps), time step (ps), energy (Kelvin)]')
 
 group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
                     help='Generate a VASP POSCAR structure file')
@@ -132,10 +135,10 @@ group.add_argument('-c_lammps', metavar='file', type=str, default=None, nargs=1,
                     help='Generate a LAMMPS data structure file')
 
 parser.add_argument('-average', action='store_true',
-                    help='returns average atomic positions from MD')
+                    help='returns average atomic positions of the MD')
 
 parser.add_argument('--MD_commensurate', action='store_true',
-                    help='use commensurate points in MD cell instead of phonon cell')
+                    help='use commensurate points in MD supercell instead of force constants supercell')
 
 parser.add_argument('--normalize_dos', action='store_true',
                     help='normalize DoS obtained from PS in thermal properties calculation')
@@ -147,8 +150,11 @@ parser.add_argument('--memmap', action='store_true',
 
 #Temporal interface on development
 
-parser.add_argument('--project_on_atom', metavar='N', type=int, default=-1,
+parser.add_argument('--project_on_atom', metavar='N', type=int, default=None,
                     help='calculate PS projected onto one atom')
+
+parser.add_argument('--save_power_spectrum_partials', metavar='F', type=str, default=None,
+                    help='store the full power spectrum separated by atom contributions')
 
 
 args = parser.parse_args()
@@ -198,7 +204,11 @@ if args.load_velocity:
                                                    memmap=args.memmap)
     structure_file = args.load_velocity[0]
 if args.md_file:
-    trajectory_reading_function = reading.check_trajectory_file_type(args.md_file)
+    trajectory_reading_function = reading.get_trajectory_parser(args.md_file)
+    if trajectory_reading_function is None:
+        print('Trajectory file format not recognized')
+        exit()
+
     trajectory = trajectory_reading_function(args.md_file,
                                              structure,
                                              args.time_step,
@@ -218,11 +228,11 @@ if args.generate_trajectory:
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
     print('Loading projected velocity only (limited features only)')
-    calculation = dynaphopy.Calculation(trajectory[2], vc=trajectory[0], last_steps=args.n)
+    calculation = dynaphopy.Quasiparticle(trajectory[2], vc=trajectory[0], last_steps=args.n)
     input_parameters.update({'_reduced_q_vector': trajectory[1], '_use_symmetry': False})
 
 else:
-    calculation = dynaphopy.Calculation(trajectory, last_steps=args.n)
+    calculation = dynaphopy.Quasiparticle(trajectory, last_steps=args.n)
 
 
 calculation.parameters.get_data_from_dict(input_parameters)
@@ -230,16 +240,18 @@ calculation.parameters.get_data_from_dict(input_parameters)
 
 # Set Parameters
 calculation.parameters.silent = args.silent
-calculation.parameters.use_asymmetric_peaks = args.asymmetric_peaks
 calculation.parameters.degenerate = args.fcsymm
 calculation.parameters.use_MD_cell_commensurate = args.MD_commensurate
-calculation.parameters.project_on_atom = args.project_on_atom
+calculation.parameters.save_renormalized_frequencies = args.save_renormalized_frequencies
 
+calculation.select_fitting_function(args.fitting_function)
 calculation.set_temperature(args.temperature)
+
+if args.project_on_atom is not None:
+    calculation.set_projection_onto_atom_type(args.project_on_atom)
 
 if args.no_symmetry:
     calculation.parameters.use_symmetry = False
-
 
 # Process properties arguments
 if args.resolution:
@@ -310,6 +322,11 @@ if args.thm_full:
     calculation.display_thermal_properties(from_power_spectrum=True,
                                            normalize_dos=args.normalize_dos)
 
+
+# Temporal interface (name may change)
+if args.save_power_spectrum_partials:
+    calculation.get_power_spectrum_partials(save_to_file=args.save_power_spectrum_partials)
+# -----------------
 
 if args.average:
     reference = calculation.dynamic.average_positions()

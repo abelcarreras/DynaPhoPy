@@ -2,7 +2,8 @@
 
 import numpy as np
 import phonopy.file_IO as file_IO
-import dynaphopy.interface.iofile as reading
+import dynaphopy.interface.iofile as io
+import dynaphopy.interface.iofile.trajectory_parsers as parsers
 import dynaphopy
 
 ##################################  STRUCTURE FILES #######################################
@@ -12,7 +13,7 @@ import dynaphopy
 
 directory ='/home/abel/VASP/Si/Si-phonon/4x4x4B/'
 
-structure = reading.read_from_file_structure_poscar(directory+'POSCAR')
+structure = io.read_from_file_structure_poscar(directory + 'POSCAR')
 structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
 
 
@@ -38,12 +39,12 @@ structure.set_super_cell_phonon([[4, 0, 0],
 ################################### TRAJECTORY FILES ##########################################
 # 4. Set the location of OUTCAR/LAMMPS file containing the Molecular Dynamics trajectory
 
-trajectory = reading.read_vasp_trajectory('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_400/No1/OUTCAR', structure)
+trajectory = parsers.read_vasp_trajectory('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_400/No1/OUTCAR', structure)
 # or
-#trajectory = reading.read_lammps_trajectory('/home/abel/LAMMPS/Si/Si_400.lammpstrj', structure, initial_cut=10000, end_cut=12000)
+#trajectory = parsers.read_lammps_trajectory('/home/abel/LAMMPS/Si/Si_400.lammpstrj', structure, initial_cut=10000, end_cut=12000)
 
 
-calculation = dynaphopy.Calculation(trajectory)
+calculation = dynaphopy.Quasiparticle(trajectory)
 
 
 ############################## DEFINE CALCULATION REQUESTS #####################################

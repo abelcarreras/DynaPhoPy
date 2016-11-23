@@ -2,12 +2,11 @@ import numpy as np
 import sys
 
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-from dynaphopy.mem import mem
-import dynaphopy.correlation as correlation
-from dynaphopy.analysis.fitting import lorentzian, get_error_from_covariance
+import correlation
+import mem
 
 unit_conversion = 6.651206285e-4 # u * A^2 * THz -> eV*ps
+
 
 def progress_bar(progress, label):
     bar_length = 30
@@ -68,10 +67,10 @@ def get_mem_spectra_par_openmp(vq, trajectory, parameters):
     if not(parameters.silent):
         progress_bar(0, 'M. Entropy')
     for i in range(vq.shape[1]):
-        psd_vector.append(mem(test_frequency_range,
-                              vq[:, i],
-                              trajectory.get_time_step_average(),
-                              coefficients=parameters.number_of_coefficients_mem))
+        psd_vector.append(mem.mem(test_frequency_range,
+                                  vq[:, i],
+                                  trajectory.get_time_step_average(),
+                                  coefficients=parameters.number_of_coefficients_mem))
 
         if not(parameters.silent):
             progress_bar(float(i+1)/vq.shape[1], 'M. Entropy')
@@ -82,6 +81,7 @@ def get_mem_spectra_par_openmp(vq, trajectory, parameters):
 
 # Coefficient analysis for MEM
 def mem_coefficient_scan_analysis(vq, trajectory, parameters):
+    from dynaphopy.analysis.fitting import fitting_functions
 
     mem_full_dict = {}
 
@@ -94,33 +94,40 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
             progress_bar(0, 'M.E. Method')
         for number_of_coefficients in parameters.mem_scan_range:
 
-            power_spectrum = mem(test_frequency_range,
-                                 vq[:, i],
-                                 trajectory.get_time_step_average(),
-                                 coefficients=number_of_coefficients)
+            power_spectrum = mem.mem(test_frequency_range,
+                                     vq[:, i],
+                                     trajectory.get_time_step_average(),
+                                     coefficients=number_of_coefficients)
 
             power_spectrum *= unit_conversion
 
-            height = np.max(power_spectrum)
-            position = test_frequency_range[np.argmax(power_spectrum)]
 
-            try:
-                fit_params, fit_covariances = curve_fit(lorentzian,
-                                                        test_frequency_range,
-                                                        power_spectrum,
-                                                        p0=[position, 0.1, height, 0.0])
-            except:
+            guess_height = np.max(power_spectrum)
+            guess_position = test_frequency_range[np.argmax(power_spectrum)]
+
+            Fitting_curve = fitting_functions.Fitting_functions[parameters.fitting_function_type]
+            fitting_function = Fitting_curve(test_frequency_range,
+                                             power_spectrum,
+                                             guess_height=guess_height,
+                                             guess_position=guess_position)
+
+            fitting_parameters = fitting_function.get_fitting()
+
+
+            if not fitting_parameters['all_good']:
                 print('Warning: Fitting error, skipping point {0}'.format(number_of_coefficients))
                 continue
 
 
-            maximum = fit_params[2] / (fit_params[1] * np.pi)
-            error = get_error_from_covariance(fit_covariances)
-            width = 2.0 * fit_params[1]
-            area = fit_params[2]/(2.0*np.pi)
+#            frequency = fitting_parameters['peak_position']
+            area = fitting_parameters['area']
+            width = fitting_parameters['width']
+#            base_line = fitting_parameters['base_line']
+            maximum = fitting_parameters['maximum']
+            error = fitting_parameters['error']
 
             fit_data.append([number_of_coefficients, width, error/maximum, area])
-            scan_params.append(fit_params)
+            scan_params.append(fitting_function._fit_params)
             power_spectra.append(power_spectrum)
 
             if not(parameters.silent):
@@ -172,14 +179,14 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         ax3.set_title('Best curve fitting')
         ax3.plot(test_frequency_range, mem_full_dict[i][0], label='Power spectrum')
         ax3.plot(test_frequency_range,
-                 lorentzian(test_frequency_range, *scan_params[best_index]),
-                 label='Lorentzian fit')
+                 fitting_function._function(test_frequency_range, *scan_params[best_index]),
+                 label='{} fit'.format(fitting_function.curve_name))
 
         plt.show()
 
 
 #####################################
-#   FFT method                      #
+#   FFT method (NUMPY)              #
 #####################################
 
 def autocorrelation(x):
@@ -259,7 +266,9 @@ def get_fft_spectra(vq, trajectory, parameters):
 
     return psd_vector * unit_conversion
 
-#   FFTW
+#####################################
+#   FFT method (FFTW)               #
+#####################################
 
 def fftw_power(frequency_range, data, time_step):
     import pyfftw

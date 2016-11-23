@@ -4,7 +4,7 @@ import warnings
 from scipy import integrate
 
 N_a = 6.022140857e23
-k_b = 1.38064852e-23  # J /K
+k_b = 1.38064852e-23  # J / K
 h_bar = 6.626070040e-22  # J * ps
 
 warnings.simplefilter("ignore")
@@ -184,7 +184,6 @@ if __name__ == "__main__":
     print ('Cv: {0} J/K/mol'.format(c_v))
     print (np.trapz(power_spectrum, x=frequency_p))/(8*3)
     print (integrate.simps(power_spectrum, x=frequency_p))/(8*3)
-
 
     print ('\nHARMONIC')
     print ('-------------------------')

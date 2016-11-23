@@ -220,7 +220,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.border(0)
 
                 screen.addstr(2, 2, "Preferences...")
-                screen.addstr(4, 4, "1 - Power spectrum algorithm")
+                screen.addstr(4, 4, "1 - Select power spectrum algorithm")
                 screen.addstr(5, 4, "2 - Non analytical corrections (dispersion spectrum only): {0}".format(
                         calculation.parameters.use_NAC))
                 screen.addstr(6, 4, "3 - Number of MEM coefficients: {0}".format(
@@ -229,8 +229,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                         calculation.parameters.number_of_bins_histogram))
                 screen.addstr(8, 4, "5 - Eigenvectors display vector scale: {0}".format(
                         calculation.parameters.modes_vectors_scale))
-                screen.addstr(9, 4, "6 - Use asymmetric lorentzian: {0}".format(
-                        calculation.parameters.use_asymmetric_peaks))
+                screen.addstr(9, 4, "6 - Select fitting function")
                 screen.addstr(10, 4, "7 - Change spectrum resolution")
                 screen.addstr(11, 4, "8 - Change frequency range")
 
@@ -305,25 +304,28 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     curses.endwin()
 
                 if x2 == ord('6'):
-                    x3 = ord('9')
-                    while int(chr(int(x3))) > 2:
+                    from dynaphopy.analysis.fitting.fitting_functions import fitting_functions
+                    x3 = 9
+                    while x3 >= len(fitting_functions):
                         screen = curses.initscr()
                         screen.clear()
                         screen.border(0)
 
-                        screen.addstr(2, 2, 'Asymmetric peaks...')
-                        screen.addstr(4, 4, '1 - On')
-                        screen.addstr(5, 4, '2 - Off')
-
-                        if calculation.parameters.use_asymmetric_peaks:
-                            screen.addstr(4, 3, '>')
-                        else:
-                            screen.addstr(5, 3, '>')
+                        screen.addstr(2, 2, "Fitting functions...")
+                        for i in fitting_functions.keys():
+                            algorithm = fitting_functions[i]
+                            if i == calculation.parameters.fitting_function:
+                                screen.addstr(4+i, 3, ">"+str(i) +" : "+ str(algorithm).split('.')[-1].replace('_',' '))
+                            else:
+                                screen.addstr(4+i, 4, str(i) +" : "+ str(algorithm).split('.')[-1].replace('_',' '))
 
                         screen.refresh()
-                        x3 = screen.getch()
-                        calculation.parameters.use_asymmetric_peaks=bool(int(chr(int(x3)))-2)
-                        calculation.power_spectra_clear()
+                        try:
+                            x3 = int(chr(int(screen.getch())))
+                        except ValueError:
+                            x3 = 9
+
+                    calculation.select_fitting_function(x3)
 
                     curses.endwin()
 
@@ -339,7 +341,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     print(frequency_limits)
                     calculation.set_frequency_limits(frequency_limits)
                     curses.endwin()
-
 
 
     curses.endwin()
@@ -360,5 +361,5 @@ if __name__ == 'test_gui.py':
 
     trajectory = reading.read_from_file_trajectory(trajectory_file_name,structure,last_steps=5000)
 
-    calculation = controller.Calculation(trajectory)
+    calculation = controller.Quasiparticle(trajectory)
     calculation.set_band_ranges(input_parameters['bands'])

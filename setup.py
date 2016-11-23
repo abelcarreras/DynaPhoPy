@@ -3,12 +3,12 @@ import numpy
 
 include_dirs_numpy = [numpy.get_include()]
 
-correlation = Extension('dynaphopy.correlation',
+correlation = Extension('dynaphopy.power_spectrum.correlation',
                         extra_compile_args=['-std=c99'],
                         include_dirs = include_dirs_numpy,
                         sources=['Extensions/correlation.c'])
 
-mem = Extension('dynaphopy.mem',
+mem = Extension('dynaphopy.power_spectrum.mem',
                 extra_compile_args=['-std=c99'],
                 include_dirs = include_dirs_numpy,
                 sources=['Extensions/mem.c'])
@@ -21,15 +21,18 @@ displacements = Extension('dynaphopy.displacements',
 
 
 setup(name='dynaphopy',
-      version='1.12.1',
+      version='1.13',
       description='dynaphopy module',
       author='Abel Carreras',
       url='https://github.com/abelcarreras/DynaPhoPy',
       author_email='abelcarreras83@gmail.com',
       packages=['dynaphopy',
-                'dynaphopy.classes',
+                'dynaphopy.orm',
+                'dynaphopy.power_spectrum',
                 'dynaphopy.analysis',
-                'dynaphopy.interface'],
+                'dynaphopy.analysis.fitting',
+                'dynaphopy.interface',
+                'dynaphopy.interface.iofile'],
       scripts=['scripts/dynaphopy'],
       ext_modules=[correlation, mem, displacements])
 

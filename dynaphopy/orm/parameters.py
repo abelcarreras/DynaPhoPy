@@ -1,6 +1,7 @@
 import numpy as np
 
-#This class contains all the default parameters for DynaPhoPy
+# This class contains all the default parameters for DynaPhoPy
+
 
 class Parameters:
 
@@ -13,7 +14,7 @@ class Parameters:
 
                  # Maximum Entropy Method
                  number_of_coefficients_mem=1000,
-                 mem_scan_range=np.array(np.linspace(40, 2000, 100), dtype=int),
+                 mem_scan_range=np.array(np.linspace(40, 1000, 100), dtype=int),
 
                  # Fourier transform Method
                  correlation_function_step=10,
@@ -28,9 +29,14 @@ class Parameters:
                     # 2: FFT via numpy
                     # 3: FFT via FFTW
                  power_spectra_algorithm=1,
-                 use_asymmetric_peaks=False,
                  spectrum_resolution=0.05,
                  frequency_range=np.arange(0, 40.05, 0.05),
+                 # Fitting function
+                    # 0: Correlation functions parallel (OpenMP) [Recommended]
+                    # 1: Maximum Entropy Method parallel (OpenMP) [Recommended]
+                    # 2: FFT via numpy
+                    # 3: FFT via FFTW
+                 fitting_function=0, # Default fitting function
 
                  # Phonon dispersion diagram
                  use_NAC=False,
@@ -40,6 +46,9 @@ class Parameters:
                  # Force constants
                  symmetrize=False,
                  use_symmetry=True,
+
+                # Renormalized frequencies
+                 save_renormalized_frequencies=False,
 
                  # Modes (eigenvectors) display
                  modes_vectors_scale=10,
@@ -60,7 +69,7 @@ class Parameters:
         self._correlation_function_step = correlation_function_step
         self._integration_method = integration_method
         self._power_spectra_algorithm = power_spectra_algorithm
-        self._use_asymmetric_peaks = use_asymmetric_peaks
+        self._fitting_function = fitting_function
         self._zero_padding = zero_padding
         self._frequency_range = frequency_range
         self._spectrum_resolution = spectrum_resolution
@@ -71,6 +80,7 @@ class Parameters:
 
         self._symmetrize = symmetrize
         self._use_symmetry = use_symmetry
+        self._save_renormalized_frequencies = save_renormalized_frequencies
 
         self._modes_vectors_scale = modes_vectors_scale
         self._mesh_phonopy = mesh_phonopy
@@ -192,12 +202,12 @@ class Parameters:
         self._modes_vectors_scale = modes_vectors_scale
 
     @property
-    def use_asymmetric_peaks(self):
-        return self._use_asymmetric_peaks
+    def fitting_function(self):
+        return self._fitting_function
 
-    @use_asymmetric_peaks.setter
-    def use_asymmetric_peaks(self, use_asymmetric_peaks):
-        self._use_asymmetric_peaks = use_asymmetric_peaks
+    @fitting_function.setter
+    def fitting_function(self, fitting_function):
+        self._fitting_function = fitting_function
 
     @property
     def zero_padding(self):
@@ -222,6 +232,14 @@ class Parameters:
     @symmetrize.setter
     def symmetrize(self, symmetrize):
         self._symmetrize = symmetrize
+
+    @property
+    def save_renormalized_frequencies(self):
+        return self._save_renormalized_frequencies
+
+    @save_renormalized_frequencies.setter
+    def save_renormalized_frequencies(self, save_renormalized_frequencies):
+        self._save_renormalized_frequenciese = save_renormalized_frequencies
 
     @property
     def mesh_phonopy(self):
