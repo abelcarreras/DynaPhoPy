@@ -67,7 +67,7 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
 static double FrequencyEvaluation(double Delta, double  Coefficients[], int NumberOfCoefficients, double MeanSquareDiscrepancy) {
 
     double _Complex z = cexp(_Complex_I * Delta / 2.0);
-    double _Complex sum = 1.0 + 0.0 * _Complex_I;
+    double _Complex sum = 1.0;
 
     for (int i=0; i <= NumberOfCoefficients; i++) {
         sum -= Coefficients[i] * cpow(z, i);
