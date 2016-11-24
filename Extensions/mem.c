@@ -86,7 +86,7 @@ static double  GetCoefficients(double  Data[], int NumberOfData, int NumberOfCoe
     double  wk2 [NumberOfData];
     double  wkm [NumberOfCoefficients];
 
-    for (j=1; j <= NumberOfData; j++) p += pow(Data[j],2);
+    for (j=1; j <= NumberOfData; j++) p += pow(Data[j], 2);
     MeanSquareDiscrepancy = p / NumberOfData;
 
     wk1[1] = Data[1];
@@ -98,32 +98,30 @@ static double  GetCoefficients(double  Data[], int NumberOfData, int NumberOfCoe
     }
 
     for (k=1; k <= NumberOfCoefficients; k++) {
-
         double  Numerator = 0.0,Denominator = 0.0;
 
-        for (j=1; j <= (NumberOfData-k); j++) {
-            Numerator += wk1[j]*wk2[j];
+        for (j=1; j <= (NumberOfData - k); j++) {
+            Numerator += wk1[j] * wk2[j];
             Denominator += pow(wk1[j],2) + pow(wk2[j], 2);
         }
 
-        Coefficients[k] = 2.0*Numerator/Denominator;
+        Coefficients[k] = 2.0 * Numerator / Denominator;
 
         MeanSquareDiscrepancy *= (1.0 - pow(Coefficients[k], 2));
 
-        for (i=1; i <= (k-1); i++) Coefficients[i] = wkm[i]-Coefficients[k]*wkm[k-i];
+        for (i=1; i <= (k-1); i++) Coefficients[i] = wkm[i] - Coefficients[k] * wkm[k-i];
 
         if (k == NumberOfCoefficients) continue;
 
-        for (i=1;i<=k;i++) wkm[i] = Coefficients[i];
+        for (i=1; i<=k; i++) wkm[i] = Coefficients[i];
 
-        for (j=1;j <= (NumberOfData-k-1);j++) {
-            wk1[j] -= wkm[k]*wk2[j];
-            wk2[j]  = wk2[j+1]-wkm[k]*wk1[j+1];
+        for (j=1; j <= (NumberOfData-k-1); j++) {
+            wk1[j] -= wkm[k] * wk2[j];
+            wk2[j]  = wk2[j+1] - wkm[k] * wk1[j+1];
         }
     }
     return MeanSquareDiscrepancy;
 };
-
 
 
 //static char extension_docs[] =
