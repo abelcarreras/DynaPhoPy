@@ -59,11 +59,12 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
         AngularFrequency = Frequency[i]*2.0*M_PI;
         PowerSpectrum[i] = FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep;
     }
+
     //Returning Python array
     return(PyArray_Return(PowerSpectrum_object));
 }
 
-
+// Evaluate MEM function
 static double FrequencyEvaluation(double Delta, double  Coefficients[], int NumberOfCoefficients, double MeanSquareDiscrepancy) {
 
     double _Complex z = cexp(_Complex_I * Delta / 2.0);
@@ -75,7 +76,7 @@ static double FrequencyEvaluation(double Delta, double  Coefficients[], int Numb
     return (double)MeanSquareDiscrepancy/(sum*conj(sum));
 }
 
-
+// Get LP coefficients
 static double  GetCoefficients(double  Data[], int NumberOfData, int NumberOfCoefficients, double  Coefficients[]) {
 
     int k, j, i;
