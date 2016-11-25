@@ -73,7 +73,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(14,45,"Time step: {0} ps".format(np.round(trajectory.get_time_step_average(),decimals=12)))
 
 
-
         #Option values left screen
         screen.addstr(2, 2, "Please enter option number...")
         screen.addstr(4, 4, "1 - Harmonic calculations")
