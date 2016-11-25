@@ -70,7 +70,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(11,45,"Unit cell atoms: {0}".format(trajectory.structure.get_number_of_atoms()))
         screen.addstr(12,45,"MD  cell atoms: {0} ".format(trajectory.get_number_of_atoms()))
         screen.addstr(13,45,"Number of MD time steps: {0}".format(len(trajectory.velocity)))
-        screen.addstr(14,45,"Time step: {0} ps".format(trajectory.get_time_step_average()))
+        screen.addstr(14,45,"Time step: {0} ps".format(np.round(trajectory.get_time_step_average(),decimals=12)))
 
 
 
