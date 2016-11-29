@@ -621,8 +621,8 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
                             memmap=memmap)
     else:
         return vc, reduced_q_vector, dyn.Dynamics(structure=structure,
-                                time=time,
-                                super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()),
-                                memmap=memmap)
+                                                  time=time,
+                                                  super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()),
+                                                  memmap=memmap)
 
 
