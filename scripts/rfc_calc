@@ -91,7 +91,7 @@ else:
     structure.get_data_from_dict(input_parameters)
 
 if not(isinstance(args.dim, type(None))):
-    structure.set_super_cell_phonon_renormalized(np.diag(np.array(args.dim,dtype=int)))
+    structure.set_supercell_phonon_renormalized(np.diag(np.array(args.dim, dtype=int)))
 
 # Process options
 if args.cp:

@@ -121,7 +121,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                             trajectory=np.array(trajectory, dtype=complex),
                             energy=np.array(energy),
                             time=time,
-                            super_cell=super_cell,
+                            supercell=super_cell,
                             memmap=memmap)
 
 
@@ -235,7 +235,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 zlo = bounds[2, 0]
                 zhi = bounds[2, 1]
 
-                super_cell = np.array([[xhi-xlo, xy,  xz],
+                supercell = np.array([[xhi-xlo, xy,  xz],
                                        [0,  yhi-ylo,  yz],
                                        [0,   0,  zhi-zlo]])
 
@@ -305,18 +305,18 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             time = time[-last_steps:]
 
     # Check position/velocity dump
-    if 'vx vy vz' in lammps_labels:
+    if 'vx vy' in lammps_labels:
         return dyn.Dynamics(structure=structure,
                             velocity=data,
                             time=time,
-                            super_cell=super_cell,
+                            supercell=supercell,
                             memmap=memmap)
 
-    if 'x y z' in lammps_labels:
+    if 'x y' in lammps_labels:
         return dyn.Dynamics(structure=structure,
                             trajectory=data,
                             time=time,
-                            super_cell=super_cell,
+                            supercell=supercell,
                             memmap=memmap)
 
     print('LAMMPS parsing error. Data not recognized: {}'.format(lammps_labels))
@@ -445,7 +445,7 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
     return dyn.Dynamics(structure=structure,
                         scaled_trajectory=data,
                         time=time,
-                        super_cell=super_cell,
+                        supercell=super_cell,
                         memmap=memmap)
 
 

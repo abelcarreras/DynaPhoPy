@@ -354,7 +354,7 @@ if __name__ == 'test_gui.py':
     structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name'])
     structure.set_force_set( file_IO.parse_FORCE_SETS(filename=input_parameters['force_constants_file_name']))
     structure.set_primitive_matrix(input_parameters['primitive_matrix'])
-    structure.set_super_cell_phonon(input_parameters['super_cell_matrix'])
+    structure.set_supercell_phonon(input_parameters['supercell_matrix'])
 
     trajectory_file_name = sys.argv[2]
 

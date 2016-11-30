@@ -35,7 +35,7 @@ def read_file_hdf5(file_name):
     hdf5_file = h5py.File(file_name, "r")
 
     time = hdf5_file['time'][:]
-    super_cell = hdf5_file['super_cell'][:]
+    supercell = hdf5_file['super_cell'][:]
 
     if 'trajectory' in hdf5_file:
         trajectory = hdf5_file['trajectory'][:]
@@ -48,14 +48,14 @@ def read_file_hdf5(file_name):
 
     hdf5_file.close()
 
-    return vc, velocity, trajectory, time, super_cell, reduced_q_vector
+    return vc, velocity, trajectory, time, supercell, reduced_q_vector
 
-def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, vc=None, reduced_q_vector=None):
+def save_data_hdf5(file_name, time, supercell, trajectory=None, velocity=None, vc=None, reduced_q_vector=None):
 
     hdf5_file = h5py.File(file_name, "w")
 
     hdf5_file.create_dataset('time', data=time)
-    hdf5_file.create_dataset('super_cell', data=super_cell)
+    hdf5_file.create_dataset('super_cell', data=supercell)
 
     if reduced_q_vector is not None:
         hdf5_file.create_dataset('reduced_q_vector', data=reduced_q_vector)
@@ -85,7 +85,7 @@ if len(sys.argv) == 1:
 
 first = args.f[0]
 print("skipping first {0} steps".format(first))
-vc, velocity, trajectory, time, super_cell, r_q_vector = read_file_hdf5(args.input[0])
+vc, velocity, trajectory, time, supercell, r_q_vector = read_file_hdf5(args.input[0])
 
 
 if args.velocity_only:
@@ -120,7 +120,7 @@ print "Final: ", args.output[0]
 
 save_data_hdf5(args.output[0],
                time,
-               super_cell,
+               supercell,
                trajectory=trajectory,
                velocity=velocity,
                vc=vc,

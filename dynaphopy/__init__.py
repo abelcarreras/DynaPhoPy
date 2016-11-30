@@ -102,7 +102,7 @@ class Quasiparticle:
 
         reading.save_data_hdf5(file_name,
                                self.dynamic.get_time(),
-                               self.dynamic.get_super_cell_matrix(),
+                               self.dynamic.get_supercell_matrix(),
                                velocity=self.dynamic.velocity,
                                trajectory=trajectory)
 
@@ -112,7 +112,7 @@ class Quasiparticle:
 
         reading.save_data_hdf5(file_name,
                                self.dynamic.get_time(),
-                               self.dynamic.get_super_cell_matrix(),
+                               self.dynamic.get_supercell_matrix(),
                                vc=self.get_vc(),
                                reduced_q_vector=self.get_reduced_q_vector())
 
@@ -259,13 +259,13 @@ class Quasiparticle:
         plt.show()
 
     def check_commensurate(self, q_point, decimals=4):
-        super_cell = self.dynamic.get_super_cell_matrix()
+        supercell = self.dynamic.get_supercell_matrix()
 
         commensurate = False
         primitive_matrix = self.dynamic.structure.get_primitive_matrix()
 
         transform = np.dot(q_point, np.linalg.inv(primitive_matrix))
-        transform = np.multiply(transform, super_cell)
+        transform = np.multiply(transform, supercell)
         transform = np.around(transform, decimals=decimals)
 
         if np.all(np.equal(np.mod(transform, 1), 0)):
@@ -432,7 +432,7 @@ class Quasiparticle:
 
             if atom_type_projection >= 0:
                 print('Power spectrum projected onto atom type {0}'.format(atom_type_projection))
-                supercell = self.dynamic.get_super_cell_matrix()
+                supercell = self.dynamic.get_supercell_matrix()
                 atom_types = np.array(self.dynamic.structure.get_atom_type_index(supercell=supercell))
                 atom_indices = np.argwhere(atom_types == atom_type_projection).flatten()
                 if len(atom_indices) == 0:
@@ -714,10 +714,10 @@ class Quasiparticle:
 
         if self._renormalized_force_constants is None:
             if self.parameters.use_MD_cell_commensurate:
-                self.dynamic.structure.set_super_cell_phonon_renormalized(np.diag(self.dynamic.get_super_cell_matrix()))
+                self.dynamic.structure.set_supercell_phonon_renormalized(np.diag(self.dynamic.get_supercell_matrix()))
 
             com_points = pho_interface.get_commensurate_points(self.dynamic.structure,
-                                                               custom_supercell=self.dynamic.structure.get_super_cell_phonon_renormalized())
+                                                               custom_supercell=self.dynamic.structure.get_supercell_phonon_renormalized())
 
             initial_reduced_q_point = self.get_reduced_q_vector()
 
@@ -849,7 +849,7 @@ class Quasiparticle:
             thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])))
 
         if from_power_spectrum:
-            normalization = np.prod(self.dynamic.get_super_cell_matrix())
+            normalization = np.prod(self.dynamic.get_supercell_matrix())
 
             power_spectrum_dos = thm.get_dos(temperature, frequency_range, self.get_power_spectrum_full(),
                                              normalization)

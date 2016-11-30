@@ -146,7 +146,7 @@ def read_from_file_structure_outcar(file_name):
                               )
 
 
-def read_from_file_structure_poscar(file_name):
+def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
     #Check file exists
     if not os.path.isfile(file_name):
         print('Structure file does not exist!')
@@ -160,15 +160,15 @@ def read_from_file_structure_poscar(file_name):
 
     multiply = float(data_lines[1])
     direct_cell = np.array([data_lines[i].split()
-                            for i in range(2,5)],dtype=float).T
+                            for i in range(2, 2+number_of_dimensions)],dtype=float).T
     direct_cell *= multiply
     scaled_positions = None
     positions = None
 
     try:
-        number_of_types = np.array(data_lines[6].split(),dtype=int)
+        number_of_types = np.array(data_lines[3+number_of_dimensions].split(),dtype=int)
 
-        coordinates_type = data_lines[7][0]
+        coordinates_type = data_lines[4+number_of_dimensions][0]
         if coordinates_type == 'D' or coordinates_type == 'd' :
 
             scaled_positions = np.array([data_lines[8+k].split()[0:3]
@@ -212,12 +212,12 @@ def read_from_file_structure_poscar(file_name):
 
 
 #Just for testing (use with care)
-def generate_test_trajectory(structure, super_cell=(1, 1, 1),
+def generate_test_trajectory(structure, supercell=(1, 1, 1),
                              save_to_file=None,
                              minimum_frequency=0.1,  # THz
-                             total_time=2,           # picoseconds
-                             time_step=0.002,        # picoseconds
-                             temperature=400,        # Kelvin
+                             total_time=2,  # picoseconds
+                             time_step=0.002,  # picoseconds
+                             temperature=400,  # Kelvin
                              silent=False,
                              memmap=False):
 
@@ -228,8 +228,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
 
 
-    number_of_unit_cells_phonopy = np.prod(np.diag(structure.get_super_cell_phonon()))
-    number_of_unit_cells = np.prod(super_cell)
+    number_of_unit_cells_phonopy = np.prod(np.diag(structure.get_supercell_phonon()))
+    number_of_unit_cells = np.prod(supercell)
 #    atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
 
 
@@ -247,8 +247,8 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     number_of_primitive_atoms = structure.get_number_of_primitive_atoms()
     number_of_dimensions = structure.get_number_of_dimensions()
 
-    positions = structure.get_positions(supercell=super_cell)
-    masses = structure.get_masses(supercell=super_cell)
+    positions = structure.get_positions(supercell=supercell)
+    masses = structure.get_masses(supercell=supercell)
 
 
     number_of_atoms = number_of_atoms*number_of_unit_cells
@@ -258,7 +258,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
     number_of_primitive_cells = number_of_atoms/number_of_primitive_atoms
 
-    atom_type = structure.get_atom_type_index(supercell=super_cell)
+    atom_type = structure.get_atom_type_index(supercell=supercell)
 #    print('At type',atom_type)
 
     #Generate an xyz file for checking
@@ -270,7 +270,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     #Generate additional wave vectors sample
 #    structure.set_super_cell_phonon_renormalized(np.diag(super_cell))
 
-    q_vector_list = pho_interface.get_commensurate_points(structure, custom_supercell=np.diag(super_cell))
+    q_vector_list = pho_interface.get_commensurate_points(structure, custom_supercell=np.diag(supercell))
    # print(q_vector_list)
    # exit()
 
@@ -317,7 +317,7 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                         coordinate = coordinate.real
 
 
-            xyz_file.write(structure.get_atomic_types(supercell=super_cell)[i_atom] + '\t' +
+            xyz_file.write(structure.get_atomic_types(supercell=supercell)[i_atom] + '\t' +
                            '\t'.join([str(item) for item in coordinate]) + '\n')
 
             coordinates.append(coordinate)
@@ -342,20 +342,20 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                                  trajectory=np.array(trajectory, dtype=complex),
                                  energy=np.array(energy),
                                  time=time,
-                                 super_cell=np.dot(np.diagflat(super_cell), structure.get_cell().T).T),
+                                 supercell=np.dot(np.diagflat(supercell), structure.get_cell().T).T),
                     dump_file)
 
         dump_file.close()
 
 #    print(np.dot(np.diagflat(super_cell),structure.get_cell()))
 
-    structure.set_super_cell_phonon_renormalized(None)
+    structure.set_supercell_phonon_renormalized(None)
 
     return dyn.Dynamics(structure=structure,
                         trajectory=np.array(trajectory,dtype=complex),
                         energy=np.array(energy),
                         time=time,
-                        super_cell=np.dot(np.diagflat(super_cell), structure.get_cell().T).T,
+                        supercell=np.dot(np.diagflat(supercell), structure.get_cell().T).T,
                         memmap=memmap)
 
 
@@ -617,12 +617,12 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
                             trajectory=trajectory,
                             velocity=velocity,
                             time=time,
-                            super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()),
+                            supercell=np.dot(np.diagflat(super_cell), structure.get_cell()),
                             memmap=memmap)
     else:
         return vc, reduced_q_vector, dyn.Dynamics(structure=structure,
                                                   time=time,
-                                                  super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()),
+                                                  supercell=np.dot(np.diagflat(super_cell), structure.get_cell()),
                                                   memmap=memmap)
 
 

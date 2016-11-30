@@ -41,9 +41,9 @@ class Structure:
         self._positions = positions
         self._primitive_cell = primitive_cell
 
-        self._super_cell_matrix = None
-        self._super_cell_phonon = None
-        self._super_cell_phonon_renormalized = None
+        self._supercell_matrix = None
+        self._supercell_phonon = None
+        self._supercell_phonon_renormalized = None
         self._number_of_cell_atoms = None
         self._number_of_atoms = None
         self._number_of_atom_types = None
@@ -93,29 +93,29 @@ class Structure:
 
         return self._cell
 
-    def set_super_cell_phonon(self,super_cell_phonon):
-        self._super_cell_phonon = super_cell_phonon
+    def set_supercell_phonon(self, supercell_phonon):
+        self._supercell_phonon = supercell_phonon
 
-    def get_super_cell_phonon(self):
-        if self._super_cell_phonon is None:
-            self._super_cell_phonon = np.identity(self.get_number_of_dimensions(), dtype=int)
-        return self._super_cell_phonon
+    def get_supercell_phonon(self):
+        if self._supercell_phonon is None:
+            self._supercell_phonon = np.identity(self.get_number_of_dimensions(), dtype=int)
+        return self._supercell_phonon
 
-    def set_super_cell_phonon_renormalized(self, super_cell_phonon):
-        self._super_cell_phonon_renormalized = super_cell_phonon
+    def set_supercell_phonon_renormalized(self, supercell_phonon):
+        self._supercell_phonon_renormalized = supercell_phonon
 
-    def get_super_cell_phonon_renormalized(self):
-        if self._super_cell_phonon_renormalized is None:
-            self._super_cell_phonon_renormalized = self.get_super_cell_phonon()
-        return self._super_cell_phonon_renormalized
+    def get_supercell_phonon_renormalized(self):
+        if self._supercell_phonon_renormalized is None:
+            self._supercell_phonon_renormalized = self.get_supercell_phonon()
+        return self._supercell_phonon_renormalized
 
-    def set_super_cell_matrix(self,super_cell_matrix):
-        self._super_cell_matrix = super_cell_matrix
+    def set_supercell_matrix(self, supercell_matrix):
+        self._supercell_matrix = supercell_matrix
 
-    def get_super_cell_matrix(self):
-        if self._super_cell_matrix is None:
-            self._super_cell_matrix = np.array(self.get_number_of_dimensions()*[1],dtype=int)
-        return self._super_cell_matrix
+    def get_supercell_matrix(self):
+        if self._supercell_matrix is None:
+            self._supercell_matrix = np.array(self.get_number_of_dimensions() * [1], dtype=int)
+        return self._supercell_matrix
 
     def get_primitive_cell(self):
         if self._primitive_cell is None:
@@ -154,13 +154,13 @@ class Structure:
         if supercell is None:
             supercell = self.get_number_of_dimensions() * [1]
 
-        position_super_cell = []
+        position_supercell = []
         for k in range(self._positions.shape[0]):
             for r in itertools.product(*[range (i) for i in supercell[::-1]]):
-                position_super_cell.append(self._positions[k,:] + np.dot(np.array(r[::-1]),self.get_cell().T))
-        position_super_cell = np.array(position_super_cell)
+                position_supercell.append(self._positions[k,:] + np.dot(np.array(r[::-1]),self.get_cell().T))
+        position_supercell = np.array(position_supercell)
 
-        return position_super_cell
+        return position_supercell
 
     def get_scaled_positions(self, supercell=None):
 
@@ -195,7 +195,7 @@ class Structure:
         if not isinstance(self._force_sets,type(None)):
 
             force_atoms_file = self._force_sets['natom']
-            force_atoms_input = np.product(np.diagonal(self.get_super_cell_phonon()))*self.get_number_of_atoms()
+            force_atoms_input = np.product(np.diagonal(self.get_supercell_phonon())) * self.get_number_of_atoms()
 
             if force_atoms_file != force_atoms_input:
                 print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
@@ -210,10 +210,10 @@ class Structure:
         if supercell is None:
             supercell = self.get_number_of_dimensions() * [1]
 
-        mass_super_cell = []
+        mass_supercell = []
         for j in range(self.get_number_of_cell_atoms()):
-            mass_super_cell += [ self._masses[j] ] * np.prod(supercell)
-        return mass_super_cell
+            mass_supercell += [ self._masses[j] ] * np.prod(supercell)
+        return mass_supercell
 
     # Number of atoms and dimensions related methods
     def get_number_of_cell_atoms(self):
@@ -228,11 +228,11 @@ class Structure:
         if supercell is None:
             supercell = self.get_number_of_dimensions() * [1]
 
-        atomic_numbers_super_cell = []
+        atomic_numbers_supercell = []
         for j in range(self.get_number_of_cell_atoms()):
-            atomic_numbers_super_cell += [self._atomic_numbers[j] ] * np.prod(supercell)
+            atomic_numbers_supercell += [self._atomic_numbers[j] ] * np.prod(supercell)
 
-        return np.array(atomic_numbers_super_cell,dtype=int)
+        return np.array(atomic_numbers_supercell,dtype=int)
 
     def get_number_of_atoms(self):
         if self._number_of_atoms is None:
@@ -303,10 +303,10 @@ class Structure:
         if supercell is None:
             supercell = self.get_number_of_dimensions() * [1]
 
-        atom_type_index_super_cell = []
+        atom_type_index_supercell = []
         for j in range(self.get_number_of_cell_atoms()):
-            atom_type_index_super_cell += [self._atom_type_index[j] ] * np.prod(supercell)
-        return atom_type_index_super_cell
+            atom_type_index_supercell += [self._atom_type_index[j] ] * np.prod(supercell)
+        return atom_type_index_supercell
 
     def get_cell_parameters(self, supercell=None):
 

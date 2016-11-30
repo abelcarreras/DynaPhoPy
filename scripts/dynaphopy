@@ -221,7 +221,7 @@ if args.generate_trajectory:
                                                   total_time=args.generate_trajectory[0],
                                                   time_step=args.generate_trajectory[1],
                                                   temperature=args.generate_trajectory[2],
-                                                  super_cell=args.dim,
+                                                  supercell=args.dim,
                                                   silent=args.silent,
                                                   memmap=args.memmap)
 

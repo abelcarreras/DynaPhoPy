@@ -27,10 +27,10 @@ def progress_bar(progress):
 #Not used (deprecated)
 def relativize_trajectory(dynamic, memmap=False):
 
-    cell = dynamic.get_super_cell()
+    cell = dynamic.get_supercell()
     number_of_atoms = dynamic.trajectory.shape[1]
-    super_cell = dynamic.get_super_cell_matrix()
-    position = dynamic.structure.get_positions(supercell=super_cell)
+    supercell = dynamic.get_supercell_matrix()
+    position = dynamic.structure.get_positions(supercell=supercell)
 #    normalized_trajectory = np.zeros_like(dynamic.trajectory.real)
     normalized_trajectory = dynamic.trajectory.copy()
 
@@ -53,10 +53,10 @@ def relativize_trajectory(dynamic, memmap=False):
 def relativize_trajectory_py(dynamic):
 
     print('Using python rutine for calculating atomic displacements')
-    cell = dynamic.get_super_cell()
+    cell = dynamic.get_supercell()
     number_of_atoms = dynamic.trajectory.shape[1]
-    super_cell = dynamic.get_super_cell_matrix()
-    position = dynamic.structure.get_positions(supercell=super_cell)
+    supercell = dynamic.get_supercell_matrix()
+    position = dynamic.structure.get_positions(supercell=supercell)
     normalized_trajectory = dynamic.trajectory.real.copy()
 
     progress_bar(0)
@@ -79,12 +79,12 @@ def trajectory_projection(dynamic, direction):
 
     direction = np.array(direction)/np.linalg.norm(direction)
 
-    super_cell = dynamic.get_super_cell_matrix()
+    supercell = dynamic.get_supercell_matrix()
     trajectory = dynamic.get_relative_trajectory()
 
   #  print(trajectory)
 
-    atom_type_index = dynamic.structure.get_atom_type_index(supercell=super_cell)
+    atom_type_index = dynamic.structure.get_atom_type_index(supercell=supercell)
     number_of_atom_types = dynamic.structure.get_number_of_atom_types()
 
     projections = []

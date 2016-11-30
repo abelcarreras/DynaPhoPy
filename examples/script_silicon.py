@@ -31,9 +31,9 @@ structure.set_primitive_matrix([[0.5, 0.0, 0.0],
 # 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
 # the finite displacements
 
-structure.set_super_cell_phonon([[4, 0, 0],
-                                 [0, 4, 0],
-                                 [0, 0, 4]])
+structure.set_supercell_phonon([[4, 0, 0],
+                                [0, 4, 0],
+                                [0, 0, 4]])
 
 
 ################################### TRAJECTORY FILES ##########################################
