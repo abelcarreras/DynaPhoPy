@@ -490,7 +490,7 @@ def read_parameters_from_input_file(file_name):
                                  input_file[i+3].replace('\n','').split()]
 
             super_cell_matrix = np.array(super_cell_matrix, dtype=int)
-            input_parameters.update({'_super_cell_phonon': np.array(super_cell_matrix, dtype=int)})
+            input_parameters.update({'_supercell_phonon': np.array(super_cell_matrix, dtype=int)})
 
 
         if "BANDS" in line:
