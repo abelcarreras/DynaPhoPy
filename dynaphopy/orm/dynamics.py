@@ -142,7 +142,7 @@ class Dynamics:
             self._structure = structure
 
             #Check order of atoms
-            if trajectory is not None:
+            if trajectory is not None and structure.get_number_of_dimensions() == 3:
                 self._trajectory = check_trajectory_structure(trajectory, structure)
 
 
@@ -276,11 +276,14 @@ class Dynamics:
 
     def get_supercell_matrix(self, tolerance=0.01):
 
-        def parameters(h):
+        def parameters2(h):
             a = np.linalg.norm(h[:,0])
             b = np.linalg.norm(h[:,1])
             c = np.linalg.norm(h[:,2])
             return [a, b, c]
+
+        def parameters(h):
+            return [np.linalg.norm(h[:, i]) for i in range(h.shape[1])]
 
         if self._supercell_matrix is None:
             supercell_matrix_real = np.divide(parameters(self.get_supercell()), parameters(self.structure.get_cell()))
@@ -306,12 +309,13 @@ class Dynamics:
             supercell = self.get_supercell_matrix()
             atom_type_index = self.structure.get_atom_type_index(supercell=supercell)
             number_of_atom_types = self.structure.get_number_of_atom_types()
+            number_of_dimensions = self.structure.get_number_of_dimensions()
             displacements = self.get_relative_trajectory()
             number_of_data = displacements.shape[0]
 
             number_of_equivalent_atoms = np.prod(supercell)
 
-            mean_displacement_matrix = np.zeros((number_of_atom_types, 3,3))
+            mean_displacement_matrix = np.zeros((number_of_atom_types, number_of_dimensions, number_of_dimensions))
 
             for i in range(displacements.shape[1]):
                 primtive_normalization = atom_primitive_equivalent[atom_type_index[i]]
@@ -328,6 +332,7 @@ class Dynamics:
         number_of_atoms = self.trajectory.shape[1]
         supercell = self.get_supercell_matrix()
         positions = self.structure.get_positions(supercell=supercell)
+        number_of_dimensions = self.structure.get_number_of_dimensions()
 
         normalized_trajectory = self.get_relative_trajectory()
 
@@ -344,7 +349,7 @@ class Dynamics:
         for j in range(number_of_atoms):
 
             difference_matrix = np.around(np.dot(np.linalg.inv(cell),
-                                                 reference[j, :] - 0.5 * np.dot(np.ones((3)), cell.T)),
+                                                 reference[j, :] - 0.5 * np.dot(np.ones((number_of_dimensions)), cell.T)),
                                           decimals=0)
             reference[j, :] -= np.dot(difference_matrix, cell.T)
 

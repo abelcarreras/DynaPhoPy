@@ -147,8 +147,9 @@ class Quasiparticle:
 
     # Wave vector related methods
     def set_reduced_q_vector(self, q_vector):
-        if (np.array(q_vector) != self.parameters.reduced_q_vector).any():
-            self.full_clear()
+        if len(q_vector) == len( self.parameters.reduced_q_vector):
+            if (np.array(q_vector) != self.parameters.reduced_q_vector).any():
+                self.full_clear()
 
         self.parameters.reduced_q_vector = np.array(q_vector)
 

@@ -449,9 +449,10 @@ def write_correlation_to_file(frequency_range, correlation_vector, file_name):
     return 0
 
 
-def read_parameters_from_input_file(file_name):
+def read_parameters_from_input_file(file_name, number_of_dimensions=3):
 
     input_parameters = {'structure_file_name_poscar': 'POSCAR'}
+
 
     #Check file exists
     if not os.path.isfile(file_name):
@@ -478,16 +479,12 @@ def read_parameters_from_input_file(file_name):
        #     exit()
 
         if "PRIMITIVE MATRIX" in line:
-            primitive_matrix = [input_file[i+1].replace('\n','').split(),
-                                input_file[i+2].replace('\n','').split(),
-                                input_file[i+3].replace('\n','').split()]
+            primitive_matrix = [input_file[i+j+1].replace('\n','').split() for j in range(number_of_dimensions)]
             input_parameters.update({'_primitive_matrix': np.array(primitive_matrix, dtype=float)})
 
 
         if "SUPERCELL MATRIX PHONOPY" in line:
-            super_cell_matrix = [input_file[i+1].replace('\n','').split(),
-                                 input_file[i+2].replace('\n','').split(),
-                                 input_file[i+3].replace('\n','').split()]
+            super_cell_matrix = [input_file[i+j+1].replace('\n','').split() for j in range(number_of_dimensions)]
 
             super_cell_matrix = np.array(super_cell_matrix, dtype=int)
             input_parameters.update({'_supercell_phonon': np.array(super_cell_matrix, dtype=int)})

@@ -166,7 +166,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
     print("Reading LAMMPS trajectory")
     print("This could take long, please wait..")
 
-    # Dimensionality of LAMMP calculation
+    # Dimension of LAMMP calculation
     if structure:
         number_of_dimensions = structure.get_number_of_dimensions()
     else:
@@ -238,6 +238,9 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 supercell = np.array([[xhi-xlo, xy,  xz],
                                        [0,  yhi-ylo,  yz],
                                        [0,   0,  zhi-zlo]])
+
+                #for 2D
+                supercell = supercell[:number_of_dimensions, :number_of_dimensions]
 
                 # Testing cell
                 lx = xhi-xlo
