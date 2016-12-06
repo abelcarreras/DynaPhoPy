@@ -8,6 +8,7 @@ import mem
 unit_conversion = 6.651206285e-4 # u * A^2 * THz -> eV*ps
 
 
+
 def progress_bar(progress, label):
     bar_length = 30
     status = ""
@@ -311,3 +312,57 @@ def get_fft_fftw_spectra(vq, trajectory, parameters):
     psd_vector = np.array(psd_vector).T
 
     return psd_vector * unit_conversion
+
+
+
+def cuda_power(frequency_range, data, time_step):
+    from gpu_correlate import dacorrelate
+    from gpu_fft import dfft
+
+    pieces = division_of_data(frequency_range[1]-frequency_range[0],
+                              data.size,
+                              time_step)
+
+    ps = []
+    for i_p in pieces:
+
+        data_piece = data[i_p[0]:i_p[1]]
+
+        data_piece = dacorrelate(data_piece, mode='same')/data_piece.size
+        ps.append(np.abs(dfft(data_piece)*time_step/2.0))
+
+    ps = np.average(ps,axis=0)
+
+    freqs = np.fft.fftfreq(data_piece.size, time_step)
+    idx = np.argsort(freqs)
+
+    return np.interp(frequency_range, freqs[idx], ps[idx])
+
+
+def get_fft_cuda_spectra(vq, trajectory, parameters):
+    test_frequency_range = np.array(parameters.frequency_range)
+
+    psd_vector = []
+    if not(parameters.silent):
+        progress_bar(0, 'CUDA')
+    for i in range(vq.shape[1]):
+        psd_vector.append(cuda_power(test_frequency_range,vq[:, i],
+                                     trajectory.get_time_step_average()),
+                          )
+
+        if not(parameters.silent):
+            progress_bar(float(i+1)/vq.shape[1], 'CUDA')
+
+    psd_vector = np.array(psd_vector).T
+
+    return psd_vector * unit_conversion
+
+
+power_spectrum_functions = {
+    0: [get_fourier_spectra_par_openmp, 'Fourier transform'],
+    1: [get_mem_spectra_par_openmp, 'Maximum entropy method'],
+    2: [get_fft_spectra, 'Fast Fourier transform (Numpy)'],
+    3: [get_fft_fftw_spectra, 'Fast Fourier transform (FFTW)'],
+    4: [get_fft_cuda_spectra, 'Fast Fourier transform (CUDA)']
+}
+

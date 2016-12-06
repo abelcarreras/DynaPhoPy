@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import dynaphopy.projection as projection
-import dynaphopy.power_spectrum as power_spectrum
+#import dynaphopy.power_spectrum as power_spectrum
 import dynaphopy.orm.parameters as parameters
 import dynaphopy.interface.phonopy_link as pho_interface
 import dynaphopy.interface.iofile as reading
@@ -14,15 +14,8 @@ import dynaphopy.analysis.modes as modes
 import dynaphopy.analysis.coordinates as trajdist
 import dynaphopy.analysis.thermal_properties as thm
 
+from dynaphopy.power_spectrum import power_spectrum_functions
 from scipy import integrate
-
-power_spectrum_functions = {
-    0: [power_spectrum.get_fourier_spectra_par_openmp, 'Fourier transform'],
-    1: [power_spectrum.get_mem_spectra_par_openmp, 'Maximum entropy method'],
-    2: [power_spectrum.get_fft_spectra, 'Fast Fourier transform (Numpy)'],
-    3: [power_spectrum.get_fft_fftw_spectra, 'Fast Fourier transform (FFTW)']
-}
-
 
 class Quasiparticle:
     def __init__(self,
