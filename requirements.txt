@@ -17,3 +17,6 @@ h5py
 
 # To use pyfftw FFTW has to be installed in your system (check pyfft homepage for more information)
 # pyfftw
+
+# To use cuda functions (optional)
+# git+https://github.com/abelcarreras/cuda_functions.git
