@@ -11,7 +11,7 @@ scipy
 matplotlib
 h5py
 
-# These packages are optional and have some special requirements
+# These packages are optional
 # To use pyfftw FFTW has to be installed in your system (check pyfft homepage for more information)
 # pyfftw
 
