@@ -5,11 +5,9 @@ import matplotlib.pyplot as plt
 import correlation
 import mem
 
-unit_conversion = 6.651206285e-4 # u * A^2 * THz -> eV*ps
+unit_conversion = 6.651206285e-4  # u * A^2 * THz -> eV*ps
 
-
-
-def progress_bar(progress, label):
+def _progress_bar(progress, label):
     bar_length = 30
     status = ""
     if isinstance(progress, int):
@@ -30,15 +28,42 @@ def progress_bar(progress, label):
     sys.stdout.flush()
 
 
-#####################################
-#   Fourier transform  method       #
-#####################################
-def get_fourier_spectra_par_openmp(vq, trajectory, parameters):
+
+def _division_of_data(resolution, number_of_data, time_step):
+
+    piece_size = round(1./(time_step*resolution))
+#    print 'N', piece_size
+
+    number_of_pieces = int((number_of_data-1)/piece_size)
+#    print'Number of pieces', number_of_pieces
+#    print'Size', data.size
+
+    if number_of_pieces > 0:
+        interval = (number_of_data - piece_size)/number_of_pieces
+    else:
+        interval = 0
+        number_of_pieces = 1
+        piece_size = number_of_data
+
+    pieces = []
+    for i in range(number_of_pieces+1):
+        ini = int((piece_size/2+i*interval)-piece_size/2)
+        fin = int((piece_size/2+i*interval)+piece_size/2)
+        pieces.append([ini, fin])
+
+    return pieces
+
+
+
+#############################################
+#   Fourier transform - direct method       #
+#############################################
+def get_fourier_direct_power_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
     psd_vector = []
     if not(parameters.silent):
-        progress_bar(0, "Fourier")
+        _progress_bar(0, "Fourier")
     for i in range(vq.shape[1]):
         psd_vector.append(correlation.correlation_par(test_frequency_range,
                                                       vq[:, i],
@@ -47,7 +72,7 @@ def get_fourier_spectra_par_openmp(vq, trajectory, parameters):
                                                       step=parameters.correlation_function_step,
                                                       integration_method=parameters.integration_method))
         if not(parameters.silent):
-            progress_bar(float(i+1)/vq.shape[1], "Fourier")
+            _progress_bar(float(i + 1) / vq.shape[1], "Fourier")
 
     psd_vector = np.array(psd_vector).T
 
@@ -56,7 +81,7 @@ def get_fourier_spectra_par_openmp(vq, trajectory, parameters):
 #####################################
 #   Maximum entropy method method   #
 #####################################
-def get_mem_spectra_par_openmp(vq, trajectory, parameters):
+def get_mem_power_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
     # Check number of coefficients
@@ -66,7 +91,7 @@ def get_mem_spectra_par_openmp(vq, trajectory, parameters):
 
     psd_vector = []
     if not(parameters.silent):
-        progress_bar(0, 'M. Entropy')
+        _progress_bar(0, 'M. Entropy')
     for i in range(vq.shape[1]):
         psd_vector.append(mem.mem(test_frequency_range,
                                   vq[:, i],
@@ -74,13 +99,15 @@ def get_mem_spectra_par_openmp(vq, trajectory, parameters):
                                   coefficients=parameters.number_of_coefficients_mem))
 
         if not(parameters.silent):
-            progress_bar(float(i+1)/vq.shape[1], 'M. Entropy')
+            _progress_bar(float(i + 1) / vq.shape[1], 'M. Entropy')
 
     psd_vector = np.array(psd_vector).T
 
     return psd_vector * unit_conversion
 
-# Coefficient analysis for MEM
+#####################################
+#    Coefficient analysis (MEM)     #
+#####################################
 def mem_coefficient_scan_analysis(vq, trajectory, parameters):
     from dynaphopy.analysis.fitting import fitting_functions
 
@@ -92,7 +119,7 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         scan_params = []
         power_spectra = []
         if not(parameters.silent):
-            progress_bar(0, 'M.E. Method')
+            _progress_bar(0, 'M.E. Method')
         for number_of_coefficients in parameters.mem_scan_range:
 
             power_spectrum = mem.mem(test_frequency_range,
@@ -132,7 +159,7 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
             power_spectra.append(power_spectrum)
 
             if not(parameters.silent):
-                progress_bar(float(number_of_coefficients+1)/parameters.mem_scan_range[-1], "M.E. Method")
+                _progress_bar(float(number_of_coefficients + 1) / parameters.mem_scan_range[-1], "M.E. Method")
 
         fit_data = np.array(fit_data).T
 
@@ -147,7 +174,7 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
 
         print ('Peak # {0}'.format(i+1))
         print('------------------------------------')
-        print ('Estimated width(FWHM): {0} THz'.format(mem_full_dict[i][1]))
+        print ('Estimated width      : {0} THz'.format(mem_full_dict[i][1]))
 
         fit_data = mem_full_dict[i][3]
         scan_params = mem_full_dict[i][4]
@@ -190,49 +217,18 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
 #   FFT method (NUMPY)              #
 #####################################
 
-def autocorrelation(x):
-    result = np.correlate(x, x, mode='same')/x.size
-    return result
+def _numpy_power(frequency_range, data, time_step):
 
-#   FFT Numpy
-
-def division_of_data(resolution, number_of_data, time_step):
-
-    piece_size = round(1./(time_step*resolution))
-#    print 'N', piece_size
-
-    number_of_pieces = int((number_of_data-1)/piece_size)
-#    print'Number of pieces', number_of_pieces
-#    print'Size', data.size
-
-    if number_of_pieces > 0:
-        interval = (number_of_data - piece_size)/number_of_pieces
-    else:
-        interval = 0
-        number_of_pieces = 1
-        piece_size = number_of_data
-
-    pieces = []
-    for i in range(number_of_pieces+1):
-        ini = int((piece_size/2+i*interval)-piece_size/2)
-        fin = int((piece_size/2+i*interval)+piece_size/2)
-        pieces.append([ini, fin])
-
-    return pieces
-
-
-def fft_power(frequency_range, data, time_step):
-
-    pieces = division_of_data(frequency_range[1]-frequency_range[0],
-                              data.size,
-                              time_step)
+    pieces = _division_of_data(frequency_range[1] - frequency_range[0],
+                               data.size,
+                               time_step)
 
     ps = []
     for i_p in pieces:
 
         data_piece = data[i_p[0]:i_p[1]]
 
-        data_piece = autocorrelation(data_piece)
+        data_piece = np.correlate(data_piece, data_piece, mode='same') / data_piece.size
         ps.append(np.abs(np.fft.fft(data_piece))*time_step/2.0)
 
     ps = np.average(ps,axis=0)
@@ -243,7 +239,7 @@ def fft_power(frequency_range, data, time_step):
     return np.interp(frequency_range, freqs[idx], ps[idx])
 
 
-def get_fft_spectra(vq, trajectory, parameters):
+def get_fft_numpy_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
     requested_resolution = test_frequency_range[1]-test_frequency_range[0]
@@ -254,14 +250,14 @@ def get_fft_spectra(vq, trajectory, parameters):
 
     psd_vector = []
     if not(parameters.silent):
-        progress_bar(0, 'FFT')
+        _progress_bar(0, 'FFT')
     for i in range(vq.shape[1]):
-        psd_vector.append(fft_power(test_frequency_range,vq[:, i],
-                                    trajectory.get_time_step_average()),
+        psd_vector.append(_numpy_power(test_frequency_range, vq[:, i],
+                                       trajectory.get_time_step_average()),
                           )
 
         if not(parameters.silent):
-            progress_bar(float(i+1)/vq.shape[1], 'FFT')
+            _progress_bar(float(i + 1) / vq.shape[1], 'FFT')
 
     psd_vector = np.array(psd_vector).T
 
@@ -271,20 +267,19 @@ def get_fft_spectra(vq, trajectory, parameters):
 #   FFT method (FFTW)               #
 #####################################
 
-def fftw_power(frequency_range, data, time_step):
+def _fftw_power(frequency_range, data, time_step):
     import pyfftw
     from multiprocessing import cpu_count
 
-    pieces = division_of_data(frequency_range[1]-frequency_range[0],
-                              data.size,
-                              time_step)
+    pieces = _division_of_data(frequency_range[1] - frequency_range[0],
+                               data.size,
+                               time_step)
 
     ps = []
     for i_p in pieces:
 
         data_piece = data[i_p[0]:i_p[1]]
-
-        data_piece = autocorrelation(data_piece)
+        data_piece = np.correlate(data_piece, data_piece, mode='same') / data_piece.size
         ps.append(np.abs(pyfftw.interfaces.numpy_fft.fft(data_piece, threads=cpu_count()))*time_step/2.0)
 
     ps = np.average(ps,axis=0)
@@ -295,42 +290,42 @@ def fftw_power(frequency_range, data, time_step):
     return np.interp(frequency_range, freqs[idx], ps[idx])
 
 
-def get_fft_fftw_spectra(vq, trajectory, parameters):
+def get_fft_fftw_power_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
     psd_vector = []
     if not(parameters.silent):
-        progress_bar(0, 'FFTW')
+        _progress_bar(0, 'FFTW')
     for i in range(vq.shape[1]):
-        psd_vector.append(fftw_power(test_frequency_range,vq[:, i],
-                                     trajectory.get_time_step_average()),
+        psd_vector.append(_fftw_power(test_frequency_range, vq[:, i],
+                                      trajectory.get_time_step_average()),
                           )
 
         if not(parameters.silent):
-            progress_bar(float(i+1)/vq.shape[1], 'FFTW')
+            _progress_bar(float(i + 1) / vq.shape[1], 'FFTW')
 
     psd_vector = np.array(psd_vector).T
 
     return psd_vector * unit_conversion
 
 #####################################
-#   FFT method (FFTW)               #
+#   FFT method (CUDA)               #
 #####################################
 
-def cuda_power(frequency_range, data, time_step):
+def _cuda_power(frequency_range, data, time_step):
     from cuda_functions import cuda_acorrelate, cuda_fft
 
-    pieces = division_of_data(frequency_range[1]-frequency_range[0],
-                              data.size,
-                              time_step)
+    pieces = _division_of_data(frequency_range[1] - frequency_range[0],
+                               data.size,
+                               time_step)
 
     ps = []
     for i_p in pieces:
 
         data_piece = data[i_p[0]:i_p[1]]
 
-        data_piece = cuda_acorrelate(data_piece, mode='same', direct_interface=True)/data_piece.size
-        ps.append(np.abs(cuda_fft(data_piece, direct_interface=True)*time_step/2.0))
+        data_piece = cuda_acorrelate(data_piece, mode='same', safe_mode=False)/data_piece.size
+        ps.append(np.abs(cuda_fft(data_piece, safe_mode=False)*time_step/2.0))
 
     ps = np.average(ps,axis=0)
 
@@ -340,19 +335,19 @@ def cuda_power(frequency_range, data, time_step):
     return np.interp(frequency_range, freqs[idx], ps[idx])
 
 
-def get_fft_cuda_spectra(vq, trajectory, parameters):
+def get_fft_cuda_power_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
     psd_vector = []
     if not(parameters.silent):
-        progress_bar(0, 'CUDA')
+        _progress_bar(0, 'CUDA')
     for i in range(vq.shape[1]):
-        psd_vector.append(cuda_power(test_frequency_range,vq[:, i],
-                                     trajectory.get_time_step_average()),
+        psd_vector.append(_cuda_power(test_frequency_range, vq[:, i],
+                                      trajectory.get_time_step_average()),
                           )
 
         if not(parameters.silent):
-            progress_bar(float(i+1)/vq.shape[1], 'CUDA')
+            _progress_bar(float(i + 1) / vq.shape[1], 'CUDA')
 
     psd_vector = np.array(psd_vector).T
 
@@ -360,10 +355,10 @@ def get_fft_cuda_spectra(vq, trajectory, parameters):
 
 
 power_spectrum_functions = {
-    0: [get_fourier_spectra_par_openmp, 'Fourier transform'],
-    1: [get_mem_spectra_par_openmp, 'Maximum entropy method'],
-    2: [get_fft_spectra, 'Fast Fourier transform (Numpy)'],
-    3: [get_fft_fftw_spectra, 'Fast Fourier transform (FFTW)'],
-    4: [get_fft_cuda_spectra, 'Fast Fourier transform (CUDA)']
+    0: [get_fourier_direct_power_spectra, 'Fourier transform'],
+    1: [get_mem_power_spectra, 'Maximum entropy method'],
+    2: [get_fft_numpy_spectra, 'Fast Fourier transform (Numpy)'],
+    3: [get_fft_fftw_power_spectra, 'Fast Fourier transform (FFTW)'],
+    4: [get_fft_cuda_power_spectra, 'Fast Fourier transform (CUDA)']
 }
 

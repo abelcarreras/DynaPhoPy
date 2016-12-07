@@ -222,7 +222,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
                              memmap=False):
 
     import random
-    from dynaphopy.power_spectrum import progress_bar
+    from dynaphopy.power_spectrum import _progress_bar
 
     print('Generating ideal harmonic data for testing')
     kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
@@ -289,7 +289,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
 
     #Generating trajectory
     if not silent:
-        progress_bar(0, 'generating')
+        _progress_bar(0, 'generating')
 
     trajectory = []
     for time in np.arange(total_time, step=time_step):
@@ -323,7 +323,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
             coordinates.append(coordinate)
         trajectory.append(coordinates)
         if not silent:
-          progress_bar(float(time+time_step)/total_time,'generating', )
+          _progress_bar(float(time + time_step) / total_time, 'generating', )
 
     xyz_file.close()
 
