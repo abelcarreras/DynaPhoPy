@@ -2,21 +2,18 @@
 # Required packages to run DynaPhoPY #
 ######################################
 
-# Phonopy
+# These packages are mandatory to run the software
 phonopy>=1.9.6
-
-# Numpy
 numpy>=1.9.0
-
-# Scipy
 scipy
 
-# These are optional but recommended
+# These packages are optional but recommended
 matplotlib
 h5py
 
+# These packages are optional and have some special requirements
 # To use pyfftw FFTW has to be installed in your system (check pyfft homepage for more information)
 # pyfftw
 
-# To use cuda functions (optional)
+# To use cuda functions
 # git+https://github.com/abelcarreras/cuda_functions.git
