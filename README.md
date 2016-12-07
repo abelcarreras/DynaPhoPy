@@ -1,4 +1,4 @@
-[![PyPI](https://img.shields.io/pypi/dw/Django.svg)](https://pypi.python.org/pypi/dynaphopy)
+[![PyPI](https://img.shields.io/pypi/dm/dynaphopy.svg?maxAge=2592000)](https://pypi.python.org/pypi/dynaphopy)
 
 DynaPhoPy
 =========
