@@ -1,3 +1,5 @@
+[![PyPI](https://img.shields.io/pypi/dw/Django.svg)](https://pypi.python.org/pypi/dynaphopy)
+
 DynaPhoPy
 =========
 Software to calculate crystal microscopical anharmonic properties
