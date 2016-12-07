@@ -316,8 +316,7 @@ def get_fft_fftw_spectra(vq, trajectory, parameters):
 
 
 def cuda_power(frequency_range, data, time_step):
-    from gpu_correlate import dacorrelate
-    from gpu_fft import dfft
+    from cuda_functions import cuda_acorrelate, cuda_fft
 
     pieces = division_of_data(frequency_range[1]-frequency_range[0],
                               data.size,
@@ -328,8 +327,8 @@ def cuda_power(frequency_range, data, time_step):
 
         data_piece = data[i_p[0]:i_p[1]]
 
-        data_piece = dacorrelate(data_piece, mode='same')/data_piece.size
-        ps.append(np.abs(dfft(data_piece)*time_step/2.0))
+        data_piece = cuda_acorrelate(data_piece, mode='same', direct_interface=True)/data_piece.size
+        ps.append(np.abs(cuda_fft(data_piece, direct_interface=True)*time_step/2.0))
 
     ps = np.average(ps,axis=0)
 

@@ -4,6 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/dynaphopy" isTestSource="false" />
     </content>
+    <content url="file://$MODULE_DIR$/../cuda_functions" />
     <orderEntry type="jdk" jdkName="Python 2.7.10 (/usr/bin/python2.7)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
