@@ -313,7 +313,9 @@ def get_fft_fftw_spectra(vq, trajectory, parameters):
 
     return psd_vector * unit_conversion
 
-
+#####################################
+#   FFT method (FFTW)               #
+#####################################
 
 def cuda_power(frequency_range, data, time_step):
     from cuda_functions import cuda_acorrelate, cuda_fft
