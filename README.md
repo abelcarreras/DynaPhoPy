@@ -18,10 +18,10 @@ Installation instructions
 2. Download the source code and place it in the installation directory
 
 3. (optional) Install requirements using pip
-   pip install -r requirements.txt --user
+   <br>pip install -r requirements.txt --user
 
 4. Run setup.py to install dynaphopy
-  python setup.py install --user
+  <br>python setup.py install --user
 
 
 Executing this software
