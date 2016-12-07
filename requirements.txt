@@ -8,8 +8,8 @@ numpy>=1.8.2
 scipy
 
 # These packages are optional but recommended
-#matplotlib
-#h5py
+# matplotlib
+# h5py
 
 # These packages are optional and have some special requirements
 # To use pyfftw FFTW has to be installed in your system (check pyfft homepage for more information)
