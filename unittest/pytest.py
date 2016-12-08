@@ -3,16 +3,16 @@
 import numpy as np
 import dynaphopy.interface.iofile as io
 import dynaphopy
-from phonopy.file_IO import parse_FORCE_SETS
+from phonopy.file_IO import parse_FORCE_SETS, parse_FORCE_CONSTANTS
 
 import unittest
-
 
 class TestDynaphopy(unittest.TestCase):
 
     def setUp(self):
         structure = io.read_from_file_structure_poscar('data/POSCAR')
-        structure.set_force_set(parse_FORCE_SETS(filename='data/FORCE_SETS'))
+        structure.set_force_constants(parse_FORCE_CONSTANTS(filename='data/FORCE_CONSTANTS'))
+
         structure.set_primitive_matrix([[1.0, 0.0, 0.0],
                                         [0.0, 1.0, 0.0],
                                         [0.0, 0.0, 1.0]])
@@ -20,21 +20,14 @@ class TestDynaphopy(unittest.TestCase):
                                         [0, 2, 0],
                                         [0, 0, 2]])
 
-        trajectory = io.generate_test_trajectory(structure, supercell=[2, 2, 2], total_time=5, silent=True)
+        trajectory = io.generate_test_trajectory(structure, supercell=[2, 2, 2], total_time=5, silent=False)
         self.calculation = dynaphopy.Quasiparticle(trajectory)
 
-    def test_force_constants_fft(self):
+    def test_force_constants_self_consistency(self):
         self.calculation.select_power_spectra_algorithm(2)
-        force_constants = self.calculation.get_renormalized_force_constants()
-        force_constants_target = dynaphopy.pho_interface.get_force_constants_from_file(file_name='data/FORCE_CONSTANTS_FFT')
-        self.assertEqual(np.allclose(force_constants, force_constants_target, rtol=1, atol=1.e-3), True)
-
-#    def test_force_constants_mem(self):
-#        self.calculation.set_number_of_mem_coefficients(500)
-#        self.calculation.select_power_spectra_algorithm(1)
-#        force_constants = self.calculation.get_renormalized_force_constants()
-#        force_constants_target = dynaphopy.pho_interface.get_force_constants_from_file(file_name='data/FORCE_CONSTANTS_MEM')
-#        self.assertEqual(np.allclose(force_constants, force_constants_target, rtol=1, atol=1.e-3), True)
+        renormalized_force_constants = self.calculation.get_renormalized_force_constants()
+        harmonic_force_constants = self.calculation.dynamic.structure.get_force_constants()
+        self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
 
 if __name__ == '__main__':
     unittest.main()
