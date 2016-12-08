@@ -42,8 +42,7 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
                         cell=structure.get_cell().T)
 
     phonon = Phonopy(bulk, super_cell_phonon,
-                     primitive_matrix=structure.get_primitive_matrix(),
-                     is_auto_displacements=False)
+                     primitive_matrix=structure.get_primitive_matrix())
 
     # Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
     if NAC:

@@ -27,14 +27,14 @@ class TestDynaphopy(unittest.TestCase):
         self.calculation.select_power_spectra_algorithm(2)
         force_constants = self.calculation.get_renormalized_force_constants()
         force_constants2 = dynaphopy.pho_interface.get_force_constants_from_file(file_name='data/FORCE_CONSTANTS_FFT')
-        self.assertEqual(np.allclose(force_constants, force_constants2, rtol=1.e-3), True)
+        self.assertEqual(np.allclose(force_constants, force_constants2, rtol=1.e-3, atol=1.e-5), True)
 
     def test_force_constants_mem(self):
         self.calculation.set_number_of_mem_coefficients(100)
         self.calculation.select_power_spectra_algorithm(1)
         force_constants = self.calculation.get_renormalized_force_constants()
         force_constants2 = dynaphopy.pho_interface.get_force_constants_from_file(file_name='data/FORCE_CONSTANTS_MEM')
-        self.assertEqual(np.allclose(force_constants, force_constants2, rtol=1.e-3), True)
+        self.assertEqual(np.allclose(force_constants, force_constants2, rtol=1.e-3, atol=1.e-5), True)
 
 
 if __name__ == '__main__':
