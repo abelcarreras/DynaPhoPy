@@ -130,7 +130,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 if x2 == ord('3'):
                     curses.endwin()
-                    calculation.get_phonon_dispersion_bands()
+                    calculation.plot_phonon_dispersion_bands()
 
                 if x2 == ord('4'):
                     curses.endwin()
@@ -191,7 +191,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 ######## OPTION 6 :  Renormalized phonon dispersion
         if x == ord('6'):
             curses.endwin()
-            calculation.get_renormalized_phonon_dispersion_bands()
+            calculation.plot_renormalized_phonon_dispersion_bands()
             curses.endwin()
 
 ######## OPTION 7 :  PEAK ANALYSIS

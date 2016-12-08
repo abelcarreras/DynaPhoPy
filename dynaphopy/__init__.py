@@ -179,7 +179,7 @@ class Quasiparticle:
     def get_band_ranges(self):
         return self.parameters.band_ranges
 
-    def get_phonon_dispersion_bands(self):
+    def plot_phonon_dispersion_bands(self):
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                        self.parameters.band_ranges,
@@ -198,7 +198,7 @@ class Quasiparticle:
 
         plt.show()
 
-    def get_renormalized_phonon_dispersion_bands(self):
+    def plot_renormalized_phonon_dispersion_bands(self):
 
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
