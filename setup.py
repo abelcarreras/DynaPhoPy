@@ -1,4 +1,13 @@
-from distutils.core import setup, Extension
+try:
+    from setuptools import setup, Extension
+    use_setuptools = True
+    print("setuptools is used.")
+except ImportError:
+    from distutils.core import setup, Extension
+    use_setuptools = False
+    print("distutils is used.")
+
+
 import numpy
 
 include_dirs_numpy = [numpy.get_include()]
@@ -21,12 +30,10 @@ mem = Extension('dynaphopy.power_spectrum.mem',
                 include_dirs = include_dirs_numpy,
                 sources=['Extensions/mem.c'])
 
-
 displacements = Extension('dynaphopy.displacements',
                 extra_compile_args=['-std=c99'],
                 include_dirs = include_dirs_numpy,
                 sources=['Extensions/displacements.c'])
-
 
 setup(name='dynaphopy',
       version=get_version_number(),
