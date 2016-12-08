@@ -3,19 +3,19 @@
 import numpy as np
 import dynaphopy.interface.iofile as io
 import dynaphopy
-from phonopy.file_IO import parse_FORCE_SETS, parse_FORCE_CONSTANTS
+from phonopy.file_IO import parse_FORCE_CONSTANTS
 
 import unittest
 
 class TestDynaphopy(unittest.TestCase):
 
     def setUp(self):
-        structure = io.read_from_file_structure_poscar('data/POSCAR')
-        structure.set_force_constants(parse_FORCE_CONSTANTS(filename='data/FORCE_CONSTANTS'))
+        structure = io.read_from_file_structure_poscar('Si_data/POSCAR')
+        structure.set_force_constants(parse_FORCE_CONSTANTS(filename='Si_data/FORCE_CONSTANTS'))
 
-        structure.set_primitive_matrix([[1.0, 0.0, 0.0],
-                                        [0.0, 1.0, 0.0],
-                                        [0.0, 0.0, 1.0]])
+        structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+                                        [0.5, 0.0, 0.5],
+                                        [0.5, 0.5, 0.0]])
         structure.set_supercell_phonon([[2, 0, 0],
                                         [0, 2, 0],
                                         [0, 0, 2]])
