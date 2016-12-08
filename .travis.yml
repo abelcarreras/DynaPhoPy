@@ -17,6 +17,7 @@ script:
     - cd unittest
     - python GaN_test.py
 #    - python -m unittest discover . "*_test.py"
+    - cd ..
 
 deploy:
     # pypi
