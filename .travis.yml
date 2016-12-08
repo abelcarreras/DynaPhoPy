@@ -11,3 +11,4 @@ install:
 script:
     - cd unittest
     - python pytest.py
+#  python -m unittest discover -b

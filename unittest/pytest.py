@@ -20,7 +20,7 @@ class TestDynaphopy(unittest.TestCase):
                                          [0, 2, 0],
                                          [0, 0, 2]])
 
-        trajectory = io.generate_test_trajectory(structure, super_cell=[2, 2, 2], total_time=1, silent=True)
+        trajectory = io.generate_test_trajectory(structure, supercell=[2, 2, 2], total_time=1, silent=True)
         self.calculation = dynaphopy.Quasiparticle(trajectory)
 
     def test_force_constants_fft(self):
