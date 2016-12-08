@@ -6,8 +6,8 @@ python:
 install:
     - sudo apt-get install libhdf5-serial-dev
     - pip install -r requirements.txt
+    - python setup.py install
 
-# command to run tests
 script:
     - cd unittest
     - python pytest.py
