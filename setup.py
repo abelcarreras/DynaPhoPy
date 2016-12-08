@@ -3,6 +3,14 @@ import numpy
 
 include_dirs_numpy = [numpy.get_include()]
 
+
+def get_version_number():
+    __version__ = None
+    for l in  open('dynaphopy/__init__.py', 'r').readlines():
+        if not(l.find('__version__')):
+            exec(l)
+            return __version__
+
 correlation = Extension('dynaphopy.power_spectrum.correlation',
                         extra_compile_args=['-std=c99'],
                         include_dirs = include_dirs_numpy,
@@ -21,7 +29,7 @@ displacements = Extension('dynaphopy.displacements',
 
 
 setup(name='dynaphopy',
-      version='1.14',
+      version=get_version_number(),
       description='dynaphopy module',
       author='Abel Carreras',
       url='https://github.com/abelcarreras/DynaPhoPy',
@@ -34,6 +42,8 @@ setup(name='dynaphopy',
                 'dynaphopy.interface',
                 'dynaphopy.interface.iofile'],
       scripts=['scripts/dynaphopy'],
+      requires=['phonopy', 'numpy', 'scipy', 'matplotlib'],
+      license='MIT License',
       ext_modules=[correlation, mem, displacements])
 
 

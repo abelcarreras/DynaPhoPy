@@ -8,12 +8,13 @@ numpy>=1.8.2
 scipy
 
 # These packages are optional but recommended
+# h5py may need libhdf5-serial-dev package installed on your system
 matplotlib
 h5py
 
-# These packages are optional
-# To use pyfftw FFTW has to be installed in your system (check pyfft homepage for more information)
+# These packages are optional (uncomment to install)
+# To use pyfftw FFTW has to be installed on your system (check pyfft homepage for more information)
 # pyfftw
 
-# To use cuda functions
+# CUDA acceleration
 # git+https://github.com/abelcarreras/cuda_functions.git
