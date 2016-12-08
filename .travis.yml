@@ -16,7 +16,7 @@ install:
 script:
     - cd unittest
     - python GaN_test.py
- #   - python -m unittest discover . "*_ttest.py"
+ #   - python -m unittest discover . "*x_test.py"
 
 deploy:
     # pypi
