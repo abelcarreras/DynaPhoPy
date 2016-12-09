@@ -126,7 +126,8 @@ parser.add_argument('--dim', metavar='N', type=int, default=[1, 1, 1], nargs=3,
                     help='Set the dimensions of generated structure/trajectory (Default: [1, 1, 1])')
 
 group.add_argument('--generate_trajectory', metavar='F', type=float, default=None, nargs=3,
-                    help='Generate a test harmonic trajectory using force constants [total time (ps), time step (ps), energy (Kelvin)]')
+                    help='Generate a test harmonic trajectory using force constants [total time (ps), '
+                         'time step (ps), amplitude (Kelvin)]')
 
 group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
                     help='Generate a VASP POSCAR structure file')
