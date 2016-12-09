@@ -11,7 +11,7 @@ class TestDynaphopy(unittest.TestCase):
 
     def setUp(self):
         structure = io.read_from_file_structure_poscar('GaN_data/POSCAR')
-        structure.set_force_constants(parse_FORCE_CONSTANTS(filename='GaN_data/FORCE_CONSTANTS_3'))
+        structure.set_force_constants(parse_FORCE_CONSTANTS(filename='GaN_data/FORCE_CONSTANTS'))
 
         structure.set_primitive_matrix([[1.0, 0.0, 0.0],
                                         [0.0, 1.0, 0.0],
