@@ -27,6 +27,9 @@ Installation instructions
 4. Run setup.py to install dynaphopy
   <br>python setup.py install --user
 
+* NEW! Now you can use pip to install/update dynaphopy module
+   <br>pip install dynaphopy --user
+
 
 Executing this software
 ---------------------------------------------------------
