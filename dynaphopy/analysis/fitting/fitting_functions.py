@@ -63,9 +63,12 @@ class Lorentzian:
             standard_errors = get_standard_errors_from_covariance(fit_covariances)
 
             global_error = np.average(standard_errors[:2])/np.sqrt(area)
+            if np.isnan(global_error):
+                raise RuntimeError
 
             #error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
+
 
             return {'maximum': maximum,
                     'width': width,
@@ -153,6 +156,8 @@ class Lorentzian_asymmetric:
 
             standard_errors = get_standard_errors_from_covariance(fit_covariances)
             global_error = np.average(standard_errors[:2])/np.sqrt(area)
+            if np.isnan(global_error):
+                raise RuntimeError
 
             #error = get_error_from_covariance(fit_covariances)
             base_line = fit_params[3]
@@ -232,7 +237,9 @@ class Damped_harmonic:
             standard_errors = get_standard_errors_from_covariance(fit_covariances)
 
             global_error = np.average(standard_errors[:2])/np.sqrt(area)
-            #error = get_error_from_covariance(fit_covariances)
+            if np.isnan(global_error):
+                raise RuntimeError
+
             base_line = fit_params[3]
 
             return {'maximum': maximum,
