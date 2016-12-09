@@ -331,7 +331,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 if x2 == ord('7'):
                     resolution =float(get_param(screen, "Insert resolution in THz"))
                     calculation.set_spectra_resolution(resolution)
-                    calculation.power_spectra_clear()
+                    calculation.full_clear()
                     curses.endwin()
 
                 if x2 == ord('8'):
