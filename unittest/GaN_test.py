@@ -11,16 +11,16 @@ class TestDynaphopy(unittest.TestCase):
 
     def setUp(self):
         structure = io.read_from_file_structure_poscar('GaN_data/POSCAR')
-        structure.set_force_constants(parse_FORCE_CONSTANTS(filename='GaN_data/FORCE_CONSTANTS'))
+        structure.set_force_constants(parse_FORCE_CONSTANTS(filename='GaN_data/FORCE_CONSTANTS_3'))
 
         structure.set_primitive_matrix([[1.0, 0.0, 0.0],
                                         [0.0, 1.0, 0.0],
                                         [0.0, 0.0, 1.0]])
-        structure.set_supercell_phonon([[2, 0, 0],
-                                        [0, 2, 0],
-                                        [0, 0, 2]])
+        structure.set_supercell_phonon([[3, 0, 0],
+                                        [0, 3, 0],
+                                        [0, 0, 3]])
 
-        trajectory = io.generate_test_trajectory(structure, supercell=[2, 2, 2], total_time=5, silent=False)
+        trajectory = io.generate_test_trajectory(structure, supercell=[3, 3, 3], total_time=6, silent=False)
         self.calculation = dynaphopy.Quasiparticle(trajectory)
 
     def test_force_constants_self_consistency(self):
