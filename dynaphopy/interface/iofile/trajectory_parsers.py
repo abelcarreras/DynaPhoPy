@@ -121,7 +121,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                             trajectory=np.array(trajectory, dtype=complex),
                             energy=np.array(energy),
                             time=time,
-                            super_cell=super_cell,
+                            supercell=super_cell,
                             memmap=memmap)
 
 
@@ -134,10 +134,10 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                            end_cut=None,
                            memmap=False):
 
- #Time in picoseconds
- #Coordinates in Angstroms
+    # Time in picoseconds
+    # Coordinates in Angstroms
 
-    #Read environtment variables
+    # Read environtment variables
     try:
         temp_directory = os.environ["DYNAPHOPY_TEMPDIR"]
         if os.path.isdir(temp_directory):
@@ -156,18 +156,21 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
         print('Trajectory file does not exist!')
         exit()
 
-    #Check time step
+    # Check time step
     if time_step is None:
         print('Warning! LAMMPS trajectory file does not contain time step information')
         print('Using default: 0.001 ps')
         time_step = 0.001
 
-    #Starting reading
+    # Starting reading
     print("Reading LAMMPS trajectory")
     print("This could take long, please wait..")
 
-    #Dimensionality of LAMMP calculation
-    number_of_dimensions = 3
+    # Dimension of LAMMP calculation
+    if structure:
+        number_of_dimensions = structure.get_number_of_dimensions()
+    else:
+        number_of_dimensions = 3
 
     time = []
     data = []
@@ -232,11 +235,14 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 zlo = bounds[2, 0]
                 zhi = bounds[2, 1]
 
-                super_cell = np.array([[xhi-xlo, xy,  xz],
+                supercell = np.array([[xhi-xlo, xy,  xz],
                                        [0,  yhi-ylo,  yz],
                                        [0,   0,  zhi-zlo]])
 
-# Testing cell
+                #for 2D
+                supercell = supercell[:number_of_dimensions, :number_of_dimensions]
+
+                # Testing cell
                 lx = xhi-xlo
                 ly = yhi-ylo
                 lz = zhi-zlo
@@ -249,7 +255,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 beta = np.arccos(xz/c)
                 gamma = np.arccos(xy/b)
 
-#End testing cell
+                # End testing cell
                 if memmap:
                     if end_cut:
                         data = np.memmap(temp_directory+'trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
@@ -280,7 +286,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             except ValueError:
                 print("Error reading step {0}".format(counter))
                 break
-        #        print(read_coordinates)
+                # print(read_coordinates)
 
             #security routine to limit maximum of steps to read and put in memory
             if limit_number_steps+initial_cut < counter:
@@ -302,25 +308,22 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             time = time[-last_steps:]
 
     # Check position/velocity dump
-    if 'vx vy vz' in lammps_labels:
+    if 'vx vy' in lammps_labels:
         return dyn.Dynamics(structure=structure,
                             velocity=data,
                             time=time,
-                            super_cell=super_cell,
+                            supercell=supercell,
                             memmap=memmap)
 
-    if 'x y z' in lammps_labels:
+    if 'x y' in lammps_labels:
         return dyn.Dynamics(structure=structure,
                             trajectory=data,
                             time=time,
-                            super_cell=super_cell,
+                            supercell=supercell,
                             memmap=memmap)
 
     print('LAMMPS parsing error. Data not recognized: {}'.format(lammps_labels))
     exit()
-
-
-
 
 
 def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
@@ -445,7 +448,7 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
     return dyn.Dynamics(structure=structure,
                         scaled_trajectory=data,
                         time=time,
-                        super_cell=super_cell,
+                        supercell=super_cell,
                         memmap=memmap)
 
 

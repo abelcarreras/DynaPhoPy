@@ -120,7 +120,7 @@ class Dynamics:
                  velocity=None,
                  energy=None,
                  time=None,
-                 super_cell=None,
+                 supercell=None,
                  memmap=False):
 
         self._time = time
@@ -128,13 +128,13 @@ class Dynamics:
         self._scaled_trajectory = scaled_trajectory
         self._energy = energy
         self._velocity = velocity
-        self._super_cell = super_cell
+        self._supercell = supercell
         self._memmap=memmap
 
         self._time_step_average = None
         self._velocity_mass_average = None
         self._relative_trajectory = None
-        self._super_cell_matrix = None
+        self._supercell_matrix = None
         self._number_of_atoms = None
         self._mean_displacement_matrix = None
 
@@ -142,7 +142,7 @@ class Dynamics:
             self._structure = structure
 
             #Check order of atoms
-            if trajectory is not None:
+            if trajectory is not None and structure.get_number_of_dimensions() == 3:
                 self._trajectory = check_trajectory_structure(trajectory, structure)
 
 
@@ -207,7 +207,7 @@ class Dynamics:
 
     def get_number_of_atoms(self):
         if self._number_of_atoms is None:
-            self._number_of_atoms = self.structure.get_number_of_atoms()*np.product(self.get_super_cell_matrix())
+            self._number_of_atoms = self.structure.get_number_of_atoms()*np.product(self.get_supercell_matrix())
         return self._number_of_atoms
 
     def set_time(self, time):
@@ -216,11 +216,11 @@ class Dynamics:
     def get_time(self):
         return self._time
 
-    def set_super_cell(self, super_cell):
-        self._super_cell = super_cell
+    def set_supercell(self, supercell):
+        self._supercell = supercell
 
-    def get_super_cell(self):
-        return self._super_cell
+    def get_supercell(self):
+        return self._supercell
 
     def get_energy(self):
         return self._energy
@@ -245,20 +245,20 @@ class Dynamics:
             else:
                 self._velocity_mass_average = np.empty_like(self.velocity)
 
-            super_cell = self.get_super_cell_matrix()
+            supercell = self.get_supercell_matrix()
             for i in range(self.get_number_of_atoms()):
                 self._velocity_mass_average[:, i, :] = (self.velocity[:, i, :] *
-                                                        np.sqrt(self.structure.get_masses(supercell=super_cell)[i]))
+                                                        np.sqrt(self.structure.get_masses(supercell=supercell)[i]))
 
         return self._velocity_mass_average
 
     def get_relative_trajectory(self):
         if self._relative_trajectory is None:
 
-            cell = self.get_super_cell()
+            cell = self.get_supercell()
             number_of_atoms = self.trajectory.shape[1]
-            super_cell = self.get_super_cell_matrix()
-            position = self.structure.get_positions(supercell=super_cell)
+            supercell = self.get_supercell_matrix()
+            position = self.structure.get_positions(supercell=supercell)
 
             trajectory = self.trajectory
 
@@ -274,27 +274,30 @@ class Dynamics:
             self._relative_trajectory = normalized_trajectory
         return self._relative_trajectory
 
-    def get_super_cell_matrix(self,tolerance=0.01):
+    def get_supercell_matrix(self, tolerance=0.01):
 
-        def parameters(h):
+        def parameters2(h):
             a = np.linalg.norm(h[:,0])
             b = np.linalg.norm(h[:,1])
             c = np.linalg.norm(h[:,2])
             return [a, b, c]
 
-        if self._super_cell_matrix is None:
-            super_cell_matrix_real = np.divide(parameters(self.get_super_cell()), parameters(self.structure.get_cell()))
-            self._super_cell_matrix = np.around(super_cell_matrix_real).astype("int")
+        def parameters(h):
+            return [np.linalg.norm(h[:, i]) for i in range(h.shape[1])]
 
-            if abs(sum(self._super_cell_matrix - super_cell_matrix_real)/np.linalg.norm(super_cell_matrix_real)) > tolerance:
-                print(abs(sum(self._super_cell_matrix - super_cell_matrix_real)/np.linalg.norm(super_cell_matrix_real)))
+        if self._supercell_matrix is None:
+            supercell_matrix_real = np.divide(parameters(self.get_supercell()), parameters(self.structure.get_cell()))
+            self._supercell_matrix = np.around(supercell_matrix_real).astype("int")
+
+            if abs(sum(self._supercell_matrix - supercell_matrix_real)/np.linalg.norm(supercell_matrix_real)) > tolerance:
+                print(abs(sum(self._supercell_matrix - supercell_matrix_real) / np.linalg.norm(supercell_matrix_real)))
                 print('Warning! Structure cell and MD cell do not fit!')
-                print('Cell size relation is not integer: {0}'.format(super_cell_matrix_real))
+                print('Cell size relation is not integer: {0}'.format(supercell_matrix_real))
                 exit()
 
-            print('MD cell size relation: {0}'.format(self._super_cell_matrix))
+            print('MD cell size relation: {0}'.format(self._supercell_matrix))
 
-        return self._super_cell_matrix
+        return self._supercell_matrix
 
     def get_mean_displacement_matrix(self):
 
@@ -303,15 +306,16 @@ class Dynamics:
 
         if self._mean_displacement_matrix is None:
 
-            super_cell = self.get_super_cell_matrix()
-            atom_type_index = self.structure.get_atom_type_index(supercell=super_cell)
+            supercell = self.get_supercell_matrix()
+            atom_type_index = self.structure.get_atom_type_index(supercell=supercell)
             number_of_atom_types = self.structure.get_number_of_atom_types()
+            number_of_dimensions = self.structure.get_number_of_dimensions()
             displacements = self.get_relative_trajectory()
             number_of_data = displacements.shape[0]
 
-            number_of_equivalent_atoms = np.prod(super_cell)
+            number_of_equivalent_atoms = np.prod(supercell)
 
-            mean_displacement_matrix = np.zeros((number_of_atom_types, 3,3))
+            mean_displacement_matrix = np.zeros((number_of_atom_types, number_of_dimensions, number_of_dimensions))
 
             for i in range(displacements.shape[1]):
                 primtive_normalization = atom_primitive_equivalent[atom_type_index[i]]
@@ -324,10 +328,11 @@ class Dynamics:
 
     def average_positions(self, number_of_samples=None):
 
-        cell = self.get_super_cell()
+        cell = self.get_supercell()
         number_of_atoms = self.trajectory.shape[1]
-        super_cell = self.get_super_cell_matrix()
-        positions = self.structure.get_positions(supercell=super_cell)
+        supercell = self.get_supercell_matrix()
+        positions = self.structure.get_positions(supercell=supercell)
+        number_of_dimensions = self.structure.get_number_of_dimensions()
 
         normalized_trajectory = self.get_relative_trajectory()
 
@@ -344,7 +349,7 @@ class Dynamics:
         for j in range(number_of_atoms):
 
             difference_matrix = np.around(np.dot(np.linalg.inv(cell),
-                                                 reference[j, :] - 0.5 * np.dot(np.ones((3)), cell.T)),
+                                                 reference[j, :] - 0.5 * np.dot(np.ones((number_of_dimensions)), cell.T)),
                                           decimals=0)
             reference[j, :] -= np.dot(difference_matrix, cell.T)
 
@@ -359,7 +364,7 @@ class Dynamics:
     def trajectory(self):
         if self._trajectory is None:
             if self._scaled_trajectory is not None:
-                self._trajectory = np.dot(self._scaled_trajectory, self.get_super_cell().T)
+                self._trajectory = np.dot(self._scaled_trajectory, self.get_supercell().T)
             else:
                 print('No trajectory loaded')
                 exit()

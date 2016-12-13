@@ -5,10 +5,11 @@ import matplotlib.pyplot as plt
 import correlation
 import mem
 
-unit_conversion = 6.651206285e-4 # u * A^2 * THz -> eV*ps
+
+unit_conversion = 6.651206285e-4  # u * A^2 * THz -> eV*ps
 
 
-def progress_bar(progress, label):
+def _progress_bar(progress, label):
     bar_length = 30
     status = ""
     if isinstance(progress, int):
@@ -29,180 +30,10 @@ def progress_bar(progress, label):
     sys.stdout.flush()
 
 
-#####################################
-#   Fourier transform  method       #
-#####################################
-def get_fourier_spectra_par_openmp(vq, trajectory, parameters):
-    test_frequency_range = np.array(parameters.frequency_range)
-
-    psd_vector = []
-    if not(parameters.silent):
-        progress_bar(0, "Fourier")
-    for i in range(vq.shape[1]):
-        psd_vector.append(correlation.correlation_par(test_frequency_range,
-                                                      vq[:, i],
-                                                      # np.lib.pad(vq[:, i], (2500, 2500), 'constant'),
-                                                      trajectory.get_time_step_average(),
-                                                      step=parameters.correlation_function_step,
-                                                      integration_method=parameters.integration_method))
-        if not(parameters.silent):
-            progress_bar(float(i+1)/vq.shape[1], "Fourier")
-
-    psd_vector = np.array(psd_vector).T
-
-    return psd_vector * unit_conversion
-
-#####################################
-#   Maximum entropy method method   #
-#####################################
-def get_mem_spectra_par_openmp(vq, trajectory, parameters):
-    test_frequency_range = np.array(parameters.frequency_range)
-
-    # Check number of coefficients
-    if vq.shape[0] <= parameters.number_of_coefficients_mem+1:
-        print('Number of coefficients should be smaller than the number of time steps')
-        exit()
-
-    psd_vector = []
-    if not(parameters.silent):
-        progress_bar(0, 'M. Entropy')
-    for i in range(vq.shape[1]):
-        psd_vector.append(mem.mem(test_frequency_range,
-                                  vq[:, i],
-                                  trajectory.get_time_step_average(),
-                                  coefficients=parameters.number_of_coefficients_mem))
-
-        if not(parameters.silent):
-            progress_bar(float(i+1)/vq.shape[1], 'M. Entropy')
-
-    psd_vector = np.array(psd_vector).T
-
-    return psd_vector * unit_conversion
-
-# Coefficient analysis for MEM
-def mem_coefficient_scan_analysis(vq, trajectory, parameters):
-    from dynaphopy.analysis.fitting import fitting_functions
-
-    mem_full_dict = {}
-
-    for i in range(vq.shape[1]):
-        test_frequency_range = parameters.frequency_range
-        fit_data = []
-        scan_params = []
-        power_spectra = []
-        if not(parameters.silent):
-            progress_bar(0, 'M.E. Method')
-        for number_of_coefficients in parameters.mem_scan_range:
-
-            power_spectrum = mem.mem(test_frequency_range,
-                                     vq[:, i],
-                                     trajectory.get_time_step_average(),
-                                     coefficients=number_of_coefficients)
-
-            power_spectrum *= unit_conversion
-
-
-            guess_height = np.max(power_spectrum)
-            guess_position = test_frequency_range[np.argmax(power_spectrum)]
-
-            Fitting_curve = fitting_functions.Fitting_functions[parameters.fitting_function_type]
-            fitting_function = Fitting_curve(test_frequency_range,
-                                             power_spectrum,
-                                             guess_height=guess_height,
-                                             guess_position=guess_position)
-
-            fitting_parameters = fitting_function.get_fitting()
-
-
-            if not fitting_parameters['all_good']:
-                print('Warning: Fitting error, skipping point {0}'.format(number_of_coefficients))
-                continue
-
-
-#            frequency = fitting_parameters['peak_position']
-            area = fitting_parameters['area']
-            width = fitting_parameters['width']
-#            base_line = fitting_parameters['base_line']
-            maximum = fitting_parameters['maximum']
-            error = fitting_parameters['error']
-
-            fit_data.append([number_of_coefficients, width, error/maximum, area])
-            scan_params.append(fitting_function._fit_params)
-            power_spectra.append(power_spectrum)
-
-            if not(parameters.silent):
-                progress_bar(float(number_of_coefficients+1)/parameters.mem_scan_range[-1], "M.E. Method")
-
-        fit_data = np.array(fit_data).T
-
-        best_width = np.average(fit_data[1], weights=np.sqrt(1./fit_data[2]))
-
-        best_index = int(np.argmin(fit_data[2]))
-        power_spectrum = power_spectra[best_index]
-
-        mem_full_dict.update({i: [power_spectrum, best_width, best_index, fit_data, scan_params]})
-
-    for i in range(vq.shape[1]):
-
-        print ('Peak # {0}'.format(i+1))
-        print('------------------------------------')
-        print ('Estimated width(FWHM): {0} THz'.format(mem_full_dict[i][1]))
-
-        fit_data = mem_full_dict[i][3]
-        scan_params = mem_full_dict[i][4]
-        best_index = mem_full_dict[i][2]
-
-        print ('Position: {0} THz'.format(scan_params[best_index][0]))
-        print ('Area: {0} eV'.format(fit_data[3][best_index]))
-        print ('Optimum coefficients num: {0}'.format(fit_data[0][best_index]))
-        print ('Fitting Error: {0}'.format(np.min(fit_data[2])))
-        print ("\n")
-
-        plt.figure(i+1)
-        plt.suptitle('Peak {0}'.format(i+1))
-        ax1 = plt.subplot2grid((2, 2), (0, 0), colspan=2)
-        ax2 = plt.subplot2grid((2, 2), (1, 0))
-        ax3 = plt.subplot2grid((2, 2), (1, 1))
-
-        ax1.set_xlabel('Number of coefficients')
-        ax1.set_ylabel('Width [THz]')
-        ax1.set_title('Peak width')
-        ax1.plot(fit_data[0], fit_data[1])
-        ax1.plot((fit_data[0][0], fit_data[0][-1]), (mem_full_dict[i][1], mem_full_dict[i][1]), 'k-')
-
-        ax2.set_xlabel('Number of coefficients')
-        ax2.set_ylabel('(RMSD/max)^-1')
-        ax2.set_title('Fitting error/Max. (RMSD)')
-        ax2.plot(fit_data[0], np.sqrt(1./fit_data[2]))
-
-        ax3.set_xlabel('Frequency [THz]')
-        ax3.set_title('Best curve fitting')
-        ax3.plot(test_frequency_range, mem_full_dict[i][0], label='Power spectrum')
-        ax3.plot(test_frequency_range,
-                 fitting_function._function(test_frequency_range, *scan_params[best_index]),
-                 label='{} fit'.format(fitting_function.curve_name))
-
-        plt.show()
-
-
-#####################################
-#   FFT method (NUMPY)              #
-#####################################
-
-def autocorrelation(x):
-    result = np.correlate(x, x, mode='same')/x.size
-    return result
-
-#   FFT Numpy
-
-def division_of_data(resolution, number_of_data, time_step):
+def _division_of_data(resolution, number_of_data, time_step):
 
     piece_size = round(1./(time_step*resolution))
-#    print 'N', piece_size
-
     number_of_pieces = int((number_of_data-1)/piece_size)
-#    print'Number of pieces', number_of_pieces
-#    print'Size', data.size
 
     if number_of_pieces > 0:
         interval = (number_of_data - piece_size)/number_of_pieces
@@ -220,18 +51,190 @@ def division_of_data(resolution, number_of_data, time_step):
     return pieces
 
 
-def fft_power(frequency_range, data, time_step):
+#############################################
+#   Fourier transform - direct method       #
+#############################################
+def get_fourier_direct_power_spectra(vq, trajectory, parameters):
+    test_frequency_range = np.array(parameters.frequency_range)
 
-    pieces = division_of_data(frequency_range[1]-frequency_range[0],
-                              data.size,
-                              time_step)
+    psd_vector = []
+    if not parameters.silent:
+        _progress_bar(0, "Fourier")
+    for i in range(vq.shape[1]):
+        psd_vector.append(correlation.correlation_par(test_frequency_range,
+                                                      vq[:, i],
+                                                      # np.lib.pad(vq[:, i], (2500, 2500), 'constant'),
+                                                      trajectory.get_time_step_average(),
+                                                      step=parameters.correlation_function_step,
+                                                      integration_method=parameters.integration_method))
+        if not parameters.silent:
+            _progress_bar(float(i + 1) / vq.shape[1], "Fourier")
+
+    psd_vector = np.array(psd_vector).T
+
+    return psd_vector * unit_conversion
+
+
+#####################################
+#   Maximum entropy method method   #
+#####################################
+def get_mem_power_spectra(vq, trajectory, parameters):
+    test_frequency_range = np.array(parameters.frequency_range)
+
+    # Check number of coefficients
+    if vq.shape[0] <= parameters.number_of_coefficients_mem+1:
+        print('Number of coefficients should be smaller than the number of time steps')
+        exit()
+
+    psd_vector = []
+    if not parameters.silent:
+        _progress_bar(0, 'M. Entropy')
+    for i in range(vq.shape[1]):
+        psd_vector.append(mem.mem(test_frequency_range,
+                                  vq[:, i],
+                                  trajectory.get_time_step_average(),
+                                  coefficients=parameters.number_of_coefficients_mem))
+
+        if not parameters.silent:
+            _progress_bar(float(i + 1) / vq.shape[1], 'M. Entropy')
+
+    psd_vector = np.array(psd_vector).T
+
+    return psd_vector * unit_conversion
+
+
+#####################################
+#    Coefficient analysis (MEM)     #
+#####################################
+def mem_coefficient_scan_analysis(vq, trajectory, parameters):
+    from dynaphopy.analysis.fitting import fitting_functions
+
+    mem_full_dict = {}
+
+    for i in range(vq.shape[1]):
+        test_frequency_range = parameters.frequency_range
+        fit_data = []
+        scan_params = []
+        power_spectra = []
+        if not parameters.silent:
+            _progress_bar(0, 'ME Coeff.')
+        for number_of_coefficients in parameters.mem_scan_range:
+
+            power_spectrum = mem.mem(test_frequency_range,
+                                     vq[:, i],
+                                     trajectory.get_time_step_average(),
+                                     coefficients=number_of_coefficients)
+
+            power_spectrum *= unit_conversion
+
+            guess_height = np.max(power_spectrum)
+            guess_position = test_frequency_range[np.argmax(power_spectrum)]
+
+            Fitting_function_class = fitting_functions.fitting_functions[parameters.fitting_function]
+
+            if np.isnan(power_spectrum).any():
+                print('Warning: power spectrum error, skipping point {0}'.format(number_of_coefficients))
+                continue
+
+          #  Fitting_curve = fitting_functions[parameters.fitting_function]
+            fitting_function = Fitting_function_class(test_frequency_range,
+                                                      power_spectrum,
+                                                      guess_height=guess_height,
+                                                      guess_position=guess_position)
+
+            fitting_parameters = fitting_function.get_fitting()
+
+
+            if not fitting_parameters['all_good']:
+                print('Warning: Fitting error, skipping point {0}'.format(number_of_coefficients))
+                continue
+
+#            frequency = fitting_parameters['peak_position']
+            area = fitting_parameters['area']
+            width = fitting_parameters['width']
+#            base_line = fitting_parameters['base_line']
+            maximum = fitting_parameters['maximum']
+            error = fitting_parameters['global_error']
+
+            fit_data.append([number_of_coefficients, width, error, area])
+            scan_params.append(fitting_function._fit_params)
+            power_spectra.append(power_spectrum)
+            if not(parameters.silent):
+                _progress_bar(float(number_of_coefficients + 1) / parameters.mem_scan_range[-1], "M.E. Method")
+
+
+        fit_data = np.array(fit_data).T
+        if fit_data.size == 0:
+            continue
+
+        best_width = np.average(fit_data[1], weights=np.sqrt(1./fit_data[2]))
+
+        best_index = int(np.argmin(fit_data[2]))
+        power_spectrum = power_spectra[best_index]
+
+        mem_full_dict.update({i: [power_spectrum, best_width, best_index, fit_data, scan_params]})
+
+    for i in range(vq.shape[1]):
+        if not i in mem_full_dict.keys():
+            continue
+
+        print ('Peak # {0}'.format(i+1))
+        print('------------------------------------')
+        print ('Estimated width      : {0} THz'.format(mem_full_dict[i][1]))
+
+        fit_data = mem_full_dict[i][3]
+        scan_params = mem_full_dict[i][4]
+        best_index = mem_full_dict[i][2]
+
+        print ('Position: {0} THz'.format(scan_params[best_index][0]))
+        print ('Area: {0} eV'.format(fit_data[3][best_index]))
+        print ('Optimum coefficients num: {0}'.format(fit_data[0][best_index]))
+        print ('Minimum fitting global error: {0}'.format(np.min(fit_data[2])))
+        print ("\n")
+
+        plt.figure(i+1)
+        plt.suptitle('Peak {0}'.format(i+1))
+        ax1 = plt.subplot2grid((2, 2), (0, 0), colspan=2)
+        ax2 = plt.subplot2grid((2, 2), (1, 0))
+        ax3 = plt.subplot2grid((2, 2), (1, 1))
+
+        ax1.set_xlabel('Number of coefficients')
+        ax1.set_ylabel('Width [THz]')
+        ax1.set_title('Peak width')
+        ax1.plot(fit_data[0], fit_data[1])
+        ax1.plot((fit_data[0][0], fit_data[0][-1]), (mem_full_dict[i][1], mem_full_dict[i][1]), 'k-')
+
+        ax2.set_xlabel('Number of coefficients')
+        ax2.set_ylabel('(Global error)^-1')
+        ax2.set_title('Fitting error')
+        ax2.plot(fit_data[0], np.sqrt(1./fit_data[2]))
+
+        ax3.set_xlabel('Frequency [THz]')
+        ax3.set_title('Best curve fitting')
+        ax3.plot(test_frequency_range, mem_full_dict[i][0], label='Power spectrum')
+        ax3.plot(test_frequency_range,
+                 fitting_function._function(test_frequency_range, *scan_params[best_index]),
+                 label='{} fit'.format(fitting_function.curve_name))
+
+        plt.show()
+
+
+#####################################
+#        FFT method (NUMPY)         #
+#####################################
+
+def _numpy_power(frequency_range, data, time_step):
+
+    pieces = _division_of_data(frequency_range[1] - frequency_range[0],
+                               data.size,
+                               time_step)
 
     ps = []
     for i_p in pieces:
 
         data_piece = data[i_p[0]:i_p[1]]
 
-        data_piece = autocorrelation(data_piece)
+        data_piece = np.correlate(data_piece, data_piece, mode='same') / data_piece.size
         ps.append(np.abs(np.fft.fft(data_piece))*time_step/2.0)
 
     ps = np.average(ps,axis=0)
@@ -242,7 +245,7 @@ def fft_power(frequency_range, data, time_step):
     return np.interp(frequency_range, freqs[idx], ps[idx])
 
 
-def get_fft_spectra(vq, trajectory, parameters):
+def get_fft_numpy_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
     requested_resolution = test_frequency_range[1]-test_frequency_range[0]
@@ -253,37 +256,36 @@ def get_fft_spectra(vq, trajectory, parameters):
 
     psd_vector = []
     if not(parameters.silent):
-        progress_bar(0, 'FFT')
+        _progress_bar(0, 'FFT')
     for i in range(vq.shape[1]):
-        psd_vector.append(fft_power(test_frequency_range,vq[:, i],
-                                    trajectory.get_time_step_average()),
+        psd_vector.append(_numpy_power(test_frequency_range, vq[:, i],
+                                       trajectory.get_time_step_average()),
                           )
 
         if not(parameters.silent):
-            progress_bar(float(i+1)/vq.shape[1], 'FFT')
+            _progress_bar(float(i + 1) / vq.shape[1], 'FFT')
 
     psd_vector = np.array(psd_vector).T
 
     return psd_vector * unit_conversion
 
 #####################################
-#   FFT method (FFTW)               #
+#         FFT method (FFTW)         #
 #####################################
 
-def fftw_power(frequency_range, data, time_step):
+def _fftw_power(frequency_range, data, time_step):
     import pyfftw
     from multiprocessing import cpu_count
 
-    pieces = division_of_data(frequency_range[1]-frequency_range[0],
-                              data.size,
-                              time_step)
+    pieces = _division_of_data(frequency_range[1] - frequency_range[0],
+                               data.size,
+                               time_step)
 
     ps = []
     for i_p in pieces:
 
         data_piece = data[i_p[0]:i_p[1]]
-
-        data_piece = autocorrelation(data_piece)
+        data_piece = np.correlate(data_piece, data_piece, mode='same') / data_piece.size
         ps.append(np.abs(pyfftw.interfaces.numpy_fft.fft(data_piece, threads=cpu_count()))*time_step/2.0)
 
     ps = np.average(ps,axis=0)
@@ -294,20 +296,79 @@ def fftw_power(frequency_range, data, time_step):
     return np.interp(frequency_range, freqs[idx], ps[idx])
 
 
-def get_fft_fftw_spectra(vq, trajectory, parameters):
+def get_fft_fftw_power_spectra(vq, trajectory, parameters):
     test_frequency_range = np.array(parameters.frequency_range)
 
     psd_vector = []
     if not(parameters.silent):
-        progress_bar(0, 'FFTW')
+        _progress_bar(0, 'FFTW')
     for i in range(vq.shape[1]):
-        psd_vector.append(fftw_power(test_frequency_range,vq[:, i],
-                                     trajectory.get_time_step_average()),
+        psd_vector.append(_fftw_power(test_frequency_range, vq[:, i],
+                                      trajectory.get_time_step_average()),
                           )
 
         if not(parameters.silent):
-            progress_bar(float(i+1)/vq.shape[1], 'FFTW')
+            _progress_bar(float(i + 1) / vq.shape[1], 'FFTW')
 
     psd_vector = np.array(psd_vector).T
 
     return psd_vector * unit_conversion
+
+#####################################
+#        FFT method (CUDA)          #
+#####################################
+
+def _cuda_power(frequency_range, data, time_step):
+    from cuda_functions import cuda_acorrelate, cuda_fft
+
+    pieces = _division_of_data(frequency_range[1] - frequency_range[0],
+                               data.size,
+                               time_step)
+
+    ps = []
+    for i_p in pieces:
+
+        data_piece = data[i_p[0]:i_p[1]]
+
+        data_piece = cuda_acorrelate(data_piece, mode='same', safe_mode=False)/data_piece.size
+        ps.append(np.abs(cuda_fft(data_piece, safe_mode=False)*time_step/2.0))
+
+    ps = np.average(ps,axis=0)
+
+    freqs = np.fft.fftfreq(data_piece.size, time_step)
+    idx = np.argsort(freqs)
+
+    return np.interp(frequency_range, freqs[idx], ps[idx])
+
+
+def get_fft_cuda_power_spectra(vq, trajectory, parameters):
+    test_frequency_range = np.array(parameters.frequency_range)
+
+    psd_vector = []
+    if not(parameters.silent):
+        _progress_bar(0, 'CUDA')
+    for i in range(vq.shape[1]):
+        psd_vector.append(_cuda_power(test_frequency_range, vq[:, i],
+                                      trajectory.get_time_step_average()),
+                          )
+
+        if not(parameters.silent):
+            _progress_bar(float(i + 1) / vq.shape[1], 'CUDA')
+
+    psd_vector = np.array(psd_vector).T
+
+    return psd_vector * unit_conversion
+
+
+#######################
+#  Functions summary  #
+#######################
+
+power_spectrum_functions = {
+    0: [get_fourier_direct_power_spectra, 'Fourier transform'],
+    1: [get_mem_power_spectra, 'Maximum entropy method'],
+    2: [get_fft_numpy_spectra, 'Fast Fourier transform (Numpy)'],
+    3: [get_fft_fftw_power_spectra, 'Fast Fourier transform (FFTW)'],
+    4: [get_fft_cuda_power_spectra, 'Fast Fourier transform (CUDA)']
+}
+

@@ -70,8 +70,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(11,45,"Unit cell atoms: {0}".format(trajectory.structure.get_number_of_atoms()))
         screen.addstr(12,45,"MD  cell atoms: {0} ".format(trajectory.get_number_of_atoms()))
         screen.addstr(13,45,"Number of MD time steps: {0}".format(len(trajectory.velocity)))
-        screen.addstr(14,45,"Time step: {0} ps".format(trajectory.get_time_step_average()))
-
+        screen.addstr(14,45,"Time step: {0} ps".format(np.round(trajectory.get_time_step_average(),decimals=12)))
 
 
         #Option values left screen
@@ -131,7 +130,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 if x2 == ord('3'):
                     curses.endwin()
-                    calculation.get_phonon_dispersion_bands()
+                    calculation.plot_phonon_dispersion_bands()
 
                 if x2 == ord('4'):
                     curses.endwin()
@@ -192,7 +191,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 ######## OPTION 6 :  Renormalized phonon dispersion
         if x == ord('6'):
             curses.endwin()
-            calculation.get_renormalized_phonon_dispersion_bands()
+            calculation.plot_renormalized_phonon_dispersion_bands()
             curses.endwin()
 
 ######## OPTION 7 :  PEAK ANALYSIS
@@ -332,7 +331,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 if x2 == ord('7'):
                     resolution =float(get_param(screen, "Insert resolution in THz"))
                     calculation.set_spectra_resolution(resolution)
-                    calculation.power_spectra_clear()
+                    calculation.full_clear()
                     curses.endwin()
 
                 if x2 == ord('8'):
@@ -355,7 +354,7 @@ if __name__ == 'test_gui.py':
     structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name'])
     structure.set_force_set( file_IO.parse_FORCE_SETS(filename=input_parameters['force_constants_file_name']))
     structure.set_primitive_matrix(input_parameters['primitive_matrix'])
-    structure.set_super_cell_phonon(input_parameters['super_cell_matrix'])
+    structure.set_supercell_phonon(input_parameters['supercell_matrix'])
 
     trajectory_file_name = sys.argv[2]
 

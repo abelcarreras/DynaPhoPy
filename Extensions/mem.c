@@ -54,33 +54,36 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     // Maximum Entropy Method Algorithm
     double  MeanSquareDiscrepancy = GetCoefficients((double *)Velocity, NumberOfData, NumberOfCoefficients, Coefficients);
 
-
-# pragma omp parallel for default(shared) private(AngularFrequency)
-    for (int i=0;i<NumberOfFrequencies;i++) {
+    # pragma omp parallel for default(shared) private(AngularFrequency)
+    for (int i=0; i < NumberOfFrequencies; i++) {
         AngularFrequency = Frequency[i]*2.0*M_PI;
-        PowerSpectrum[i] = FrequencyEvaluation(AngularFrequency*TimeStep/2.0, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep;
+        PowerSpectrum[i] = (FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) +
+        FrequencyEvaluation(((2.0*M_PI)/TimeStep-AngularFrequency)*TimeStep, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy)) * TimeStep / 2.0;
+//        PowerSpectrum[i] = FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep;
+
+
     }
+
     //Returning Python array
     return(PyArray_Return(PowerSpectrum_object));
 }
 
-
-
+// Evaluate MEM function
 static double FrequencyEvaluation(double Delta, double  Coefficients[], int NumberOfCoefficients, double MeanSquareDiscrepancy) {
 
-    double _Complex z = cexp(_Complex_I * Delta);
-    double _Complex sum = 1.0 + 0.0 * _Complex_I;
+    double _Complex z = cexp(_Complex_I * Delta / 2.0);
+    double _Complex sum = 1.0;
 
-    for (int i=1;i<=NumberOfCoefficients;i++) {
-        sum -= Coefficients[i] * cpow(z,i);
+    for (int i=0; i <= NumberOfCoefficients; i++) {
+        sum -= Coefficients[i] * cpow(z, i);
     }
     return (double)MeanSquareDiscrepancy/(sum*conj(sum));
 }
 
-
+// Get LP coefficients
 static double  GetCoefficients(double  Data[], int NumberOfData, int NumberOfCoefficients, double  Coefficients[]) {
 
-    int k,j,i;
+    int k, j, i;
     double  p=0.0;
 
     double  MeanSquareDiscrepancy;
@@ -88,45 +91,42 @@ static double  GetCoefficients(double  Data[], int NumberOfData, int NumberOfCoe
     double  wk2 [NumberOfData];
     double  wkm [NumberOfCoefficients];
 
-    for (j=1;j<=NumberOfData;j++) p += pow(Data[j],2);
-    MeanSquareDiscrepancy=p/NumberOfData;
+    for (j=1; j <= NumberOfData; j++) p += pow(Data[j], 2);
+    MeanSquareDiscrepancy = p / NumberOfData;
 
-    wk1[1]=Data[1];
-    wk2[NumberOfData-1]=Data[NumberOfData];
+    wk1[1] = Data[1];
+    wk2[NumberOfData-1] = Data[NumberOfData];
 
-
-    for (j=2;j<=NumberOfData-1;j++) {
+    for (j=2; j <= NumberOfData-1; j++) {
         wk1[j]=Data[j];
         wk2[j-1]=Data[j];
     }
 
-    for (k=1;k<=NumberOfCoefficients;k++) {
+    for (k=1; k <= NumberOfCoefficients; k++) {
+        double  Numerator = 0.0,Denominator = 0.0;
 
-        double  Numerator=0.0,Denominator=0.0;
-
-        for (j=1;j<=(NumberOfData-k);j++) {
-            Numerator += wk1[j]*wk2[j];
-            Denominator += pow(wk1[j],2)+pow(wk2[j],2);
+        for (j=1; j <= (NumberOfData - k); j++) {
+            Numerator += wk1[j] * wk2[j];
+            Denominator += pow(wk1[j],2) + pow(wk2[j], 2);
         }
 
-        Coefficients[k]=2.0*Numerator/Denominator;
+        Coefficients[k] = 2.0 * Numerator / Denominator;
 
-        MeanSquareDiscrepancy *= (1.0-pow(Coefficients[k],2));
+        MeanSquareDiscrepancy *= (1.0 - pow(Coefficients[k], 2));
 
-        for (i=1;i<=(k-1);i++) Coefficients[i]=wkm[i]-Coefficients[k]*wkm[k-i];
+        for (i=1; i <= (k-1); i++) Coefficients[i] = wkm[i] - Coefficients[k] * wkm[k-i];
 
         if (k == NumberOfCoefficients) continue;
 
-        for (i=1;i<=k;i++) wkm[i]=Coefficients[i];
+        for (i=1; i<=k; i++) wkm[i] = Coefficients[i];
 
-        for (j=1;j<=(NumberOfData-k-1);j++) {
-            wk1[j] -= wkm[k]*wk2[j];
-            wk2[j]  = wk2[j+1]-wkm[k]*wk1[j+1];
+        for (j=1; j <= (NumberOfData-k-1); j++) {
+            wk1[j] -= wkm[k] * wk2[j];
+            wk2[j]  = wk2[j+1] - wkm[k] * wk1[j+1];
         }
     }
     return MeanSquareDiscrepancy;
 };
-
 
 
 //static char extension_docs[] =

@@ -1,3 +1,7 @@
+[![PyPI](https://img.shields.io/pypi/dm/dynaphopy.svg?maxAge=2592000)](https://pypi.python.org/pypi/dynaphopy)
+[![Build Status](https://travis-ci.org/abelcarreras/DynaPhoPy.svg?branch=development)](https://travis-ci.org/abelcarreras/DynaPhoPy)
+
+
 DynaPhoPy
 =========
 Software to calculate crystal microscopical anharmonic properties
@@ -17,8 +21,14 @@ Installation instructions
 
 2. Download the source code and place it in the installation directory
 
-3. Run setup.py script to install
-  python setup.py install --user
+3. (optional) Install requirements using pip
+   <br>pip install -r requirements.txt --user
+
+4. Run setup.py to install dynaphopy
+  <br>python setup.py install --user
+
+* NEW! Now you can use pip to install/update dynaphopy module
+   <br>pip install dynaphopy --user
 
 
 Executing this software

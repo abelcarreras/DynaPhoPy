@@ -9,10 +9,10 @@ def project_onto_wave_vector(trajectory, q_vector, project_on_atom=-1):
 
     number_of_atoms = velocity.shape[1]
     number_of_dimensions = velocity.shape[2]
-    super_cell = trajectory.get_super_cell_matrix()
+    supercell = trajectory.get_supercell_matrix()
 
-    coordinates = trajectory.structure.get_positions(super_cell)
-    atom_type = trajectory.structure.get_atom_type_index(supercell=super_cell)
+    coordinates = trajectory.structure.get_positions(supercell)
+    atom_type = trajectory.structure.get_atom_type_index(supercell=supercell)
 
     velocity_projected = np.zeros((velocity.shape[0], number_of_primitive_atoms, number_of_dimensions), dtype=complex)
 

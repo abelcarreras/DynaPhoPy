@@ -146,7 +146,7 @@ def read_from_file_structure_outcar(file_name):
                               )
 
 
-def read_from_file_structure_poscar(file_name):
+def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
     #Check file exists
     if not os.path.isfile(file_name):
         print('Structure file does not exist!')
@@ -160,15 +160,15 @@ def read_from_file_structure_poscar(file_name):
 
     multiply = float(data_lines[1])
     direct_cell = np.array([data_lines[i].split()
-                            for i in range(2,5)],dtype=float).T
+                            for i in range(2, 2+number_of_dimensions)],dtype=float).T
     direct_cell *= multiply
     scaled_positions = None
     positions = None
 
     try:
-        number_of_types = np.array(data_lines[6].split(),dtype=int)
+        number_of_types = np.array(data_lines[3+number_of_dimensions].split(),dtype=int)
 
-        coordinates_type = data_lines[7][0]
+        coordinates_type = data_lines[4+number_of_dimensions][0]
         if coordinates_type == 'D' or coordinates_type == 'd' :
 
             scaled_positions = np.array([data_lines[8+k].split()[0:3]
@@ -211,28 +211,25 @@ def read_from_file_structure_poscar(file_name):
 
 
 
-#Just for testing (use with care)
-def generate_test_trajectory(structure, super_cell=(1, 1, 1),
-                             save_to_file=None,
+#Just for testing (use with care) Generates perfectly harmonic trajectory
+def generate_test_trajectory(structure, supercell=(1, 1, 1),
                              minimum_frequency=0.1,  # THz
-                             total_time=2,           # picoseconds
-                             time_step=0.002,        # picoseconds
-                             temperature=400,        # Kelvin
+                             total_time=2,  # picoseconds
+                             time_step=0.002,  # picoseconds
+                             temperature=400,  # Kelvin
                              silent=False,
                              memmap=False):
 
     import random
-    from dynaphopy.power_spectrum import progress_bar
+    from dynaphopy.power_spectrum import _progress_bar
 
     print('Generating ideal harmonic data for testing')
     kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
 
 
-    number_of_unit_cells_phonopy = np.prod(np.diag(structure.get_super_cell_phonon()))
-    number_of_unit_cells = np.prod(super_cell)
+    number_of_unit_cells_phonopy = np.prod(np.diag(structure.get_supercell_phonon()))
+    number_of_unit_cells = np.prod(supercell)
 #    atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
-
-
 
 
     #Recover dump trajectory from file (test only)
@@ -247,32 +244,22 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
     number_of_primitive_atoms = structure.get_number_of_primitive_atoms()
     number_of_dimensions = structure.get_number_of_dimensions()
 
-    positions = structure.get_positions(supercell=super_cell)
-    masses = structure.get_masses(supercell=super_cell)
-
+    positions = structure.get_positions(supercell=supercell)
+    masses = structure.get_masses(supercell=supercell)
 
     number_of_atoms = number_of_atoms*number_of_unit_cells
- #   print('At Num',number_of_atoms)
-
- #   exit()
 
     number_of_primitive_cells = number_of_atoms/number_of_primitive_atoms
 
-    atom_type = structure.get_atom_type_index(supercell=super_cell)
-#    print('At type',atom_type)
-
-    #Generate an xyz file for checking
-    if save_to_file is None:
-        xyz_file = open(os.devnull, 'w')
-    else:
-        xyz_file = open(save_to_file, 'w')
+    atom_type = structure.get_atom_type_index(supercell=supercell)
 
     #Generate additional wave vectors sample
-#    structure.set_super_cell_phonon_renormalized(np.diag(super_cell))
+#    structure.set_supercell_phonon_renormalized(np.diag(supercell))
 
-    q_vector_list = pho_interface.get_commensurate_points(structure, custom_supercell=np.diag(super_cell))
-   # print(q_vector_list)
-   # exit()
+    q_vector_list = pho_interface.get_commensurate_points(structure, custom_supercell=np.diag(supercell))
+
+    q_vector_list_cart = [ np.dot(q_vector, 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
+                           for q_vector in q_vector_list]
 
     atoms_relation = float(len(q_vector_list)*number_of_primitive_atoms)/number_of_atoms
 
@@ -289,43 +276,29 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
 
     #Generating trajectory
     if not silent:
-        progress_bar(0, 'generating')
+        _progress_bar(0, 'generating')
 
+    #Generating trajectory
     trajectory = []
     for time in np.arange(total_time, step=time_step):
-      #  print(time)
+        coordinates = np.array(positions[:, :], dtype=complex)
 
-        xyz_file.write('{0}\n\n'.format(number_of_atoms))
-        coordinates = []
-        for i_atom in range(number_of_atoms):
-            coordinate = np.array(positions[i_atom, :], dtype=complex)
-            for i_freq in range(number_of_frequencies):
-                for i_long in range(q_vector_list.shape[0]):
-                    q_vector = np.dot(q_vector_list[i_long,:], 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
+        for i_freq in range(number_of_frequencies):
+            for i_long, q_vector in enumerate(q_vector_list_cart):
 
-                    if abs(frequencies_r[i_long][i_freq]) > minimum_frequency: # Prevent error due to small frequencies
-                        # Amplitude is normalized to be equal area for all phonon projected power spectra.
-                        amplitude = np.sqrt(number_of_dimensions * kb_boltzmann * temperature / number_of_primitive_cells * atoms_relation)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
-           #             amplitude = np.sqrt(number_of_dimensions * kb_boltzmann * temperature) / (frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
-                        normal_mode_coordinate = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
-                        phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions[i_atom, :]))
+                if abs(frequencies_r[i_long][i_freq]) > minimum_frequency: # Prevent error due to small frequencies
+                    amplitude = np.sqrt(number_of_dimensions * kb_boltzmann * temperature / number_of_primitive_cells * atoms_relation)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
+                    normal_mode = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
+                    phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions.T))
 
-                        coordinate += (1.0 / np.sqrt(masses[i_atom]) *
-                                       eigenvectors_r[i_long][i_freq, atom_type[i_atom]] *
-                                       phase *
-                                       normal_mode_coordinate).real
-                        coordinate = coordinate.real
+                    coordinates += (1.0 / np.sqrt(masses)[None].T *
+                                   eigenvectors_r[i_long][i_freq, atom_type] *
+                                   phase[None].T *
+                                   normal_mode).real
 
-
-            xyz_file.write(structure.get_atomic_types(supercell=super_cell)[i_atom] + '\t' +
-                           '\t'.join([str(item) for item in coordinate]) + '\n')
-
-            coordinates.append(coordinate)
         trajectory.append(coordinates)
         if not silent:
-          progress_bar(float(time+time_step)/total_time,'generating', )
-
-    xyz_file.close()
+            _progress_bar(float(time + time_step) / total_time, 'generating', )
 
     trajectory = np.array(trajectory)
     print(trajectory.shape[0])
@@ -342,22 +315,19 @@ def generate_test_trajectory(structure, super_cell=(1, 1, 1),
                                  trajectory=np.array(trajectory, dtype=complex),
                                  energy=np.array(energy),
                                  time=time,
-                                 super_cell=np.dot(np.diagflat(super_cell), structure.get_cell().T).T),
+                                 supercell=np.dot(np.diagflat(supercell), structure.get_cell().T).T),
                     dump_file)
 
         dump_file.close()
 
-#    print(np.dot(np.diagflat(super_cell),structure.get_cell()))
-
-    structure.set_super_cell_phonon_renormalized(None)
+    structure.set_supercell_phonon_renormalized(None)
 
     return dyn.Dynamics(structure=structure,
                         trajectory=np.array(trajectory,dtype=complex),
                         energy=np.array(energy),
                         time=time,
-                        super_cell=np.dot(np.diagflat(super_cell), structure.get_cell().T).T,
+                        supercell=np.dot(np.diagflat(supercell), structure.get_cell().T).T,
                         memmap=memmap)
-
 
 #Testing function
 def read_from_file_test():
@@ -449,9 +419,10 @@ def write_correlation_to_file(frequency_range, correlation_vector, file_name):
     return 0
 
 
-def read_parameters_from_input_file(file_name):
+def read_parameters_from_input_file(file_name, number_of_dimensions=3):
 
     input_parameters = {'structure_file_name_poscar': 'POSCAR'}
+
 
     #Check file exists
     if not os.path.isfile(file_name):
@@ -478,19 +449,15 @@ def read_parameters_from_input_file(file_name):
        #     exit()
 
         if "PRIMITIVE MATRIX" in line:
-            primitive_matrix = [input_file[i+1].replace('\n','').split(),
-                                input_file[i+2].replace('\n','').split(),
-                                input_file[i+3].replace('\n','').split()]
+            primitive_matrix = [input_file[i+j+1].replace('\n','').split() for j in range(number_of_dimensions)]
             input_parameters.update({'_primitive_matrix': np.array(primitive_matrix, dtype=float)})
 
 
         if "SUPERCELL MATRIX PHONOPY" in line:
-            super_cell_matrix = [input_file[i+1].replace('\n','').split(),
-                                 input_file[i+2].replace('\n','').split(),
-                                 input_file[i+3].replace('\n','').split()]
+            super_cell_matrix = [input_file[i+j+1].replace('\n','').split() for j in range(number_of_dimensions)]
 
             super_cell_matrix = np.array(super_cell_matrix, dtype=int)
-            input_parameters.update({'_super_cell_phonon': np.array(super_cell_matrix, dtype=int)})
+            input_parameters.update({'_supercell_phonon': np.array(super_cell_matrix, dtype=int)})
 
 
         if "BANDS" in line:
@@ -617,12 +584,12 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
                             trajectory=trajectory,
                             velocity=velocity,
                             time=time,
-                            super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()),
+                            supercell=np.dot(np.diagflat(super_cell), structure.get_cell()),
                             memmap=memmap)
     else:
         return vc, reduced_q_vector, dyn.Dynamics(structure=structure,
-                                time=time,
-                                super_cell=np.dot(np.diagflat(super_cell), structure.get_cell()),
-                                memmap=memmap)
+                                                  time=time,
+                                                  supercell=np.dot(np.diagflat(super_cell), structure.get_cell()),
+                                                  memmap=memmap)
 
 

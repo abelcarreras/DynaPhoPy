@@ -91,7 +91,6 @@ parser.add_argument('--thm_full', action='store_true',
 
 
 # Extra options
-
 parser.add_argument('--temperature', metavar='F', type=float, default=None,
                     help='set temperature (thermal properties)')
 
@@ -126,7 +125,8 @@ parser.add_argument('--dim', metavar='N', type=int, default=[1, 1, 1], nargs=3,
                     help='Set the dimensions of generated structure/trajectory (Default: [1, 1, 1])')
 
 group.add_argument('--generate_trajectory', metavar='F', type=float, default=None, nargs=3,
-                    help='Generate a test harmonic trajectory using force constants [total time (ps), time step (ps), energy (Kelvin)]')
+                    help='Generate a test harmonic trajectory using force constants [total time (ps), '
+                         'time step (ps), amplitude (Kelvin)]')
 
 group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
                     help='Generate a VASP POSCAR structure file')
@@ -221,7 +221,7 @@ if args.generate_trajectory:
                                                   total_time=args.generate_trajectory[0],
                                                   time_step=args.generate_trajectory[1],
                                                   temperature=args.generate_trajectory[2],
-                                                  super_cell=args.dim,
+                                                  supercell=args.dim,
                                                   silent=args.silent,
                                                   memmap=args.memmap)
 

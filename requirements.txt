@@ -1,5 +1,34 @@
+###################################
+# Required packages for DynaPhoPY #
+###################################
+
+#
+#  These are the requirements for dynaphopy
+#  Install these packages using:
+#      pip install -r requirements.txt --user
+#
+#  The packages commented are optional and require
+#  the instalations of additional libraries on
+#  your system. Uncomment them to install.
+#
+
+
+### These packages are mandatory to run the software ###
+
 phonopy>=1.9.6
-numpy>=1.9.0
+numpy>=1.8.2
 scipy
 matplotlib
-h5py
+
+
+
+### These packages are optional (uncomment to install) ###
+
+# h5py may need libhdf5-serial-dev or libhdf5-openmp-dev package installed on your system
+# h5py
+
+# To use pyfftw FFTW libraries must be installed on your system (check pyfftw homepage for more information)
+# pyfftw
+
+# CUDA acceleration requires CUDA libraries and a nVidia CUDA compatible gpu card
+# git+https://github.com/abelcarreras/cuda_functions.git

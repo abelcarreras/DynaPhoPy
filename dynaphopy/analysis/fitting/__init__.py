@@ -98,7 +98,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         #Print section
         print ('\nPeak # {0}'.format(i+1))
         print ('----------------------------------------------')
-        print ('Width (FWHM)               {0:15.6f} THz'.format(width))
+        print ('Width                      {0:15.6f} THz'.format(width))
         print ('Position                   {0:15.6f} THz'.format(frequency))
         print ('Area (1/2<K>) ({0:.10s}) {1:15.6f} eV'.format(fitting_function.curve_name, area))      # 1/2 Kinetic energy
         print ('Area (1/2<K>) (Total)      {0:15.6f} eV'.format(total_integral))   # 1/2 Kinetic energy
