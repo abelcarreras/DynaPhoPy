@@ -28,5 +28,5 @@ deploy:
          secure: "hnYr4Xxh+WSH/Tiuylrq7l5N1IQ2BPilw7kzwYuO0wPk06PeVLy0ql1PbpoUCBaNuHQLmewe26OnyyxaYApUA4nVtrva7mfk7O66RA1tgXGgDxCTQ95sU4zbvepA14tB5y5PD0akcc+H51CQLW1g1kSepN5IuxbtX7vSEdhweyolTqR3fsHEbNRl4/1hTtW18OyXqJMmV3wMLYFRt0nFrc/BePbnnamfJ9Uyp1OQ4WkZur0MQIcXTPuSnW5C2eM52iWsQrjmFe9GXgJ2nN6Dbv7NzaVx7bT2NZQvSWoJEaAAT/WAvc5b4MzZtMhDGNRm6TQwdslA3o+MhSH4/3yrzunwv5YmBCeBEb+BCkI/St4flQD0rc7d49l9+zpbxA65VzdyuVTCxU8TUtr0F8UggfS7lvQNGW/wCRFHRT7ztOhVix5iboRUS8M3l0ZMfK+857bH/IcfuTJ/G6TD+FY1nWvaBJwo43Sv2plBcwT79mnJOyWxifSOQFNPk+ZIK1smkvUFrJQqDeDkCBlwTNoMfujo65XvNJR31eOdLAgk0LUgJtxoMJIiUSZRg4RF8oG4gC/+xMJQdRiQ2pcrrxtCGNbIh2tGOglp9dOAow6zG2SDA3drtt2DOEu7Xb1yLW1vcHfOOw5tlMAq7BUk2ZOZ9mlsFXEu7jvHYX7dsygt+UY="
       on:
           branch: master
-          branch: development
+ #         branch: development
           tags: False
