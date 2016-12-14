@@ -1,4 +1,4 @@
-__version__ = '1.14.3'
+__version__ = '1.14.3.1'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -613,6 +613,7 @@ class Quasiparticle:
         plt.show()
 
     def plot_trajectory_distribution(self, direction):
+        from dynaphopy.analysis.fitting.fitting_functions import Gaussian_function
 
         atomic_types = self.dynamic.structure.get_atomic_types()
         atom_type_index_unique = np.unique(self.dynamic.structure.get_atom_type_index(), return_index=True)[1]
@@ -622,18 +623,36 @@ class Quasiparticle:
 
         distributions, distance = self.get_atomic_displacements(direction)
 
+
         plt.figure()
         for atom in range(distributions.shape[0]):
             width = (distance[1] - distance[0])
-            center = (distance[:-1] + distance[1:]) / 2
+            center = (distance[:-1] + distance[1:] + width) / 2
+
+            distance_centers = distance[:-1]+width
+            fitting_function = Gaussian_function(distance_centers,
+                                                 distributions[atom],
+                                                 guess_height=10,
+                                                 guess_position=0)
+
+            parameters = fitting_function.get_fitting()
+            print('\nAtom {0}, Element {1}'.format(atom, atomic_types_unique[atom]))
+            print ('-----------------------------------------')
+            print ('Center            {0:15.6f} Angstrom'.format(parameters['peak_position']))
+            print ('Deviation (sigma) {0:15.6f} Angstrom'.format(parameters['width']))
+            print ('Global fit error  {0:15.6f}'.format(parameters['global_error']))
 
             plt.figure(atom + 1)
             plt.title('Atomic displacements')
             plt.suptitle('Atom {0}, Element {1}'.format(atom, atomic_types_unique[atom]))
+            plt.plot(distance, fitting_function.get_curve(distance),
+                     label=fitting_function.curve_name,
+                     linewidth=3, color='g')
             plt.bar(center, distributions[atom], align='center', width=width)
             plt.xlabel('Direction: ' + ' '.join(np.array(direction, dtype=str)) + ' [Angstrom]')
             plt.xlim([distance[0], distance[-1]])
-
+            plt.ylim([0, None])
+            plt.legend()
         plt.show()
 
     # Printing data to files

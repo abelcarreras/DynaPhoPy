@@ -64,6 +64,10 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
 
     }
 
+    // Free python memory
+    Py_DECREF(velocity_array);
+    Py_DECREF(frequency_array);
+
     //Returning Python array
     return(PyArray_Return(PowerSpectrum_object));
 }

@@ -23,20 +23,20 @@ correlation = Extension('dynaphopy.power_spectrum.correlation',
                         extra_compile_args=['-std=c99', '-fopenmp'],
                         extra_link_args=['-lgomp'],
                         include_dirs = include_dirs_numpy,
-                        sources=['Extensions/correlation.c'])
+                        sources=['c/correlation.c'])
 
 
 mem = Extension('dynaphopy.power_spectrum.mem',
                 extra_compile_args=['-std=c99', '-fopenmp'],
                 extra_link_args=['-lgomp'],
                 include_dirs = include_dirs_numpy,
-                sources=['Extensions/mem.c'])
+                sources=['c/mem.c'])
 
 displacements = Extension('dynaphopy.displacements',
                 extra_compile_args=['-std=c99', '-fopenmp'],
                 extra_link_args=['-lgomp'],
                 include_dirs = include_dirs_numpy,
-                sources=['Extensions/displacements.c'])
+                sources=['c/displacements.c'])
 
 setup(name='dynaphopy',
       version=get_version_number(),
