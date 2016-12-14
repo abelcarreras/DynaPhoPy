@@ -23,17 +23,17 @@ def get_version_number():
 correlation = Extension('dynaphopy.power_spectrum.correlation',
                         extra_compile_args=['-std=c99'],
                         include_dirs = include_dirs_numpy,
-                        sources=['Extensions/correlation.c'])
+                        sources=['c/correlation.c'])
 
 mem = Extension('dynaphopy.power_spectrum.mem',
                 extra_compile_args=['-std=c99'],
                 include_dirs = include_dirs_numpy,
-                sources=['Extensions/mem.c'])
+                sources=['c/mem.c'])
 
 displacements = Extension('dynaphopy.displacements',
                 extra_compile_args=['-std=c99'],
                 include_dirs = include_dirs_numpy,
-                sources=['Extensions/displacements.c'])
+                sources=['c/displacements.c'])
 
 setup(name='dynaphopy',
       version=get_version_number(),

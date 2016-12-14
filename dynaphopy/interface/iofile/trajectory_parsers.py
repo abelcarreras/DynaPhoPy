@@ -2,6 +2,8 @@ import os
 import numpy as np
 import mmap
 import dynaphopy.orm.dynamics as dyn
+import warnings
+
 
 # VASP OUTCAR file parser
 def read_vasp_trajectory(file_name, structure=None, time_step=None,
@@ -11,26 +13,26 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                          end_cut=None,
                          memmap=False):
 
+    # warning
+    warnings.warn('This parser will be deprecated, you can use XDATCAR instead', DeprecationWarning)
 
-    #Check file exists
+    # Check file exists
     if not os.path.isfile(file_name):
         print('Trajectory file does not exist!')
         exit()
 
-    #Check time step
+    # Check time step
     if time_step is not None:
         print('Warning! Time step flag has no effect reading from VASP OUTCAR file (time step will be read from file)')
 
     if memmap:
         print('Warning! Memory mapping is not implemented in VASP OUTCAR parser')
 
-
-    #Starting reading
+    # Starting reading
     print("Reading VASP trajectory")
     print("This could take long, please wait..")
 
-
-    #Dimensionality of VASP calculation
+    # Dimensionality of VASP calculation
     number_of_dimensions = 3
 
     with open(file_name, "r+") as f:
