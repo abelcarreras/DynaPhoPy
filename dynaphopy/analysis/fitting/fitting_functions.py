@@ -42,7 +42,7 @@ class Lorentzian:
     def get_fitting_parameters(self):
 
         if self._fit_params is None:
-            if isinstance(self.guess_pos, type(None)) or isinstance(self.guess_height, type(None)):
+            if self.guess_pos is None or self.guess_height is None:
                 fit_params, fit_covariances = curve_fit(self._function,
                                                         self.test_frequencies_range,
                                                         self.power_spectrum)
@@ -134,7 +134,7 @@ class Lorentzian_asymmetric:
     def get_fitting_parameters(self):
 
         if self._fit_params is None:
-            if isinstance(self.guess_pos, type(None)) or isinstance(self.guess_height, type(None)):
+            if self.guess_pos is None or self.guess_height is None:
                 fit_params, fit_covariances = curve_fit(self._function,
                                                         self.test_frequencies_range,
                                                         self.power_spectrum)
@@ -225,7 +225,7 @@ class Damped_harmonic:
     def get_fitting_parameters(self):
 
         if self._fit_params is None:
-            if isinstance(self.guess_pos, type(None)) or isinstance(self.guess_height, type(None)):
+            if self.guess_pos is None or self.guess_height is None:
                 fit_params, fit_covariances = curve_fit(self._function,
                                                         self.test_frequencies_range,
                                                         self.power_spectrum)
@@ -314,7 +314,7 @@ class Gaussian_function:
     def get_fitting_parameters(self):
 
         if self._fit_params is None:
-            if isinstance(self.guess_pos, type(None)) or isinstance(self.guess_height, type(None)):
+            if self.guess_pos is None or self.guess_height is None:
                 fit_params, fit_covariances = curve_fit(self._function,
                                                         self.test_frequencies_range,
                                                         self.power_spectrum)
