@@ -39,11 +39,11 @@ You can follow the instruction in phonopy <a href="http://atztogo.github.io/phon
 
 <div id="prepare_MD"></div>  
 <LI><h5>Prepare Molecular Dynamics calculation</h5>
-<p> At the present time DynaPhoPy can read MD trajectories from VASP and LAMMPS.
+<p> At the present time DynaPhoPy implements parsers to read MD trajectories from VASP and LAMMPS.
 
 <br><strong>- Using VASP</strong>
 <br>VASP is a  popular software to perform first principles calculations of solids.
-Obtain an <strong>OUTCAR</strong> output file containing a MD calculation from VASP. This file han be read directly by DynaPhoPy.
+DynaphoPy can read the MD trajectory from either <strong>OUTCAR</strong> or <strong>XDATCAR</strong> output files.
 <br>Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/vasp.html"> online manual</a> for detailed information to how to calculate a MD simulation.
 
 <br><strong>- Using LAMMPS</strong>
@@ -63,7 +63,7 @@ dump_modify  dynaphopy sort id
 flag is used. This flag accepts a float number that indicated the time step in picoseconds.
 </p><pre><code>$ dynaphopy input_file TRAJECTORY -ts 0.002 
 </code></pre>
-<br>This flag only work in LAMMPS trajectories, for VASP trajectories it is ignored. 
+<br>This flag does not work in LAMMPS trajectories, for VASP trajectories it is ignored. 
 Reading LAMMPS file, if not specified 0.001 ps time step is used.
 Take in account that LAMMPS can write data at different intervals (not necessarily every step). This is taken in account in DynaPhoPy. <strong>-ts</strong>
 should contain the time steps specified in <a href="http://lammps.sandia.gov/doc/timestep.html">timestep command</a>.
@@ -75,18 +75,19 @@ The order of the atoms within the cell has to be kept in both cells to work prop
 
 <pre><code>$ phonopy -d --dim="2 2 2"</code></pre>
 
-<p>Alternativelly, DynaPhoPy can be used to generate the supercell: 
+<p>Alternativelly, DynaPhoPy can be used to generate the supercell for either VASP or LAMMPS. The generated supercell is written in POSCAR or LAMMPS data format respectively.
 <br>VASP:</p>
 
-<pre><code> $ dynaphopy input_file --dim 2 2 2 -c_poscar SPOSCAR                                   
+<pre><code> $ dynaphopy input_file --dim 2 2 2 -c_poscar SPOSCAR                                 
 </code></pre>
 
 <p>LAMMPS:</p>
 
-<pre><code> $ dynaphopy input_file --dim 2 2 2 -c_lammps lammps                                   
+<pre><code> $ dynaphopy input_file --dim 2 2 2 -c_lammps LAMMPS.lammpstrj                                   
 </code></pre>
 
-    <p>A DynaPhoPy <a href="#input_file">input</a> file is required. For more information refere to <a href="examples.html#preparations_silicon">examples</a> section </p>
+<p>A DynaPhoPy <a href="#input_file">input</a> file is required. For more information refere to <a href="examples.html#preparations_silicon">examples</a> section. LAMMPS generated.
+<br><em><strong>Warning:</strong> LAMMPS data files generated using this option are written assuming that each chemical element correspon to one type. If the definition of the interatomic potentials is complicated you may need to edit the generated file.</em></p>
     
 </UL>
 
