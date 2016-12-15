@@ -812,7 +812,7 @@ class Quasiparticle:
 
             print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy (Reference)]\n'
                   '----------------------------------------------').format(temperature)
-            print('                               Harmonic    Renormalized\n')
+            print('                               Harmonic    Quasiparticle\n')
 
             print('Free energy (not corrected):   {0:.4f}       {3:.4f}     KJ/mol\n'
                   'Entropy:                       {1:.4f}       {4:.4f}     J/K/mol\n'
