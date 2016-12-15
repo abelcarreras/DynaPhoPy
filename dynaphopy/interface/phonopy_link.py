@@ -114,7 +114,7 @@ def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_
 
     if projected_on_atom < 0:
         phonon.set_mesh(mesh)
-        phonon.set_total_DOS(freq_min=freq_min, freq_max=freq_max)
+        phonon.set_total_DOS(freq_min=freq_min, freq_max=freq_max, tetrahedron_method=True)
         total_dos = np.array(phonon.get_total_DOS())
 
     else:
