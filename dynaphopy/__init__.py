@@ -629,18 +629,18 @@ class Quasiparticle:
             width = (distance[1] - distance[0])
             center = (distance[:-1] + distance[1:] + width) / 2
 
-            distance_centers = distance[:-1]+width
+            distance_centers = distance[:-1] + width
             fitting_function = Gaussian_function(distance_centers,
                                                  distributions[atom],
-                                                 guess_height=10,
+                                                 guess_height=1,
                                                  guess_position=0)
 
             parameters = fitting_function.get_fitting()
             print('\nAtom {0}, Element {1}'.format(atom, atomic_types_unique[atom]))
             print ('-----------------------------------------')
-            print ('Center            {0:15.6f} Angstrom'.format(parameters['peak_position']))
-            print ('Deviation (sigma) {0:15.6f} Angstrom'.format(parameters['width']))
-            print ('Global fit error  {0:15.6f}'.format(parameters['global_error']))
+            print ('Mean               {0:15.6f} Angstrom'.format(parameters['peak_position']))
+            print ('Standard deviation {0:15.6f} Angstrom'.format(parameters['width']))
+            print ('Global fit error   {0:15.6f}'.format(parameters['global_error']))
 
             plt.figure(atom + 1)
             plt.title('Atomic displacements')

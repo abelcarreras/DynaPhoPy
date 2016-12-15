@@ -17,6 +17,7 @@ static double _Complex  **pymatrix_to_c_array_complex   (PyArrayObject *array);
 static double  **matrix_inverse ( double ** a ,int n);
 static double  Determinant(double  **a,int n);
 static double  ** CoFactor(double  **a,int n);
+static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *keywords);
 
 
 static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *keywords) {
@@ -113,6 +114,11 @@ static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *ke
     for (int k=0 ; k<NumberOfDimensions; k++) free(Difference[k]); free(Difference);
     for (int k=0 ; k<NumberOfDimensions; k++) free(Cell_i[k]); free(Cell_i);
  	free(Cell_c);
+
+    // Free python memory
+    Py_DECREF(Trajectory_array);
+    Py_DECREF(Positions_array);
+    Py_DECREF(Cell_array);
 
 //  Returning python array
     return(PyArray_Return(Displacement_object));

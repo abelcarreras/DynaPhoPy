@@ -13,6 +13,7 @@
 
 static double FrequencyEvaluation(double Delta, double  Coefficients[], int m, double xms);
 static double GetCoefficients( double  data[], int n, int m, double  d[]);
+static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *keywords);
 
 
 static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *keywords)
