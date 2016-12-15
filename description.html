@@ -63,21 +63,21 @@ power spectra interpolating the velocity using a polynomia which depends on a ce
 <UL>
 <LI><h5>Full power spectra</h5>
 <p> 
-This options calculate the power spectrum of the autocorrelation function of the atomic velocity. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps and MD cell size limit, this power spectrum tends to the vibrational density of states (VDoS).
+This options calculate the power spectrum of the autocorrelation function of the atomic velocity. That means that in principle it contains all the phonon frequencies present in the crystal. At infinite time steps and MD cell size limit, this power spectrum tends to the vibrational density of states (DOS).
 
-<br><em>Notice that the super cell size limit is practically unreachable. This is <strong>not</strong> a good method at all to calculate the VDoS. For this purpose is better to interpolate a larger set of q points within the Brillouin zone. Refere to <a href="#renormalized_forces">renormalized force constants</a> section. </em>
+<br><em>Notice that the super cell size limit is practically unreachable. This is <strong>not</strong> a good method at all to calculate the DOS. For this purpose is better to interpolate a larger set of q points within the Brillouin zone. Refere to <a href="#renormalized_forces">renormalized force constants</a> section. </em>
 
 </p>
 <p>Plot spectrum in a matplotlib X window:</p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -pd
 </code></pre>
-<p>Along with the full power spectrum, the vibrational density of states (VDoS) is also displayed for comparison. If 
-    the renormalized force constants are calculated, also the VDoS calculated with the renormalized force constants is shown. VDoS is obtained interfacing with Phonopy.</p>    
+<p>Along with the full power spectrum, the DOS is also displayed for comparison. If 
+    the renormalized force constants are calculated, also the DOS calculated with the renormalized force constants is shown. DOS is obtained interfacing with Phonopy.</p>    
 
 <img src="images/full_projection_gan.png" alt="Interactive" style="width:630px">    
 <em>Power spectrum of GaN at 300K calculated using maximum entropy method. MD has been computed using LAMMPS in a cell of 3456 atoms.</em>
 
-<p>To save spectrum to file (VDoS is not saved, for this purpose use phonopy) :</p>
+<p>To save spectrum to file (DOS is not saved, for this purpose use phonopy) :</p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -sd filename
 </code></pre>
 
@@ -147,7 +147,7 @@ For very long MD the amount of RAM memory needed to do the calculations can be h
 
 </UL>
 
-<h3>Anharmonic phonon properties</h5>
+<h3>Anharmonic phonon (quasiparticle) properties</h5>
 <p> 
 Phonon linewidhts and frequency shifts can be obtained by direct analysis of power spectra. Using phonon modes projections
 are the best way to analize the individual phonons since they are completly separated in individual power spectra containing only
@@ -348,7 +348,7 @@ Using this new force constants it is possible to calculate all the properties av
     
 <div id="symmetry"></div> 
 <h3>Crystallographic symmetry</h3>
-    <p> DynaPhoPy uses crystallographic symmetry to determine the equivalent q-ponts in the simulation cell. This information is used to average the power spectra of all the equivalent q-points to increase the precision of the phonon properties calculation. Dynaphopy also determines the degenerate phonons within a phonon branch to  also average the power spectra of the degenerated phonon. This procedure is carried out by default but can be deactivated using the option <strong>--no_symmetry</strong> (command line support only).     
+    <p> DynaPhoPy uses crystallographic symmetry to determine the equivalent q-ponts in the MD supercell (k-star). This information is used to average the power spectra of all the equivalent q-points to increase the precision of the phonon properties calculation. Dynaphopy also uses phonopy to determine the degenerate phonon modes and average their power spectra to increase the precision. Symmetry use can be deactivated using the option <strong>--no_symmetry</strong>.     
     </p>
     <pre><code>$ dynaphopy input_file TRAJECTORY --no_symmetry</code></pre>
     <p>
@@ -356,7 +356,7 @@ Using this new force constants it is possible to calculate all the properties av
 
 <div id="thermal"></div> 
 <h3>Thermal properties</h3>
-    <p> Constant volume themal properties are calculated from de density of states (DOS). These properties include free energy, entropy, heat capacity (Cv) and total energy. The DOS is calculated from the renormalized force constants. As reference DynaPhoPy also shows the calaculated thermal properties using the harmonic DOS.
+    <p> Constant volume themal properties are calculated from de renormalized DOS using quasiparticle theory. These properties include free energy, entropy, heat capacity (Cv) and total energy. As reference DynaPhoPy also calculates the thermal properties using the harmonic DOS.
         <br>To request the calculation of the thermal properties use <strong>-thm</strong>. Alternaltivelly this calculation can be requested using the interactive interface.
     </p>
     
@@ -365,7 +365,7 @@ Using this new force constants it is possible to calculate all the properties av
     <p>Thermal properites are calculated per unit cell. By default when thermal properites are shown also a plot with the DOS calculated using the harmonic force constants and renormalized force constants is displayed. To not show <strong>--silent</strong> option.</p>
     <pre><code>Thermal properties per unit cell (746.93 K) [From DoS]
 ----------------------------------------------
-                            Harmonic    Renormalized
+                            Harmonic    Quasiparticle
 
 Free energy   (KJ/mol):    -232.8661     -237.1722
 Entropy      (J/K/mol):     512.6232      518.3902
@@ -374,7 +374,7 @@ Total energy  (KJ/mol):     150.0030      150.0008
 Integration:                  0.9998        0.9999
 </code></pre>
 <p>
-    <strong>Integration</strong> corresponds to the total integral of the DOS (from 0 to infinity) normalized to one phonon mode. This value should be very close to 1. If it is not true try to increase the precision of the power spectrum or make sure that the frequency range contains all the density. 
+    <strong>Integration</strong> corresponds to the total integral of the DOS (from 0 to infinity) normalized to one phonon mode. This value should be very close to 1. If this is not true you may need to increase the resolution of the power spectrum. The integration of the DOS to calculate the thermal properties is done within the range defined for the power spectrum, make sure that this range includes all the spectral density. 
 </p>
 
 <img src="images/CdTe_thm.png" alt="Interactive" style="width:630px">
