@@ -125,14 +125,14 @@ parser.add_argument('--dim', metavar='N', type=int, default=[1, 1, 1], nargs=3,
                     help='Set the dimensions of generated structure/trajectory (Default: [1, 1, 1])')
 
 group.add_argument('--generate_trajectory', metavar='F', type=float, default=None, nargs=3,
-                    help='Generate a test harmonic trajectory using force constants [total time (ps), '
+                    help='generate a test harmonic trajectory using force constants [total time (ps), '
                          'time step (ps), amplitude (Kelvin)]')
 
 group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
-                    help='Generate a VASP POSCAR structure file')
+                    help='generate supercell in VASP POSCAR file format')
 
 group.add_argument('-c_lammps', metavar='file', type=str, default=None, nargs=1,
-                    help='Generate a LAMMPS data structure file')
+                    help='generate supercell in LAMMPS data file format')
 
 parser.add_argument('-average', action='store_true',
                     help='returns average atomic positions of the MD')
@@ -144,7 +144,7 @@ parser.add_argument('--normalize_dos', action='store_true',
                     help='normalize DoS obtained from PS in thermal properties calculation')
 
 parser.add_argument('--memmap', action='store_true',
-                    help='map trajectory/velocity memory into files (reduce RAM usage)')
+                    help='map largest arrays into files to reduce RAM memory usage')
 
 
 
