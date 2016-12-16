@@ -80,7 +80,7 @@ def obtain_eigenvectors_and_frequencies(structure, q_vector, NAC=False, test_ort
     if test_orthonormal:
         eigenvectors = eigenvectors_normalization(eigenvectors)
         print('Testing eigenvectors orthonormality')
-        np.set_printoptions(precision=3,suppress=True)
+        np.set_printoptions(precision=3, suppress=True)
         print(np.dot(eigenvectors.T, np.ma.conjugate(eigenvectors)).real)
         np.set_printoptions(suppress=False)
 
@@ -94,7 +94,7 @@ def obtain_eigenvectors_and_frequencies(structure, q_vector, NAC=False, test_ort
                                     for i in range(number_of_primitive_atoms*number_of_dimensions)])
 
     if print_data:
-        print("Harmonic frequencies:")
+        print("Harmonic frequencies (THz):")
         print(frequencies)
 
     return arranged_ev, frequencies
