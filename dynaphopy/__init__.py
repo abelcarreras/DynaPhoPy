@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import dynaphopy.projection as projection
-#import dynaphopy.power_spectrum as power_spectrum
 import dynaphopy.orm.parameters as parameters
 import dynaphopy.interface.phonopy_link as pho_interface
 import dynaphopy.interface.iofile as reading
@@ -140,7 +139,7 @@ class Quasiparticle:
 
     # Wave vector related methods
     def set_reduced_q_vector(self, q_vector):
-        if len(q_vector) == len( self.parameters.reduced_q_vector):
+        if len(q_vector) == len(self.parameters.reduced_q_vector):
             if (np.array(q_vector) != self.parameters.reduced_q_vector).any():
                 self.full_clear()
 
@@ -276,7 +275,8 @@ class Quasiparticle:
                 print("warning! This wave vector is not a commensurate q-point in MD supercell")
 
             if self.parameters.project_on_atom > -1:
-                print('Project on atom {}'.format(self.parameters.project_on_atom))
+                element = self.dynamic.structure.get_atomic_types(unique=True)[self.parameters.project_on_atom]
+                print('Project on atom {} : {}'.format(self.parameters.project_on_atom, element))
 
             self._vc = projection.project_onto_wave_vector(self.dynamic,
                                                            self.get_q_vector(),
@@ -290,7 +290,8 @@ class Quasiparticle:
         return self._vq
 
     def plot_vq(self, modes=None):
-        if not modes: modes = [0]
+        if not modes:
+            modes = [0]
         plt.suptitle('Phonon mode projection')
         plt.xlabel('Time [ps]')
         plt.ylabel('$u^{1/2}\AA/ps$')
@@ -304,8 +305,10 @@ class Quasiparticle:
         plt.show()
 
     def plot_vc(self, atoms=None, coordinates=None):
-        if not atoms: atoms = [0]
-        if not coordinates: coordinates = [0]
+        if not atoms:
+            atoms = [0]
+        if not coordinates:
+            coordinates = [0]
         time = np.linspace(0, self.get_vc().shape[0] * self.dynamic.get_time_step_average(),
                            num=self.get_vc().shape[0])
 
@@ -417,20 +420,20 @@ class Quasiparticle:
 
         # temporal interface
         number_of_dimensions = self.dynamic.structure.get_number_of_dimensions()
-        atom_type_projection = self.parameters.project_on_atom
+        projected_atom_type = self.parameters.project_on_atom
 
         if self._power_spectrum_direct is None:
             print("Calculation full power spectrum")
 
             velocity_mass_average = self.dynamic.get_velocity_mass_average()
 
-            if atom_type_projection >= 0:
-                print('Power spectrum projected onto atom type {0}'.format(atom_type_projection))
+            if projected_atom_type >= 0:
+                print('Power spectrum projected onto atom type {0}'.format(projected_atom_type))
                 supercell = self.dynamic.get_supercell_matrix()
                 atom_types = np.array(self.dynamic.structure.get_atom_type_index(supercell=supercell))
-                atom_indices = np.argwhere(atom_types == atom_type_projection).flatten()
+                atom_indices = np.argwhere(atom_types == projected_atom_type).flatten()
                 if len(atom_indices) == 0:
-                    print('Atom type {0} does not exist'.format(atom_type_projection))
+                    print('Atom type {0} does not exist'.format(projected_atom_type))
                     exit()
 
                 # Only works if project on atom is requested!
@@ -465,7 +468,6 @@ class Quasiparticle:
             self._power_spectrum_direct = np.sum(self._power_spectrum_direct, axis=1)
         return self._power_spectrum_direct
 
-
     def get_power_spectrum_partials(self, save_to_file=None):
 
         if self._power_spectrum_partials is None:
@@ -488,9 +490,6 @@ class Quasiparticle:
             np.savetxt(save_to_file, np.hstack([self.get_frequency_range()[None].T, self._power_spectrum_partials]))
 
         return self._power_spectrum_partials
-
-
-
 
     def phonon_width_scan_analysis(self):
         print("Phonon coefficient scan analysis(Maximum entropy method/Symmetric Lorentzian fit only)")
@@ -905,7 +904,7 @@ class Quasiparticle:
                   'Cv           (J/K/mol): {2:12.4f}  {7:12.4f}\n'
                   'Total energy  (KJ/mol): {3:12.4f}  {8:12.4f}\n'
                   'Integration:            {4:12.4f}  {9:12.4f}\n'.format(
-                *(harmonic_properties + renormalized_properties)))
+                   *(harmonic_properties + renormalized_properties)))
 
         if not self.parameters.silent:
             plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-', label='Harmonic')
