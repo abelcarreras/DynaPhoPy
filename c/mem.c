@@ -12,9 +12,8 @@
 #undef I
 
 static double FrequencyEvaluation(double Delta, double  Coefficients[], int m, double xms);
-static double GetCoefficients( double  data[], int n, int m, double  d[]);
+static double GetCoefficients(double  *data, int n, int m, double  d[]);
 static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *keywords);
-
 
 static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *keywords)
 {
@@ -52,8 +51,12 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     //Declare internal variables
     double Coefficients[NumberOfCoefficients];
 
+    double *Velocity_r = (double *)malloc(NumberOfData * sizeof(double));
+    for (int i=0; i < NumberOfData; i++)  Velocity_r[i] = (double)creal(Velocity[i]);
+
     // Maximum Entropy Method Algorithm
-    double  MeanSquareDiscrepancy = GetCoefficients((double *)Velocity, NumberOfData, NumberOfCoefficients, Coefficients);
+    double  MeanSquareDiscrepancy = GetCoefficients(Velocity_r, NumberOfData, NumberOfCoefficients, Coefficients);
+
 
     # pragma omp parallel for default(shared) private(AngularFrequency)
     for (int i=0; i < NumberOfFrequencies; i++) {
@@ -61,13 +64,14 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
         PowerSpectrum[i] = (FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) +
         FrequencyEvaluation(((2.0*M_PI)/TimeStep-AngularFrequency)*TimeStep, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy)) * TimeStep / 2.0;
 //        PowerSpectrum[i] = FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep;
-
-
     }
 
     // Free python memory
     Py_DECREF(velocity_array);
     Py_DECREF(frequency_array);
+
+    // Free memory
+    free(Velocity_r);
 
     //Returning Python array
     return(PyArray_Return(PowerSpectrum_object));
@@ -76,17 +80,17 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
 // Evaluate MEM function
 static double FrequencyEvaluation(double Delta, double  Coefficients[], int NumberOfCoefficients, double MeanSquareDiscrepancy) {
 
-    double _Complex z = cexp(_Complex_I * Delta / 2.0);
+    double _Complex z = cexp(_Complex_I * Delta);
     double _Complex sum = 1.0;
 
     for (int i=0; i <= NumberOfCoefficients; i++) {
         sum -= Coefficients[i] * cpow(z, i);
     }
-    return (double)MeanSquareDiscrepancy/(sum*conj(sum));
+    return (double)creal(MeanSquareDiscrepancy/(sum*conj(sum)));
 }
 
 // Get LP coefficients
-static double  GetCoefficients(double  Data[], int NumberOfData, int NumberOfCoefficients, double  Coefficients[]) {
+static double  GetCoefficients(double  *Data, int NumberOfData, int NumberOfCoefficients, double  Coefficients[]) {
 
     int k, j, i;
     double  p=0.0;
@@ -95,6 +99,7 @@ static double  GetCoefficients(double  Data[], int NumberOfData, int NumberOfCoe
     double  wk1 [NumberOfData];
     double  wk2 [NumberOfData];
     double  wkm [NumberOfCoefficients];
+
 
     for (j=1; j <= NumberOfData; j++) p += pow(Data[j], 2);
     MeanSquareDiscrepancy = p / NumberOfData;

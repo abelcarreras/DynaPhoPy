@@ -91,7 +91,7 @@ def get_mem_power_spectra(vq, trajectory, parameters):
         _progress_bar(0, 'M. Entropy')
     for i in range(vq.shape[1]):
         psd_vector.append(mem.mem(test_frequency_range,
-                                  vq[:, i],
+                                  np.ascontiguousarray(np.array(vq[:, i].real, dtype=complex)),
                                   trajectory.get_time_step_average(),
                                   coefficients=parameters.number_of_coefficients_mem))
 

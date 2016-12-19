@@ -62,6 +62,9 @@ quasiparticle.set_frequency_limits([0, 20])
 # 5c. Define power spectrum resolution (example: 0.05 THz)
 quasiparticle.set_spectra_resolution(0.05)
 
+quasiparticle.plot_power_spectrum_wave_vector()
+exit()
+
 # 5d. Request Boltzmann distribution trajectory analysis
 quasiparticle.show_boltzmann_distribution()
 
