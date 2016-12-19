@@ -382,13 +382,15 @@ class Quasiparticle:
                 for q_point in q_points_equivalent:
 #                    self.set_reduced_q_vector(q_point)
                     self.parameters.reduced_q_vector = np.array(q_point)
+                    self._vq = None
+                    self._vc = None
+                    self._eigenvectors = None
+                    self._frequencies = None
                     power_spectrum_phonon.append((power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
                                                         self.dynamic,
                                                         self.parameters))
 
-#                self.set_reduced_q_vector(initial_reduced_q_point)
-                self.parameters.reduced_q_vector = np.array(initial_reduced_q_point)
-
+                self.set_reduced_q_vector(initial_reduced_q_point)
                 self._power_spectrum_phonon = np.average(power_spectrum_phonon, axis=0)
             else:
                 self._power_spectrum_phonon = (
@@ -408,18 +410,16 @@ class Quasiparticle:
                 power_spectrum_wave_vector = []
                 q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(self.get_reduced_q_vector(),
                                                                                         self.dynamic.structure)
-                #                print(q_points_equivalent)
+                #  print(q_points_equivalent)
                 for q_point in q_points_equivalent:
- #                   self.set_reduced_q_vector(q_point)
-                    self.parameters.reduced_q_vector = np.array(q_point)
+                    self.set_reduced_q_vector(q_point)
                     power_spectrum_wave_vector.append((power_spectrum_functions[
                                                            self.parameters.power_spectra_algorithm])[0](
                         self.get_vc().swapaxes(1, 2).reshape(-1, size),
                         self.dynamic,
                         self.parameters))
                 power_spectrum_wave_vector = np.array(power_spectrum_wave_vector)
-#                self.set_reduced_q_vector(initial_reduced_q_point)
-                self.parameters.reduced_q_vector = np.array(initial_reduced_q_point)
+                self.set_reduced_q_vector(initial_reduced_q_point)
 
                 self._power_spectrum_wave_vector = np.average(power_spectrum_wave_vector, axis=0)
 
