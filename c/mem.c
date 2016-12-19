@@ -48,15 +48,15 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     PowerSpectrum_object = (PyArrayObject *) PyArray_FromDims(1,dims,NPY_DOUBLE);
     double *PowerSpectrum  = (double*)PyArray_DATA(PowerSpectrum_object);
 
-    //Declare internal variables
+    //Declare variables
     double Coefficients[NumberOfCoefficients];
 
+    // Transform complex data to double
     double *Velocity_r = (double *)malloc(NumberOfData * sizeof(double));
     for (int i=0; i < NumberOfData; i++)  Velocity_r[i] = (double)creal(Velocity[i]);
 
     // Maximum Entropy Method Algorithm
     double  MeanSquareDiscrepancy = GetCoefficients(Velocity_r, NumberOfData, NumberOfCoefficients, Coefficients);
-
 
     # pragma omp parallel for default(shared) private(AngularFrequency)
     for (int i=0; i < NumberOfFrequencies; i++) {
