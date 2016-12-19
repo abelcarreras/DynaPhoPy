@@ -121,19 +121,19 @@ class Quasiparticle:
             print('Atom type {} does not exist'.format(atom_type))
             exit()
 
-    def set_frequency_range(self, frequency_range):
-        if np.array(frequency_range) != np.array(self.parameters.frequency_range):
+    def _set_frequency_range(self, frequency_range):
+        if np.array(np.array(frequency_range) != np.array(self.parameters.frequency_range)).any():
             self.power_spectra_clear()
             self.parameters.frequency_range = frequency_range
 
     def set_spectra_resolution(self, resolution):
         limits = [self.get_frequency_range()[0], self.get_frequency_range()[-1]]
         self.parameters.spectrum_resolution = resolution
-        self.set_frequency_range(np.arange(limits[0], limits[1] + resolution, resolution))
+        self._set_frequency_range(np.arange(limits[0], limits[1] + resolution, resolution))
 
     def set_frequency_limits(self, limits):
         resolution = self.parameters.spectrum_resolution
-        self.set_frequency_range(np.arange(limits[0], limits[1] + resolution, resolution))
+        self._set_frequency_range(np.arange(limits[0], limits[1] + resolution, resolution))
 
     def get_frequency_range(self):
         return self.parameters.frequency_range
@@ -380,14 +380,15 @@ class Quasiparticle:
                                                                                         self.dynamic.structure)
                 #                print(q_points_equivalent)
                 for q_point in q_points_equivalent:
-                    self.set_reduced_q_vector(q_point)
-                    power_spectrum_phonon.append((
-                                                     power_spectrum_functions[self.parameters.power_spectra_algorithm])[
-                                                     0](self.get_vq(),
+#                    self.set_reduced_q_vector(q_point)
+                    self.parameters.reduced_q_vector = np.array(q_point)
+                    power_spectrum_phonon.append((power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
                                                         self.dynamic,
                                                         self.parameters))
 
-                self.set_reduced_q_vector(initial_reduced_q_point)
+#                self.set_reduced_q_vector(initial_reduced_q_point)
+                self.parameters.reduced_q_vector = np.array(initial_reduced_q_point)
+
                 self._power_spectrum_phonon = np.average(power_spectrum_phonon, axis=0)
             else:
                 self._power_spectrum_phonon = (
@@ -409,14 +410,17 @@ class Quasiparticle:
                                                                                         self.dynamic.structure)
                 #                print(q_points_equivalent)
                 for q_point in q_points_equivalent:
-                    self.set_reduced_q_vector(q_point)
+ #                   self.set_reduced_q_vector(q_point)
+                    self.parameters.reduced_q_vector = np.array(q_point)
                     power_spectrum_wave_vector.append((power_spectrum_functions[
                                                            self.parameters.power_spectra_algorithm])[0](
                         self.get_vc().swapaxes(1, 2).reshape(-1, size),
                         self.dynamic,
                         self.parameters))
                 power_spectrum_wave_vector = np.array(power_spectrum_wave_vector)
-                self.set_reduced_q_vector(initial_reduced_q_point)
+#                self.set_reduced_q_vector(initial_reduced_q_point)
+                self.parameters.reduced_q_vector = np.array(initial_reduced_q_point)
+
                 self._power_spectrum_wave_vector = np.average(power_spectrum_wave_vector, axis=0)
 
             else:
@@ -668,24 +672,24 @@ class Quasiparticle:
 
     # Printing data to files
     def write_power_spectrum_full(self, file_name):
-        reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_power_spectrum_full()[None].T,
-                                          file_name)
+        reading.write_curve_to_file(self.get_frequency_range(),
+                                    self.get_power_spectrum_full()[None].T,
+                                    file_name)
         total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range()) / (2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_wave_vector(self, file_name):
-        reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_power_spectrum_wave_vector()[None].T,
-                                          file_name)
+        reading.write_curve_to_file(self.get_frequency_range(),
+                                    self.get_power_spectrum_wave_vector()[None].T,
+                                    file_name)
         total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range()) / (
         2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_phonon(self, file_name):
-        reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_power_spectrum_phonon(),
-                                          file_name)
+        reading.write_curve_to_file(self.get_frequency_range(),
+                                    self.get_power_spectrum_phonon(),
+                                    file_name)
 
     def get_atomic_displacements(self, direction):
 
@@ -713,7 +717,7 @@ class Quasiparticle:
 
     def write_atomic_displacements(self, direction, file_name):
         distributions, distance = self.get_atomic_displacements(direction)
-        reading.write_correlation_to_file(distance, distributions.T, file_name)
+        reading.write_curve_to_file(distance, distributions.T, file_name)
 
     # Molecular dynamics analysis related methods
     def show_boltzmann_distribution(self):

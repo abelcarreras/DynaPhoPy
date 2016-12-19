@@ -117,4 +117,4 @@ fitting.phonon_fitting_analysis(data, test_frequencies_range,
                                 use_degeneracy=None)
 
 if args.s:
-    reading.write_correlation_to_file(test_frequencies_range, data, args.s)
+    reading.write_curve_to_file(test_frequencies_range, data, args.s)
