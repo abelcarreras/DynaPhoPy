@@ -90,7 +90,7 @@ static double FrequencyEvaluation(double Delta, double  Coefficients[], int Numb
 // Get LP coefficients
 static double  GetCoefficients(double  *Data, int NumberOfData, int NumberOfCoefficients, double  Coefficients[]) {
 
-    unsigned int k, j, i;
+    int k, j, i;
     double  p=0.0;
 
     double  MeanSquareDiscrepancy;
