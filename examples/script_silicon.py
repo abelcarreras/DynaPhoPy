@@ -7,85 +7,105 @@ import dynaphopy.interface.iofile.trajectory_parsers as parsers
 import dynaphopy
 
 ##################################  STRUCTURE FILES #######################################
-# 1. Set the directory in where the FORCE_SETS and structure OUTCAR are placed
+# 1. Set the directory in where the FORCE_SETS and structure POSCAR are placed
 # FORCE_SETS : force set file obtained from PHONOPY calculation
-# OUTCAR : Single Point calculation of the unit cell structure used in PHONOPY calculation
 
-directory ='/home/abel/VASP/Si/Si-phonon/4x4x4B/'
-
+directory ='/home/abel/VASP/Si/Si-FINAL3/PHONON/2x2x2/'
 structure = io.read_from_file_structure_poscar(directory + 'POSCAR')
 structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
 
 
 ############################### PHONOPY CELL INFORMATION ####################################
-# 2. Set primitive matrix, this matrix fulfills that:
-#    Primitive_cell = Unit_cell x Primitive_matrix
-#    This matrix is the same needed for PHONOPY calculation
-
-structure.set_primitive_matrix([[0.5, 0.0, 0.0],
-                                [0.0, 0.5, 0.0],
-                                [0.0, 0.0, 0.5]])
+# 2. Set primitive matrix that defines the primitive cell respect the unit cell
+structure.set_primitive_matrix([[0.0, 0.5, 0.5],
+                                [0.5, 0.0, 0.5],
+                                [0.5, 0.5, 0.0]])
 
 
-
-# 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY for creating
-# the finite displacements
-
-structure.set_supercell_phonon([[4, 0, 0],
-                                [0, 4, 0],
-                                [0, 0, 4]])
+# 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY
+# to calculate the force constants
+structure.set_supercell_phonon([[2, 0, 0],
+                                [0, 2, 0],
+                                [0, 0, 2]])
 
 
-################################### TRAJECTORY FILES ##########################################
+############################### READING TRAJECTORY FILES #####################################
 # 4. Set the location of OUTCAR/LAMMPS file containing the Molecular Dynamics trajectory
 
-trajectory = parsers.read_vasp_trajectory('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_400/No1/OUTCAR', structure)
+# trajectory = parsers.read_vasp_trajectory('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_600/No1/OUTCAR', structure, initial_cut=10000, end_cut=60000)
 # or
-#trajectory = parsers.read_lammps_trajectory('/home/abel/LAMMPS/Si/Si_400.lammpstrj', structure, initial_cut=10000, end_cut=12000)
+trajectory = parsers.read_VASP_XDATCAR('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_800/No1/XDATCAR', structure, initial_cut=10000, end_cut=60000, time_step=0.0005)
+# or
+#trajectory = parsers.read_lammps_trajectory('/home/abel/LAMMPS/Si/Si_400.lammpstrj', structure, initial_cut=10000, end_cut=12000, time_step=0.001)
+
+quasiparticle = dynaphopy.Quasiparticle(trajectory)
 
 
-calculation = dynaphopy.Quasiparticle(trajectory)
+############################# DEFINE CALCULATION PARAMETERS ##################################
+# 5. All this options are totally optional and independent, just comment or uncomment the desired ones
+# Other option not yet shown in this example script may be available (take a look at dynaphopt/__init__.py)
+
+# 5a. Set the power spectrum algorithm
+# 0: Direct Fourier transform
+# 1: Maximum entropy method
+# 2; numpy FFT
+# 3: FFTW (Needs FFTW installed)
+# 4: CUDA (Needs cuda_functions)
+quasiparticle.select_power_spectra_algorithm(1)  # MEM
+quasiparticle.set_number_of_mem_coefficients(1000)  # Only works if using MEM
+
+# 5b. Set wave vector into which is going to be projected the velocity (default: gamma point)
+quasiparticle.set_reduced_q_vector([0.5, 0.0, 0.0])  # X Point
+
+# 5c. Define range of frequency to analyze (example: 0 - 20 THz)
+quasiparticle.set_frequency_limits([0, 20])
+
+# 5c. Define power spectrum resolution (example: 0.05 THz)
+quasiparticle.set_spectra_resolution(0.05)
+
+# 5d. Define phonon dispersion relations path
+quasiparticle.set_band_ranges([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]],
+                             [[0.5, 0.0, 0.5], [0.625, 0.25, 0.625]],
+                             [[0.375, 0.375, 0.75], [0.0, 0.0, 0.0]],
+                             [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]])
 
 
 ############################## DEFINE CALCULATION REQUESTS #####################################
-# All this options are totally optional and independent, just comment or uncomment the desired ones
-# Other option not yet shown in this example script may be available (take a look at controller,py)
-# The requests will be satisfied by request order
-# Python scripting features may be used for more complex requests
+# 6. All this options are totally optional and independent, just comment or uncomment the desired ones
+# Other option not yet shown in this example script may be available (take a look at dynaphopt/__init__.py)
 
-# 5a. Set the power spectrum algorithm
-calculation.select_power_spectra_algorithm(1)
-calculation.set_number_of_mem_coefficients(1000)
+# 6a. Request Boltzmann distribution trajectory analysis
+quasiparticle.show_boltzmann_distribution()
 
-# 5b. Set wave vector into which is going to be projected the velocity (default: gamma point)
-calculation.set_reduced_q_vector([0.5, 0.0, 0.0]) # X Point
+# 6b. Request plot full power spectrum
+quasiparticle.plot_power_spectrum_full()
 
-# 5c. Define range of frequency to analyze (default: 0-20THz)
-calculation.set_frequency_range(np.linspace(2, 15, 2000)) #(range: 2 to 15Thz using 2000 samples)
+# 6c. Request plot wave-vector-projected power spectrum
+quasiparticle.plot_power_spectrum_wave_vector()
 
-# 5d. Request Boltzmann distribution trajectory analysis
-calculation.show_boltzmann_distribution()
+# 6d. Request plot phonon-mode-projected power spectra
+quasiparticle.plot_power_spectrum_phonon()
 
-# 5e. Request calculate plot of direct velocity correlation function (without projection)
-#calculation.plot_correlation_direct()
+# 6e. Request save full power spectrum into file
+quasiparticle.write_power_spectrum_full('/home/abel/full_ps.out')
 
-# 5f. Request calculate plot of wave vector projected velocity correlation function
-#calculation.plot_correlation_wave_vector()
+# 6f. Request save wave-vector-projected power spectrum into file
+quasiparticle.write_power_spectrum_wave_vector('/home/abel/correlation_wave_vector.out')
 
-# 5g. Request calculate plot of phonon mode projected velocity correlation function
-calculation.plot_power_spectrum_phonon()
+# 6g. Request save phonon-mode-projected power spectra into file
+quasiparticle.write_power_spectrum_phonon('/home/abel/mem_phonon.out')
 
-# 5h. Request save direct velocity correlation function into file
-#calculation.write_correlation_direct('Data Files/correlation_direct.out')
+# 6h. Request peak analysis
+quasiparticle.phonon_individual_analysis()
 
-# 5i. Request save wave vector projected velocity correlation function into file
-#calculation.write_correlation_wave_vector('Data Files/correlation_wave_vector.out')
+# 6i. Request calculation of renormalized force constants and write them into a file
+quasiparticle.write_renormalized_constants(filename="FORCE_CONSTANTS")
 
-# 5j. Request save phonon projected velocity correlation function into file
-calculation.write_power_spectrum_phonon('~/mem_phonon.out')
+# 6j. Request calculation of thermal properties
+quasiparticle.display_thermal_properties()
 
-#5k. Request calculation of renormalized force constants
-calculation.write_renormalized_constants(filename="FORCE_CONSTANTS")
+# 6k. Request to display the renormalized phonon dispersion relations
+quasiparticle.plot_renormalized_phonon_dispersion_bands()
 
-
-exit()
+# 6l. Request the calculation of the anisotropic displacement parameters
+quasiparticle.get_anisotropic_displacement_parameters()

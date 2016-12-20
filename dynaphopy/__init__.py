@@ -1,10 +1,9 @@
-__version__ = '1.14.3.1'
+__version__ = '1.14.3.2'
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 import dynaphopy.projection as projection
-#import dynaphopy.power_spectrum as power_spectrum
 import dynaphopy.orm.parameters as parameters
 import dynaphopy.interface.phonopy_link as pho_interface
 import dynaphopy.interface.iofile as reading
@@ -122,25 +121,26 @@ class Quasiparticle:
             print('Atom type {} does not exist'.format(atom_type))
             exit()
 
-    def set_frequency_range(self, frequency_range):
-        self.power_spectra_clear()
-        self.parameters.frequency_range = frequency_range
+    def _set_frequency_range(self, frequency_range):
+        if np.array(np.array(frequency_range) != np.array(self.parameters.frequency_range)).any():
+            self.power_spectra_clear()
+            self.parameters.frequency_range = frequency_range
 
     def set_spectra_resolution(self, resolution):
         limits = [self.get_frequency_range()[0], self.get_frequency_range()[-1]]
         self.parameters.spectrum_resolution = resolution
-        self.set_frequency_range(np.arange(limits[0], limits[1] + resolution, resolution))
+        self._set_frequency_range(np.arange(limits[0], limits[1] + resolution, resolution))
 
     def set_frequency_limits(self, limits):
         resolution = self.parameters.spectrum_resolution
-        self.set_frequency_range(np.arange(limits[0], limits[1] + resolution, resolution))
+        self._set_frequency_range(np.arange(limits[0], limits[1] + resolution, resolution))
 
     def get_frequency_range(self):
         return self.parameters.frequency_range
 
     # Wave vector related methods
     def set_reduced_q_vector(self, q_vector):
-        if len(q_vector) == len( self.parameters.reduced_q_vector):
+        if len(q_vector) == len(self.parameters.reduced_q_vector):
             if (np.array(q_vector) != self.parameters.reduced_q_vector).any():
                 self.full_clear()
 
@@ -240,16 +240,27 @@ class Quasiparticle:
                                 self.get_q_vector(),
                                 vectors_scale=self.parameters.modes_vectors_scale)
 
-    def plot_dos_phonopy(self):
+    def plot_dos_phonopy(self, force_constants=None):
 
         phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                        mesh=self.parameters.mesh_phonopy,
                                                        projected_on_atom=self.parameters.project_on_atom)
 
-        plt.plot(phonopy_dos[0], phonopy_dos[1], 'r-')
-        plt.ylabel('Density of states')
+  #      plt.plot(phonopy_dos[0], phonopy_dos[1], 'r-')
+        plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-', label='Harmonic')
+
+        if force_constants is not None:
+            phonopy_dos_r = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
+                                                             mesh=self.parameters.mesh_phonopy,
+                                                             force_constants=force_constants,
+                                                              projected_on_atom=self.parameters.project_on_atom)
+
+            plt.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized')
+
+        plt.title('Density of states (Normalized to unit cell)')
         plt.xlabel('Frequency [THz]')
-        plt.suptitle('Density of states')
+        plt.ylabel('Density of states')
+        plt.legend()
         plt.show()
 
     def check_commensurate(self, q_point, decimals=4):
@@ -276,7 +287,8 @@ class Quasiparticle:
                 print("warning! This wave vector is not a commensurate q-point in MD supercell")
 
             if self.parameters.project_on_atom > -1:
-                print('Project on atom {}'.format(self.parameters.project_on_atom))
+                element = self.dynamic.structure.get_atomic_types(unique=True)[self.parameters.project_on_atom]
+                print('Project on atom {} : {}'.format(self.parameters.project_on_atom, element))
 
             self._vc = projection.project_onto_wave_vector(self.dynamic,
                                                            self.get_q_vector(),
@@ -290,7 +302,8 @@ class Quasiparticle:
         return self._vq
 
     def plot_vq(self, modes=None):
-        if not modes: modes = [0]
+        if not modes:
+            modes = [0]
         plt.suptitle('Phonon mode projection')
         plt.xlabel('Time [ps]')
         plt.ylabel('$u^{1/2}\AA/ps$')
@@ -304,8 +317,10 @@ class Quasiparticle:
         plt.show()
 
     def plot_vc(self, atoms=None, coordinates=None):
-        if not atoms: atoms = [0]
-        if not coordinates: coordinates = [0]
+        if not atoms:
+            atoms = [0]
+        if not coordinates:
+            coordinates = [0]
         time = np.linspace(0, self.get_vc().shape[0] * self.dynamic.get_time_step_average(),
                            num=self.get_vc().shape[0])
 
@@ -366,9 +381,7 @@ class Quasiparticle:
                 #                print(q_points_equivalent)
                 for q_point in q_points_equivalent:
                     self.set_reduced_q_vector(q_point)
-                    power_spectrum_phonon.append((
-                                                     power_spectrum_functions[self.parameters.power_spectra_algorithm])[
-                                                     0](self.get_vq(),
+                    power_spectrum_phonon.append((power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
                                                         self.dynamic,
                                                         self.parameters))
 
@@ -392,9 +405,10 @@ class Quasiparticle:
                 power_spectrum_wave_vector = []
                 q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(self.get_reduced_q_vector(),
                                                                                         self.dynamic.structure)
-                #                print(q_points_equivalent)
+                #  print(q_points_equivalent)
                 for q_point in q_points_equivalent:
                     self.set_reduced_q_vector(q_point)
+
                     power_spectrum_wave_vector.append((power_spectrum_functions[
                                                            self.parameters.power_spectra_algorithm])[0](
                         self.get_vc().swapaxes(1, 2).reshape(-1, size),
@@ -402,6 +416,7 @@ class Quasiparticle:
                         self.parameters))
                 power_spectrum_wave_vector = np.array(power_spectrum_wave_vector)
                 self.set_reduced_q_vector(initial_reduced_q_point)
+
                 self._power_spectrum_wave_vector = np.average(power_spectrum_wave_vector, axis=0)
 
             else:
@@ -417,20 +432,20 @@ class Quasiparticle:
 
         # temporal interface
         number_of_dimensions = self.dynamic.structure.get_number_of_dimensions()
-        atom_type_projection = self.parameters.project_on_atom
+        projected_atom_type = self.parameters.project_on_atom
 
         if self._power_spectrum_direct is None:
             print("Calculation full power spectrum")
 
             velocity_mass_average = self.dynamic.get_velocity_mass_average()
 
-            if atom_type_projection >= 0:
-                print('Power spectrum projected onto atom type {0}'.format(atom_type_projection))
+            if projected_atom_type >= 0:
+                print('Power spectrum projected onto atom type {0}'.format(projected_atom_type))
                 supercell = self.dynamic.get_supercell_matrix()
                 atom_types = np.array(self.dynamic.structure.get_atom_type_index(supercell=supercell))
-                atom_indices = np.argwhere(atom_types == atom_type_projection).flatten()
+                atom_indices = np.argwhere(atom_types == projected_atom_type).flatten()
                 if len(atom_indices) == 0:
-                    print('Atom type {0} does not exist'.format(atom_type_projection))
+                    print('Atom type {0} does not exist'.format(projected_atom_type))
                     exit()
 
                 # Only works if project on atom is requested!
@@ -465,7 +480,6 @@ class Quasiparticle:
             self._power_spectrum_direct = np.sum(self._power_spectrum_direct, axis=1)
         return self._power_spectrum_direct
 
-
     def get_power_spectrum_partials(self, save_to_file=None):
 
         if self._power_spectrum_partials is None:
@@ -488,9 +502,6 @@ class Quasiparticle:
             np.savetxt(save_to_file, np.hstack([self.get_frequency_range()[None].T, self._power_spectrum_partials]))
 
         return self._power_spectrum_partials
-
-
-
 
     def phonon_width_scan_analysis(self):
         print("Phonon coefficient scan analysis(Maximum entropy method/Symmetric Lorentzian fit only)")
@@ -629,18 +640,18 @@ class Quasiparticle:
             width = (distance[1] - distance[0])
             center = (distance[:-1] + distance[1:] + width) / 2
 
-            distance_centers = distance[:-1]+width
+            distance_centers = distance[:-1] + width
             fitting_function = Gaussian_function(distance_centers,
                                                  distributions[atom],
-                                                 guess_height=10,
+                                                 guess_height=1,
                                                  guess_position=0)
 
             parameters = fitting_function.get_fitting()
             print('\nAtom {0}, Element {1}'.format(atom, atomic_types_unique[atom]))
             print ('-----------------------------------------')
-            print ('Center            {0:15.6f} Angstrom'.format(parameters['peak_position']))
-            print ('Deviation (sigma) {0:15.6f} Angstrom'.format(parameters['width']))
-            print ('Global fit error  {0:15.6f}'.format(parameters['global_error']))
+            print ('Mean               {0:15.6f} Angstrom'.format(parameters['peak_position']))
+            print ('Standard deviation {0:15.6f} Angstrom'.format(parameters['width']))
+            print ('Global fit error   {0:15.6f}'.format(parameters['global_error']))
 
             plt.figure(atom + 1)
             plt.title('Atomic displacements')
@@ -657,24 +668,24 @@ class Quasiparticle:
 
     # Printing data to files
     def write_power_spectrum_full(self, file_name):
-        reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_power_spectrum_full()[None].T,
-                                          file_name)
+        reading.write_curve_to_file(self.get_frequency_range(),
+                                    self.get_power_spectrum_full()[None].T,
+                                    file_name)
         total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range()) / (2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_wave_vector(self, file_name):
-        reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_power_spectrum_wave_vector()[None].T,
-                                          file_name)
+        reading.write_curve_to_file(self.get_frequency_range(),
+                                    self.get_power_spectrum_wave_vector()[None].T,
+                                    file_name)
         total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range()) / (
         2 * np.pi)
         print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_phonon(self, file_name):
-        reading.write_correlation_to_file(self.get_frequency_range(),
-                                          self.get_power_spectrum_phonon(),
-                                          file_name)
+        reading.write_curve_to_file(self.get_frequency_range(),
+                                    self.get_power_spectrum_phonon(),
+                                    file_name)
 
     def get_atomic_displacements(self, direction):
 
@@ -702,7 +713,7 @@ class Quasiparticle:
 
     def write_atomic_displacements(self, direction, file_name):
         distributions, distance = self.get_atomic_displacements(direction)
-        reading.write_correlation_to_file(distance, distributions.T, file_name)
+        reading.write_curve_to_file(distance, distributions.T, file_name)
 
     # Molecular dynamics analysis related methods
     def show_boltzmann_distribution(self):
@@ -723,9 +734,19 @@ class Quasiparticle:
     def get_algorithm_list(self):
         return power_spectrum_functions.values()
 
-    def get_renormalized_force_constants(self):
+    def get_renormalized_force_constants(self, auto_range=True):
 
         if self._renormalized_force_constants is None:
+
+            if auto_range:
+                # Get range from harmonic DOS
+                phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
+                                                               mesh=self.parameters.mesh_phonopy)
+
+                self.set_frequency_limits([0, np.max(phonopy_dos[0][-1]) * 1.2])
+                print ('set frequency range: {} - {}'.format(self.get_frequency_range()[0],
+                                                             self.get_frequency_range()[-1]))
+
             if self.parameters.use_MD_cell_commensurate:
                 self.dynamic.structure.set_supercell_phonon_renormalized(np.diag(self.dynamic.get_supercell_matrix()))
 
@@ -794,6 +815,41 @@ class Quasiparticle:
         force_constants = self.get_renormalized_force_constants()
         pho_interface.save_force_constants_to_file(force_constants, filename)
 
+    def get_thermal_properties(self, force_constants=None):
+
+        temperature = self.get_temperature()
+
+        phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
+                                                       mesh=self.parameters.mesh_phonopy,
+                                                       freq_min=0.01,
+                                                       freq_max=self.get_frequency_range()[-1],
+                                                       force_constants=force_constants,
+                                                       projected_on_atom=self.parameters.project_on_atom)
+
+        free_energy = thm.get_free_energy(temperature, phonopy_dos[0], phonopy_dos[1])
+        entropy = thm.get_entropy(temperature, phonopy_dos[0], phonopy_dos[1])
+        c_v = thm.get_cv(temperature, phonopy_dos[0], phonopy_dos[1])
+        integration = integrate.simps(phonopy_dos[1], x=phonopy_dos[0]) / (
+            self.dynamic.structure.get_number_of_atoms() *
+            self.dynamic.structure.get_number_of_dimensions())
+        total_energy = thm.get_total_energy(temperature, phonopy_dos[0], phonopy_dos[1])
+
+        if force_constants is not None:
+            # Free energy correction
+            phonopy_dos_h = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
+                                                             mesh=self.parameters.mesh_phonopy,
+                                                             freq_min=0.01,
+                                                             freq_max=self.get_frequency_range()[-1],
+                                                             projected_on_atom=self.parameters.project_on_atom)
+
+            free_energy += thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
+            total_energy += thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
+
+            correction = thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
+            print('Free energy/total energy correction: {0:12.4f} KJ/mol'.format(correction))
+
+        return [free_energy, entropy, c_v, total_energy, integration]
+
     def display_thermal_properties(self, from_power_spectrum=False, normalize_dos=False, print_phonopy=False):
 
         temperature = self.get_temperature()
@@ -812,54 +868,16 @@ class Quasiparticle:
 
             print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy (Reference)]\n'
                   '----------------------------------------------').format(temperature)
-            print('                               Harmonic    Renormalized\n')
+            print('                               Harmonic    Quasiparticle\n')
 
             print('Free energy (not corrected):   {0:.4f}       {3:.4f}     KJ/mol\n'
                   'Entropy:                       {1:.4f}       {4:.4f}     J/K/mol\n'
                   'Cv:                            {2:.4f}       {5:.4f}     J/K/mol\n'.format(
-                *(harmonic_properties + renormalized_properties)))
+                   *(harmonic_properties + renormalized_properties)))
 
-        phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
-                                                       freq_min=0.01,
-                                                       freq_max=self.get_frequency_range()[-1],
-                                                       mesh=self.parameters.mesh_phonopy,
-                                                       projected_on_atom=self.parameters.project_on_atom)
-
-        phonopy_dos_r = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
-                                                         mesh=self.parameters.mesh_phonopy,
-                                                         freq_min=0.01,
-                                                         freq_max=self.get_frequency_range()[-1],
-                                                         force_constants=self.get_renormalized_force_constants(),
-                                                         projected_on_atom=self.parameters.project_on_atom)
-
-        self.set_frequency_limits([0, np.max(phonopy_dos[0]) * 1.2])
+        harmonic_properties = self.get_thermal_properties()
+        renormalized_properties = self.get_thermal_properties(force_constants=self.get_renormalized_force_constants())
         frequency_range = self.get_frequency_range()
-
-        # Harmonic force constants
-        free_energy = thm.get_free_energy(temperature, phonopy_dos[0], phonopy_dos[1])
-        entropy = thm.get_entropy(temperature, phonopy_dos[0], phonopy_dos[1])
-        c_v = thm.get_cv(temperature, phonopy_dos[0], phonopy_dos[1])
-        integration = integrate.simps(phonopy_dos[1], x=phonopy_dos[0]) / (
-        self.dynamic.structure.get_number_of_atoms() *
-        self.dynamic.structure.get_number_of_dimensions())
-        total_energy = thm.get_total_energy(temperature, phonopy_dos[0], phonopy_dos[1])
-
-        harmonic_properties = [free_energy, entropy, c_v, total_energy, integration]
-
-        # Renormalized force constants
-        free_energy = thm.get_free_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
-                      thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])
-        entropy = thm.get_entropy(temperature, phonopy_dos_r[0], phonopy_dos_r[1])
-        c_v = thm.get_cv(temperature, phonopy_dos_r[0], phonopy_dos_r[1])
-        total_energy = thm.get_total_energy(temperature, phonopy_dos_r[0], phonopy_dos_r[1]) + \
-                       thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])
-
-        integration = integrate.simps(phonopy_dos_r[1], x=phonopy_dos_r[0]) / (
-        self.dynamic.structure.get_number_of_atoms() *
-        self.dynamic.structure.get_number_of_dimensions())
-        renormalized_properties = [free_energy, entropy, c_v, total_energy, integration]
-        print('Free energy/total energy correction: {0:12.4f} KJ/mol'.format(
-            thm.get_free_energy_correction_dos(temperature, phonopy_dos[0], phonopy_dos[1], phonopy_dos_r[1])))
 
         if from_power_spectrum:
             normalization = np.prod(self.dynamic.get_supercell_matrix())
@@ -885,7 +903,7 @@ class Quasiparticle:
             power_spectrum_properties = [free_energy, entropy, c_v, total_energy, integration]
             print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
                   '----------------------------------------------').format(temperature)
-            print('                             Harmonic    Renormalized   Power spectrum\n')
+            print('                             Harmonic   Quasiparticle   Power spectrum\n')
             print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}  {10:12.4f}\n'
                   'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}  {11:12.4f}\n'
                   'Cv           (J/K/mol): {2:12.4f}  {7:12.4f}  {12:12.4f}\n'
@@ -899,23 +917,16 @@ class Quasiparticle:
         else:
             print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
                   '----------------------------------------------').format(temperature)
-            print('                            Harmonic    Renormalized\n')
+            print('                            Harmonic    Quasiparticle\n')
             print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}\n'
                   'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}\n'
                   'Cv           (J/K/mol): {2:12.4f}  {7:12.4f}\n'
                   'Total energy  (KJ/mol): {3:12.4f}  {8:12.4f}\n'
                   'Integration:            {4:12.4f}  {9:12.4f}\n'.format(
-                *(harmonic_properties + renormalized_properties)))
+                   *(harmonic_properties + renormalized_properties)))
 
         if not self.parameters.silent:
-            plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-', label='Harmonic')
-            plt.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized')
-
-            plt.title('Density of states (Normalized to unit cell)')
-            plt.xlabel('Frequency [THz]')
-            plt.ylabel('Density of states')
-            plt.legend()
-            plt.show()
+            self.plot_dos_phonopy(force_constants=self.get_renormalized_force_constants())
 
     def get_anisotropic_displacement_parameters(self, coordinate_type='uvrs', print_on_screen=True):
 
@@ -961,9 +972,7 @@ class Quasiparticle:
 
         return anisotropic_displacements
 
-
 # Support functions
-
 def vector_in_list(vector_test_list, vector_full_list):
     for vector_test in vector_test_list:
         for i, vector_full in enumerate(vector_full_list):

@@ -125,7 +125,7 @@ if __name__ == "__main__":
     #power_file = open('/Users/abel/TEST_GPU/GaN/power_spectrum.dat', mode='r')
 
     temp=900
-    dos_file = open('//home/abel/LAMMPS/Si/total_dos_h.dat', mode='r')
+    dos_file = open('/home/abel/LAMMPS/Si/total_dos_h.dat', mode='r')
     dos_r_file = open('/home/abel/LAMMPS/Si/total_dos_o.dat', mode='r')
     power_file = open('/home/abel/LAMMPS/Si/power_spectrum_900_12_fft_vlong.dat', mode='r')
 

@@ -403,15 +403,12 @@ def read_from_file_test():
                         time=time,
                         structure=structure)
 
-
-
-
-def write_correlation_to_file(frequency_range, correlation_vector, file_name):
+def write_curve_to_file(frequency_range, curve_matrix, file_name):
     output_file = open(file_name, 'w')
 
-    for i in range(correlation_vector.shape[0]):
+    for i in range(curve_matrix.shape[0]):
         output_file.write("{0:10.4f}\t".format(frequency_range[i]))
-        for j in correlation_vector[i,:]:
+        for j in curve_matrix[i, :]:
             output_file.write("{0:.10e}\t".format(j))
         output_file.write("\n")
 

@@ -335,8 +335,8 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
                       end_cut=None,
                       memmap=False):
 
- #Time in picoseconds
- #Coordinates in Angstroms
+    # Time in picoseconds
+    # Coordinates in Angstroms
 
     #Read environtment variables
     try:
@@ -425,7 +425,7 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
             except ValueError:
                 print("Error reading step {0}".format(counter))
                 break
-        #        print(read_coordinates)
+                # print(read_coordinates)
 
             #security routine to limit maximum of steps to read and put in memory
             if limit_number_steps+initial_cut < counter:

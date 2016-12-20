@@ -264,6 +264,9 @@ class Structure:
         atomic_types = []
         for j in range(self.get_number_of_cell_atoms()):
             atomic_types += [self._atomic_elements[j]] * np.prod(supercell)
+        if unique:
+            unique_indices = np.unique(self.get_atom_type_index(supercell=supercell), return_index=True)[1]
+            atomic_types =  np.array(atomic_types)[unique_indices]
         return atomic_types
 
     def set_atom_type_index_by_element(self):

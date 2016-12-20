@@ -91,7 +91,7 @@ def get_mem_power_spectra(vq, trajectory, parameters):
         _progress_bar(0, 'M. Entropy')
     for i in range(vq.shape[1]):
         psd_vector.append(mem.mem(test_frequency_range,
-                                  vq[:, i],
+                                  vq[:, i].real,
                                   trajectory.get_time_step_average(),
                                   coefficients=parameters.number_of_coefficients_mem))
 
@@ -186,10 +186,10 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
         scan_params = mem_full_dict[i][4]
         best_index = mem_full_dict[i][2]
 
-        print ('Position: {0} THz'.format(scan_params[best_index][0]))
-        print ('Area: {0} eV'.format(fit_data[3][best_index]))
-        print ('Optimum coefficients num: {0}'.format(fit_data[0][best_index]))
-        print ('Minimum fitting global error: {0}'.format(np.min(fit_data[2])))
+        print ('Position (best fit): {0} THz'.format(scan_params[best_index][0]))
+        print ('Area (best fit): {0} eV'.format(fit_data[3][best_index]))
+        print ('Coefficients num (best fit): {0}'.format(fit_data[0][best_index]))
+        print ('Fitting global error (best fit): {0}'.format(fit_data[2][best_index]))
         print ("\n")
 
         plt.figure(i+1)
