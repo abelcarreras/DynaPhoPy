@@ -38,7 +38,7 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
 
     double _Complex  *Velocity = (double _Complex*)PyArray_DATA(velocity_array);
     double *Frequency    = (double*)PyArray_DATA(frequency_array);
-    unsigned long    NumberOfData = (int)PyArray_DIM(velocity_array, 0);
+    int    NumberOfData = (int)PyArray_DIM(velocity_array, 0);
     int     NumberOfFrequencies = (int)PyArray_DIM(frequency_array, 0);
 
 
@@ -53,7 +53,7 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
 
     // Transform complex data to double
     double *Velocity_r = (double *)malloc(NumberOfData * sizeof(double));
-    for (unsigned long i=0; i < NumberOfData; i++)  Velocity_r[i] = (double)creal(Velocity[i]);
+    for (int i=0; i < NumberOfData; i++)  Velocity_r[i] = (double)creal(Velocity[i]);
 
     // Maximum Entropy Method Algorithm
     double  MeanSquareDiscrepancy = GetCoefficients(Velocity_r, NumberOfData, NumberOfCoefficients, Coefficients);
@@ -90,7 +90,7 @@ static double FrequencyEvaluation(double Delta, double  Coefficients[], int Numb
 // Get LP coefficients
 static double  GetCoefficients(double  *Data, int NumberOfData, int NumberOfCoefficients, double  Coefficients[]) {
 
-    unsigned long k, j, i;
+    unsigned int k, j, i;
     double  p=0.0;
 
     double  MeanSquareDiscrepancy;
