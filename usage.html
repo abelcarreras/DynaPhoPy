@@ -59,14 +59,13 @@ dump_modify  dynaphopy sort id
 </code></pre>   
     
 <br>Please, refere to LAMMPS <a href="http://lammps.sandia.gov/doc/Manual.html"> online manual</a> for usage and detailed information about output <a href="http://lammps.sandia.gov/doc/dump.html"> formats and styles</a>.
-<br> LAMMPS trajectories do not have information about the time step used in the MD. For this reason the time step has to be introduced manually to DynaPhoPy in order to scale the time correctly. For this purpose <strong>-ts</strong>
+<br> XDATCAR and LAMMPS trajectory files do not have information about the time step used in the MD. For this reason the time step has to be introduced manually. For this purpose <strong>-ts</strong>
 flag is used. This flag accepts a float number that indicated the time step in picoseconds.
 </p><pre><code>$ dynaphopy input_file TRAJECTORY -ts 0.002 
 </code></pre>
-<br>This flag does not work in LAMMPS trajectories, for VASP trajectories it is ignored. 
-Reading LAMMPS file, if not specified 0.001 ps time step is used.
-Take in account that LAMMPS can write data at different intervals (not necessarily every step). This is taken in account in DynaPhoPy. <strong>-ts</strong>
-should contain the time steps specified in <a href="http://lammps.sandia.gov/doc/timestep.html">timestep command</a>.
+<br>This flag is ignored reading from OUTCAR VASP trajectories. If not specified 0.001 ps time step is used.
+LAMMPS may not write the coordinates at each time step. This information is obtained from the trajectory file and taken in account. <strong>-ts</strong>
+should contain the time step specified in <a href="http://lammps.sandia.gov/doc/timestep.html">timestep command</a>.
 
 <p>
 <br><strong>Important:</strong><em> The supercell used to calculate the MD has to be an integer multiple of the cell used in phonopy calculation.
