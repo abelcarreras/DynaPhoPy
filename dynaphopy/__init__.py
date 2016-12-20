@@ -845,8 +845,8 @@ class Quasiparticle:
             free_energy += thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
             total_energy += thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
 
-            correction = thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
-            print('Free energy/total energy correction: {0:12.4f} KJ/mol'.format(correction))
+            # correction = thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
+            # print('Free energy/total energy correction: {0:12.4f} KJ/mol'.format(correction))
 
         return [free_energy, entropy, c_v, total_energy, integration]
 
