@@ -81,7 +81,7 @@ static double FrequencyEvaluation(double Delta, double  Coefficients[], int Numb
     double _Complex z = cexp(_Complex_I * Delta);
     double _Complex sum = 1.0;
 
-    for (int i=0; i <= NumberOfCoefficients; i++) {
+    for (int i=1; i <= NumberOfCoefficients; i++) {
         sum -= Coefficients[i] * cpow(z, i);
     }
     return (double)creal(MeanSquareDiscrepancy/(sum*conj(sum)));
