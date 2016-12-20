@@ -1,4 +1,4 @@
-__version__ = '1.14.3.2'
+__version__ = '1.14.3.3'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -845,8 +845,8 @@ class Quasiparticle:
             free_energy += thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
             total_energy += thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
 
-            correction = thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
-            print('Free energy/total energy correction: {0:12.4f} KJ/mol'.format(correction))
+            # correction = thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
+            # print('Free energy/total energy correction: {0:12.4f} KJ/mol'.format(correction))
 
         return [free_energy, entropy, c_v, total_energy, integration]
 
@@ -940,6 +940,7 @@ class Quasiparticle:
 
         if print_on_screen:
             print('Anisotropic displacement parameters ({0})'.format(coordinate_type))
+            print('          U11          U22          U33          U23          U13          U12')
 
         anisotropic_displacements = []
         for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix()):
