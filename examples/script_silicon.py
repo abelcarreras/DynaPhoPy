@@ -34,7 +34,7 @@ structure.set_supercell_phonon([[2, 0, 0],
 
 # trajectory = parsers.read_vasp_trajectory('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_600/No1/OUTCAR', structure, initial_cut=10000, end_cut=60000)
 # or
-trajectory = parsers.read_VASP_XDATCAR('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_800/No1/XDATCAR', structure, initial_cut=10000, end_cut=60000, time_step=0.0005)
+trajectory = parsers.read_VASP_XDATCAR('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_800/No1/XDATCAR', structure, initial_cut=10000, end_cut=40000, time_step=0.0005)
 # or
 #trajectory = parsers.read_lammps_trajectory('/home/abel/LAMMPS/Si/Si_400.lammpstrj', structure, initial_cut=10000, end_cut=12000, time_step=0.001)
 
@@ -64,10 +64,10 @@ quasiparticle.set_frequency_limits([0, 20])
 quasiparticle.set_spectra_resolution(0.05)
 
 # 5d. Define phonon dispersion relations path
-quasiparticle.set_band_ranges([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]],
-                             [[0.5, 0.0, 0.5], [0.625, 0.25, 0.625]],
-                             [[0.375, 0.375, 0.75], [0.0, 0.0, 0.0]],
-                             [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]])
+quasiparticle.set_band_ranges([[[0.0,  0.0,   0.0],  [0.5,   0.0,  0.5]],
+                              [[0.5,   0.0,   0.5],  [0.625, 0.25, 0.625]],
+                              [[0.375, 0.375, 0.75], [0.0,   0.0,  0.0]],
+                              [[0.0,   0.0,   0.0],  [0.5,   0.5,  0.5]]])
 
 
 ############################## DEFINE CALCULATION REQUESTS #####################################

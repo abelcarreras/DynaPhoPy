@@ -1,4 +1,5 @@
 [![PyPI](https://img.shields.io/pypi/dm/dynaphopy.svg?maxAge=2592000)](https://pypi.python.org/pypi/dynaphopy)
+[![PyPI version](https://badge.fury.io/py/dynaphopy.svg)](https://pypi.python.org/pypi/dynaphopy)
 [![Build Status](https://travis-ci.org/abelcarreras/DynaPhoPy.svg?branch=development)](https://travis-ci.org/abelcarreras/DynaPhoPy)
 
 
