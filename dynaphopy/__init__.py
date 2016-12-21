@@ -203,7 +203,7 @@ class Quasiparticle:
 
         plt.show()
 
-    def plot_renormalized_phonon_dispersion_bands(self):
+    def plot_renormalized_phonon_dispersion_bands(self, fat_bands=True):
 
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
@@ -225,7 +225,7 @@ class Quasiparticle:
         plt.xlabel('Wave vector')
         plt.xlim([0, self._bands[1][-1][-1]])
         plt.axhline(y=0, color='k', ls='dashed')
-        plt.suptitle('Renormalized phonon dispersion')
+        plt.suptitle('Renormalized phonon dispersion relations')
         handles, labels = plt.gca().get_legend_handles_labels()
         plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
         plt.show()
@@ -275,7 +275,7 @@ class Quasiparticle:
             plt.plot(self._bands[1][i], renormalized_bands[2][i], color='r', label='Renormalized')
 
             for lim_i, lim_s in zip(np.array(renormalized_bands_i[2][i]).T, np.array(renormalized_bands_s[2][i]).T):
-                plt.fill_between(self._bands[1][i], lim_i, lim_s, color='r', alpha=0.2)
+                plt.fill_between(self._bands[1][i], lim_i, lim_s, color='r', alpha=0.2, interpolate=True, linewidth=0)
 
 
 
@@ -285,7 +285,7 @@ class Quasiparticle:
         plt.xlabel('Wave vector')
         plt.xlim([0, self._bands[1][-1][-1]])
         plt.axhline(y=0, color='k', ls='dashed')
-        plt.suptitle('Renormalized phonon dispersion')
+        plt.suptitle('Renormalized phonon dispersion relations and linewidth')
         handles, labels = plt.gca().get_legend_handles_labels()
         plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
         plt.show()
