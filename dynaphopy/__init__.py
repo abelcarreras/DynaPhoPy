@@ -203,7 +203,7 @@ class Quasiparticle:
 
         plt.show()
 
-    def plot_renormalized_phonon_dispersion_bands(self, fat_bands=True):
+    def plot_renormalized_phonon_dispersion_bands(self):
 
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
@@ -230,7 +230,7 @@ class Quasiparticle:
         plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
         plt.show()
 
-    def plot_fat_bands(self):
+    def plot_renormalized_phonon_dispersion_bands_and_linewidth(self):
 
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,

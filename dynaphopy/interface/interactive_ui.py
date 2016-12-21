@@ -191,8 +191,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 ######## OPTION 6 :  Renormalized phonon dispersion
         if x == ord('6'):
             curses.endwin()
-            calculation.plot_renormalized_phonon_dispersion_bands()
-            calculation.plot_fat_bands()
+      #      calculation.plot_renormalized_phonon_dispersion_bands()
+            calculation.plot_renormalized_phonon_dispersion_bands_and_linewidth()
             curses.endwin()
 
 ######## OPTION 7 :  PEAK ANALYSIS
