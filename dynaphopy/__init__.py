@@ -34,6 +34,7 @@ class Quasiparticle:
         self._bands = None
         self._renormalized_bands = None
         self._renormalized_force_constants = None
+        self._commensurate_points_data = None
         self._temperature = None
         self._parameters = parameters.Parameters()
         self.crop_trajectory(last_steps)
@@ -63,12 +64,16 @@ class Quasiparticle:
         self._power_spectrum_phonon = None
         self._power_spectrum_wave_vector = None
         self._power_spectrum_direct = None
-        self._renormalized_force_constants = None
-        self._renormalized_bands = None
+        self.force_constants_clear()
+
+#        self._renormalized_force_constants = None
+#        self._renormalized_bands = None
+#        self._commensurate_points_data = None
 
     def force_constants_clear(self):
         self._renormalized_force_constants = None
         self._renormalized_bands = None
+        self._commensurate_points_data = None
 
     # Properties
     @property
@@ -214,6 +219,49 @@ class Quasiparticle:
         for i, freq in enumerate(self._renormalized_bands[1]):
             plt.plot(self._bands[1][i], self._bands[2][i], color='b', label='Harmonic (0K)')
             plt.plot(self._renormalized_bands[1][i], self._renormalized_bands[2][i], color='r', label='Renormalized')
+            #     plt.axes().get_xaxis().set_visible(False)
+        plt.axes().get_xaxis().set_ticks([])
+        plt.ylabel('Frequency [THz]')
+        plt.xlabel('Wave vector')
+        plt.xlim([0, self._bands[1][-1][-1]])
+        plt.axhline(y=0, color='k', ls='dashed')
+        plt.suptitle('Renormalized phonon dispersion')
+        handles, labels = plt.gca().get_legend_handles_labels()
+        plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
+        plt.show()
+
+    def plot_fat_bands(self):
+
+        if self._bands is None:
+            self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                       self.parameters.band_ranges,
+                                                                       NAC=self.parameters.use_NAC)
+
+        fc, sup, inf = self.get_renormalized_force_constants(linewidth_limits=True)
+
+        renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                          self.parameters.band_ranges,
+                                                                          force_constants=fc,
+                                                                          NAC=self.parameters.use_NAC)
+
+        renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                          self.parameters.band_ranges,
+                                                                          force_constants=sup,
+                                                                          NAC=self.parameters.use_NAC)
+
+        renormalized_bands_i = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                          self.parameters.band_ranges,
+                                                                          force_constants=inf,
+                                                                          NAC=self.parameters.use_NAC)
+
+
+        for i, freq in enumerate(self._renormalized_bands[1]):
+            plt.plot(self._bands[1][i], self._bands[2][i], color='b', label='Harmonic (0K)')
+            plt.plot(renormalized_bands[1][i], renormalized_bands[2][i], color='r', label='Renormalized')
+            plt.fill_between(renormalized_bands_s[1][i], renormalized_bands_i[2][i], renormalized_bands_s[2][i], alpha=0.5, color='r')
+      #      plt.plot(renormalized_bands_s[1][i], renormalized_bands_s[2][i], color='g', label='Renormalized_s')
+      #      plt.plot(renormalized_bands_i[1][i], renormalized_bands_i[2][i], color='b', label='Renormalized_i')
+
             #     plt.axes().get_xaxis().set_visible(False)
         plt.axes().get_xaxis().set_ticks([])
         plt.ylabel('Frequency [THz]')
@@ -734,9 +782,9 @@ class Quasiparticle:
     def get_algorithm_list(self):
         return power_spectrum_functions.values()
 
-    def get_renormalized_force_constants(self, auto_range=True):
+    def get_commensurate_points_data(self, auto_range=True):
 
-        if self._renormalized_force_constants is None:
+        if self._commensurate_points_data is None:
 
             if auto_range:
                 # Get range from harmonic DOS
@@ -797,17 +845,55 @@ class Quasiparticle:
                 linewidths.append(data['widths'])
 
             renormalized_frequencies = np.array(renormalized_frequencies)
+            linewidths = np.array(linewidths)
+
             if self.parameters.save_renormalized_frequencies:
                 np.savetxt('renormalized_frequencies', renormalized_frequencies)
             #            np.savetxt('test_line', linewidths)
 
 
+            self._commensurate_points_data = {'frequencies': renormalized_frequencies,
+                                              'eigenvectors': eigenvectors,
+                                              'linewidths': linewidths}
+
+#            self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(
+#                                                           renormalized_frequencies,
+#                                                           eigenvectors,
+#                                                           self.dynamic.structure,
+#                                                           symmetrize=self.parameters.symmetrize)
+
+            self.set_reduced_q_vector(initial_reduced_q_point)
+
+        return self._commensurate_points_data
+
+
+    def get_renormalized_force_constants(self, linewidth_limits=False):
+
+        data = self.get_commensurate_points_data()
+        renormalized_frequencies = data['frequencies']
+        eigenvectors = data['eigenvectors']
+
+        if self._renormalized_force_constants is None:
             self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(
-                renormalized_frequencies,
+                                                        renormalized_frequencies,
+                                                        eigenvectors,
+                                                        self.dynamic.structure,
+                                                        symmetrize=self.parameters.symmetrize)
+        if linewidth_limits:
+            linewidths = data['linewidths']
+            sup_lim = pho_interface.get_renormalized_force_constants(
+                renormalized_frequencies+linewidth_limits/2,
                 eigenvectors,
                 self.dynamic.structure,
                 symmetrize=self.parameters.symmetrize)
-            self.set_reduced_q_vector(initial_reduced_q_point)
+
+            inf_limit = pho_interface.get_renormalized_force_constants(
+                renormalized_frequencies+linewidth_limits/2,
+                eigenvectors,
+                self.dynamic.structure,
+                symmetrize=self.parameters.symmetrize)
+
+            return self._renormalized_force_constants, sup_lim, inf_limit
 
         return self._renormalized_force_constants
 
