@@ -242,12 +242,12 @@ class Quasiparticle:
         eigenvectors = data['eigenvectors']
         linewidths = data['linewidths']
 
-        sup_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies+linewidths,
+        sup_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies+linewidths/2,
                                                                  eigenvectors,
                                                                  self.dynamic.structure,
                                                                  symmetrize=self.parameters.symmetrize)
 
-        inf_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies-linewidths,
+        inf_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies-linewidths/2,
                                                                  eigenvectors,
                                                                  self.dynamic.structure,
                                                                  symmetrize=self.parameters.symmetrize)
