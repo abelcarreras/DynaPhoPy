@@ -44,7 +44,7 @@ Executing this software
 
 3. Scripting method (as a module)
   - Dynaphopy can be imported as a python module
-  - In Example directory an example script is available (input.py)
+  - In Example directory an example script is available (script_silicon.py)
   - The comments in the script makes it (hopefully) self explained.
 
 Input files for several materials can be found in the same Example directory
