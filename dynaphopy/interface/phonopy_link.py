@@ -161,13 +161,13 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
 def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None, NAC=False, band_resolution=30):
 
     if force_constants is not None:
-        print('Getting renormalized phonon dispersion relations')
+#        print('Getting renormalized phonon dispersion relations')
         phonon = get_phonon(structure, NAC=False, setup_forces=False,
                             custom_supercell=structure.get_supercell_phonon_renormalized())
 
         phonon.set_force_constants(force_constants)
     else:
-        print('Getting phonon dispersion relations')
+ #       print('Getting phonon dispersion relations')
         phonon = get_phonon(structure, NAC=NAC)
 
     bands =[]
