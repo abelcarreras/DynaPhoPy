@@ -203,7 +203,7 @@ class Quasiparticle:
 
         plt.show()
 
-    def plot_renormalized_phonon_dispersion_bands(self):
+    def plot_renormalized_phonon_dispersion_bands(self, plot_linewidths=False):
 
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
@@ -212,30 +212,9 @@ class Quasiparticle:
 
         if self._renormalized_bands is None:
             self._renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
-                                                                                                 self.parameters.band_ranges,
-                                                                                                 force_constants=self.get_renormalized_force_constants(),
-                                                                                                 NAC=self.parameters.use_NAC)
-
-        for i, freq in enumerate(self._renormalized_bands[1]):
-            plt.plot(self._bands[1][i], self._bands[2][i], color='b', label='Harmonic (0K)')
-            plt.plot(self._renormalized_bands[1][i], self._renormalized_bands[2][i], color='r', label='Renormalized')
-            #     plt.axes().get_xaxis().set_visible(False)
-        plt.axes().get_xaxis().set_ticks([])
-        plt.ylabel('Frequency [THz]')
-        plt.xlabel('Wave vector')
-        plt.xlim([0, self._bands[1][-1][-1]])
-        plt.axhline(y=0, color='k', ls='dashed')
-        plt.suptitle('Renormalized phonon dispersion relations')
-        handles, labels = plt.gca().get_legend_handles_labels()
-        plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
-        plt.show()
-
-    def plot_renormalized_phonon_dispersion_bands_and_linewidth(self):
-
-        if self._bands is None:
-            self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
-                                                                       self.parameters.band_ranges,
-                                                                       NAC=self.parameters.use_NAC)
+                                                                                    self.parameters.band_ranges,
+                                                                                    force_constants=self.get_renormalized_force_constants(),
+                                                                                    NAC=self.parameters.use_NAC)
 
         data = self.get_commensurate_points_data()
         renormalized_frequencies = data['frequencies']
@@ -252,31 +231,25 @@ class Quasiparticle:
                                                                  self.dynamic.structure,
                                                                  symmetrize=self.parameters.symmetrize)
 
-        rfc = self.get_renormalized_force_constants()
+        if plot_linewidths:
+            renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                              self.parameters.band_ranges,
+                                                                              force_constants=sup_lim,
+                                                                              NAC=self.parameters.use_NAC)
 
-        renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
-                                                                          self.parameters.band_ranges,
-                                                                          force_constants=rfc,
-                                                                          NAC=self.parameters.use_NAC)
-
-        renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
-                                                                          self.parameters.band_ranges,
-                                                                          force_constants=sup_lim,
-                                                                          NAC=self.parameters.use_NAC)
-
-        renormalized_bands_i = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
-                                                                          self.parameters.band_ranges,
-                                                                          force_constants=inf_lim,
-                                                                          NAC=self.parameters.use_NAC)
+            renormalized_bands_i = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                              self.parameters.band_ranges,
+                                                                              force_constants=inf_lim,
+                                                                              NAC=self.parameters.use_NAC)
 
 
-        for i, freq in enumerate(renormalized_bands[1]):
-            plt.plot(self._bands[1][i], self._bands[2][i], color='b', label='Harmonic (0K)')
-            plt.plot(self._bands[1][i], renormalized_bands[2][i], color='r', label='Renormalized')
+        for i, q_path in enumerate(self._bands[1]):
+            plt.plot(q_path, self._bands[2][i], color='b', label='Harmonic')
+            plt.plot(q_path, self._renormalized_bands[2][i], color='r', label='Renormalized')
 
-            for lim_i, lim_s in zip(np.array(renormalized_bands_i[2][i]).T, np.array(renormalized_bands_s[2][i]).T):
-                plt.fill_between(self._bands[1][i], lim_i, lim_s, color='r', alpha=0.2, interpolate=True, linewidth=0)
-
+            if plot_linewidths:
+                for lim_i, lim_s in zip(np.array(renormalized_bands_i[2][i]).T, np.array(renormalized_bands_s[2][i]).T):
+                    plt.fill_between(q_path, lim_i, lim_s, color='r', alpha=0.2, interpolate=True, linewidth=0)
 
 
             #     plt.axes().get_xaxis().set_visible(False)
