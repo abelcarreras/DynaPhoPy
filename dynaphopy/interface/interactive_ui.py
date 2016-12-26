@@ -211,7 +211,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             curses.endwin()
             calculation.plot_trajectory_distribution(direction)
 
-######## OPTION 9 :  PREFERENCES  (UNDER DEVELOPMENT)
+######## OPTION 9 :  PREFERENCES
         if x == ord('9'):
 
             x2 = 0
@@ -238,7 +238,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.refresh()
 
                 x2 = screen.getch()
-
+                # SUB OPT 1 : # PS select algorithm
                 if x2 == ord('1'):
                     x3 = 9
                     while x3 >= len(calculation.get_algorithm_list()):
@@ -263,6 +263,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                     curses.endwin()
 
+                # SUB OPT 2 : # Non analytical corrections
                 if x2 == ord('2'):
                     x3 = ord("9")
                     while int(chr(int(x3))) > 2:
@@ -291,19 +292,23 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                     curses.endwin()
 
+                # SUB OPT 3 : # Number of MEM coefficients
                 if x2 == ord('3'):
                # calculation.set_number_of_mem_coefficients(int(get_param(screen, "Insert number of coefficients")))
                     calculation.parameters.number_of_coefficients_mem = int(get_param(screen, "Insert number of coefficients"))
                     curses.endwin()
 
+                # SUB OPT 4 : # Number of bins histogram (coordinates and Boltzmann dist.)
                 if x2 == ord('4'):
                     calculation.parameters.number_of_bins_histogram = int(get_param(screen, "Insert number of bins"))
                     curses.endwin()
 
+                # SUB OPT 5 : # Vector scale (phonon modes)
                 if x2 == ord('5'):
                     calculation.parameters.modes_vectors_scale = int(get_param(screen, "Insert vector scale"))
                     curses.endwin()
 
+                # SUB OPT 6 : # Fitting function selection
                 if x2 == ord('6'):
                     from dynaphopy.analysis.fitting.fitting_functions import fitting_functions
                     x3 = 9
@@ -330,12 +335,14 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                     curses.endwin()
 
+                # SUB OPT 7 : # Resolution
                 if x2 == ord('7'):
                     resolution =float(get_param(screen, "Insert resolution in THz"))
                     calculation.set_spectra_resolution(resolution)
                     calculation.full_clear()
                     curses.endwin()
 
+                # SUB OPT 8 : # Frequency range
                 if x2 == ord('8'):
                     frequency_limits = np.array([float(Fraction(s)) for s in
                                                  get_param(screen, "Insert frequency range (min, max)").split(',')])
