@@ -9,7 +9,6 @@ h_bar = 6.626070040e-22  # J * ps
 
 warnings.simplefilter("ignore")
 
-
 def get_dos(temp, frequency, power_spectrum, n_size, bose_einstein_statistics=False):
 
     conversion_factor = 1.60217662e-19 # eV -> J
