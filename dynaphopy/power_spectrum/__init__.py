@@ -5,9 +5,7 @@ import matplotlib.pyplot as plt
 import correlation
 import mem
 
-
-unit_conversion = 6.651206285e-4  # u * A^2 * THz -> eV*ps
-
+unit_conversion = 0.00010585723  # u * A^2 * THz -> eV*ps
 
 def _progress_bar(progress, label):
     bar_length = 30

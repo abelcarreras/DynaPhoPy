@@ -79,7 +79,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         maximum = fitting_parameters['maximum']
         error = fitting_parameters['global_error']
 
-        total_integral = simps(power_spectrum, x=test_frequencies_range)/(2 * np.pi)
+        total_integral = simps(power_spectrum, x=test_frequencies_range)
 
         # Calculated properties
         dt_Q2_lor = 2 * 2 * area
