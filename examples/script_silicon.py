@@ -106,6 +106,7 @@ quasiparticle.display_thermal_properties()
 
 # 6k. Request to display the renormalized phonon dispersion relations
 quasiparticle.plot_renormalized_phonon_dispersion_bands()
+quasiparticle.plot_renormalized_phonon_dispersion_bands()
 
 # 6l. Request the calculation of the anisotropic displacement parameters
 quasiparticle.get_anisotropic_displacement_parameters()

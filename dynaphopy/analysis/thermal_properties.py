@@ -9,10 +9,9 @@ h_bar = 6.626070040e-22  # J * ps
 
 warnings.simplefilter("ignore")
 
-
 def get_dos(temp, frequency, power_spectrum, n_size, bose_einstein_statistics=False):
 
-    conversion_factor = 1.60217662e-19 # eV/J
+    conversion_factor = 1.60217662e-19 # eV -> J
 
     def n(temp, freq):
         return pow(np.exp(freq*h_bar/(k_b*temp))-1, -1)
@@ -24,7 +23,7 @@ def get_dos(temp, frequency, power_spectrum, n_size, bose_einstein_statistics=Fa
         def energy(freq, temp):
             return k_b * temp
 
-    dos = np.nan_to_num([4./(2*np.pi)*conversion_factor*power_spectrum[i]/(energy(freq, temp)*n_size)
+    dos = np.nan_to_num([4.0*conversion_factor*power_spectrum[i]/(energy(freq, temp)*n_size)
                          for i, freq in enumerate(frequency)])
     return dos
 

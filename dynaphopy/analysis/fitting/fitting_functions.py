@@ -66,7 +66,7 @@ class Lorentzian:
             maximum = fit_params[2]/(fit_params[1]*np.pi)
             width = 2.0*fit_params[1]
             frequency = fit_params[0]
-            area = fit_params[2]/(2 * np.pi)
+            area = fit_params[2]
 
             standard_errors = get_standard_errors_from_covariance(fit_covariances)
 
@@ -168,8 +168,7 @@ class Lorentzian_asymmetric:
             area, error_integration = quad(self._function, 0, self.test_frequencies_range[-1],
                                            args=tuple(fit_params),
                                            epsabs=1e-8)
-            area /= 2*np.pi
-        #    area = fit_params[2]/(2 * np.pi)
+        #    area = fit_params[2]
 
             standard_errors = get_standard_errors_from_covariance(fit_covariances)
             global_error = np.average(standard_errors[:2])/np.sqrt(area)
@@ -258,7 +257,6 @@ class Damped_harmonic:
             area, error_integration = quad(self._function, 0, self.test_frequencies_range[-1],
                                            args=tuple(fit_params),
                                            epsabs=1e-8)
-            area /= 2*np.pi
 #            area = fit_params[2]*np.pi/(fit_params[0]**3*width)
 
             standard_errors = get_standard_errors_from_covariance(fit_covariances)
@@ -346,7 +344,6 @@ class Gaussian_function:
             area, error_integration = quad(self._function, 0, self.test_frequencies_range[-1],
                                            args=tuple(fit_params),
                                            epsabs=1e-8)
-            area /= 2*np.pi
 #            area = fit_params[2]*np.pi/(fit_params[0]**3*width)
 
             standard_errors = get_standard_errors_from_covariance(fit_covariances)
