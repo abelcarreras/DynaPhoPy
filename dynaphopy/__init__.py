@@ -221,6 +221,8 @@ class Quasiparticle:
         eigenvectors = data['eigenvectors']
         linewidths = data['linewidths']
 
+        plt.suptitle('Renormalized phonon dispersion relations')
+
         sup_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies+linewidths/2,
                                                                  eigenvectors,
                                                                  self.dynamic.structure,
@@ -232,6 +234,7 @@ class Quasiparticle:
                                                                  symmetrize=self.parameters.symmetrize)
 
         if plot_linewidths:
+            plt.suptitle('Renormalized phonon dispersion relations and linewidths')
             renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                               self.parameters.band_ranges,
                                                                               force_constants=sup_lim,
@@ -258,7 +261,6 @@ class Quasiparticle:
         plt.xlabel('Wave vector')
         plt.xlim([0, self._bands[1][-1][-1]])
         plt.axhline(y=0, color='k', ls='dashed')
-        plt.suptitle('Renormalized phonon dispersion relations')
         handles, labels = plt.gca().get_legend_handles_labels()
         plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
         plt.show()
