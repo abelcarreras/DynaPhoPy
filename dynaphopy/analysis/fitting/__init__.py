@@ -6,7 +6,7 @@ from dynaphopy.analysis.fitting import fitting_functions
 #from scipy.optimize import curve_fit, minimize_scalar, root
 
 h_planck = 4.135667662e-3  # eV/ps
-h_planck_bar = 6.58211951e-4  # eV/ps
+h_planck_bar = h_planck/(2.0*np.pi)  # eV/ps
 kb_boltzmann = 8.6173324e-5  # eV/K
 
 
@@ -94,6 +94,7 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 
     #    fit_temperature = dt_Q2_lor / kb_boltzmann # High temperature limit
         fit_temperature = h_planck_bar * frequency / (kb_boltzmann * np.log((1.0 / occupancy_lor + 1.0)))
+        fit_temperature_tot = h_planck_bar * frequency / (kb_boltzmann * np.log((1.0 / occupancy_tot + 1.0)))
 
         #Print section
         print ('\nPeak # {0}'.format(i+1))
@@ -108,9 +109,9 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
  #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
         if show_occupancy:
             print ('Occupation number          {0:15.6f}'.format(occupancy_lor))
-     #       print 'Occupation number(tot): ', occupancy_tot
-            print ('Fit temperature            {0:15.6f} K'.format(fit_temperature))
-     #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
+    #        print ('Fit temperature            {0:15.6f} K'.format(fit_temperature))
+            print ('Fit temperature (Total)    {0:15.6f} K'.format(fit_temperature_tot))
+
         print ('Base line                  {0:15.6f} eV * ps'.format(base_line))
         print ('Maximum height             {0:15.6f} eV * ps'.format(maximum))
         print ('Fitting global error       {0:15.6f}'.format(error))

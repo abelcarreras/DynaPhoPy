@@ -7,6 +7,7 @@ import mem
 
 unit_conversion = 0.00010585723  # u * A^2 * THz -> eV*ps
 
+
 def _progress_bar(progress, label):
     bar_length = 30
     status = ""

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 
-kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
+kb_boltzmann = 0.831446  # u * A^2 / ( ps^2 * K )
 
 
 def boltzmann_distribution(trajectory, parameters):
