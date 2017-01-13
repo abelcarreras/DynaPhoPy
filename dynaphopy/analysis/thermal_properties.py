@@ -34,7 +34,7 @@ def get_total_energy(temperature, frequency, dos):
     def n(temp, freq):
         return pow(np.exp(freq*h_bar/(k_b*temp))-1, -1)
 
-    total_energy = np.nan_to_num([dos[i] * h_bar*freq*(0.5 + n(temperature, freq))
+    total_energy = np.nan_to_num([dos[i] * h_bar * freq * (0.5 + n(temperature, freq))
                                  for i, freq in enumerate(frequency)])
 
     total_energy = integrate.simps(total_energy, frequency) * N_a / 1000  # KJ/K/mol
@@ -91,7 +91,7 @@ def get_entropy(temperature, frequency, dos):
     entropy = integrate.simps(entropy, frequency) * N_a # J/K/mol
     return entropy
 
-#Alternative way to calculate entropy (also works)
+# Alternative way to calculate entropy (not used)
 def get_entropy2(temperature, frequency, dos):
 
     def n(temp, freq):
