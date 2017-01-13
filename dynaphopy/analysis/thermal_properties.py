@@ -9,6 +9,7 @@ h_bar = 6.626070040e-22  # J * ps
 
 warnings.simplefilter("ignore")
 
+
 def get_dos(temp, frequency, power_spectrum, n_size, bose_einstein_statistics=False):
 
     conversion_factor = 1.60217662e-19 # eV -> J
@@ -146,7 +147,7 @@ if __name__ == "__main__":
         frequency_p.append(float(line.split()[0]))
         power_spectrum.append(float(line.split()[1]))
 
-    #power_spectrum = get_dos(temp,frequency_p,power_spectrum, 12*12*6)
+    # power_spectrum = get_dos(temp,frequency_p,power_spectrum, 12*12*6)
 
     power_spectrum = get_dos(temp, frequency_p, power_spectrum, 12*12*12)
 
@@ -156,7 +157,7 @@ if __name__ == "__main__":
     pl.legend()
     pl.show()
 
-    #free_energy = get_free_energy(temp,frequency,dos) + get_free_energy_correction(temp, frequency, dos, shift)
+    # free_energy = get_free_energy(temp,frequency,dos) + get_free_energy_correction(temp, frequency, dos, shift)
 
     print (get_free_energy_correction_shift(temp, frequency, dos, shift),
            get_free_energy_correction_dos(temp, frequency, dos, dos_r))
