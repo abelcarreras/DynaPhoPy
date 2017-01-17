@@ -63,7 +63,7 @@ dump_modify  dynaphopy sort id
 flag is used. This flag accepts a float number that indicated the time step in picoseconds.
 </p><pre><code>$ dynaphopy input_file TRAJECTORY -ts 0.002 
 </code></pre>
-<br>This flag is ignored reading from OUTCAR VASP trajectories. If not specified 0.001 ps time step is used.
+<br>This flag is ignored reading a trajectory from VASP OUTCAR or hdf5 file (generated using dynaphopy). If not specified 0.001 ps time step is used.
 LAMMPS may not write the coordinates at each time step. This information is obtained from the trajectory file and taken in account. <strong>-ts</strong>
 should contain the time step specified in <a href="http://lammps.sandia.gov/doc/timestep.html">timestep command</a>.
 
