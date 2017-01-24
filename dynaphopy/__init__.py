@@ -599,7 +599,7 @@ class Quasiparticle:
         plt.show()
 
         total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
+        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
         plt.suptitle('Projection onto wave vector')
@@ -608,7 +608,7 @@ class Quasiparticle:
         plt.ylabel('eV * ps')
         plt.show()
         total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
+        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_phonon(self):
         for i in range(self.get_power_spectrum_phonon().shape[1]):
@@ -711,14 +711,14 @@ class Quasiparticle:
                                     self.get_power_spectrum_full()[None].T,
                                     file_name)
         total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
+        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_wave_vector(self, file_name):
         reading.write_curve_to_file(self.get_frequency_range(),
                                     self.get_power_spectrum_wave_vector()[None].T,
                                     file_name)
         total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
+        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_phonon(self, file_name):
         reading.write_curve_to_file(self.get_frequency_range(),

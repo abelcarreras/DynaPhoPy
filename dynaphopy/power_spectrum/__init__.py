@@ -234,7 +234,7 @@ def _numpy_power(frequency_range, data, time_step):
         data_piece = data[i_p[0]:i_p[1]]
 
         data_piece = np.correlate(data_piece, data_piece, mode='same') / data_piece.size
-        ps.append(np.abs(np.fft.fft(data_piece))*time_step/2.0)
+        ps.append(np.abs(np.fft.fft(data_piece))*time_step)
 
     ps = np.average(ps,axis=0)
 
@@ -285,7 +285,7 @@ def _fftw_power(frequency_range, data, time_step):
 
         data_piece = data[i_p[0]:i_p[1]]
         data_piece = np.correlate(data_piece, data_piece, mode='same') / data_piece.size
-        ps.append(np.abs(pyfftw.interfaces.numpy_fft.fft(data_piece, threads=cpu_count()))*time_step/2.0)
+        ps.append(np.abs(pyfftw.interfaces.numpy_fft.fft(data_piece, threads=cpu_count()))*time_step)
 
     ps = np.average(ps,axis=0)
 
@@ -330,7 +330,7 @@ def _cuda_power(frequency_range, data, time_step):
         data_piece = data[i_p[0]:i_p[1]]
 
         data_piece = cuda_acorrelate(data_piece, mode='same', safe_mode=False)/data_piece.size
-        ps.append(np.abs(cuda_fft(data_piece, safe_mode=False)*time_step/2.0))
+        ps.append(np.abs(cuda_fft(data_piece, safe_mode=False)*time_step))
 
     ps = np.average(ps,axis=0)
 

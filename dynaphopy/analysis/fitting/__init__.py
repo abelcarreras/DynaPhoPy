@@ -80,8 +80,8 @@ def phonon_fitting_analysis(original, ps_frequencies, harmonic_frequencies=None,
         total_integral = simps(power_spectrum, x=ps_frequencies)
 
         # Calculated properties
-        dt_Q2_lor = 2 * 2 * area
-        dt_Q2_tot = 2 * 2 * total_integral
+        dt_Q2_lor = 2 * area
+        dt_Q2_tot = 2 * total_integral
 
         # Only within harmonic approximation
         Q2_lor = dt_Q2_lor / pow(position * 2 * np.pi, 2)
@@ -99,8 +99,8 @@ def phonon_fitting_analysis(original, ps_frequencies, harmonic_frequencies=None,
         print ('----------------------------------------------')
         print ('Width                      {0:15.6f} THz'.format(width))
         print ('Position                   {0:15.6f} THz'.format(position))
-        print ('Area (1/2<K>) ({0:.10s}) {1:15.6f} eV'.format(fitting_function.curve_name, area))  # 1/2 Kinetic energy
-        print ('Area (1/2<K>) (Total)      {0:15.6f} eV'.format(total_integral))   # 1/2 Kinetic energy
+        print ('Area (<K>)    ({0:.10s}) {1:15.6f} eV'.format(fitting_function.curve_name, area))  # 1/2 Kinetic energy
+        print ('Area (<K>)    (Total)      {0:15.6f} eV'.format(total_integral))   # 1/2 Kinetic energy
         print ('<|dQ/dt|^2>                {0:15.6f} eV'.format(dt_Q2_lor))        # Kinetic energy
         # print '<|dQ/dt|^2> (tot):        ', dt_Q2_tot, 'eV'        # Kinetic energy
         # print '<|Q|^2> (lor):          ', Q2_lor, 'eV' #  potential energy

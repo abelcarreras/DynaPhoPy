@@ -24,7 +24,7 @@ def get_dos(temp, frequency, power_spectrum, n_size, bose_einstein_statistics=Fa
         def energy(freq, temp):
             return k_b * temp
 
-    dos = np.nan_to_num([4.0*conversion_factor*power_spectrum[i]/(energy(freq, temp)*n_size)
+    dos = np.nan_to_num([2.0*conversion_factor*power_spectrum[i]/(energy(freq, temp)*n_size)
                          for i, freq in enumerate(frequency)])
     return dos
 

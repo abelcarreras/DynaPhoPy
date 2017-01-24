@@ -61,7 +61,7 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     # pragma omp parallel for default(shared) private(AngularFrequency)
     for (int i=0; i < NumberOfFrequencies; i++) {
         AngularFrequency = Frequency[i]*2.0*M_PI;
-        PowerSpectrum[i] = FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep / 2.0;
+        PowerSpectrum[i] = FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep;
     }
 
     // Free python memory
