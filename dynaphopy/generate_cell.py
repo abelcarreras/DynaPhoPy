@@ -50,8 +50,6 @@ def generate_LAMMPS_structure(structure, supercell=(1, 1, 1), by_element=True):
         type_index_unique = np.array(type_index_unique)[sort_index]
 
         count_index_unique = np.diff(np.append(type_index_unique, [len(types)]))
-        print type_index_unique
-        print count_index_unique
 
         atom_index = []
         for i, index in enumerate(count_index_unique):
