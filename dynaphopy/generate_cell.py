@@ -8,8 +8,11 @@ def generate_VASP_structure(structure, scaled=False, supercell=(1, 1, 1)):
     types = structure.get_atomic_types(supercell=supercell)
 
     atom_type_unique = np.unique(types, return_index=True)
-    elements = atom_type_unique[0]
-    elements_count= np.diff(np.append(atom_type_unique[1], [len(types)]))
+    # To prevent an unexpected behavior of unique
+    sort_index = np.argsort(atom_type_unique[1])
+    elements = np.array(atom_type_unique[0])[sort_index]
+    elements_count= np.diff(np.append(np.array(atom_type_unique[1])[sort_index], [len(types)]))
+
 
     vasp_POSCAR = 'Generated using dynaphopy\n'
     vasp_POSCAR += '1.0\n'
@@ -41,7 +44,14 @@ def generate_LAMMPS_structure(structure, supercell=(1, 1, 1), by_element=True):
     if by_element:
 
         type_index_unique = np.unique(types, return_index=True)[1]
+
+        # To prevent an unexpected behavior of unique
+        sort_index = np.argsort(type_index_unique)
+        type_index_unique = np.array(type_index_unique)[sort_index]
+
         count_index_unique = np.diff(np.append(type_index_unique, [len(types)]))
+        print type_index_unique
+        print count_index_unique
 
         atom_index = []
         for i, index in enumerate(count_index_unique):
