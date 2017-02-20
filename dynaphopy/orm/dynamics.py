@@ -301,10 +301,11 @@ class Dynamics:
 
     def get_mean_displacement_matrix(self):
 
-        atom_type = self.structure.get_atom_type_index()
-        atom_primitive_equivalent = np.unique(atom_type, return_counts=True)[1]
 
         if self._mean_displacement_matrix is None:
+
+            atom_type = self.structure.get_atom_type_index()
+            number_atom_primitive_equivalent = np.unique(atom_type, return_counts=True)[1]
 
             supercell = self.get_supercell_matrix()
             atom_type_index = self.structure.get_atom_type_index(supercell=supercell)
@@ -318,7 +319,7 @@ class Dynamics:
             mean_displacement_matrix = np.zeros((number_of_atom_types, number_of_dimensions, number_of_dimensions))
 
             for i in range(displacements.shape[1]):
-                primtive_normalization = atom_primitive_equivalent[atom_type_index[i]]
+                primtive_normalization = number_atom_primitive_equivalent[atom_type_index[i]]
                 mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(np.conj(displacements[:, i, :]).T,
                                                                              displacements[:, i, :]).real/primtive_normalization
 
@@ -326,25 +327,17 @@ class Dynamics:
 
         return self._mean_displacement_matrix
 
-    def average_positions(self, number_of_samples=None):
+    def average_positions(self, number_of_samples=None, to_unit_cell=False):
+
+        supercell = self.get_supercell_matrix()
 
         cell = self.get_supercell()
+
         number_of_atoms = self.trajectory.shape[1]
-        supercell = self.get_supercell_matrix()
         positions = self.structure.get_positions(supercell=supercell)
         number_of_dimensions = self.structure.get_number_of_dimensions()
 
         normalized_trajectory = self.get_relative_trajectory()
-
-        # New
-        elements = self.structure.get_atomic_types()
-
-        atom_type = self.structure.get_atom_type_index()
-        atom_type_index_unique = np.unique(atom_type, return_index=True)[1]
-
-        atom_equivalent = np.unique(atom_type, return_counts=True)[1]
-        atomic_types_unique = [elements[i] for i in atom_type_index_unique]
-        # New
 
         if number_of_samples:
             length = normalized_trajectory.shape[0]
@@ -354,7 +347,27 @@ class Dynamics:
             samples = np.random.random_integers(length, size=(number_of_samples,))-1
             normalized_trajectory = normalized_trajectory[samples, :]
 
-        reference = np.average(normalized_trajectory, axis=0) + positions
+        reference = np.average(normalized_trajectory, axis=0)
+
+# Average respect to unit cell
+        if to_unit_cell:
+            cell = self.structure.get_cell()
+            positions = self.structure.get_positions()
+            number_of_atoms = self.structure.get_number_of_atoms()
+
+            index_type = self.structure.get_atom_type_index(supercell=supercell)
+            number_of_atom_types = self.structure.get_number_of_atom_types()
+            normalization = np.prod(supercell)
+
+            averaged_unit_cell = np.zeros((number_of_atom_types, number_of_dimensions), dtype=complex)
+
+            for i, coordinates  in enumerate(reference):
+                averaged_unit_cell[index_type[i], :] += coordinates/normalization
+
+            reference = averaged_unit_cell
+# Average respect to unit cell
+        reference += positions
+
 
         for j in range(number_of_atoms):
 
@@ -362,6 +375,7 @@ class Dynamics:
                                                  reference[j, :] - 0.5 * np.dot(np.ones((number_of_dimensions)), cell.T)),
                                           decimals=0)
             reference[j, :] -= np.dot(difference_matrix, cell.T)
+
 
         return reference
 
