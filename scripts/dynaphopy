@@ -329,7 +329,7 @@ if args.save_power_spectrum_partials:
 # -----------------
 
 if args.average:
-    reference = calculation.dynamic.average_positions()
+    reference = calculation.dynamic.average_positions(to_unit_cell=True)
     for i in reference:
         print '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*i.real)
 

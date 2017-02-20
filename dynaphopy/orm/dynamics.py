@@ -347,7 +347,7 @@ class Dynamics:
             samples = np.random.random_integers(length, size=(number_of_samples,))-1
             normalized_trajectory = normalized_trajectory[samples, :]
 
-        reference = np.average(normalized_trajectory, axis=0)
+        averaged_positions = np.average(normalized_trajectory, axis=0)
 
 # Average respect to unit cell
         if to_unit_cell:
@@ -361,23 +361,23 @@ class Dynamics:
 
             averaged_unit_cell = np.zeros((number_of_atom_types, number_of_dimensions), dtype=complex)
 
-            for i, coordinates  in enumerate(reference):
+            for i, coordinates  in enumerate(averaged_positions):
                 averaged_unit_cell[index_type[i], :] += coordinates/normalization
 
-            reference = averaged_unit_cell
+            averaged_positions = averaged_unit_cell
 # Average respect to unit cell
-        reference += positions
 
+        averaged_positions += positions
 
         for j in range(number_of_atoms):
 
             difference_matrix = np.around(np.dot(np.linalg.inv(cell),
-                                                 reference[j, :] - 0.5 * np.dot(np.ones((number_of_dimensions)), cell.T)),
+                                                 averaged_positions[j, :] - 0.5 * np.dot(np.ones((number_of_dimensions)), cell.T)),
                                           decimals=0)
-            reference[j, :] -= np.dot(difference_matrix, cell.T)
+            averaged_positions[j, :] -= np.dot(difference_matrix, cell.T)
 
 
-        return reference
+        return averaged_positions
 
     # Properties
     @property
