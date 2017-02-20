@@ -336,6 +336,16 @@ class Dynamics:
 
         normalized_trajectory = self.get_relative_trajectory()
 
+        # New
+        elements = self.structure.get_atomic_types()
+
+        atom_type = self.structure.get_atom_type_index()
+        atom_type_index_unique = np.unique(atom_type, return_index=True)[1]
+
+        atom_equivalent = np.unique(atom_type, return_counts=True)[1]
+        atomic_types_unique = [elements[i] for i in atom_type_index_unique]
+        # New
+
         if number_of_samples:
             length = normalized_trajectory.shape[0]
             if length < number_of_samples:
