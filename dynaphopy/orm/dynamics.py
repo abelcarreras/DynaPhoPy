@@ -299,8 +299,7 @@ class Dynamics:
 
         return self._supercell_matrix
 
-    def get_mean_displacement_matrix(self):
-
+    def get_mean_displacement_matrix(self, use_average_positions=False):
 
         if self._mean_displacement_matrix is None:
 
@@ -314,6 +313,14 @@ class Dynamics:
             displacements = self.get_relative_trajectory()
             number_of_data = displacements.shape[0]
 
+            # Correct atom positions by position average
+            if use_average_positions:
+                position_average = self.average_positions()
+                position = self.structure.get_positions(supercell=supercell)
+                position_difference = position - position_average
+            else:
+                position_difference = np.zeros_like(self.structure.get_positions(supercell=supercell))
+
             number_of_equivalent_atoms = np.prod(supercell)
 
             mean_displacement_matrix = np.zeros((number_of_atom_types, number_of_dimensions, number_of_dimensions))
@@ -321,7 +328,8 @@ class Dynamics:
             for i in range(displacements.shape[1]):
                 primtive_normalization = number_atom_primitive_equivalent[atom_type_index[i]]
                 mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(np.conj(displacements[:, i, :]).T,
-                                                                             displacements[:, i, :]).real/primtive_normalization
+                                                                             displacements[:, i, :] + position_difference[i]
+                                                                             ).real / primtive_normalization
 
             self._mean_displacement_matrix = mean_displacement_matrix / (number_of_equivalent_atoms * number_of_data)
 
