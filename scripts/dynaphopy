@@ -329,9 +329,11 @@ if args.save_power_spectrum_partials:
 # -----------------
 
 if args.average:
-    reference = calculation.dynamic.average_positions(to_unit_cell=True)
-    for i in reference:
-        print '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*i.real)
+    print 'Average atomic positions'
+    positions_average = calculation.dynamic.average_positions(to_unit_cell=True)
+    elements = calculation.dynamic.structure.get_atomic_types()
+    for i, coordinate in enumerate(positions_average):
+        print '{0:2} '.format(elements[i]) + '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*coordinate.real)
 
 if args.interactive:
     if isinstance(trajectory, list) or isinstance(trajectory, tuple):

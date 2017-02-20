@@ -997,11 +997,11 @@ class Quasiparticle:
         atomic_types_unique = [elements[i] for i in atom_type_index_unique]
 
         if print_on_screen:
-            print('Anisotropic displacement parameters ({0})'.format(coordinate_type))
+            print('Anisotropic displacement parameters ({0}) [relative to average atomic positions]'.format(coordinate_type))
             print('          U11          U22          U33          U23          U13          U12')
 
         anisotropic_displacements = []
-        for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix()):
+        for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix(use_average_positions=True)):
 
             cell = self.dynamic.structure.get_cell()
             cell_inv = np.linalg.inv(cell)

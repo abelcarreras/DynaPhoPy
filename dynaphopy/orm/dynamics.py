@@ -357,13 +357,21 @@ class Dynamics:
 
         averaged_positions = np.average(normalized_trajectory, axis=0)
 
-# Average respect to unit cell
+        # Average respect to unit cell
         if to_unit_cell:
+
             cell = self.structure.get_cell()
-            positions = self.structure.get_positions()
             number_of_atoms = self.structure.get_number_of_atoms()
 
+            positions = self.structure.get_positions()
+
+            # cell = self.structure.get_primitive_cell()
+            # number_of_atoms = self.structure.get_number_of_primitive_atoms()
+
+            index_type_unitcell = self.structure.get_atom_type_index()
+
             index_type = self.structure.get_atom_type_index(supercell=supercell)
+
             number_of_atom_types = self.structure.get_number_of_atom_types()
             normalization = np.prod(supercell)
 
@@ -372,10 +380,16 @@ class Dynamics:
             for i, coordinates  in enumerate(averaged_positions):
                 averaged_unit_cell[index_type[i], :] += coordinates/normalization
 
-            averaged_positions = averaged_unit_cell
-# Average respect to unit cell
+            averaged_positions = []
+            for i in range(positions.shape[0]):
+                averaged_positions.append(averaged_unit_cell[index_type_unitcell[i]])
+            averaged_positions = np.array(averaged_positions)
+
+        # Average respect to unit cell
+
 
         averaged_positions += positions
+
 
         for j in range(number_of_atoms):
 
