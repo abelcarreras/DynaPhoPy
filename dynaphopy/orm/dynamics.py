@@ -313,7 +313,7 @@ class Dynamics:
             displacements = self.get_relative_trajectory()
             number_of_data = displacements.shape[0]
 
-            # Correct atom positions by position average
+            # Correct the atom positions by position average
             if use_average_positions:
                 position_average = self.average_positions()
                 position = self.structure.get_positions(supercell=supercell)
