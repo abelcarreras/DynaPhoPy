@@ -338,19 +338,18 @@ class Dynamics:
     def average_positions(self, number_of_samples=None, to_unit_cell=False):
 
         supercell = self.get_supercell_matrix()
+        number_of_dimensions = self.structure.get_number_of_dimensions()
 
         cell = self.get_supercell()
-
         number_of_atoms = self.trajectory.shape[1]
         positions = self.structure.get_positions(supercell=supercell)
-        number_of_dimensions = self.structure.get_number_of_dimensions()
 
         normalized_trajectory = self.get_relative_trajectory()
 
         if number_of_samples:
             length = normalized_trajectory.shape[0]
             if length < number_of_samples:
-                number_of_samples = normalized_trajectory.shape[0]
+                number_of_samples = length
             normalized_trajectory = normalized_trajectory
             samples = np.random.random_integers(length, size=(number_of_samples,))-1
             normalized_trajectory = normalized_trajectory[samples, :]
@@ -362,14 +361,9 @@ class Dynamics:
 
             cell = self.structure.get_cell()
             number_of_atoms = self.structure.get_number_of_atoms()
-
             positions = self.structure.get_positions()
 
-            # cell = self.structure.get_primitive_cell()
-            # number_of_atoms = self.structure.get_number_of_primitive_atoms()
-
             index_type_unitcell = self.structure.get_atom_type_index()
-
             index_type = self.structure.get_atom_type_index(supercell=supercell)
 
             number_of_atom_types = self.structure.get_number_of_atom_types()
