@@ -64,7 +64,6 @@ class TestDynaphopy(unittest.TestCase):
 
 
 
-
     def test_force_constants_self_consistency(self):
         trajectory = io.initialize_from_hdf5_file('test_gan.h5',
                                                   self.structure,
@@ -80,7 +79,7 @@ class TestDynaphopy(unittest.TestCase):
         self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
 
 
-    def tearDown(self):
+    def __del__(self):
         os.remove('test_gan.h5')
         print ('end')
 
