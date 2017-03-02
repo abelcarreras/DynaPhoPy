@@ -135,7 +135,7 @@ group.add_argument('-c_lammps', metavar='file', type=str, default=None, nargs=1,
                     help='generate supercell in LAMMPS data file format')
 
 parser.add_argument('-average', action='store_true',
-                    help='returns average atomic positions of the MD')
+                    help='returns average atomic positions')
 
 parser.add_argument('--MD_commensurate', action='store_true',
                     help='use commensurate points in MD supercell instead of force constants supercell')
@@ -329,9 +329,8 @@ if args.save_power_spectrum_partials:
 # -----------------
 
 if args.average:
-    reference = calculation.dynamic.average_positions()
-    for i in reference:
-        print '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*i.real)
+    calculation.get_average_atomic_positions()
+
 
 if args.interactive:
     if isinstance(trajectory, list) or isinstance(trajectory, tuple):
