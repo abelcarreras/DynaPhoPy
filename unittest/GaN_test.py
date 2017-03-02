@@ -5,8 +5,8 @@ import os
 import dynaphopy.interface.iofile as io
 import dynaphopy
 from phonopy.file_IO import parse_FORCE_CONSTANTS
-
 import unittest
+
 
 class TestDynaphopy(unittest.TestCase):
 
@@ -43,7 +43,6 @@ class TestDynaphopy(unittest.TestCase):
         positions =  self.structure.get_positions()
         self.assertEqual(np.allclose(positions_average, positions, rtol=1, atol=1.e-4), True)
 
-
     def test_thermal_properties(self):
         trajectory = io.initialize_from_hdf5_file('test_gan.h5',
                                                   self.structure,
@@ -62,8 +61,6 @@ class TestDynaphopy(unittest.TestCase):
         maximum = np.max((harmonic-anharmonic)**2/harmonic)
         self.assertLess(maximum, 0.05)
 
-
-
     def test_force_constants_self_consistency(self):
         trajectory = io.initialize_from_hdf5_file('test_gan.h5',
                                                   self.structure,
@@ -78,9 +75,12 @@ class TestDynaphopy(unittest.TestCase):
         harmonic_force_constants = self.calculation.dynamic.structure.get_force_constants()
         self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
 
-
     def __del__(self):
-        os.remove('test_gan.h5')
+        try:
+            os.remove('test_gan.h5')
+        except:
+            pass
+
         print ('end')
 
 if __name__ == '__main__':
