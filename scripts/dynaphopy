@@ -17,8 +17,8 @@ parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('md_file', metavar='trajectory', type=str, nargs='?',
                    help='Output file containing MD trajectory')
-group.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
-                   help='load velocity from hdf5 file')
+group.add_argument('-lv', '--load_data', metavar='file', type=str, nargs=1,
+                   help='load MD data from hdf5 file')
 
 parser.add_argument('-i', '--interactive', action='store_true',
                     help='enter interactive mode')
@@ -53,8 +53,8 @@ parser.add_argument('-sw', '--save_wave_vector', metavar='file', type=str, nargs
 parser.add_argument('-sp', '--save_phonon_mode', metavar='file', type=str, nargs=1,
                     help='save projection into phonon modes to file')
 
-parser.add_argument('-sv', '--save_velocity', metavar='file', type=str, nargs=1, default=False,
-                    help='save velocity into hdf5 file')
+parser.add_argument('-sv', '--save_data', metavar='file', type=str, nargs=1, default=False,
+                    help='save MD data into hdf5 file')
 
 parser.add_argument('-svc', '--save_vc', metavar='file', type=str, nargs=1, default=False,
                     help='save wave vector projected velocity into hdf5 file')
