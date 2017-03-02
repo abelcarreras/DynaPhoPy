@@ -39,8 +39,10 @@ class TestDynaphopy(unittest.TestCase):
 
         self.calculation.get_anisotropic_displacement_parameters()
         positions_average = self.calculation.dynamic.average_positions(to_unit_cell=True)
-
         positions =  self.structure.get_positions()
+
+        print positions - positions_average
+
         self.assertEqual(np.allclose(positions_average, positions, rtol=1, atol=1.e-3), True)
 
     def test_thermal_properties(self):
