@@ -195,14 +195,14 @@ if args.c_lammps:
 
 
 # Load trajectory
-if args.load_velocity:
-    trajectory = reading.initialize_from_hdf5_file(args.load_velocity[0],
+if args.load_data:
+    trajectory = reading.initialize_from_hdf5_file(args.load_data[0],
                                                    structure,
                                                    read_trajectory=not args.velocity_only,
                                                    initial_cut=args.read_from,
                                                    final_cut=args.read_to,
                                                    memmap=args.memmap)
-    structure_file = args.load_velocity[0]
+    structure_file = args.load_data[0]
 if args.md_file:
     trajectory_reading_function = reading.get_trajectory_parser(args.md_file)
     if trajectory_reading_function is None:
@@ -270,8 +270,8 @@ if args.number_of_mem_coefficients:
 if args.save_vc:
     calculation.save_vc_hdf5(args.save_vc[0])
 
-if args.save_velocity:
-    calculation.save_velocity_hdf5(args.save_velocity[0], save_trajectory=not args.velocity_only)
+if args.save_data:
+    calculation.save_velocity_hdf5(args.save_data[0], save_trajectory=not args.velocity_only)
 
 # Process calculation arguments
 if args.frequency_range:
