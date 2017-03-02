@@ -41,7 +41,7 @@ class TestDynaphopy(unittest.TestCase):
         positions_average = self.calculation.dynamic.average_positions(to_unit_cell=True)
 
         positions =  self.structure.get_positions()
-        self.assertEqual(np.allclose(positions_average, positions, rtol=1, atol=1.e-4), True)
+        self.assertEqual(np.allclose(positions_average, positions, rtol=1, atol=1.e-3), True)
 
     def test_thermal_properties(self):
         trajectory = io.initialize_from_hdf5_file('test_gan.h5',
@@ -76,11 +76,7 @@ class TestDynaphopy(unittest.TestCase):
         self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
 
     def __del__(self):
-        try:
-            os.remove('test_gan.h5')
-        except:
-            pass
-
+        os.remove('test_gan.h5')
         print ('end')
 
 if __name__ == '__main__':
