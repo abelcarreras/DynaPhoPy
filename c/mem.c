@@ -49,7 +49,7 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     double *PowerSpectrum  = (double*)PyArray_DATA(PowerSpectrum_object);
 
     //Declare variables
-    double Coefficients[NumberOfCoefficients];
+    double Coefficients[NumberOfCoefficients+1];
 
     // Transform complex data to double
     double *Velocity_r = (double *)malloc(NumberOfData * sizeof(double));
