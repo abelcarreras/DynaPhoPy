@@ -52,8 +52,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
         #Show parameters right screen
         screen.addstr(2,45,"Input file: " + args.input_file[0][-20:])
-        if args.load_velocity:
-            screen.addstr(4,45,"hdf5 file: " + args.load_velocity[0][-20:])
+        if args.load_data:
+            screen.addstr(4,45,"hdf5 file: " + args.load_data[0][-20:])
         else:
             screen.addstr(3,45,"Structure file: " + structure_file[-14:])
             if args.md_file:

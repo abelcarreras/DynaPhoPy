@@ -178,9 +178,19 @@ class Dynamics:
             return
 
         if self._trajectory is not None:
-            if last_steps > self._trajectory.shape[0]:
-                print("Warning: specified step number larger than available")
             self._trajectory = self._trajectory[-last_steps:, :, :]
+            self._relative_trajectory = None
+            self._scaled_trajectory = None
+
+        if self._relative_trajectory is not None:
+            self._relative_trajectory = self._relative_trajectory[-last_steps:, :, :]
+            self._trajectory = None
+            self._scaled_trajectory = None
+
+        if self._scaled_trajectory is not None:
+            self._scaled_trajectory = self._scaled_trajectory[-last_steps:, :, :]
+            self._trajectory = None
+            self._relative_trajectory = None
 
         if self._energy is not None:
             self._energy = self._energy[-last_steps:]
@@ -189,7 +199,6 @@ class Dynamics:
 
         if last_steps > self.velocity.shape[0]:
             print("Warning: specified step number larger than available")
-
 
         self.velocity = self.velocity[-last_steps:, :, :]
 
