@@ -315,11 +315,7 @@ class Dynamics:
 
             # Correct the atom positions by position average
             if use_average_positions:
-                #  position_average = self.average_positions()
-                #  position = self.structure.get_positions(supercell=supercell)
-                #  position_difference = position - position_average
                 position_difference = np.average(displacements, axis=0)
-                print position_difference.shape
             else:
                 position_difference = np.zeros_like(self.structure.get_positions(supercell=supercell))
 
