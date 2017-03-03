@@ -38,21 +38,14 @@ class TestDynaphopy(unittest.TestCase):
 
 
         self.calculation.get_anisotropic_displacement_parameters()
-        positions_average = self.calculation.dynamic.average_positions(to_unit_cell=True)
+
+        positions_average = self.calculation.dynamic.average_positions(to_unit_cell=True).real
         positions = self.structure.get_positions()
+        difference = np.abs(positions - positions_average)
+        norm = np.linalg.norm(self.structure.get_cell(), axis=0)
+        difference = np.mod(difference, norm)
 
-        print positions - positions_average
-        for j, position in enumerate(positions):
-            difference_matrix = np.around(np.dot(np.linalg.inv(self.structure.get_cell()),
-                                                 position - 0.5 * np.dot(
-                                                 np.ones((3)), self.structure.get_cell().T)),
-                                                 decimals=0)
-
-            positions[j, :] -= np.dot(difference_matrix, self.structure.get_cell().T)
-
-        print positions - positions_average
-
-        self.assertEqual(np.allclose(positions_average, positions, rtol=1, atol=1.e-3), True)
+        self.assertLess(np.max(difference), 1e-4)
 
     def test_thermal_properties(self):
         trajectory = io.initialize_from_hdf5_file('test_gan.h5',
@@ -87,7 +80,7 @@ class TestDynaphopy(unittest.TestCase):
         self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
 
     def __del__(self):
-        os.remove('test_gan.h5')
+#        os.remove('test_gan.h5')
         print ('end')
 
 if __name__ == '__main__':
