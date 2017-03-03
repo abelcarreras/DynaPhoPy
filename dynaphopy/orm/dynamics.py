@@ -315,9 +315,11 @@ class Dynamics:
 
             # Correct the atom positions by position average
             if use_average_positions:
-                position_average = self.average_positions()
-                position = self.structure.get_positions(supercell=supercell)
-                position_difference = position - position_average
+                #  position_average = self.average_positions()
+                #  position = self.structure.get_positions(supercell=supercell)
+                #  position_difference = position - position_average
+                position_difference = np.average(displacements, axis=0)
+                print position_difference.shape
             else:
                 position_difference = np.zeros_like(self.structure.get_positions(supercell=supercell))
 
@@ -328,7 +330,7 @@ class Dynamics:
             for i in range(displacements.shape[1]):
                 primtive_normalization = number_atom_primitive_equivalent[atom_type_index[i]]
                 mean_displacement_matrix[atom_type_index[i], :, :] += np.dot(np.conj(displacements[:, i, :]).T,
-                                                                             displacements[:, i, :] + position_difference[i]
+                                                                             displacements[:, i, :] - position_difference[i]
                                                                              ).real / primtive_normalization
 
             self._mean_displacement_matrix = mean_displacement_matrix / (number_of_equivalent_atoms * number_of_data)
