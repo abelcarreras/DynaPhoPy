@@ -36,17 +36,17 @@ class TestDynaphopy(unittest.TestCase):
                                                   memmap=False)
         self.calculation = dynaphopy.Quasiparticle(trajectory)
 
-
         self.calculation.get_anisotropic_displacement_parameters()
 
         positions_average = self.calculation.dynamic.average_positions(to_unit_cell=True).real
         positions = self.structure.get_positions()
         difference = positions - positions_average
+
         norm = np.linalg.norm(self.structure.get_cell(), axis=0)
         difference = np.mod(difference, norm)
-        division = np.divide(difference, norm)
+        multiples = np.divide(difference, norm)
 
-        self.assertLess(np.max(np.abs(division - np.round(division))), 1e-4)
+        self.assertLess(np.max(np.abs(multiples - np.round(multiples))), 1e-4)
 
     def test_thermal_properties(self):
         trajectory = io.initialize_from_hdf5_file('test_gan.h5',
@@ -72,7 +72,7 @@ class TestDynaphopy(unittest.TestCase):
                                                   read_trajectory=False,
                                                   initial_cut=1,
                                                   final_cut=3000,
-                                                  memmap=False)
+                                                  memmap=True)
         self.calculation = dynaphopy.Quasiparticle(trajectory)
 
         self.calculation.select_power_spectra_algorithm(2)
@@ -81,7 +81,7 @@ class TestDynaphopy(unittest.TestCase):
         self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
 
     def __del__(self):
-  #      os.remove('test_gan.h5')
+        os.remove('test_gan.h5')
         print ('end')
 
 if __name__ == '__main__':
