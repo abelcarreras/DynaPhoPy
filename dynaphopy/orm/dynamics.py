@@ -396,7 +396,7 @@ class Dynamics:
 
             difference_matrix = np.around(np.dot(np.linalg.inv(cell),
                                                  averaged_positions[j, :] - 0.5 * np.dot(np.ones((number_of_dimensions)), cell.T)),
-                                          decimals=0)
+                                                 decimals=0)
             averaged_positions[j, :] -= np.dot(difference_matrix, cell.T)
 
 

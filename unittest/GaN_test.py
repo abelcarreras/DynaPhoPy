@@ -39,7 +39,16 @@ class TestDynaphopy(unittest.TestCase):
 
         self.calculation.get_anisotropic_displacement_parameters()
         positions_average = self.calculation.dynamic.average_positions(to_unit_cell=True)
-        positions =  self.structure.get_positions()
+        positions = self.structure.get_positions()
+
+        print positions - positions_average
+        for j, position in enumerate(positions):
+            difference_matrix = np.around(np.dot(np.linalg.inv(self.structure.get_cell()),
+                                                 position - 0.5 * np.dot(
+                                                 np.ones((3)), self.structure.get_cell().T)),
+                                                 decimals=0)
+
+            positions[j, :] -= np.dot(difference_matrix, self.structure.get_cell().T)
 
         print positions - positions_average
 
