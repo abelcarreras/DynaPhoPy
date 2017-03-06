@@ -28,7 +28,7 @@ def get_trajectory_parser(file_name, bytes_to_check=1000000):
 
     #Check available parsers
     for parser in parsers_keywords.itervalues():
-        with open (file_name, "r+") as f:
+        with open(file_name, "r+") as f:
             file_map = mmap.mmap(f.fileno(), np.min([bytes_to_check, file_size]))
             num_test = [file_map.find(keyword) for keyword in parser['keywords']]
 

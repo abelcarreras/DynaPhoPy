@@ -1,4 +1,4 @@
-__version__ = '1.14.4'
+__version__ = '1.14.5'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -221,6 +221,8 @@ class Quasiparticle:
         eigenvectors = data['eigenvectors']
         linewidths = data['linewidths']
 
+        plt.suptitle('Renormalized phonon dispersion relations')
+
         sup_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies+linewidths/2,
                                                                  eigenvectors,
                                                                  self.dynamic.structure,
@@ -232,6 +234,7 @@ class Quasiparticle:
                                                                  symmetrize=self.parameters.symmetrize)
 
         if plot_linewidths:
+            plt.suptitle('Renormalized phonon dispersion relations and linewidths')
             renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                               self.parameters.band_ranges,
                                                                               force_constants=sup_lim,
@@ -258,7 +261,6 @@ class Quasiparticle:
         plt.xlabel('Wave vector')
         plt.xlim([0, self._bands[1][-1][-1]])
         plt.axhline(y=0, color='k', ls='dashed')
-        plt.suptitle('Renormalized phonon dispersion relations')
         handles, labels = plt.gca().get_legend_handles_labels()
         plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
         plt.show()
@@ -597,7 +599,7 @@ class Quasiparticle:
         plt.show()
 
         total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
+        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
         plt.suptitle('Projection onto wave vector')
@@ -606,7 +608,7 @@ class Quasiparticle:
         plt.ylabel('eV * ps')
         plt.show()
         total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
+        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_phonon(self):
         for i in range(self.get_power_spectrum_phonon().shape[1]):
@@ -709,14 +711,14 @@ class Quasiparticle:
                                     self.get_power_spectrum_full()[None].T,
                                     file_name)
         total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
+        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_wave_vector(self, file_name):
         reading.write_curve_to_file(self.get_frequency_range(),
                                     self.get_power_spectrum_wave_vector()[None].T,
                                     file_name)
         total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
-        print ("Total Area (1/2 Kinetic energy <K>): {0} eV".format(total_integral))
+        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_phonon(self, file_name):
         reading.write_curve_to_file(self.get_frequency_range(),
@@ -995,11 +997,11 @@ class Quasiparticle:
         atomic_types_unique = [elements[i] for i in atom_type_index_unique]
 
         if print_on_screen:
-            print('Anisotropic displacement parameters ({0})'.format(coordinate_type))
+            print('Anisotropic displacement parameters ({0}) [relative to average atomic positions]'.format(coordinate_type))
             print('          U11          U22          U33          U23          U13          U12')
 
         anisotropic_displacements = []
-        for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix()):
+        for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix(use_average_positions=True)):
 
             cell = self.dynamic.structure.get_cell()
             cell_inv = np.linalg.inv(cell)
@@ -1028,6 +1030,14 @@ class Quasiparticle:
             anisotropic_displacements.append(u[coordinate_type])
 
         return anisotropic_displacements
+
+    def get_average_atomic_positions(self):
+        print 'Average atomic positions'
+        positions_average = self.dynamic.average_positions(to_unit_cell=True)
+        elements = self.dynamic.structure.get_atomic_types()
+        for i, coordinate in enumerate(positions_average):
+            print '{0:2} '.format(elements[i]) + '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*coordinate.real)
+
 
 # Support functions
 def vector_in_list(vector_test_list, vector_full_list):

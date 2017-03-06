@@ -83,7 +83,7 @@ double EvaluateCorrelation (double Frequency, double _Complex Velocity[], int Nu
             }
         }
     }
-    return  creal(Correl) * TimeStep/(NumberOfData/Increment)/2.0;
+    return  creal(Correl) * TimeStep/(NumberOfData/Increment);
 }
 
 // Original (simple)

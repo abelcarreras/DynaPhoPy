@@ -17,8 +17,8 @@ parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('md_file', metavar='trajectory', type=str, nargs='?',
                    help='Output file containing MD trajectory')
-group.add_argument('-lv', '--load_velocity', metavar='file', type=str, nargs=1,
-                   help='load velocity from hdf5 file')
+group.add_argument('-lv', '--load_data', metavar='file', type=str, nargs=1,
+                   help='load MD data from hdf5 file')
 
 parser.add_argument('-i', '--interactive', action='store_true',
                     help='enter interactive mode')
@@ -53,8 +53,8 @@ parser.add_argument('-sw', '--save_wave_vector', metavar='file', type=str, nargs
 parser.add_argument('-sp', '--save_phonon_mode', metavar='file', type=str, nargs=1,
                     help='save projection into phonon modes to file')
 
-parser.add_argument('-sv', '--save_velocity', metavar='file', type=str, nargs=1, default=False,
-                    help='save velocity into hdf5 file')
+parser.add_argument('-sv', '--save_data', metavar='file', type=str, nargs=1, default=False,
+                    help='save MD data into hdf5 file')
 
 parser.add_argument('-svc', '--save_vc', metavar='file', type=str, nargs=1, default=False,
                     help='save wave vector projected velocity into hdf5 file')
@@ -135,7 +135,7 @@ group.add_argument('-c_lammps', metavar='file', type=str, default=None, nargs=1,
                     help='generate supercell in LAMMPS data file format')
 
 parser.add_argument('-average', action='store_true',
-                    help='returns average atomic positions of the MD')
+                    help='returns average atomic positions')
 
 parser.add_argument('--MD_commensurate', action='store_true',
                     help='use commensurate points in MD supercell instead of force constants supercell')
@@ -195,14 +195,14 @@ if args.c_lammps:
 
 
 # Load trajectory
-if args.load_velocity:
-    trajectory = reading.initialize_from_hdf5_file(args.load_velocity[0],
+if args.load_data:
+    trajectory = reading.initialize_from_hdf5_file(args.load_data[0],
                                                    structure,
                                                    read_trajectory=not args.velocity_only,
                                                    initial_cut=args.read_from,
                                                    final_cut=args.read_to,
                                                    memmap=args.memmap)
-    structure_file = args.load_velocity[0]
+    structure_file = args.load_data[0]
 if args.md_file:
     trajectory_reading_function = reading.get_trajectory_parser(args.md_file)
     if trajectory_reading_function is None:
@@ -270,8 +270,8 @@ if args.number_of_mem_coefficients:
 if args.save_vc:
     calculation.save_vc_hdf5(args.save_vc[0])
 
-if args.save_velocity:
-    calculation.save_velocity_hdf5(args.save_velocity[0], save_trajectory=not args.velocity_only)
+if args.save_data:
+    calculation.save_velocity_hdf5(args.save_data[0], save_trajectory=not args.velocity_only)
 
 # Process calculation arguments
 if args.frequency_range:
@@ -329,9 +329,8 @@ if args.save_power_spectrum_partials:
 # -----------------
 
 if args.average:
-    reference = calculation.dynamic.average_positions()
-    for i in reference:
-        print '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*i.real)
+    calculation.get_average_atomic_positions()
+
 
 if args.interactive:
     if isinstance(trajectory, list) or isinstance(trajectory, tuple):

@@ -3,10 +3,8 @@ import matplotlib.pyplot as plt
 from scipy.integrate import simps
 from dynaphopy.analysis.fitting import fitting_functions
 
-#from scipy.optimize import curve_fit, minimize_scalar, root
-
 h_planck = 4.135667662e-3  # eV/ps
-h_planck_bar = 6.58211951e-4  # eV/ps
+h_planck_bar = h_planck/(2.0*np.pi)  # eV/ps
 kb_boltzmann = 8.6173324e-5  # eV/K
 
 
@@ -34,7 +32,7 @@ def average_phonon(index, data, degeneracy):
             return np.average([data[:, j] for j in degeneracy[i]], axis=0)
 
 
-def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequencies=None,
+def phonon_fitting_analysis(original, ps_frequencies, harmonic_frequencies=None,
                             fitting_function_type=0,
                             show_plots=True,
                             use_degeneracy=True,
@@ -50,15 +48,14 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
         if use_degeneracy:
             degeneracy = degenerate_sets(harmonic_frequencies)
             power_spectrum = average_phonon(i, original, degeneracy)
-
         else:
             power_spectrum = original[:, i]
 
         guess_height = np.max(power_spectrum)
-        guess_position = test_frequencies_range[np.argmax(power_spectrum)]
+        guess_position = ps_frequencies[np.argmax(power_spectrum)]
 
         Fitting_function_class = fitting_functions.fitting_functions[fitting_function_type]
-        fitting_function = Fitting_function_class(test_frequencies_range,
+        fitting_function = Fitting_function_class(ps_frequencies,
                                                   power_spectrum,
                                                   guess_height=guess_height,
                                                   guess_position=guess_position)
@@ -70,47 +67,49 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             widths.append(0)
             errors.append(0)
             dt_Q2_s.append(0)
+            print ('Warning: Fitting not successful in peak #{0}'.format(i+1))
             continue
 
-        frequency = fitting_parameters['peak_position']
+        position = fitting_parameters['peak_position']
         area = fitting_parameters['area']
         width = fitting_parameters['width']
         base_line = fitting_parameters['base_line']
         maximum = fitting_parameters['maximum']
         error = fitting_parameters['global_error']
 
-        total_integral = simps(power_spectrum, x=test_frequencies_range)
+        total_integral = simps(power_spectrum, x=ps_frequencies)
 
         # Calculated properties
-        dt_Q2_lor = 2 * 2 * area
-        dt_Q2_tot = 2 * 2 * total_integral
+        dt_Q2_lor = 2 * area
+        dt_Q2_tot = 2 * total_integral
 
         # Only within harmonic approximation
-        Q2_lor = dt_Q2_lor / pow(frequency * 2 * np.pi, 2)
-        Q2_tot = dt_Q2_tot / pow(frequency * 2 * np.pi,2)
+        Q2_lor = dt_Q2_lor / pow(position * 2 * np.pi, 2)
+        Q2_tot = dt_Q2_tot / pow(position * 2 * np.pi,2)
 
-        occupancy_lor = dt_Q2_lor / (frequency * h_planck_bar) - 0.5
-        occupancy_tot = dt_Q2_tot / (frequency * h_planck_bar) - 0.5
+        occupancy_lor = dt_Q2_lor / (position * h_planck_bar) - 0.5
+        occupancy_tot = dt_Q2_tot / (position * h_planck_bar) - 0.5
 
-    #    fit_temperature = dt_Q2_lor / kb_boltzmann # High temperature limit
-        fit_temperature = h_planck_bar * frequency / (kb_boltzmann * np.log((1.0 / occupancy_lor + 1.0)))
+        # fit_temperature = dt_Q2_lor / kb_boltzmann  # High temperature limit
+        fit_temperature = h_planck_bar * position / (kb_boltzmann * np.log((1.0 / occupancy_lor + 1.0)))
+        fit_temperature_tot = h_planck_bar * position / (kb_boltzmann * np.log((1.0 / occupancy_tot + 1.0)))
 
         #Print section
         print ('\nPeak # {0}'.format(i+1))
         print ('----------------------------------------------')
         print ('Width                      {0:15.6f} THz'.format(width))
-        print ('Position                   {0:15.6f} THz'.format(frequency))
-        print ('Area (1/2<K>) ({0:.10s}) {1:15.6f} eV'.format(fitting_function.curve_name, area))      # 1/2 Kinetic energy
-        print ('Area (1/2<K>) (Total)      {0:15.6f} eV'.format(total_integral))   # 1/2 Kinetic energy
+        print ('Position                   {0:15.6f} THz'.format(position))
+        print ('Area (<K>)    ({0:.10s}) {1:15.6f} eV'.format(fitting_function.curve_name, area))  # 1/2 Kinetic energy
+        print ('Area (<K>)    (Total)      {0:15.6f} eV'.format(total_integral))   # 1/2 Kinetic energy
         print ('<|dQ/dt|^2>                {0:15.6f} eV'.format(dt_Q2_lor))        # Kinetic energy
- #       print '<|dQ/dt|^2> (tot):        ', dt_Q2_tot, 'eV'        # Kinetic energy
- #       print '<|Q|^2> (lor):          ', Q2_lor, 'u * Angstrom^2'
- #       print '<|Q|^2> (tot):          ', Q2_tot, 'u * Angstrom^2'
+        # print '<|dQ/dt|^2> (tot):        ', dt_Q2_tot, 'eV'        # Kinetic energy
+        # print '<|Q|^2> (lor):          ', Q2_lor, 'eV' #  potential energy
+        # print '<|Q|^2> (tot):          ', Q2_tot, 'eV' #  potential energy
         if show_occupancy:
             print ('Occupation number          {0:15.6f}'.format(occupancy_lor))
-     #       print 'Occupation number(tot): ', occupancy_tot
-            print ('Fit temperature            {0:15.6f} K'.format(fit_temperature))
-     #       print 'Fit temperature (tot)   ', dt_Q2_tot / kb_bolzman, 'K'
+            # print ('Fit temperature            {0:15.6f} K'.format(fit_temperature))
+            print ('Fit temperature (Total)    {0:15.6f} K'.format(fit_temperature_tot))
+
         print ('Base line                  {0:15.6f} eV * ps'.format(base_line))
         print ('Maximum height             {0:15.6f} eV * ps'.format(maximum))
         print ('Fitting global error       {0:15.6f}'.format(error))
@@ -120,9 +119,9 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             print ('Peak asymmetry             {0:15.6f}'.format(asymmetry))
 
         if harmonic_frequencies is not None:
-            print ('Frequency shift            {0:15.6f} THz'.format(frequency - harmonic_frequencies[i]))
+            print ('Frequency shift            {0:15.6f} THz'.format(position - harmonic_frequencies[i]))
 
-        positions.append(frequency)
+        positions.append(position)
         widths.append(width)
         errors.append(error/maximum)
         dt_Q2_s.append(dt_Q2_lor)
@@ -136,17 +135,15 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
             plt.title('Curve fitting')
 
             plt.suptitle('Phonon {0}'.format(i+1))
-            plt.text(frequency+width, guess_height/2, 'Width: ' + "{:10.4f}".format(width),
+            plt.text(position+width, guess_height/2, 'Width: ' + "{:10.4f}".format(width),
                      fontsize=12)
 
-            plt.plot(test_frequencies_range, power_spectrum,
+            plt.plot(ps_frequencies, power_spectrum,
                      label='Power spectrum')
 
-
-            plt.plot(test_frequencies_range, fitting_function.get_curve(test_frequencies_range),
+            plt.plot(ps_frequencies, fitting_function.get_curve(ps_frequencies),
                      label=fitting_function.curve_name,
                      linewidth=3)
-
 
 #            plt.plot(test_frequencies_range, dumped_harmonic(test_frequencies_range, *fit_params[:4]),
 #                     label='Lorentzian fit',
@@ -156,12 +153,11 @@ def phonon_fitting_analysis(original, test_frequencies_range, harmonic_frequenci
 #                     label=('As. Lorentzian fit' if asymmetric_peaks else 'Lorentizian fit'),
 #                     linewidth=3)
 
-            plt.axvline(x=frequency, color='k', ls='dashed')
+            plt.axvline(x=position, color='k', ls='dashed')
             plt.ylim(bottom=0)
-            plt.xlim([test_frequencies_range[0],test_frequencies_range[-1]])
-            plt.fill_between([frequency-width/2, frequency+width/2],0,plt.gca().get_ylim()[1],color='red', alpha='0.2')
+            plt.xlim([ps_frequencies[0], ps_frequencies[-1]])
+            plt.fill_between([position-width/2, position+width/2],0,plt.gca().get_ylim()[1],color='red', alpha='0.2')
             plt.legend()
-
 
     if show_plots:
         plt.show()

@@ -9,6 +9,7 @@ h_bar = 6.626070040e-22  # J * ps
 
 warnings.simplefilter("ignore")
 
+
 def get_dos(temp, frequency, power_spectrum, n_size, bose_einstein_statistics=False):
 
     conversion_factor = 1.60217662e-19 # eV -> J
@@ -23,7 +24,7 @@ def get_dos(temp, frequency, power_spectrum, n_size, bose_einstein_statistics=Fa
         def energy(freq, temp):
             return k_b * temp
 
-    dos = np.nan_to_num([4.0*conversion_factor*power_spectrum[i]/(energy(freq, temp)*n_size)
+    dos = np.nan_to_num([2.0*conversion_factor*power_spectrum[i]/(energy(freq, temp)*n_size)
                          for i, freq in enumerate(frequency)])
     return dos
 
@@ -33,7 +34,7 @@ def get_total_energy(temperature, frequency, dos):
     def n(temp, freq):
         return pow(np.exp(freq*h_bar/(k_b*temp))-1, -1)
 
-    total_energy = np.nan_to_num([dos[i] * h_bar*freq*(0.5 + n(temperature, freq))
+    total_energy = np.nan_to_num([dos[i] * h_bar * freq * (0.5 + n(temperature, freq))
                                  for i, freq in enumerate(frequency)])
 
     total_energy = integrate.simps(total_energy, frequency) * N_a / 1000  # KJ/K/mol
@@ -90,7 +91,7 @@ def get_entropy(temperature, frequency, dos):
     entropy = integrate.simps(entropy, frequency) * N_a # J/K/mol
     return entropy
 
-#Alternative way to calculate entropy (also works)
+# Alternative way to calculate entropy (not used)
 def get_entropy2(temperature, frequency, dos):
 
     def n(temp, freq):
@@ -146,7 +147,7 @@ if __name__ == "__main__":
         frequency_p.append(float(line.split()[0]))
         power_spectrum.append(float(line.split()[1]))
 
-    #power_spectrum = get_dos(temp,frequency_p,power_spectrum, 12*12*6)
+    # power_spectrum = get_dos(temp,frequency_p,power_spectrum, 12*12*6)
 
     power_spectrum = get_dos(temp, frequency_p, power_spectrum, 12*12*12)
 
@@ -156,7 +157,7 @@ if __name__ == "__main__":
     pl.legend()
     pl.show()
 
-    #free_energy = get_free_energy(temp,frequency,dos) + get_free_energy_correction(temp, frequency, dos, shift)
+    # free_energy = get_free_energy(temp,frequency,dos) + get_free_energy_correction(temp, frequency, dos, shift)
 
     print (get_free_energy_correction_shift(temp, frequency, dos, shift),
            get_free_energy_correction_dos(temp, frequency, dos, dos_r))
