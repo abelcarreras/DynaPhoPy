@@ -182,7 +182,7 @@ Frequency shift:           -0.82162488 THz
 <br><strong>Area:</strong> The integration of the power spectrum. This area is equal to one half of the total kinetic energy of each phonon. At high temperature this area should be close to:
 </p>
 <p style="text-align:center">
-$$ \frac{1}4 N K_bT$$
+$$ \frac{1}2 N K_bT$$
 </p>
 However, due to the anharmonicity, the harmonic eigenvectors may not describe correctly the anharmonic phonons and this value may change. This value is calculated fromt he obtained power spectrum (total) and from the interpolated Lorentzian curve (Lorenzian). As long as the phonon quasi particles approximation is correct, the area obtained from Loretzian curve should be more trustfull. Using MEM method, both areas tend to be equal. However, in the Fourier Transform method, due to the noise these values may differ. For this reason, visual analysis is strongly recommended to ensure a good fitting.
 <br><strong><|dQ/dt|^2>:</strong> Time derivative of the phonon coordinate. Within the harmonic approximation, this value is equal to the double of the kinetic energy and equal to the total energy.</p>
@@ -306,7 +306,17 @@ coordinate.
     ADP's are displayed in "unitvectors parallel to the basis vectors of reciproval space (UVRS)" coordinates. This coordinate system is used in popular file formats such CIF as mmCIF.
 </p>
 
-
+<h3>Average structure (ADP's)</h3>
+<p> The anisotropic displacement parameters (ADP's) can be calculated from molecular dynamics trajectories using DynaPhoPy. These parameters can be used to represent the thermal allipsoids. At the present time DynaPhoPy do not draw the thermal ellipsoids but you can use one of the available visualization software to do this (e.g. vesta).
+<br>This feature is only available by command line interface by using <strong>-adp</strong> option. 
+</p>
+<pre><code>$ dynaphopy input_file TRAJECTORY -adp</code></pre>
+<p>
+    ADP's are displayed in "unitvectors parallel to the basis vectors of reciproval space (UVRS)" coordinates. This coordinate system is used in popular file formats such CIF as mmCIF. ADP's are calculated respect to the average positions of the atoms in the MD. The average atomic positions can be obtained using DynaPhoPy by <strong>-average</strong> option: 
+</p>
+    <pre><code>$ dynaphopy input_file TRAJECTORY -average</code></pre>
+    <p>
+The translation crystal symmetry is applied in the calculation of the average positions acording to the unitcell and primitive matrix to calculate both the ADP and the average structure.
 
     
     
