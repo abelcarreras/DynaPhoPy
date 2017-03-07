@@ -266,7 +266,7 @@ $$
 
 <em>[1] Stancik A L and  Brauns E B. A simple asymmetric lineshape for fitting infrared absorption spectra. Vibrational Spectroscopy, 47(1), 66–69 (2008)</em>
 
-<h3>Atomic displacements</h3>
+<h3>Atomic displacements distribution</h3>
 <p>
 DynaPhoPy allows to calculate the atomic displacements distribution from the MD trajectory respect to a desired direction. 
 The calculation of the atomic displacements requires (obviously) the previous load of the trajectory coordinates
@@ -278,16 +278,15 @@ for the use of <strong>concath5</strong> script.
 is able to create hdf5 files which contains only the velocity information using <strong>--velocity_only</strong> flag in 
 order to reduce HD space.
 <br>To request a atomic displacements calculation flags <strong>-pad</strong> and <strong>-sad</strong> are used,
-<strong>pad</strong> will calculate the displacements and show the data in a matplolib plot:
+using <strong>-pad</strong> option the atomic displacements distribution is shown in a matplolib plot:
 </p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -pad 0 0 1
 </code></pre>
 <img src="images/atomic_displacements_mg.png" alt="Interactive" style="width:630px">
 <p>
 this flag requires a set of three float numbers that compose the vector that indicates the direction into which
-the atomic displacements will be analyzed. The atomic displacements distribution is fitted to gaussian functions.
+the atomic displacements will be analyzed. This distribution is also fitted to a gaussian function.
 The fitting parameters are shown on screen.
-    
 <pre><code>Atom 0, Element Mg
 -----------------------------------------
 Mean                      0.000023 Angstrom
@@ -295,8 +294,8 @@ Standard deviation        0.137539 Angstrom
 Global fit error          0.000311
 </code></pre>
 
-<br>On the other hand, <strong>-sad</strong> flag does the same calculation as  <strong>-pad</strong> but instead of
-showing the plot on the screen stores the distrbution data in a file:
+<br>The atomic displacements are calculated respect to the equilibrium positions defined in the unit cell.
+<strong>-sad</strong> option stores the atomic displacements distribution data into a file. This options takes four arguments corresponding to the direction vector and the file name.  
 </p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -sad 0 0 1 displacements_file.out
 </code></pre>
