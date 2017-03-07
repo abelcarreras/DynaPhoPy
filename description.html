@@ -268,7 +268,7 @@ $$
 
 <h3>Atomic displacements</h3>
 <p>
-DynaPhoPy allows to calculate the atomic displacements from the MD trajectory respect to a desired direction. 
+DynaPhoPy allows to calculate the atomic displacements distribution from the MD trajectory respect to a desired direction. 
 The calculation of the atomic displacements requires (obviously) the previous load of the trajectory coordinates
 information. In previous versions of DynaPhoPy, this trajectory was not stored in the hdf5 files, so if you load
 the MD information from a hdf5 file, please make sure that contains also the trajectory coordinates. If not, you 
@@ -282,12 +282,21 @@ order to reduce HD space.
 </p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -pad 0 0 1
 </code></pre>
-<img src="images/atomic_displacements.png" alt="Interactive" style="width:630px">
+<img src="images/atomic_displacements_mg.png" alt="Interactive" style="width:630px">
 <p>
 this flag requires a set of three float numbers that compose the vector that indicates the direction into which
-the atomic displacements will be analyzed.
+the atomic displacements will be analyzed. The atomic displacements distribution is fitted to gaussian functions.
+The fitting parameters are shown on screen.
+    
+<pre><code>Atom 0, Element Mg
+-----------------------------------------
+Mean                      0.000023 Angstrom
+Standard deviation        0.137539 Angstrom
+Global fit error          0.000311
+</code></pre>
+
 <br>On the other hand, <strong>-sad</strong> flag does the same calculation as  <strong>-pad</strong> but instead of
-showing the plot on the screen stores the information in a defined file:
+showing the plot on the screen stores the distrbution data in a file:
 </p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -sad 0 0 1 displacements_file.out
 </code></pre>
@@ -298,21 +307,26 @@ coordinate.
 
 <div id="anisotropic_displacement_parameters"></div> 
 <h3>Anisotropic displacement parameters (ADP's)</h3>
-<p> The anisotropic displacement parameters (ADP's) can be calculated from molecular dynamics trajectories using DynaPhoPy. These parameters can be used to represent the thermal allipsoids. At the present time DynaPhoPy do not draw the thermal ellipsoids but you can use one of the multiple software available to do this.
-    <br>This feature is only available by command line interface by using <strong>-adp</strong> option. 
-    </p>
-    <pre><code>$ dynaphopy input_file TRAJECTORY -adp</code></pre>
-    <p>
-    ADP's are displayed in "unitvectors parallel to the basis vectors of reciproval space (UVRS)" coordinates. This coordinate system is used in popular file formats such CIF as mmCIF.
-</p>
-
-<h3>Average structure (ADP's)</h3>
 <p> The anisotropic displacement parameters (ADP's) can be calculated from molecular dynamics trajectories using DynaPhoPy. These parameters can be used to represent the thermal allipsoids. At the present time DynaPhoPy do not draw the thermal ellipsoids but you can use one of the available visualization software to do this (e.g. vesta).
 <br>This feature is only available by command line interface by using <strong>-adp</strong> option. 
 </p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -adp</code></pre>
 <p>
-    ADP's are displayed in "unitvectors parallel to the basis vectors of reciproval space (UVRS)" coordinates. This coordinate system is used in popular file formats such CIF as mmCIF. ADP's are calculated respect to the average positions of the atoms in the MD. The average atomic positions can be obtained using DynaPhoPy by <strong>-average</strong> option: 
+    ADP's are displayed in "unitvectors parallel to the basis vectors of reciproval space (UVRS)" coordinates. This coordinate system is used in popular file formats such CIF as mmCIF.
+    </p>
+<pre><code>             Anisotropic displacement parameters (uvrs)
+          U11          U22          U33          U23          U13          U12
+Mg    0.01904929   0.01927251   0.01901004   0.00034895  -0.00006727  -0.00017370
+Mg    0.01904929   0.01927251   0.01901004   0.00034895  -0.00006727  -0.00017370
+Mg    0.01904929   0.01927251   0.01901004   0.00034895  -0.00006727  -0.00017370
+Mg    0.01904929   0.01927251   0.01901004   0.00034895  -0.00006727  -0.00017370
+O     0.01828278   0.01837414   0.01803723   0.00015347   0.00010795  -0.00013897
+O     0.01828278   0.01837414   0.01803723   0.00015347   0.00010795  -0.00013897
+O     0.01828278   0.01837414   0.01803723   0.00015347   0.00010795  -0.00013897
+O     0.01828278   0.01837414   0.01803723   0.00015347   0.00010795  -0.00013897
+</code></pre>
+    <p>
+    ADP's are calculated respect to the average positions of the atoms in the MD. The average atomic positions can be obtained using DynaPhoPy by <strong>-average</strong> option: 
 </p>
     <pre><code>$ dynaphopy input_file TRAJECTORY -average</code></pre>
     <p>
