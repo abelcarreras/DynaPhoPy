@@ -44,10 +44,11 @@ of physics to descompose signals into elemental frequencies without information 
 <p>The power spectrum calculated by Dynaphopy can be either displayed in a matplotlib X window or stored in a file. All power spectra calculated by DynaPhoPy are by default two sided. The selection of the algorithm used to calculate the power spectra is defined by <strong>-psm</strong> flag followed by algorithm number.
 <br>At the present time there are 4 algorithms available:</p>
 <UL>
-<LI>0: Fourier transform algorithm (by integration).
+<LI>0: Fourier transform algorithm (direct method).
 <LI>1: Maximum Entropy Method algorithm.
 <LI>2: Fast Fourier transform (using numpy).
 <LI>3: Fast Fourier transform (using fftw).
+<LI>4: Fast Fourier transform (using cuda).
 
 </UL>
 If not specified algorithm 1 is used.</em>
@@ -179,46 +180,48 @@ Frequency shift:           -0.82162488 THz
 <p>
 <br><strong>Width:</strong>	Phonon linewidth
 <br><strong>Position:</strong> Anharmonic phonon frequency
-<br><strong>Area:</strong> The integration of the power spectrum. This area is equal to one half of the total kinetic energy of each phonon. At high temperature this area should be close to:
+<br><strong>Area:</strong> The integration of the power spectrum. This area is associated to the kinetic energy of the phonon mode. For quite harmonic systems, acording to the equipartiion theorem, at high temperature this area is expecte to be close to:
 </p>
 <p style="text-align:center">
-$$ \frac{1}2 N K_bT$$
+$$ \frac{1}2 K_bT$$
 </p>
-However, due to the anharmonicity, the harmonic eigenvectors may not describe correctly the anharmonic phonons and this value may change. This value is calculated fromt he obtained power spectrum (total) and from the interpolated Lorentzian curve (Lorenzian). As long as the phonon quasi particles approximation is correct, the area obtained from Loretzian curve should be more trustfull. Using MEM method, both areas tend to be equal. However, in the Fourier Transform method, due to the noise these values may differ. For this reason, visual analysis is strongly recommended to ensure a good fitting.
-<br><strong><|dQ/dt|^2>:</strong> Time derivative of the phonon coordinate. Within the harmonic approximation, this value is equal to the double of the kinetic energy and equal to the total energy.</p>
+However, due to the anharmonicity, this value may change. This temperature is calculated from the total power of the phonon-mode-projected projected power spectrum (area).
+<br><strong><|dQ/dt|^2>:</strong> Time derivative of the phonon coordinate. Within the harmonic approximation, this value is equal to the total energy. In DynaPhoPy this value is calculated as double of the <strong>area</strong>.</p>
 
 <p style="text-align:center">
 $$ \left\langle E \right\rangle  = \left\langle K \right\rangle  + \left\langle V \right\rangle  = 2 \cdot \left\langle K \right\rangle  = \left\langle {{{\left| {\dot Q} \right|}^2}} \right\rangle  = {K_b}T $$
 </p>
 
-From this equation temperature can be isolated. This value is shown in <strong>Fit Temperature</strong>.
+From this equation the temperature can be obtained. This value is shown in <strong>Fit Temperature</strong>.
 <br><strong>Occupation number:</strong> Calculated from  <a href="https://en.wikipedia.org/wiki/Bose%E2%80%93Einstein_statistics">Bose-Einstein distribution</a>.</p>
 
 <p style="text-align:center">
 $$n = \frac{{\left\langle E \right\rangle }}{{\hbar \omega }} - \frac{1}{2}$$
 </p>
-where <em>n</em> is the occupation number and <em>&omega;</em> is the phonon frequency (Position).
+assuming that 
+<p style="text-align:center">
+$$ \left\langle {{{\left| {\dot Q} \right|}^2}} \right\rangle = \left\langle E \right\rangle  $$
+</p>
+    where <em>n</em> is the occupation number and <em>&omega;</em> is the phonon frequency (<strong>Position</strong>).
 <p>
-<br><strong>Frequency shift:</strong> Difference between anharmonic frequency (Position) and harmonic frequency.
+    <br><strong>Frequency shift:</strong> Difference between the anharmonic frequency (<strong>Position</strong>) and the harmonic frequency (obtained from phonopy).
 <br><strong>Fitting global error:</strong> Fitting error is calculated as the average of the standard errors of the position and the width divided by the squareroot of the area to make it dimensionless so it can be comparable between diferent peak sizes. The standard errors are obtained from the squareroot of the diagonal elements of the covariance matrix</p>
 <p style="text-align:center">
 $$ 
 Global error = \frac{(e_p + e_w)}{2\sqrt(A)}
 $$
 </p>
-<br><p>By default, when the calculation is finished, a plot is shown for each power spectrum  showing the fitting result for visual inspection. 
+<br><p>By default, when the calculation is finished, a plot is shown for each phonon mode showing the fitting result for visual inspection. 
 </p>    
 <img src="images/peak_analysis_7.png" alt="Interactive" style="width:630px">
 <p>
-This is very convenient for visual analysis of short MD trajectories, but when the calculations are long, specially using Fourier transform, and the calculations are done in cluster computers, xwindows can not be displayed and the software may crash.
-
-<br><p>In this case flag <strong>--silent</strong> may be used. Using this flag only the text data is shown in the screen and the phonon information wich can be stored redirecting the output to a file.   
+This is convenient for visual analysis of short MD trajectories, but when the calculations are long, specially using Fourier transform, or the calculations are done in cluster computers xwindows may be inconvinent.
+In this case flag <strong>--silent</strong> can be used. Using this flag only the text data is shown in the screen and the phonon information wich can be stored redirecting the output to a file.   
 </p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -pa --silent > output.log
 </code></pre>
-<p>
-    
-<LI><h5> Fitting function selection</h5>
+<UL>
+<LI><h5>Fitting function selection</h5>
 <p>You can select the function used to fit the power spectrum by option <strong>--fitting_function</strong> followed by the function number. If this option is not specified function number 0 is used. 
 </p>
 <p> 
@@ -265,7 +268,8 @@ $$
 </p>    
 
 <em>[1] Stancik A L and  Brauns E B. A simple asymmetric lineshape for fitting infrared absorption spectra. Vibrational Spectroscopy, 47(1), 66–69 (2008)</em>
-
+</UL>
+    
 <h3>Atomic displacements distribution</h3>
 <p>
 DynaPhoPy allows to calculate the atomic displacements distribution from the MD trajectory respect to a desired direction. 
