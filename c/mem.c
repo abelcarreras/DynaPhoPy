@@ -49,19 +49,28 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     double *PowerSpectrum  = (double*)PyArray_DATA(PowerSpectrum_object);
 
     //Declare variables
-    double Coefficients[NumberOfCoefficients+1];
+    double Coefficients_r[NumberOfCoefficients+1];
+    double Coefficients_i[NumberOfCoefficients+1];
 
-    // Transform complex data to double
+
+    // Divide complex data to 2 double arrays
     double *Velocity_r = (double *)malloc(NumberOfData * sizeof(double));
-    for (int i=0; i < NumberOfData; i++)  Velocity_r[i] = (double)creal(Velocity[i]);
+    double *Velocity_i = (double *)malloc(NumberOfData * sizeof(double));
+
+    for (int i=0; i < NumberOfData; i++)  {
+        Velocity_r[i] = (double)creal(Velocity[i]);
+        Velocity_i[i] = (double)cimag(Velocity[i]);
+    }
 
     // Maximum Entropy Method Algorithm
-    double  MeanSquareDiscrepancy = GetCoefficients(Velocity_r, NumberOfData, NumberOfCoefficients, Coefficients);
+    double  MeanSquareDiscrepancy_r = GetCoefficients(Velocity_r, NumberOfData, NumberOfCoefficients, Coefficients_r);
+    double  MeanSquareDiscrepancy_i = GetCoefficients(Velocity_i, NumberOfData, NumberOfCoefficients, Coefficients_i);
 
     # pragma omp parallel for default(shared) private(AngularFrequency)
     for (int i=0; i < NumberOfFrequencies; i++) {
         AngularFrequency = Frequency[i]*2.0*M_PI;
-        PowerSpectrum[i] = FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep;
+        PowerSpectrum[i] = (FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients_r, NumberOfCoefficients, MeanSquareDiscrepancy_r) +
+                            FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients_i, NumberOfCoefficients, MeanSquareDiscrepancy_i)) * TimeStep;
     }
 
     // Free python memory

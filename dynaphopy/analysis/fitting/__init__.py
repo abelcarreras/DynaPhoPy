@@ -107,8 +107,8 @@ def phonon_fitting_analysis(original, ps_frequencies, harmonic_frequencies=None,
         # print '<|Q|^2> (tot):          ', Q2_tot, 'eV' #  potential energy
         if show_occupancy:
             print ('Occupation number          {0:15.6f}'.format(occupancy_lor))
-            # print ('Fit temperature            {0:15.6f} K'.format(fit_temperature))
-            print ('Fit temperature (Total)    {0:15.6f} K'.format(fit_temperature_tot))
+            print ('Fit temperature            {0:15.6f} K'.format(fit_temperature))
+            #print ('Fit temperature (Total)    {0:15.6f} K'.format(fit_temperature_tot))
 
         print ('Base line                  {0:15.6f} eV * ps'.format(base_line))
         print ('Maximum height             {0:15.6f} eV * ps'.format(maximum))
