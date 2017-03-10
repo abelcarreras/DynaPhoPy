@@ -49,19 +49,36 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     double *PowerSpectrum  = (double*)PyArray_DATA(PowerSpectrum_object);
 
     //Declare variables
-    double Coefficients[NumberOfCoefficients+1];
+    double Coefficients_r[NumberOfCoefficients+1];
+    double Coefficients_i[NumberOfCoefficients+1];
 
-    // Transform complex data to double
+
+    // Divide complex data to 2 double arrays
     double *Velocity_r = (double *)malloc(NumberOfData * sizeof(double));
-    for (int i=0; i < NumberOfData; i++)  Velocity_r[i] = (double)creal(Velocity[i]);
+    double *Velocity_i = (double *)malloc(NumberOfData * sizeof(double));
+
+    for (int i=0; i < NumberOfData; i++)  {
+        Velocity_r[i] = (double)creal(Velocity[i]);
+        Velocity_i[i] = (double)cimag(Velocity[i]);
+    }
 
     // Maximum Entropy Method Algorithm
-    double  MeanSquareDiscrepancy = GetCoefficients(Velocity_r, NumberOfData, NumberOfCoefficients, Coefficients);
+    double  MeanSquareDiscrepancy_r = GetCoefficients(Velocity_r, NumberOfData, NumberOfCoefficients, Coefficients_r);
+    double  MeanSquareDiscrepancy_i = GetCoefficients(Velocity_i, NumberOfData, NumberOfCoefficients, Coefficients_i);
 
     # pragma omp parallel for default(shared) private(AngularFrequency)
     for (int i=0; i < NumberOfFrequencies; i++) {
         AngularFrequency = Frequency[i]*2.0*M_PI;
-        PowerSpectrum[i] = FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients, NumberOfCoefficients, MeanSquareDiscrepancy) * TimeStep;
+
+        PowerSpectrum[i] = 0.0;
+//        if (! isnan(MeanSquareDiscrepancy_r)) {
+        if (MeanSquareDiscrepancy_r != 0.0) {
+            PowerSpectrum[i] += FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients_r, NumberOfCoefficients, MeanSquareDiscrepancy_r);
+        }
+        if (MeanSquareDiscrepancy_i != 0.0) {
+            PowerSpectrum[i] += FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients_i, NumberOfCoefficients, MeanSquareDiscrepancy_i);
+        }
+        PowerSpectrum[i] *= TimeStep;
     }
 
     // Free python memory
@@ -111,12 +128,14 @@ static double  GetCoefficients(double  *Data, int NumberOfData, int NumberOfCoef
     }
 
     for (k=1; k <= NumberOfCoefficients; k++) {
-        double  Numerator = 0.0,Denominator = 0.0;
+        double  Numerator = 0.0, Denominator = 0.0;
 
         for (j=1; j <= (NumberOfData - k); j++) {
             Numerator += wk1[j] * wk2[j];
             Denominator += pow(wk1[j],2) + pow(wk2[j], 2);
         }
+
+        if (abs(Denominator) < 1.0e-6) return 0.0;
 
         Coefficients[k] = 2.0 * Numerator / Denominator;
 
