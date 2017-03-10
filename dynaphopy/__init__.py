@@ -1,4 +1,4 @@
-__version__ = '1.14.5'
+__version__ = '1.14.6'
 
 import numpy as np
 import matplotlib.pyplot as plt

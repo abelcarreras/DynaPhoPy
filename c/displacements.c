@@ -7,20 +7,20 @@
 
 
 //  Functions declaration
-static double   **matrix_multiplication (double  **a, double  **b, int n, int l, int m);
+static double   **matrix_multiplication (double **a, double **b, int n, int l, int m);
 
-static int       TwotoOne              (int Row, int Column, int NumColumns);
+static int        TwotoOne              (int Row, int Column, int NumColumns);
 static double   **pymatrix_to_c_array_real   (PyArrayObject *array);
 
 static double _Complex  **pymatrix_to_c_array_complex   (PyArrayObject *array);
 
-static double  **matrix_inverse ( double ** a ,int n);
-static double  Determinant(double  **a,int n);
-static double  ** CoFactor(double  **a,int n);
-static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *keywords);
+static double   **matrix_inverse ( double ** a ,int n);
+static double     Determinant(double  **a,int n);
+static double   **CoFactor(double  **a,int n);
+static PyObject  *atomic_displacement(PyObject* self, PyObject *arg, PyObject *keywords);
 
 
-static PyObject* atomic_displacement(PyObject* self, PyObject *arg, PyObject *keywords) {
+static PyObject *atomic_displacement(PyObject *self, PyObject *arg, PyObject *keywords) {
 
 
 //  Interface with python
@@ -188,7 +188,7 @@ static double  Determinant(double  **a,int n)
    } else {
       det = 0;
       for (j1=0;j1<n;j1++) {
-         m = malloc((n-1)*sizeof(double  *));
+         m = malloc((n-1)*sizeof(double *));
          for (i=0;i<n-1;i++)
             m[i] = malloc((n-1)*sizeof(double ));
          for (i=1;i<n;i++) {
@@ -209,7 +209,7 @@ static double  Determinant(double  **a,int n)
    return(det);
 };
 
-//   Find the cofactor matrix of a square matrix
+//   Find the co factor matrix of a square matrix
 static double **CoFactor(double  **a,int n)
 {
    int i,j,ii,jj,i1,j1;

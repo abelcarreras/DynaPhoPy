@@ -162,7 +162,7 @@ class Lorentzian_asymmetric:
 
             frequency = peak_pos["x"]
             maximum = -peak_pos["fun"]
-            width = self._g_a(frequency, fit_params[0], fit_params[1], fit_params[4])*2
+            width = 2.0 * self._g_a(frequency, fit_params[0], fit_params[1], fit_params[4])
             asymmetry = fit_params[4]
 
             area, error_integration = quad(self._function, 0, self.test_frequencies_range[-1],

@@ -99,7 +99,7 @@ def phonon_fitting_analysis(original, ps_frequencies, harmonic_frequencies=None,
         print ('----------------------------------------------')
         print ('Width                      {0:15.6f} THz'.format(width))
         print ('Position                   {0:15.6f} THz'.format(position))
-        print ('Area (<K>)    ({0:.10s}) {1:15.6f} eV'.format(fitting_function.curve_name, area))  # 1/2 Kinetic energy
+        print ('Area (<K>)    ({0:.10s}) {1:15.6f} eV'.format(fitting_function.curve_name, area))  # Kinetic energy
         print ('Area (<K>)    (Total)      {0:15.6f} eV'.format(total_integral))   # 1/2 Kinetic energy
         print ('<|dQ/dt|^2>                {0:15.6f} eV'.format(dt_Q2_lor))        # Kinetic energy
         # print '<|dQ/dt|^2> (tot):        ', dt_Q2_tot, 'eV'        # Kinetic energy
@@ -107,8 +107,8 @@ def phonon_fitting_analysis(original, ps_frequencies, harmonic_frequencies=None,
         # print '<|Q|^2> (tot):          ', Q2_tot, 'eV' #  potential energy
         if show_occupancy:
             print ('Occupation number          {0:15.6f}'.format(occupancy_lor))
-            # print ('Fit temperature            {0:15.6f} K'.format(fit_temperature))
-            print ('Fit temperature (Total)    {0:15.6f} K'.format(fit_temperature_tot))
+            print ('Fit temperature            {0:15.6f} K'.format(fit_temperature))
+            #print ('Fit temperature (Total)    {0:15.6f} K'.format(fit_temperature_tot))
 
         print ('Base line                  {0:15.6f} eV * ps'.format(base_line))
         print ('Maximum height             {0:15.6f} eV * ps'.format(maximum))
