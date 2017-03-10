@@ -69,8 +69,13 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     # pragma omp parallel for default(shared) private(AngularFrequency)
     for (int i=0; i < NumberOfFrequencies; i++) {
         AngularFrequency = Frequency[i]*2.0*M_PI;
-        PowerSpectrum[i] = FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients_r, NumberOfCoefficients, MeanSquareDiscrepancy_r);
-        if (MeanSquareDiscrepancy_i == 0) {
+
+        PowerSpectrum[i] = 0.0;
+//        if (! isnan(MeanSquareDiscrepancy_r)) {
+        if (MeanSquareDiscrepancy_r != 0.0) {
+            PowerSpectrum[i] += FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients_r, NumberOfCoefficients, MeanSquareDiscrepancy_r);
+        }
+        if (MeanSquareDiscrepancy_i != 0.0) {
             PowerSpectrum[i] += FrequencyEvaluation(AngularFrequency*TimeStep, Coefficients_i, NumberOfCoefficients, MeanSquareDiscrepancy_i);
         }
         PowerSpectrum[i] *= TimeStep;
@@ -123,14 +128,14 @@ static double  GetCoefficients(double  *Data, int NumberOfData, int NumberOfCoef
     }
 
     for (k=1; k <= NumberOfCoefficients; k++) {
-        double  Numerator = 0.0,Denominator = 0.0;
+        double  Numerator = 0.0, Denominator = 0.0;
 
         for (j=1; j <= (NumberOfData - k); j++) {
             Numerator += wk1[j] * wk2[j];
             Denominator += pow(wk1[j],2) + pow(wk2[j], 2);
         }
 
-        if (Denominator == 0) return 0;
+        if (abs(Denominator) < 1.0e-6) return 0.0;
 
         Coefficients[k] = 2.0 * Numerator / Denominator;
 
