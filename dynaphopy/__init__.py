@@ -845,7 +845,6 @@ class Quasiparticle:
                 np.savetxt('renormalized_frequencies', renormalized_frequencies)
             #            np.savetxt('test_line', linewidths)
 
-
             self._commensurate_points_data = {'frequencies': renormalized_frequencies,
                                               'eigenvectors': eigenvectors,
                                               'linewidths': linewidths}
