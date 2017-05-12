@@ -257,7 +257,7 @@ class Structure:
         self._number_of_primitive_atoms = number_of_primitive_atoms
 
     # Atomic types related methods
-    def get_atomic_types(self, supercell=None, unique=False):
+    def get_atomic_elements(self, supercell=None, unique=False):
         if supercell is None:
             supercell = self.get_number_of_dimensions() * [1]
 
@@ -348,6 +348,28 @@ class Structure:
                         commensurate_points.append(q_point)
                         
         return commensurate_points
+
+    def get_path_using_seek_path(self):
+        import seekpath
+
+        cell = self.get_cell().T
+        positions = self.get_scaled_positions()
+        numbers = np.unique(self.get_atomic_elements(), return_inverse=True)[1]
+        structure = (cell, positions, numbers)
+        path_data = seekpath.get_path(structure)
+
+        # print seekpath.get_explicit_k_path(structure,reference_distance=0.1)
+        # exit()
+
+        labels = path_data['point_coords']
+
+        band_ranges = []
+        for set in path_data['path']:
+            band_ranges.append([labels[set[0]], labels[set[1]]])
+
+        return band_ranges, path_data['path']
+
+        # band_ranges = ([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]] ]),
 
 
 atom_data = [

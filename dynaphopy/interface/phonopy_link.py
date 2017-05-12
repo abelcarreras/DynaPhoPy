@@ -37,7 +37,7 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
         super_cell_phonon = custom_supercell
 
     #Preparing the bulk type object
-    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
+    bulk = PhonopyAtoms(symbols=structure.get_atomic_elements(),
                         scaled_positions=structure.get_scaled_positions(),
                         cell=structure.get_cell().T)
 
@@ -198,7 +198,7 @@ def get_commensurate_points(structure, custom_supercell=None):
 def get_equivalent_q_points_by_symmetry(q_point, structure):
 
     from phonopy.structure.symmetry import Symmetry
-    bulk = PhonopyAtoms(symbols=structure.get_atomic_types(),
+    bulk = PhonopyAtoms(symbols=structure.get_atomic_elements(),
                         scaled_positions=structure.get_scaled_positions(),
                         cell=structure.get_cell().T)
 

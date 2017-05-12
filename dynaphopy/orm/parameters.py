@@ -2,7 +2,6 @@ import numpy as np
 
 # This class contains all the default parameters for DynaPhoPy
 
-
 class Parameters:
 
     def __init__(self,

@@ -5,7 +5,7 @@ def generate_VASP_structure(structure, scaled=False, supercell=(1, 1, 1)):
 
     cell = structure.get_cell(supercell=supercell)
 
-    types = structure.get_atomic_types(supercell=supercell)
+    types = structure.get_atomic_elements(supercell=supercell)
 
     atom_type_unique = np.unique(types, return_index=True)
 
@@ -40,7 +40,7 @@ def generate_VASP_structure(structure, scaled=False, supercell=(1, 1, 1)):
 
 def generate_LAMMPS_structure(structure, supercell=(1, 1, 1), by_element=True):
 
-    types = structure.get_atomic_types(supercell=supercell)
+    types = structure.get_atomic_elements(supercell=supercell)
 
     if by_element:
 
