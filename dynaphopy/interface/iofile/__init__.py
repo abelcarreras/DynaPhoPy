@@ -442,8 +442,8 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
 
         if "FORCE CONSTANTS" in line:
             input_parameters.update({'force_constants_file_name': input_file[i+1].replace('\n','')})
-       #     print('Warning!: FORCE CONSTANTS label in input has changed. Please use FORCE SETS instead')
-       #     exit()
+            # print('Warning!: FORCE CONSTANTS label in input has changed. Please use FORCE SETS instead')
+            # exit()
 
         if "PRIMITIVE MATRIX" in line:
             primitive_matrix = [input_file[i+j+1].replace('\n','').split() for j in range(number_of_dimensions)]
@@ -459,20 +459,33 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
 
         if "BANDS" in line:
             bands = []
+            labels = []
             while i < len(input_file)-1:
+                line = input_file[i + 1].replace('\n', '')
                 try:
-                    band = np.array(input_file[i+1].replace(',',' ').split(),dtype=float).reshape((2,3))
+                    labels.append(line.split(':')[1].replace('\n','').split(','))
+                    line = line.split(':')[0]
+                except:
+                    pass
+                try:
+                    band = np.array(line.replace(',',' ').split(), dtype=float).reshape((2,3))
                 except IOError:
                     break
                 except ValueError:
                     break
                 i += 1
                 bands.append(band)
-            input_parameters.update ({'_band_ranges':bands})
+            labels = [(label[0].replace(' ',''), label[1].replace(' ','')) for label in labels]
+
+            if labels != []:
+                input_parameters.update({'_band_ranges': {'ranges': bands,
+                                                          'labels': labels}})
+            else:
+                input_parameters.update({'_band_ranges': bands})
+
 
         if "MESH PHONOPY" in line:
             input_parameters.update({'_mesh_phonopy': np.array(input_file[i+1].replace('\n','').split(),dtype=int)})
-
 
     return input_parameters
 
