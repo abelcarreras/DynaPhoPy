@@ -7,7 +7,6 @@ import dynaphopy.orm.atoms as atomtest
 from dynaphopy.interface import phonopy_link as pho_interface
 
 
-
 def get_trajectory_parser(file_name, bytes_to_check=1000000):
     import trajectory_parsers as tp
 
