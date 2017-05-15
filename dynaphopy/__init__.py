@@ -186,7 +186,7 @@ class Quasiparticle:
         if self.parameters.band_ranges is None:
             return self.dynamic.structure.get_path_using_seek_path()
 
-        if 'ranges' in self.parameters.band_ranges:
+        if isinstance(self.parameters.band_ranges, dict):
             return self.parameters.band_ranges
         else:
             return {'ranges': self.parameters.band_ranges}
