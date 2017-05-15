@@ -39,7 +39,7 @@ class Parameters:
 
                  # Phonon dispersion diagram
                  use_NAC=False,
-                 band_ranges=([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]]),
+                 band_ranges=None,
                  number_of_bins_histogram=30,
 
                  # Force constants

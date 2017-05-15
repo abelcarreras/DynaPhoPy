@@ -367,7 +367,8 @@ class Structure:
         for set in path_data['path']:
             band_ranges.append([labels[set[0]], labels[set[1]]])
 
-        return band_ranges, path_data['path']
+        return {'ranges': band_ranges,
+                'labels': path_data['path']}
 
         # band_ranges = ([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]] ]),
 

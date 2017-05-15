@@ -181,29 +181,27 @@ class Quasiparticle:
         self.power_spectra_clear()
         self.parameters.band_ranges = band_ranges
 
-    def get_band_ranges(self, with_labels=False):
+    def get_band_ranges(self):
         # return self.parameters.band_ranges
-        if with_labels:
-            return  self.dynamic.structure.get_path_using_seek_path()
+        if self.parameters.band_ranges is None:
+            return self.dynamic.structure.get_path_using_seek_path()
 
-        return self.dynamic.structure.get_path_using_seek_path()[0]
+        return {'ranges': self.parameters.band_ranges}
 
     def plot_phonon_dispersion_bands(self):
-        band_ranges, labels = self.get_band_ranges(with_labels=True)
-        labels_e = [ label[0] for label in labels] + [labels[-1][-1]]
+        # self.parameters.band_ranges = None
+        bands = self.get_band_ranges()
 
-        x_labels = np.arange(len(labels_e))
+        band_ranges = bands['ranges']
 
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                        band_ranges,
                                                                        NAC=self.parameters.use_NAC)
 
-            # Has to be changed !!!
-            x_labels = x_labels * self._bands[1][-1][-1] / len(x_labels)
-
         for i, freq in enumerate(self._bands[1]):
             plt.plot(self._bands[1][i], self._bands[2][i], color='r')
+
             # plt.axes().get_xaxis().set_visible(False)
         plt.axes().get_xaxis().set_ticks([])
 
@@ -213,10 +211,18 @@ class Quasiparticle:
         plt.axhline(y=0, color='k', ls='dashed')
         plt.suptitle('Phonon dispersion')
 
+        if 'labels' in bands:
+            labels = bands['labels']
+            labels_e = [label[0].replace('GAMMA', '$\Gamma$') for label in labels] + [
+                labels[-1][-1].replace('GAMMA', '$\Gamma$')]
+            x_labels = []
 
-        if labels is not None:
-            plt.xticks(x_labels, labels_e, rotation='vertical')
+            for i, freq in enumerate(self._bands[1]):
+                x_labels.append(self._bands[1][i][0])
 
+            x_labels.append(self._bands[1][-1][-1])
+
+            plt.xticks(x_labels, labels_e, rotation='horizontal')
 
         plt.show()
 
