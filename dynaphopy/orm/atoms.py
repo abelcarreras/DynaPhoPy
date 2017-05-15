@@ -119,7 +119,7 @@ class Structure:
 
     def get_primitive_cell(self):
         if self._primitive_cell is None:
-            self._primitive_cell = np.dot(self.get_cell(),self.get_primitive_matrix())
+            self._primitive_cell = np.dot(self.get_cell(), self.get_primitive_matrix())
         return self._primitive_cell
 
     # Cell matrix related methods
@@ -362,6 +362,7 @@ class Structure:
         # exit()
 
         labels = path_data['point_coords']
+
 
         band_ranges = []
         for set in path_data['path']:
