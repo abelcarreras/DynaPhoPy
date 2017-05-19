@@ -214,15 +214,23 @@ class Quasiparticle:
         plt.suptitle('Phonon dispersion')
 
         if 'labels' in bands:
+            plt.rcParams.update({'mathtext.default': 'regular'})
+
             labels = bands['labels']
-            labels_e = [label[0].replace('GAMMA', '$\Gamma$') for label in labels] + [
-                labels[-1][-1].replace('GAMMA', '$\Gamma$')]
+
+            labels_e = []
             x_labels = []
-
             for i, freq in enumerate(self._bands[1]):
+                if labels[i][0] == labels[i - 1][1]:
+                    labels_e.append('$' + labels[i][0].replace('GAMMA', '\Gamma') + '$')
+                else:
+                    labels_e.append(
+                        '$' + labels[i - 1][1].replace('GAMMA', '\Gamma') + '/' + labels[i][0].replace('GAMMA',
+                                                                                                       '\Gamma') + '$')
                 x_labels.append(self._bands[1][i][0])
-
             x_labels.append(self._bands[1][-1][-1])
+            labels_e.append('$' + labels[-1][1].replace('GAMMA', '\Gamma') + '$')
+            labels_e[0] = '$' + labels[0][0].replace('GAMMA', '\Gamma') + '$'
 
             plt.xticks(x_labels, labels_e, rotation='horizontal')
 
@@ -294,15 +302,23 @@ class Quasiparticle:
         plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
 
         if 'labels' in bands:
+            plt.rcParams.update({'mathtext.default': 'regular'})
+
             labels = bands['labels']
-            labels_e = [label[0].replace('GAMMA', '$\Gamma$') for label in labels] + [
-                labels[-1][-1].replace('GAMMA', '$\Gamma$')]
+
+            labels_e = []
             x_labels = []
-
             for i, freq in enumerate(self._bands[1]):
+                if labels[i][0] == labels[i - 1][1]:
+                    labels_e.append('$' + labels[i][0].replace('GAMMA', '\Gamma') + '$')
+                else:
+                    labels_e.append(
+                        '$' + labels[i - 1][1].replace('GAMMA', '\Gamma') + '/' + labels[i][0].replace('GAMMA',
+                                                                                                       '\Gamma') + '$')
                 x_labels.append(self._bands[1][i][0])
-
             x_labels.append(self._bands[1][-1][-1])
+            labels_e.append('$' + labels[-1][1].replace('GAMMA', '\Gamma') + '$')
+            labels_e[0] = '$' + labels[0][0].replace('GAMMA', '\Gamma') + '$'
 
             plt.xticks(x_labels, labels_e, rotation='horizontal')
 
