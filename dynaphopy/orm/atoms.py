@@ -358,11 +358,7 @@ class Structure:
         structure = (cell, positions, numbers)
         path_data = seekpath.get_path(structure)
 
-        # print seekpath.get_explicit_k_path(structure,reference_distance=0.1)
-        # exit()
-
         labels = path_data['point_coords']
-
 
         band_ranges = []
         for set in path_data['path']:
@@ -370,8 +366,6 @@ class Structure:
 
         return {'ranges': band_ranges,
                 'labels': path_data['path']}
-
-        # band_ranges = ([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]] ]),
 
 
 atom_data = [
