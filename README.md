@@ -7,7 +7,7 @@ DynaPhoPy
 Software to calculate crystal microscopical anharmonic properties
 from molecular dynamics using the normal-mode-decomposition technique.
 VASP or LAMMPS codes can be used to calculate MD. PHONOPY code
-is used to obtain harmonic eigenvalues.
+is used to obtain harmonic phonon modes.
 
 Installation instructions
 ---------------------------------------------------------
