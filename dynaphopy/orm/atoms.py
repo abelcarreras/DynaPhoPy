@@ -350,22 +350,28 @@ class Structure:
         return commensurate_points
 
     def get_path_using_seek_path(self):
-        import seekpath
+        try:
+            import seekpath2
 
-        cell = self.get_cell().T
-        positions = self.get_scaled_positions()
-        numbers = np.unique(self.get_atomic_elements(), return_inverse=True)[1]
-        structure = (cell, positions, numbers)
-        path_data = seekpath.get_path(structure)
+            cell = self.get_cell().T
+            positions = self.get_scaled_positions()
+            numbers = np.unique(self.get_atomic_elements(), return_inverse=True)[1]
+            structure = (cell, positions, numbers)
+            path_data = seekpath.get_path(structure)
 
-        labels = path_data['point_coords']
+            labels = path_data['point_coords']
 
-        band_ranges = []
-        for set in path_data['path']:
-            band_ranges.append([labels[set[0]], labels[set[1]]])
+            band_ranges = []
+            for set in path_data['path']:
+                band_ranges.append([labels[set[0]], labels[set[1]]])
 
-        return {'ranges': band_ranges,
-                'labels': path_data['path']}
+            return {'ranges': band_ranges,
+                    'labels': path_data['path']}
+        except ImportError:
+            print ('Seekpath not installed. Autopath is deactivated')
+            band_ranges=([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]])
+            return {'ranges': band_ranges,
+                    'labels': [['GAMMA', '1/2,0,1/2']]}
 
 
 atom_data = [
