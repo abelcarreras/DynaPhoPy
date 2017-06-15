@@ -608,12 +608,12 @@ def save_quasiparticle_data_to_file(quasiparticle_data, filename):
 
     output_dict = {}
     for i, q_point in enumerate(quasiparticle_data['q_points']):
-        q_point_dict = {'q_point': q_point.tolist()}
+        q_point_dict = {'reduced_wave_vector': q_point.tolist()}
         for j, frequency in enumerate(quasiparticle_data['frequencies'][i]):
             quasiparticle_dict = {'frequency': frequency.tolist(),
                                   'linewidth': quasiparticle_data['linewidths'][i][j].tolist()}
-            q_point_dict.update({'quasiparticle_{}'.format(j): quasiparticle_dict})
-        output_dict.update({'wave_vector_{}'.format(i): q_point_dict})
+            q_point_dict.update({'{}'.format(j): quasiparticle_dict})
+        output_dict.update({'q_point_{}'.format(i): q_point_dict})
 
     with open(filename, 'w') as outfile:
         yaml.dump(output_dict, outfile, default_flow_style=False)
