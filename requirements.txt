@@ -20,10 +20,11 @@ numpy>=1.8.2
 scipy
 matplotlib
 seekpath
+PyYAML
 
 ### These packages are optional (uncomment to install) ###
 
-# h5py may need libhdf5-serial-dev or libhdf5-openmp-dev package installed on your system
+# h5py may need to install libhdf5-serial-dev or libhdf5-openmp-dev package on your system
 # h5py
 
 # To use pyfftw FFTW libraries must be installed on your system (check pyfftw homepage for more information)

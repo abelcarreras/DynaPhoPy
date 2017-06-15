@@ -906,7 +906,8 @@ class Quasiparticle:
 
             self._commensurate_points_data = {'frequencies': renormalized_frequencies,
                                               'eigenvectors': eigenvectors,
-                                              'linewidths': linewidths}
+                                              'linewidths': linewidths,
+                                              'q_points': q_points_list}
 
             self.set_reduced_q_vector(initial_reduced_q_point)
 
@@ -930,6 +931,10 @@ class Quasiparticle:
     def write_renormalized_constants(self, filename="FORCE_CONSTANTS"):
         force_constants = self.get_renormalized_force_constants()
         pho_interface.save_force_constants_to_file(force_constants, filename)
+
+    def write_quasiparticles_data(self, filename="quasiparticles_data.yaml"):
+        quasiparticle_data = self.get_commensurate_points_data()
+        reading.save_quasiparticle_data_to_file(quasiparticle_data, filename)
 
     def get_thermal_properties(self, force_constants=None):
 

@@ -18,6 +18,7 @@ Installation instructions
   - Matplotlib
   - Scipy
   - h5py
+  - pyYAML
 
 2. Download the source code and place it in the installation directory
 

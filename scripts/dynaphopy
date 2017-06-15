@@ -89,6 +89,9 @@ parser.add_argument('-thm', action='store_true',
 parser.add_argument('--thm_full', action='store_true',
                     help='print thermal properties from power spectrum')
 
+parser.add_argument('-sdata', '--save_quasiparticle_data', action='store_true',
+                    help='save quasiparticle data in a YAML formatted file')
+
 
 # Extra options
 parser.add_argument('--temperature', metavar='F', type=float, default=None,
@@ -145,7 +148,6 @@ parser.add_argument('--normalize_dos', action='store_true',
 
 parser.add_argument('--memmap', action='store_true',
                     help='map largest arrays into files to reduce RAM memory usage')
-
 
 
 #Temporal interface on development
@@ -305,6 +307,9 @@ if args.plot_atomic_displacements:
 if args.save_atomic_displacements:
     calculation.write_atomic_displacements([float(Fraction(i)) for i in args.save_atomic_displacements[0:3]],
                                            args.save_atomic_displacements[3])
+
+if args.save_quasiparticle_data:
+    calculation.write_quasiparticles_data()
 
 if args.coefficient_scan_analysis:
     calculation.phonon_width_scan_analysis()
