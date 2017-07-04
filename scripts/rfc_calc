@@ -35,14 +35,16 @@ args = parser.parse_args()
 def get_renormalized_constants(freq_filename, structure, symmetrize=False, degenerate=True):
 
     if 'force_sets_file_name' in input_parameters:
-        structure.set_force_set(pho_interface.get_force_sets_from_file(file_name=input_parameters['force_sets_file_name']))
-        structure.get_data_from_dict(input_parameters)
-
+        structure.set_force_set(pho_interface.get_force_sets_from_file(file_name=input_parameters['force_sets_file_name'], fs_supercell=input_parameters['supercell_phonon']))
     if 'force_constants_file_name' in input_parameters:
-        structure.set_force_constants(pho_interface.get_force_constants_from_file(file_name=input_parameters['force_constants_file_name']))
-        structure.get_data_from_dict(input_parameters)
+        structure.set_force_constants(pho_interface.get_force_constants_from_file(file_name=input_parameters['force_constants_file_name'], fc_supercell=input_parameters['supercell_phonon'] ))
 
-    com_points = pho_interface.get_commensurate_points(structure)
+    structure.get_data_from_dict(input_parameters)
+
+
+    fc_supercell = structure.get_supercell_phonon()
+
+    com_points = pho_interface.get_commensurate_points(structure, fc_supercell)
 
     eigenvectors = [pho_interface.obtain_eigenvectors_and_frequencies(structure, point, print_data=False)[0] for point in com_points]
 
@@ -50,20 +52,29 @@ def get_renormalized_constants(freq_filename, structure, symmetrize=False, degen
     renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
                                                                                   eigenvectors,
                                                                                   structure,
+                                                                                  fc_supercell,
                                                                                   symmetrize=symmetrize)
 
     return renormalized_force_constants
 
 
 def plot_renormalized_phonon_bands(structure, renormalized_force_constants):
+
+    if '_band_ranges' in input_parameters:
+        band_ranges = input_parameters['_band_ranges']
+    else:
+        band_ranges = structure.get_path_using_seek_path()['ranges']
+
+
     bands = pho_interface.obtain_phonon_dispersion_bands(structure,
-                                                         input_parameters['_band_ranges'],
+                                                         band_ranges,
                                                          NAC=False)
 
     renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(structure,
-                                                                      input_parameters['_band_ranges'],
-                                                                      renormalized_force_constants,
+                                                                      band_ranges,
+                                                                      force_constants=renormalized_force_constants,
                                                                       NAC=False)
+
 
     for i,freq in enumerate(renormalized_bands[1]):
         plt.plot(bands[1][i],bands[2][i],color ='b', label='Harmonic (0K)')
@@ -90,15 +101,17 @@ else:
     structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
     structure.get_data_from_dict(input_parameters)
 
-if not(isinstance(args.dim, type(None))):
-    structure.set_supercell_phonon_renormalized(np.diag(np.array(args.dim, dtype=int)))
+#if args.dim is not None:
+#    structure.set_supercell_phonon_renormalized(np.diag(np.array(args.dim, dtype=int)))
 
 # Process options
 if args.cp:
-    if isinstance(args.dim,type(None)):
-        com_points = pho_interface.get_commensurate_points(structure)
+
+    if args.dim is None:
+        fc_supercell = input_parameters['supercell_phonon']
+        com_points = pho_interface.get_commensurate_points(structure, fc_supercell)
     else:
-        com_points = pho_interface.get_commensurate_points(structure, custom_supercell=np.diag(args.dim))
+        com_points = pho_interface.get_commensurate_points(structure, np.diag(args.dim))
 
     for q_point in com_points:
         print(q_point)

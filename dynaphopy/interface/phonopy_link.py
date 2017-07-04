@@ -63,7 +63,7 @@ def get_force_constants_from_file(file_name='FORCE_CONSTANTS', fc_supercell=None
 
 def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
     # Just a wrapper to phonopy function
-    write_FORCE_CONSTANTS(force_constants.get_dict(), filename=filename)
+    write_FORCE_CONSTANTS(force_constants.get_array(), filename=filename)
 
 
 def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
@@ -94,7 +94,7 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
     if setup_forces:
         if structure.get_force_constants() is not None:
-            phonon.set_force_constants(structure.get_force_constants().get_dict())
+            phonon.set_force_constants(structure.get_force_constants().get_array())
         elif structure.get_force_sets() is not None:
             phonon.set_displacement_dataset(structure.get_force_sets().get_dict())
             phonon.produce_force_constants(computation_algorithm="svd")

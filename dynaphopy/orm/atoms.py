@@ -344,7 +344,7 @@ class Structure:
 
     def get_path_using_seek_path(self):
         try:
-            import seekpath2
+            import seekpath
 
             cell = self.get_cell().T
             positions = self.get_scaled_positions()

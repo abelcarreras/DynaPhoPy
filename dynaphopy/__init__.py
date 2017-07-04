@@ -241,8 +241,6 @@ class Quasiparticle:
         bands = self.get_band_ranges_and_labels()
         band_ranges = bands['ranges']
 
-
-
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                        band_ranges,
