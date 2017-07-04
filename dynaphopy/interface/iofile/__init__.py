@@ -151,7 +151,7 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
         print('Structure file does not exist!')
         exit()
 
-    #Read from VASP OUTCAR file
+    #Read from VASP POSCAR file
     print("Reading VASP POSCAR structure")
     poscar_file = open(file_name, 'r')
     data_lines = poscar_file.read().split('\n')

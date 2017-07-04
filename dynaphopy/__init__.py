@@ -40,6 +40,11 @@ class Quasiparticle:
         self.crop_trajectory(last_steps)
         #  print('Using {0} time steps for calculation'.format(len(self.dynamic.velocity)))
 
+        self._fc_supercell = self.dynamic.structure.get_supercell_phonon()
+        if self._parameters.use_MD_cell_commensurate:
+            self._fc_supercell = np.diag(self.dynamic.get_supercell_matrix())
+
+
     # Crop trajectory
     def crop_trajectory(self, last_steps):
         if self._vc is None:
@@ -242,6 +247,7 @@ class Quasiparticle:
         band_ranges = bands['ranges']
 
 
+
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                        band_ranges,
@@ -262,12 +268,14 @@ class Quasiparticle:
 
         sup_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies+linewidths/2,
                                                                  eigenvectors,
+                                                                 self._fc_supercell,
                                                                  self.dynamic.structure,
                                                                  symmetrize=self.parameters.symmetrize)
 
         inf_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies-linewidths/2,
                                                                  eigenvectors,
                                                                  self.dynamic.structure,
+                                                                 self._fc_supercell,
                                                                  symmetrize=self.parameters.symmetrize)
 
         if plot_linewidths:
@@ -848,7 +856,7 @@ class Quasiparticle:
                 self.dynamic.structure.set_supercell_phonon_renormalized(np.diag(self.dynamic.get_supercell_matrix()))
 
             com_points = pho_interface.get_commensurate_points(self.dynamic.structure,
-                                                               custom_supercell=self.dynamic.structure.get_supercell_phonon_renormalized())
+                                                               self._fc_supercell)
 
             initial_reduced_q_point = self.get_reduced_q_vector()
 
@@ -924,6 +932,7 @@ class Quasiparticle:
                                                         renormalized_frequencies,
                                                         eigenvectors,
                                                         self.dynamic.structure,
+                                                        self._fc_supercell,
                                                         symmetrize=self.parameters.symmetrize)
 
         return self._renormalized_force_constants
