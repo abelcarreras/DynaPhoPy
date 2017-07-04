@@ -255,7 +255,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
     #Generate additional wave vectors sample
 #    structure.set_supercell_phonon_renormalized(np.diag(supercell))
 
-    q_vector_list = pho_interface.get_commensurate_points(structure, custom_supercell=np.diag(supercell))
+    q_vector_list = pho_interface.get_commensurate_points(structure, np.diag(supercell))
 
     q_vector_list_cart = [ np.dot(q_vector, 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
                            for q_vector in q_vector_list]
@@ -319,7 +319,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
 
         dump_file.close()
 
-    structure.set_supercell_phonon_renormalized(None)
+    # structure.set_supercell_phonon_renormalized(None)
 
     return dyn.Dynamics(structure=structure,
                         trajectory=np.array(trajectory,dtype=complex),
