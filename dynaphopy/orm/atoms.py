@@ -200,7 +200,7 @@ class Structure:
 
         if not isinstance(self._force_sets,type(None)):
             force_atoms_file = self._force_sets.get_array()['natom']
-            force_atoms_input = np.product(np.diagonal(self._force_sets.get_array().get_supercell())) * self.get_number_of_atoms()
+            force_atoms_input = np.product(np.diagonal(self._force_sets.get_supercell())) * self.get_number_of_atoms()
 
             if force_atoms_file != force_atoms_input:
                 print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")

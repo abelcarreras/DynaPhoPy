@@ -78,7 +78,7 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
         if structure.get_force_constants() is not None:
             super_cell_phonon = structure.get_force_constants().get_supercell()
         else:
-            super_cell_phonon = structure.get_force_sets().get_array().get_supercell()
+            super_cell_phonon = structure.get_force_sets().get_supercell()
 
     # Preparing the bulk type object
     bulk = PhonopyAtoms(symbols=structure.get_atomic_elements(),

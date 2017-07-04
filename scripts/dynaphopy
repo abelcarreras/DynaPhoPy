@@ -177,8 +177,8 @@ if 'force_sets_file_name' in input_parameters:
     structure.get_data_from_dict(input_parameters)
 
 if 'force_constants_file_name' in input_parameters:
-    structure.set_force_constants(get_force_constants_from_file(file_name=input_parameters['force_constants_file_name']),
-                                  fc_supercell=input_parameters['_supercell_phonon'])
+    structure.set_force_constants(get_force_constants_from_file(file_name=input_parameters['force_constants_file_name'],
+                                  fc_supercell=input_parameters['_supercell_phonon']))
     structure.get_data_from_dict(input_parameters)
 
 if 'force_sets_file_name' in input_parameters and 'force_constants_file_name' in input_parameters:
