@@ -6,13 +6,13 @@ import dynaphopy.interface.iofile as io
 import dynaphopy.interface.iofile.trajectory_parsers as parsers
 import dynaphopy
 
+from dynaphopy.interface.phonopy_link import get_force_sets_from_file, get_force_constants_from_file
+
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure POSCAR are placed
-# FORCE_SETS : force set file obtained from PHONOPY calculation
 
 directory ='/home/abel/VASP/Si/Si-FINAL3/PHONON/2x2x2/'
 structure = io.read_from_file_structure_poscar(directory + 'POSCAR')
-structure.set_force_set(file_IO.parse_FORCE_SETS(filename=directory+'FORCE_SETS'))
 
 
 ############################### PHONOPY CELL INFORMATION ####################################
@@ -22,12 +22,16 @@ structure.set_primitive_matrix([[0.0, 0.5, 0.5],
                                 [0.5, 0.5, 0.0]])
 
 
-# 3. Set super cell phonon, this matrix denotes the super cell used in PHONOPY
-# to calculate the force constants
-structure.set_supercell_phonon([[2, 0, 0],
-                                [0, 2, 0],
-                                [0, 0, 2]])
+# 3. Set the hamonic phonon data (input for phonopy)
+# fs_supercell: supercell matrix used in PHONOPY to obtain the force_sets
+# FORCE_SETS : force set file obtained from PHONOPY calculation that contains the forces
+structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS',
+                                                 fs_supercell=[[2, 0, 0],
+                                                               [0, 2, 0],
+                                                               [0, 0, 2]]))
 
+# Alternatively get_force_constants_from_file function can be used to obtain the harmonic information.
+# Check unittest files (unittest folder)
 
 ############################### READING TRAJECTORY FILES #####################################
 # 4. Set the location of OUTCAR/LAMMPS file containing the Molecular Dynamics trajectory
@@ -46,13 +50,13 @@ quasiparticle = dynaphopy.Quasiparticle(trajectory)
 # Other option not yet shown in this example script may be available (take a look at dynaphopt/__init__.py)
 
 # 5a. Set the power spectrum algorithm
-# 0: Direct Fourier transform
-# 1: Maximum entropy method
+# 0: Direct Fourier transform (Not recommended)
+# 1: Maximum entropy method (MEM)
 # 2; numpy FFT
-# 3: FFTW (Needs FFTW installed)
-# 4: CUDA (Needs cuda_functions)
+# 3: FFTW (Needs FFTW installed in the system)
+# 4: CUDA (Needs cuda_functions installed in the system)
 quasiparticle.select_power_spectra_algorithm(1)  # MEM
-quasiparticle.set_number_of_mem_coefficients(1000)  # Only works if using MEM
+quasiparticle.set_number_of_mem_coefficients(1000)  # Only is used if MEM is selected
 
 # 5b. Set wave vector into which is going to be projected the velocity (default: gamma point)
 quasiparticle.set_reduced_q_vector([0.5, 0.0, 0.0])  # X Point
