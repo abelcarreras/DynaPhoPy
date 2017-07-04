@@ -453,7 +453,7 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
             super_cell_matrix = [input_file[i+j+1].replace('\n','').split() for j in range(number_of_dimensions)]
 
             super_cell_matrix = np.array(super_cell_matrix, dtype=int)
-            input_parameters.update({'_supercell_phonon': np.array(super_cell_matrix, dtype=int)})
+            input_parameters.update({'supercell_phonon': np.array(super_cell_matrix, dtype=int)})
 
 
         if "BANDS" in line:

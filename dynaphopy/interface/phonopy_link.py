@@ -6,6 +6,7 @@ from phonopy.harmonic.dynmat_to_fc import DynmatToForceConstants
 from phonopy.harmonic.force_constants import set_tensor_symmetry_PJ
 from phonopy.units import VaspToTHz
 
+
 class ForceConstants:
     def __init__(self, force_constants, supercell=None):
         self._force_constants = np.array(force_constants)
@@ -19,6 +20,7 @@ class ForceConstants:
 
     def set_supercell(self, supercell):
         self._supercell = supercell
+
 
 class PhononForces:
     def __init__(self, force_sets, supercell=None):
@@ -66,19 +68,10 @@ def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
 
 def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
-    super_cell_phonon = structure.get_supercell_phonon()
-    if not(isinstance(custom_supercell, type(None))):
+    if custom_supercell is None:
+        super_cell_phonon = structure.get_supercell_phonon()
+    else:
         super_cell_phonon = custom_supercell
-
-    if setup_forces:
-        if not structure.forces_available():
-    #    if not np.array(structure.get_force_constants()).any() and not np.array(structure.get_force_sets()).any():
-            print('No force sets/constants available!')
-            exit()
-        if structure.get_force_constants() is not None:
-            super_cell_phonon = structure.get_force_constants().get_supercell()
-        else:
-            super_cell_phonon = structure.get_force_sets().get_supercell()
 
     # Preparing the bulk type object
     bulk = PhonopyAtoms(symbols=structure.get_atomic_elements(),
@@ -91,6 +84,7 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
                      symprec=1e-5)
 
     # Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
+
     if NAC:
         print("Phonopy warning: Using Non Analytical Corrections")
         get_is_symmetry = True  # from phonopy: settings.get_is_symmetry()
@@ -99,15 +93,14 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
         phonon.set_nac_params(nac_params=nac_params)
 
     if setup_forces:
-        if not structure.forces_available():
-    #    if not np.array(structure.get_force_constants()).any() and not np.array(structure.get_force_sets()).any():
-            print('No force sets/constants available!')
-            exit()
         if structure.get_force_constants() is not None:
             phonon.set_force_constants(structure.get_force_constants().get_array())
-        else:
+        elif structure.get_force_sets() is not None:
             phonon.set_displacement_dataset(structure.get_force_sets().get_array())
             phonon.produce_force_constants(computation_algorithm="svd")
+        else:
+            print('No force sets/constants available!')
+            exit()
 
     return phonon
 

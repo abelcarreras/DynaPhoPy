@@ -93,19 +93,18 @@ class Structure:
 
         return self._cell
 
-    def set_supercell_phonon(self, supercell_phonon):
-        self._supercell_phonon = supercell_phonon
+ #   def set_supercell_phonon(self, supercell_phonon):
+ #       self._supercell_phonon = None
 
     def get_supercell_phonon(self):
-        if self._supercell_phonon is None:
-            if self.get_force_constants() is not None:
-                self._supercell_phonon = self.get_force_constants().get_supercell()
 
-            elif self.get_force_sets() is not None:
-                self._supercell_phonon = self.get_force_sets().get_supercell()
-            else:
-                self._supercell_phonon = np.identity(self.get_number_of_dimensions(), dtype=int)
-        return self._supercell_phonon
+        if self.get_force_constants() is not None:
+            supercell_phonon = self.get_force_constants().get_supercell()
+        elif self.get_force_sets() is not None:
+            supercell_phonon = self.get_force_sets().get_supercell()
+        else:
+            supercell_phonon = np.identity(self.get_number_of_dimensions(), dtype=int)
+        return supercell_phonon
 
 #    def set_supercell_phonon_renormalized(self, supercell_phonon):
 #        self._supercell_phonon_renormalized = supercell_phonon
