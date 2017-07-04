@@ -93,9 +93,6 @@ class Structure:
 
         return self._cell
 
- #   def set_supercell_phonon(self, supercell_phonon):
- #       self._supercell_phonon = None
-
     def get_supercell_phonon(self):
 
         if self.get_force_constants() is not None:
@@ -105,14 +102,6 @@ class Structure:
         else:
             supercell_phonon = np.identity(self.get_number_of_dimensions(), dtype=int)
         return supercell_phonon
-
-#    def set_supercell_phonon_renormalized(self, supercell_phonon):
-#        self._supercell_phonon_renormalized = supercell_phonon
-
-#    def get_supercell_phonon_renormalized(self):
-#        if self._supercell_phonon_renormalized is None:
-#            self._supercell_phonon_renormalized = self.get_force_sets().get_supercell()
-#        return self._supercell_phonon_renormalized
 
     def set_supercell_matrix(self, supercell_matrix):
         self._supercell_matrix = supercell_matrix
@@ -198,7 +187,7 @@ class Structure:
     def get_force_sets(self):
 
         if not isinstance(self._force_sets,type(None)):
-            force_atoms_file = self._force_sets.get_array()['natom']
+            force_atoms_file = self._force_sets.get_dict()['natom']
             force_atoms_input = np.product(np.diagonal(self._force_sets.get_supercell())) * self.get_number_of_atoms()
 
             if force_atoms_file != force_atoms_input:

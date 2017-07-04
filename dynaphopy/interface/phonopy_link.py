@@ -22,12 +22,12 @@ class ForceConstants:
         self._supercell = supercell
 
 
-class PhononForces:
+class ForceSets:
     def __init__(self, force_sets, supercell=None):
         self._forces = force_sets
         self._supercell = supercell
 
-    def get_array(self):
+    def get_dict(self):
         return self._forces
 
     def get_supercell(self):
@@ -43,12 +43,12 @@ def eigenvectors_normalization(eigenvector):
     return eigenvector
 
 
-def get_force_sets_from_file(file_name='FORCE_SETS', f_supercell=None):
+def get_force_sets_from_file(file_name='FORCE_SETS', fs_supercell=None):
     # Just a wrapper to phonopy function
-    force_sets = PhononForces(parse_FORCE_SETS(filename=file_name))
+    force_sets = ForceSets(parse_FORCE_SETS(filename=file_name))
 
-    if f_supercell is not None:
-        force_sets.set_supercell(f_supercell)
+    if fs_supercell is not None:
+        force_sets.set_supercell(fs_supercell)
 
     return force_sets
 
@@ -63,7 +63,7 @@ def get_force_constants_from_file(file_name='FORCE_CONSTANTS', fc_supercell=None
 
 def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
     # Just a wrapper to phonopy function
-    write_FORCE_CONSTANTS(force_constants.get_array(), filename=filename)
+    write_FORCE_CONSTANTS(force_constants.get_dict(), filename=filename)
 
 
 def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
@@ -94,9 +94,9 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
     if setup_forces:
         if structure.get_force_constants() is not None:
-            phonon.set_force_constants(structure.get_force_constants().get_array())
+            phonon.set_force_constants(structure.get_force_constants().get_dict())
         elif structure.get_force_sets() is not None:
-            phonon.set_displacement_dataset(structure.get_force_sets().get_array())
+            phonon.set_displacement_dataset(structure.get_force_sets().get_dict())
             phonon.produce_force_constants(computation_algorithm="svd")
         else:
             print('No force sets/constants available!')
