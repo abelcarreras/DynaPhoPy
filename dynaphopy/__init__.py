@@ -1,4 +1,4 @@
-__version__ = '1.14.7'
+__version__ = '1.15'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -261,8 +261,8 @@ class Quasiparticle:
 
         sup_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies + linewidths / 2,
                                                                  eigenvectors,
-                                                                 self._renormalized_fc_supercell,
                                                                  self.dynamic.structure,
+                                                                 self._renormalized_fc_supercell,
                                                                  symmetrize=self.parameters.symmetrize)
 
         inf_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies - linewidths / 2,
