@@ -66,10 +66,6 @@ class Quasiparticle:
         self._power_spectrum_direct = None
         self.force_constants_clear()
 
-#        self._renormalized_force_constants = None
-#        self._renormalized_bands = None
-#        self._commensurate_points_data = None
-
     def force_constants_clear(self):
         self._renormalized_force_constants = None
         self._renormalized_bands = None
@@ -256,19 +252,20 @@ class Quasiparticle:
         renormalized_frequencies = data['frequencies']
         eigenvectors = data['eigenvectors']
         linewidths = data['linewidths']
+        fc_supercell = data['fc_supercell']
 
         plt.suptitle('Renormalized phonon dispersion relations')
 
         sup_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies + linewidths / 2,
                                                                  eigenvectors,
                                                                  self.dynamic.structure,
-                                                                 self._renormalized_fc_supercell,
+                                                                 fc_supercell,
                                                                  symmetrize=self.parameters.symmetrize)
 
         inf_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies - linewidths / 2,
                                                                  eigenvectors,
                                                                  self.dynamic.structure,
-                                                                 self._renormalized_fc_supercell,
+                                                                 fc_supercell,
                                                                  symmetrize=self.parameters.symmetrize)
 
         if plot_linewidths:
@@ -845,15 +842,13 @@ class Quasiparticle:
                 print ('set frequency range: {} - {}'.format(self.get_frequency_range()[0],
                                                              self.get_frequency_range()[-1]))
 
-            #if self.parameters.use_MD_cell_commensurate:
-            #    self.dynamic.structure.set_supercell_phonon_renormalized(np.diag(self.dynamic.get_supercell_matrix()))
-
-            self._renormalized_fc_supercell = self.dynamic.structure.get_supercell_phonon()
+            # This has to be improved (looking for a better solution)
+            fc_supercell = self.dynamic.structure.get_supercell_phonon()
             if self._parameters.use_MD_cell_commensurate:
-                self._renormalized_fc_supercell = np.diag(self.dynamic.get_supercell_matrix())
+                fc_supercell = np.diag(self.dynamic.get_supercell_matrix())
 
             com_points = pho_interface.get_commensurate_points(self.dynamic.structure,
-                                                               self._renormalized_fc_supercell)
+                                                               fc_supercell)
 
             initial_reduced_q_point = self.get_reduced_q_vector()
 
@@ -912,7 +907,8 @@ class Quasiparticle:
             self._commensurate_points_data = {'frequencies': renormalized_frequencies,
                                               'eigenvectors': eigenvectors,
                                               'linewidths': linewidths,
-                                              'q_points': q_points_list}
+                                              'q_points': q_points_list,
+                                              'fc_supercell': fc_supercell}
 
             self.set_reduced_q_vector(initial_reduced_q_point)
 
@@ -923,13 +919,14 @@ class Quasiparticle:
         data = self.get_commensurate_points_data()
         renormalized_frequencies = data['frequencies']
         eigenvectors = data['eigenvectors']
+        fc_supercell = data['fc_supercell']
 
         if self._renormalized_force_constants is None:
             self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(
                                                         renormalized_frequencies,
                                                         eigenvectors,
                                                         self.dynamic.structure,
-                                                        self._renormalized_fc_supercell,
+                                                        fc_supercell,
                                                         symmetrize=self.parameters.symmetrize)
 
         return self._renormalized_force_constants
