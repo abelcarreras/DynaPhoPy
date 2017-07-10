@@ -276,7 +276,7 @@ def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, str
     # Symmetrize force constants using crystal symmetry
     if symmetrize:
         print('Symmetrizing force constants')
-        set_tensor_symmetry_PJ(force_constants,
+        set_tensor_symmetry_PJ(force_constants.get_array(),
                                phonon.supercell.get_cell().T,
                                phonon.supercell.get_scaled_positions(),
                                phonon.symmetry)

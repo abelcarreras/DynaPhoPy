@@ -41,14 +41,30 @@ def get_renormalized_constants(freq_filename, structure, symmetrize=False, degen
 
     structure.get_data_from_dict(input_parameters)
 
-
     fc_supercell = structure.get_supercell_phonon()
+    if args.dim is None:
+        fc_supercell = input_parameters['supercell_phonon']
 
     com_points = pho_interface.get_commensurate_points(structure, fc_supercell)
 
+    # Seems thet the commenurate points have to be in the same original order.
+    renormalized_frequencies = []
+    import yaml
+    with open(freq_filename, 'r') as stream:
+        data_dict = yaml.load(stream)
+        for wv in com_points:
+            for q_point in data_dict.values():
+                # print q_point
+                # print q_point['frequencies']
+                if np.array(q_point['reduced_wave_vector'] == wv).all():
+                    renormalized_frequencies.append(q_point['frequencies'])
+                    # com_points.append(q_point['reduced_wave_vector'])
+
+    renormalized_frequencies = np.array(renormalized_frequencies)
+    #com_points = np.array(com_points)
+
     eigenvectors = [pho_interface.obtain_eigenvectors_and_frequencies(structure, point, print_data=False)[0] for point in com_points]
 
-    renormalized_frequencies = np.loadtxt(freq_filename)
     renormalized_force_constants = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
                                                                                   eigenvectors,
                                                                                   structure,
@@ -120,7 +136,7 @@ if args.cp:
 renormalized_force_constants = get_renormalized_constants(args.frequency_file, structure, symmetrize=args.fcsymm)
 
 if args.s:
-    pho_interface.write_FORCE_CONSTANTS(renormalized_force_constants,filename=args.s[0])
+    pho_interface.save_force_constants_to_file(renormalized_force_constants, filename=args.s[0])
 
 if args.p:
     plot_renormalized_phonon_bands(structure, renormalized_force_constants)
