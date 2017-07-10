@@ -602,24 +602,6 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
                                                   memmap=memmap)
 
 
-def save_quasiparticle_data_to_file2(quasiparticle_data, filename):
-
-    import yaml
-
-    output_dict = {}
-    for i, q_point in enumerate(quasiparticle_data['q_points']):
-        q_point_dict = {'reduced_wave_vector': q_point.tolist(),
-                        'num_branches': len(quasiparticle_data['frequencies'][0])}
-        for j, frequency in enumerate(quasiparticle_data['frequencies'][i]):
-            quasiparticle_dict = {'frequency': frequency.tolist(),
-                                  'linewidth': quasiparticle_data['linewidths'][i][j].tolist()}
-            q_point_dict.update({'{}'.format(j): quasiparticle_dict})
-        output_dict.update({'q_point_{}'.format(i): q_point_dict})
-
-    with open(filename, 'w') as outfile:
-        yaml.dump(output_dict, outfile, default_flow_style=False)
-
-
 def save_quasiparticle_data_to_file(quasiparticle_data, filename):
 
     import yaml

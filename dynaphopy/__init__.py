@@ -901,7 +901,9 @@ class Quasiparticle:
             renormalized_frequencies = np.array(renormalized_frequencies)
             linewidths = np.array(linewidths)
 
+            # To be deprecated
             if self.parameters.save_renormalized_frequencies:
+                print "This option will be deprecated in the future. Please use save quasiparticle data option"
                 np.savetxt('renormalized_frequencies', renormalized_frequencies)
             #            np.savetxt('test_line', linewidths)
 
