@@ -842,10 +842,11 @@ class Quasiparticle:
                 print ('set frequency range: {} - {}'.format(self.get_frequency_range()[0],
                                                              self.get_frequency_range()[-1]))
 
-            # This has to be improved (looking for a better solution)
-            fc_supercell = self.dynamic.structure.get_supercell_phonon()
+            # Decide the size of the supercell to use to calculate the renormalized force constants
             if self._parameters.use_MD_cell_commensurate:
                 fc_supercell = np.diag(self.dynamic.get_supercell_matrix())
+            else:
+                fc_supercell = self.dynamic.structure.get_supercell_phonon()
 
             com_points = pho_interface.get_commensurate_points(self.dynamic.structure,
                                                                fc_supercell)
