@@ -89,6 +89,9 @@ parser.add_argument('-thm', action='store_true',
 parser.add_argument('--thm_full', action='store_true',
                     help='print thermal properties from power spectrum')
 
+parser.add_argument('-sdata', '--save_quasiparticle_data', action='store_true',
+                    help='save quasiparticle data in a YAML formatted file')
+
 
 # Extra options
 parser.add_argument('--temperature', metavar='F', type=float, default=None,
@@ -147,7 +150,6 @@ parser.add_argument('--memmap', action='store_true',
                     help='map largest arrays into files to reduce RAM memory usage')
 
 
-
 #Temporal interface on development
 
 parser.add_argument('--project_on_atom', metavar='N', type=int, default=None,
@@ -170,11 +172,13 @@ else:
     structure_file = input_parameters['structure_file_name_poscar']
 
 if 'force_sets_file_name' in input_parameters:
-    structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_sets_file_name']))
+    structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_sets_file_name'],
+                                                     fs_supercell=input_parameters['supercell_phonon']))
     structure.get_data_from_dict(input_parameters)
 
 if 'force_constants_file_name' in input_parameters:
-    structure.set_force_constants(get_force_constants_from_file(file_name=input_parameters['force_constants_file_name']))
+    structure.set_force_constants(get_force_constants_from_file(file_name=input_parameters['force_constants_file_name'],
+                                  fc_supercell=input_parameters['supercell_phonon']))
     structure.get_data_from_dict(input_parameters)
 
 if 'force_sets_file_name' in input_parameters and 'force_constants_file_name' in input_parameters:
@@ -305,6 +309,9 @@ if args.plot_atomic_displacements:
 if args.save_atomic_displacements:
     calculation.write_atomic_displacements([float(Fraction(i)) for i in args.save_atomic_displacements[0:3]],
                                            args.save_atomic_displacements[3])
+
+if args.save_quasiparticle_data:
+    calculation.write_quasiparticles_data()
 
 if args.coefficient_scan_analysis:
     calculation.phonon_width_scan_analysis()

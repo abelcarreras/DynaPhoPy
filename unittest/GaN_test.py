@@ -4,7 +4,7 @@ import numpy as np
 import os
 import dynaphopy.interface.iofile as io
 import dynaphopy
-from phonopy.file_IO import parse_FORCE_CONSTANTS
+from dynaphopy.interface.phonopy_link import get_force_constants_from_file
 import unittest
 
 
@@ -12,14 +12,15 @@ class TestDynaphopy(unittest.TestCase):
 
     def setUp(self):
         self.structure = io.read_from_file_structure_poscar('GaN_data/POSCAR')
-        self.structure.set_force_constants(parse_FORCE_CONSTANTS(filename='GaN_data/FORCE_CONSTANTS'))
 
         self.structure.set_primitive_matrix([[1.0, 0.0, 0.0],
-                                        [0.0, 1.0, 0.0],
-                                        [0.0, 0.0, 1.0]])
-        self.structure.set_supercell_phonon([[3, 0, 0],
-                                        [0, 3, 0],
-                                        [0, 0, 3]])
+                                             [0.0, 1.0, 0.0],
+                                             [0.0, 0.0, 1.0]])
+
+        self.structure.set_force_constants(get_force_constants_from_file(file_name='GaN_data/FORCE_CONSTANTS',
+                                                                         fc_supercell=[[3, 0, 0],
+                                                                                       [0, 3, 0],
+                                                                                       [0, 0, 3]]))
 
         if not os.path.exists('test_gan.h5'):
 
@@ -77,8 +78,8 @@ class TestDynaphopy(unittest.TestCase):
         self.calculation = dynaphopy.Quasiparticle(trajectory)
 
         self.calculation.select_power_spectra_algorithm(2)
-        renormalized_force_constants = self.calculation.get_renormalized_force_constants()
-        harmonic_force_constants = self.calculation.dynamic.structure.get_force_constants()
+        renormalized_force_constants = self.calculation.get_renormalized_force_constants().get_array()
+        harmonic_force_constants = self.calculation.dynamic.structure.get_force_constants().get_array()
         self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
 
     def __del__(self):

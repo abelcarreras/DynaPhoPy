@@ -7,7 +7,6 @@ import dynaphopy.orm.atoms as atomtest
 from dynaphopy.interface import phonopy_link as pho_interface
 
 
-
 def get_trajectory_parser(file_name, bytes_to_check=1000000):
     import trajectory_parsers as tp
 
@@ -152,7 +151,7 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
         print('Structure file does not exist!')
         exit()
 
-    #Read from VASP OUTCAR file
+    #Read from VASP POSCAR file
     print("Reading VASP POSCAR structure")
     poscar_file = open(file_name, 'r')
     data_lines = poscar_file.read().split('\n')
@@ -256,7 +255,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
     #Generate additional wave vectors sample
 #    structure.set_supercell_phonon_renormalized(np.diag(supercell))
 
-    q_vector_list = pho_interface.get_commensurate_points(structure, custom_supercell=np.diag(supercell))
+    q_vector_list = pho_interface.get_commensurate_points(structure, np.diag(supercell))
 
     q_vector_list_cart = [ np.dot(q_vector, 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
                            for q_vector in q_vector_list]
@@ -320,7 +319,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
 
         dump_file.close()
 
-    structure.set_supercell_phonon_renormalized(None)
+    # structure.set_supercell_phonon_renormalized(None)
 
     return dyn.Dynamics(structure=structure,
                         trajectory=np.array(trajectory,dtype=complex),
@@ -442,8 +441,8 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
 
         if "FORCE CONSTANTS" in line:
             input_parameters.update({'force_constants_file_name': input_file[i+1].replace('\n','')})
-       #     print('Warning!: FORCE CONSTANTS label in input has changed. Please use FORCE SETS instead')
-       #     exit()
+            # print('Warning!: FORCE CONSTANTS label in input has changed. Please use FORCE SETS instead')
+            # exit()
 
         if "PRIMITIVE MATRIX" in line:
             primitive_matrix = [input_file[i+j+1].replace('\n','').split() for j in range(number_of_dimensions)]
@@ -454,25 +453,38 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
             super_cell_matrix = [input_file[i+j+1].replace('\n','').split() for j in range(number_of_dimensions)]
 
             super_cell_matrix = np.array(super_cell_matrix, dtype=int)
-            input_parameters.update({'_supercell_phonon': np.array(super_cell_matrix, dtype=int)})
+            input_parameters.update({'supercell_phonon': np.array(super_cell_matrix, dtype=int)})
 
 
         if "BANDS" in line:
             bands = []
+            labels = []
             while i < len(input_file)-1:
+                line = input_file[i + 1].replace('\n', '')
                 try:
-                    band = np.array(input_file[i+1].replace(',',' ').split(),dtype=float).reshape((2,3))
+                    labels.append(line.split(':')[1].replace('\n','').split(','))
+                    line = line.split(':')[0]
+                except:
+                    pass
+                try:
+                    band = np.array(line.replace(',',' ').split(), dtype=float).reshape((2,3))
                 except IOError:
                     break
                 except ValueError:
                     break
                 i += 1
                 bands.append(band)
-            input_parameters.update ({'_band_ranges':bands})
+            labels = [(label[0].replace(' ',''), label[1].replace(' ','')) for label in labels]
+
+            if labels != []:
+                input_parameters.update({'_band_ranges': {'ranges': bands,
+                                                          'labels': labels}})
+            else:
+                input_parameters.update({'_band_ranges': bands})
+
 
         if "MESH PHONOPY" in line:
             input_parameters.update({'_mesh_phonopy': np.array(input_file[i+1].replace('\n','').split(),dtype=int)})
-
 
     return input_parameters
 
@@ -590,3 +602,16 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
                                                   memmap=memmap)
 
 
+def save_quasiparticle_data_to_file(quasiparticle_data, filename):
+
+    import yaml
+
+    output_dict = {}
+    for i, q_point in enumerate(quasiparticle_data['q_points']):
+        q_point_dict = {'reduced_wave_vector': q_point.tolist()}
+        q_point_dict.update({'frequencies': quasiparticle_data['frequencies'][i].tolist()})
+        q_point_dict.update({'linewidths': quasiparticle_data['linewidths'][i].tolist()})
+        output_dict.update({'q_point_{}'.format(i): q_point_dict})
+
+    with open(filename, 'w') as outfile:
+        yaml.dump(output_dict, outfile, default_flow_style=False)

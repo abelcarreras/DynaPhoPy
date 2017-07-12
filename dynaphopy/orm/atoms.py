@@ -93,21 +93,15 @@ class Structure:
 
         return self._cell
 
-    def set_supercell_phonon(self, supercell_phonon):
-        self._supercell_phonon = supercell_phonon
-
     def get_supercell_phonon(self):
-        if self._supercell_phonon is None:
-            self._supercell_phonon = np.identity(self.get_number_of_dimensions(), dtype=int)
-        return self._supercell_phonon
 
-    def set_supercell_phonon_renormalized(self, supercell_phonon):
-        self._supercell_phonon_renormalized = supercell_phonon
-
-    def get_supercell_phonon_renormalized(self):
-        if self._supercell_phonon_renormalized is None:
-            self._supercell_phonon_renormalized = self.get_supercell_phonon()
-        return self._supercell_phonon_renormalized
+        if self.get_force_constants() is not None:
+            supercell_phonon = self.get_force_constants().get_supercell()
+        elif self.get_force_sets() is not None:
+            supercell_phonon = self.get_force_sets().get_supercell()
+        else:
+            supercell_phonon = np.identity(self.get_number_of_dimensions(), dtype=int)
+        return supercell_phonon
 
     def set_supercell_matrix(self, supercell_matrix):
         self._supercell_matrix = supercell_matrix
@@ -119,7 +113,7 @@ class Structure:
 
     def get_primitive_cell(self):
         if self._primitive_cell is None:
-            self._primitive_cell = np.dot(self.get_cell(),self.get_primitive_matrix())
+            self._primitive_cell = np.dot(self.get_cell(), self.get_primitive_matrix())
         return self._primitive_cell
 
     # Cell matrix related methods
@@ -176,16 +170,16 @@ class Structure:
 
     # Force related methods
     def forces_available(self):
-        if np.array(self.get_force_constants()).any() or np.array(self.get_force_sets()).any():
+        if self.get_force_constants() is not None or self.get_force_sets() is not None:
             return True
         else:
             return False
 
     def set_force_constants(self, force_constants):
-        self._force_constants = np.array(force_constants,dtype='double')
+        self._force_constants = force_constants
 
     def get_force_constants(self):
-        return np.array(self._force_constants)
+        return self._force_constants
 
     def set_force_set(self, force_set):
         self._force_sets = force_set
@@ -193,9 +187,8 @@ class Structure:
     def get_force_sets(self):
 
         if not isinstance(self._force_sets,type(None)):
-
-            force_atoms_file = self._force_sets['natom']
-            force_atoms_input = np.product(np.diagonal(self.get_supercell_phonon())) * self.get_number_of_atoms()
+            force_atoms_file = self._force_sets.get_dict()['natom']
+            force_atoms_input = np.product(np.diagonal(self._force_sets.get_supercell())) * self.get_number_of_atoms()
 
             if force_atoms_file != force_atoms_input:
                 print("Error: FORCE_SETS file does not match with SUPERCELL MATRIX")
@@ -257,7 +250,7 @@ class Structure:
         self._number_of_primitive_atoms = number_of_primitive_atoms
 
     # Atomic types related methods
-    def get_atomic_types(self, supercell=None, unique=False):
+    def get_atomic_elements(self, supercell=None, unique=False):
         if supercell is None:
             supercell = self.get_number_of_dimensions() * [1]
 
@@ -348,6 +341,30 @@ class Structure:
                         commensurate_points.append(q_point)
                         
         return commensurate_points
+
+    def get_path_using_seek_path(self):
+        try:
+            import seekpath
+
+            cell = self.get_cell().T
+            positions = self.get_scaled_positions()
+            numbers = np.unique(self.get_atomic_elements(), return_inverse=True)[1]
+            structure = (cell, positions, numbers)
+            path_data = seekpath.get_path(structure)
+
+            labels = path_data['point_coords']
+
+            band_ranges = []
+            for set in path_data['path']:
+                band_ranges.append([labels[set[0]], labels[set[1]]])
+
+            return {'ranges': band_ranges,
+                    'labels': path_data['path']}
+        except ImportError:
+            print ('Seekpath not installed. Autopath is deactivated')
+            band_ranges=([[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5]]])
+            return {'ranges': band_ranges,
+                    'labels': [['GAMMA', '1/2,0,1/2']]}
 
 
 atom_data = [

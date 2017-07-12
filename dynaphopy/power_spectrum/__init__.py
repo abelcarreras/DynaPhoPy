@@ -329,8 +329,8 @@ def _cuda_power(frequency_range, data, time_step):
 
         data_piece = data[i_p[0]:i_p[1]]
 
-        data_piece = cuda_acorrelate(data_piece, mode='same', safe_mode=False)/data_piece.size
-        ps.append(np.abs(cuda_fft(data_piece, safe_mode=False)*time_step))
+        data_piece = cuda_acorrelate(data_piece, mode='same')/data_piece.size
+        ps.append(np.abs(cuda_fft(data_piece)*time_step))
 
     ps = np.average(ps,axis=0)
 
