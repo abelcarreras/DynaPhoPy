@@ -148,7 +148,7 @@ For very long MD the amount of RAM memory needed to do the calculations can be h
 
 </UL>
 
-<h3>Anharmonic phonon (quasiparticle) properties</h5>
+<h3>Phonon quasiparticle properties</h5>
 <p> 
 Phonon linewidhts and frequency shifts can be obtained by direct analysis of power spectra. Using phonon modes projections
 are the best way to analize the individual phonons since they are completly separated in individual power spectra containing only
@@ -336,7 +336,6 @@ O     0.01828278   0.01837414   0.01803723   0.00015347   0.00010795  -0.0001389
 The translation crystal symmetry is applied in the calculation of the average positions acording to the unitcell and primitive matrix to calculate both the ADP and the average structure.
 
     
-    
 <div id="renormalized_forces"></div> 
 <h3>Renormalized force constants</h3>
 <p> The phonon information that can be obtained from MD is limited to the size of the simulation cell.
@@ -379,7 +378,13 @@ Using this new force constants it is possible to calculate all the properties av
     </p>
     <pre><code>$ dynaphopy input_file TRAJECTORY --no_symmetry</code></pre>
     <p>
-</p>
+<div id="Stquasiparticla data"></div> 
+<h3>Quasiparticle phonon data</h3>
+    <p> The quasiparticle phonon frequencies and linewidths obtained from <em>peak analysis</em> at all commensurate points can be stored in a yaml format file by using <strong>-sdata</strong> flag. This information is the same used to calculate the renormalized force constants. This option does not require any previous force constants calculation</p>
+<p>
+<pre><code>$ dynaphopy input_file TRAJECTORY -sdata</code></pre>
+<p>
+    The date will be stored in a file named <strong>quasiparticle_data.yaml</strong>. This information i</p>
 
 <div id="thermal"></div> 
 <h3>Thermal properties</h3>
