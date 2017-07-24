@@ -132,8 +132,8 @@ BANDS
 <h5>Calculation examples</h5>
 
 
-<UL><p><LI>Plot wave vector projection power spectrum at <em>L</em> point from 0 to 16 THz (200 samples) using last 500000 time steps in OUTCAR file:</p></UL>
-<pre><code>$ dynaphopy input_file OUTCAR -n 500000 -pw -q 0.5 0.5 0.5 -r 0 16 200
+<UL><p><LI>Plot wave vector projection power spectrum at <em>L</em> point from 0 to 16 THz (200 samples) using last 500000 time steps in XDATCAR file:</p></UL>
+<pre><code>$ dynaphopy input_file XDATCAR -n 500000 -ts 0.0007 -pw -q 0.5 0.5 0.5 -r 0 16 200
 </code></pre>
 <img src="images/wave_silicon_800.png" alt="Interactive" style="width:630px">
 
@@ -159,43 +159,46 @@ BANDS
 <p></p>
 
 <pre><code>Peak # 4
-------------------------------------
-Width (FWHM):              0.720976934503 THz
-Position:                  14.7468768482 THz
-Area (1/2<K>) (Loretzian): 172.681967192 u * Angstrom^2 / ps^2
-Area (1/2<K>) (Total):     169.215316253 u * Angstrom^2 / ps^2
-<|dQ/dt|^2>:               690.727868767 u * Angstrom^2 / ps^2
-Occupation number:         0.673816713091
-Fit temperature            830.7549363 K
-Maximum height:            152.477491837 u * Angstrom^2 * 2 pi / ps
-Frequency shift:           -0.390025651715 THz
-Fit Error/Max. (RMS):      0.00341386116228
+----------------------------------------------
+Width                             0.336054 THz
+Position                         14.591885 THz
+Area (&lt;K>)    (Lorentzian)        0.030740 eV
+Area (&lt;K>)    (Total)             0.033473 eV
+&lt;|dQ/dt|^2>                       0.061479 eV
+Occupation number                 5.901073
+Fit temperature                 711.985996 K
+Base line                         0.000072 eV * ps
+Maximum height                    0.058233 eV * ps
+Fitting global error              0.014987
+Frequency shift                  -0.544369 THz
 
 Peak # 5
-------------------------------------
-Width (FWHM):              0.76070128409 THz
-Position:                  14.788674385 THz
-Area (1/2<K>) (Loretzian): 172.4644258 u * Angstrom^2 / ps^2
-Area (1/2<K>) (Total):     168.395185047 u * Angstrom^2 / ps^2
-<|dQ/dt|^2>:               689.857703198 u * Angstrom^2 / ps^2
-Occupation number:         0.669024558502
-Fit temperature            829.708367348 K
-Maximum height:            144.332954065 u * Angstrom^2 * 2 pi / ps
-Frequency shift:           -0.348228114952 THz
-Fit Error/Max. (RMS):      0.0050309593071
+----------------------------------------------
+Width                             0.336054 THz
+Position                         14.591885 THz
+Area (&lt;K>)    (Lorentzian)        0.030740 eV
+Area (&lt;K>)    (Total)             0.033473 eV
+&lt;|dQ/dt|^2>                       0.061479 eV
+Occupation number                 5.901073
+Fit temperature                 711.985996 K
+Base line                         0.000072 eV * ps
+Maximum height                    0.058233 eV * ps
+Fitting global error              0.014987
+Frequency shift                  -0.544369 THz
 
 Peak # 6
-------------------------------------
-Width (FWHM):              0.690951963837 THz
-Position:                  14.7118916826 THz
-Area (1/2<K>) (Loretzian): 164.969796197 u * Angstrom^2 / ps^2
-Area (1/2<K>) (Total):     166.063148197 u * Angstrom^2 / ps^2
-<|dQ/dt|^2>:               659.879184787 u * Angstrom^2 / ps^2
-Occupation number:         0.624059431463
-Fit temperature            793.652485895 K
-Maximum height:            151.997591148 u * Angstrom^2 * 2 pi / ps
-Frequency shift:           -0.425010817291 THz
-Fit Error/Max. (RMS):      0.0112552211985
+----------------------------------------------
+Width                             0.336054 THz
+Position                         14.591885 THz
+Area (&lt;K>)    (Lorentzian)        0.030740 eV
+Area (&lt;K>)    (Total)             0.033473 eV
+&lt;|dQ/dt|^2>                       0.061479 eV
+Occupation number                 5.901073
+Fit temperature                 711.985996 K
+Base line                         0.000072 eV * ps
+Maximum height                    0.058233 eV * ps
+Fitting global error              0.014987
+Frequency shift                  -0.544369 THz
 </code></pre>
 <img src="images/analisis_si_4.png" alt="Interactive" style="width:630px">
 <img src="images/analisis_si_5.png" alt="Interactive" style="width:630px">
@@ -210,12 +213,12 @@ Fit Error/Max. (RMS):      0.0112552211985
 <img src="images/phonon_silicon_g4.png" alt="Interactive" style="width:630px">
 
 <UL><p><LI>Boltzmann analysis</p></UL>
-<pre><code>***Velocity distribution analysis***
-Average: 4.0870549e+01
-Deviation 1.7236406e+01 
-Fit parameter: 2.5609228e+01
-Temperature fit: 788.785519
-***End of velocity analysis***
+<pre><code>Maxwell-Boltzmann distribution analysis
+----------------------------------------------
+Average: 4.0741982e+01 Angstrom/ps
+Deviation: 1.7195930e+01 Angstrom/ps
+Distribution parameter: 2.5531721e+01 Angstrom/ps
+Temperature fit: 788.818186 K
 </code></pre>
 <img src="images/Boltzmann_silicon.png" alt="Interactive" style="width:630px">
 
