@@ -314,8 +314,8 @@ velocity        all scale $t
 
 fix             int all nvt temp $t $t 0.5  #Canonical ensemble
 
-dump             dynaphopy all custom 1 trajectory.lammpstrj x y z
-dump_modify      dynaphopy sort id
+dump            dynaphopy all custom 1 trajectory.lammpstrj x y z
+dump_modify     dynaphopy sort id
 
 run             1000000                      #Number of timesteps
 </code></pre>
