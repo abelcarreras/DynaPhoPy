@@ -211,8 +211,7 @@ class Dynamics:
         else:
             self._relative_trajectory = None
 
-
-        print("Using {0} steps".format(self.velocity.shape[0]))
+        # print("Using {0} steps".format(self.velocity.shape[0]))
 
     def get_number_of_atoms(self):
         if self._number_of_atoms is None:
