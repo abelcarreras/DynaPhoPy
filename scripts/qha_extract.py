@@ -25,6 +25,9 @@ parser.add_argument('-ev', metavar='data', type=str,
 parser.add_argument('-t', metavar='F', type=float, default=300,
                     help='define custom supercell')
 
+parser.add_argument('-p', action='store_true',
+                    help='Plot QHA data')
+
 args = parser.parse_args()
 
 # Read energy volume data
@@ -86,8 +89,10 @@ phonopy_qha = PhonopyQHA(np.array(volumes),
                          #t_max=target_temperature,
                          verbose=False)
 
-volume_temperature = phonopy_qha.get_volume_temperature()
+if args.p:
+    phonopy_qha.plot_qha().show()
 
+volume_temperature = phonopy_qha.get_volume_temperature()
 qha_temperatures = phonopy_qha._qha._temperatures[:phonopy_qha._qha._max_t_index]
 # helmholtz_volume = phonopy_qha.get_helmholtz_volume()
 # thermal_expansion = phonopy_qha.get_thermal_expansion()
@@ -125,12 +130,4 @@ target_fc = f_temperature(target_volume).T
 
 phonopy_link.write_FORCE_CONSTANTS(target_fc,filename='FORCE_CONSTANTS_TEST')
 
-# dynaphopy
-com_points = phonopy_link.get_commensurate_points(structure, fc_supercell)
-structure.set_force_constants(phonopy_link.ForceConstants(target_fc,supercell=fc_supercell))
-
-for q_point in com_points:
-    print q_point
-    print phonopy_link.obtain_eigenvectors_and_frequencies(structure, q_point, print_data=False)[1]
-
-exit()
+print ('QHA Renormalized force constants written in file')
