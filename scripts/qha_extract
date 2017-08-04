@@ -13,16 +13,16 @@ parser = argparse.ArgumentParser(description='thermal_extractor options')
 parser.add_argument('input_file', metavar='data_file', type=str,
                     help='input file containing structure related data')
 
-parser.add_argument('-fc', metavar='data_file', type=str, nargs='*',
+parser.add_argument('-fc', metavar='data_file', type=str, nargs='*', required=True,
                     help='phonopy force constant files')
 
-parser.add_argument('-tp', metavar='data_file', type=str, nargs='*',
+parser.add_argument('-tp', metavar='data_file', type=str, nargs='*', required=True,
                     help='phonopy thermal properties files')
 
-parser.add_argument('-ev', metavar='data', type=str,
+parser.add_argument('-ev', metavar='data', type=str, required=True,
                     help='Energy volume file')
 
-parser.add_argument('-t', metavar='F', type=float, default=300,
+parser.add_argument('-t', metavar='F', type=float, required=True,
                     help='define custom supercell')
 
 parser.add_argument('-p', action='store_true',
