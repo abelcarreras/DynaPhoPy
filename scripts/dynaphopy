@@ -149,6 +149,9 @@ parser.add_argument('--normalize_dos', action='store_true',
 parser.add_argument('--memmap', action='store_true',
                     help='map largest arrays into files to reduce RAM memory usage')
 
+parser.add_argument('--qha_force_constants', metavar='file', type=str, nargs=1,
+                    help='Adds QHA contribution to shifts via renormalized force constants')
+
 
 #Temporal interface on development
 
@@ -250,6 +253,7 @@ calculation.parameters.save_renormalized_frequencies = args.save_renormalized_fr
 
 calculation.select_fitting_function(args.fitting_function)
 calculation.set_temperature(args.temperature)
+calculation.set_qha_force_constants(args.qha_force_constants[0])
 
 if args.project_on_atom is not None:
     calculation.set_projection_onto_atom_type(args.project_on_atom)

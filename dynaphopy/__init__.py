@@ -36,6 +36,7 @@ class Quasiparticle:
         self._renormalized_force_constants = None
         self._commensurate_points_data = None
         self._temperature = None
+        self._force_constants_qha = None
         self._parameters = parameters.Parameters()
         self.crop_trajectory(last_steps)
         #  print('Using {0} time steps for calculation'.format(len(self.dynamic.velocity)))
@@ -895,6 +896,21 @@ class Quasiparticle:
                     widths[1] = 0
                     widths[2] = 0
 
+                # Adding QHA shift if available
+                if self._force_constants_qha is not None:
+                    import copy
+                    structure_qha = copy.copy(self.dynamic.structure)
+                    structure_qha.set_force_constants(self._force_constants_qha)
+                    qha_frequencies = pho_interface.obtain_eigenvectors_and_frequencies(structure_qha,
+                                                                                        reduced_q_point,
+                                                                                        print_data=False)[1]
+
+                    qha_shift = qha_frequencies - self.get_frequencies()
+
+                    print ('QHA shift (THz):')
+                    print(qha_shift)
+                    positions += qha_shift
+
                 renormalized_frequencies.append(positions)
                 linewidths.append(widths)
 
@@ -1106,6 +1122,19 @@ class Quasiparticle:
         elements = self.dynamic.structure.get_atomic_elements()
         for i, coordinate in enumerate(positions_average):
             print ('{0:2} '.format(elements[i]) + '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*coordinate.real))
+
+    def set_qha_force_constants(self, fc_qha_file):
+        self._force_constants_qha = pho_interface.get_force_constants_from_file(fc_qha_file,
+                                                                          fc_supercell=self.dynamic.structure.get_supercell_phonon())
+
+        #com_points = phonopy_link.get_commensurate_points(structure, fc_supercell)
+        #structure.set_force_constants(phonopy_link.ForceConstants(target_fc, supercell=fc_supercell))
+
+        #for q_point in com_points:
+        #    print q_point
+        #    print phonopy_link.obtain_eigenvectors_and_frequencies(structure, q_point, print_data=False)[1]
+
+        #exit()
 
 
 # Support functions
