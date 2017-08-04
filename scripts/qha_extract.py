@@ -26,7 +26,11 @@ parser.add_argument('-t', metavar='F', type=float, default=300,
                     help='define custom supercell')
 
 parser.add_argument('-p', action='store_true',
-                    help='Plot QHA data')
+                    help='plot QHA data')
+
+parser.add_argument('-sfc', metavar='filename', type=str, default='FORCE_CONSTANTS_QHA',
+                    help='select custom filename to store the renormalized force constants')
+
 
 args = parser.parse_args()
 
@@ -128,6 +132,6 @@ f_temperature = interp1d(volumes, force_constants_mat, kind='quadratic')
 # Get force constants at the requested temperature
 target_fc = f_temperature(target_volume).T
 
-phonopy_link.write_FORCE_CONSTANTS(target_fc,filename='FORCE_CONSTANTS_TEST')
+phonopy_link.write_FORCE_CONSTANTS(target_fc,filename=args.sfc)
 
-print ('QHA Renormalized force constants written in file')
+print ('QHA Renormalized force constants written in file: {}'.format(args.sfc))
