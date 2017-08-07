@@ -254,7 +254,7 @@ calculation.parameters.save_renormalized_frequencies = args.save_renormalized_fr
 calculation.select_fitting_function(args.fitting_function)
 calculation.set_temperature(args.temperature)
 
-if args.args.qha_force_constants is not None:
+if args.qha_force_constants is not None:
     calculation.set_qha_force_constants(args.qha_force_constants[0])
 
 if args.project_on_atom is not None:
