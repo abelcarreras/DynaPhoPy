@@ -607,9 +607,17 @@ class Quasiparticle:
 
     def phonon_individual_analysis(self):
         print("Peak analysis analysis")
+        if self._force_constants_qha is not None:
+            qha_frequencies = self._get_frequencies_from_force_constants(self._force_constants_qha,
+                                                                         self.get_reduced_q_vector())
+            qha_shift = qha_frequencies - self.get_frequencies()
+        else:
+            qha_shift = None
+
         fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                         self.parameters.frequency_range,
                                         harmonic_frequencies=self.get_frequencies(),
+                                        thermal_expansion_shift=qha_shift,
                                         show_plots=not self.parameters.silent,
                                         fitting_function_type=self.parameters.fitting_function,
                                         use_degeneracy=self.parameters.use_symmetry,
@@ -830,6 +838,16 @@ class Quasiparticle:
     def get_algorithm_list(self):
         return power_spectrum_functions.values()
 
+    def _get_frequencies_from_force_constants(self, force_constants, reduced_q_vector):
+        import copy
+        structure_qha = copy.copy(self.dynamic.structure)
+        structure_qha.set_force_constants(force_constants)
+        qha_frequencies = pho_interface.obtain_eigenvectors_and_frequencies(structure_qha,
+                                                                            reduced_q_vector,
+                                                                            print_data=False)[1]
+        return qha_frequencies
+
+
     def get_commensurate_points_data(self, auto_range=True):
 
         if self._commensurate_points_data is None:
@@ -852,24 +870,24 @@ class Quasiparticle:
             com_points = pho_interface.get_commensurate_points(self.dynamic.structure,
                                                                fc_supercell)
 
-            initial_reduced_q_point = self.get_reduced_q_vector()
+            initial_reduced_q_vector = self.get_reduced_q_vector()
 
             renormalized_frequencies = []
             eigenvectors = []
             linewidths = []
             q_points_list = []
 
-            for i, reduced_q_point in enumerate(com_points):
+            for i, reduced_q_vector in enumerate(com_points):
 
-                print ("\nQ-point: {0} / {1}      {2}".format(i + 1, len(com_points), reduced_q_point))
+                print ("\nQ-point: {0} / {1}      {2}".format(i + 1, len(com_points), reduced_q_vector))
 
-                self.set_reduced_q_vector(reduced_q_point)
+                self.set_reduced_q_vector(reduced_q_vector)
                 eigenvectors.append(self.get_eigenvectors())
 
-                q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(reduced_q_point,
+                q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(reduced_q_vector,
                                                                                         self.dynamic.structure)
                 q_index = vector_in_list(q_points_equivalent, q_points_list)
-                q_points_list.append(reduced_q_point)
+                q_points_list.append(reduced_q_vector)
 
                 if q_index != 0 and self.parameters.use_symmetry:
                     renormalized_frequencies.append(renormalized_frequencies[q_index])
@@ -877,17 +895,12 @@ class Quasiparticle:
                     print('Skipped, equivalent to {0}'.format(q_points_list[q_index]))
                     continue
 
-                self.set_reduced_q_vector(reduced_q_point)
+                self.set_reduced_q_vector(reduced_q_vector)
 
                 # Adding QHA shift if available
                 if self._force_constants_qha is not None:
-                    import copy
-                    structure_qha = copy.copy(self.dynamic.structure)
-                    structure_qha.set_force_constants(self._force_constants_qha)
-                    qha_frequencies = pho_interface.obtain_eigenvectors_and_frequencies(structure_qha,
-                                                                                        reduced_q_point,
-                                                                                        print_data=False)[1]
-
+                    qha_frequencies = self._get_frequencies_from_force_constants(self._force_constants_qha,
+                                                                                 reduced_q_vector)
                     qha_shift = qha_frequencies - self.get_frequencies()
                 else:
                     qha_shift = None
@@ -895,14 +908,14 @@ class Quasiparticle:
                 data = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                                        self.parameters.frequency_range,
                                                        harmonic_frequencies=self.get_frequencies(),
-                                                       qha_shift=qha_shift,
+                                                       thermal_expansion_shift=qha_shift,
                                                        show_plots=False,
                                                        fitting_function_type=self.parameters.fitting_function,
                                                        use_degeneracy=self.parameters.use_symmetry)
 
                 positions = data['positions']
                 widths = data['widths']
-                if (reduced_q_point == [0, 0, 0]).all():
+                if (reduced_q_vector == [0, 0, 0]).all():
                     print('Fixing gamma point 0 frequencies')
                     positions[0] = 0
                     positions[1] = 0
@@ -929,7 +942,7 @@ class Quasiparticle:
                                               'q_points': q_points_list,
                                               'fc_supercell': fc_supercell}
 
-            self.set_reduced_q_vector(initial_reduced_q_point)
+            self.set_reduced_q_vector(initial_reduced_q_vector)
 
         return self._commensurate_points_data
 

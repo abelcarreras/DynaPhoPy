@@ -34,7 +34,7 @@ def average_phonon(index, data, degeneracy):
 
 def phonon_fitting_analysis(original, ps_frequencies,
                             harmonic_frequencies=None,
-                            qha_shift=None,
+                            thermal_expansion_shift=None,
                             fitting_function_type=0,
                             show_plots=True,
                             use_degeneracy=True,
@@ -123,9 +123,9 @@ def phonon_fitting_analysis(original, ps_frequencies,
         if harmonic_frequencies is not None:
             print ('Frequency shift            {0:15.6f} THz'.format(position - harmonic_frequencies[i]))
 
-        if qha_shift is not None:
-            print ('Frequency shift (+QHA)     {0:15.6f} THz'.format(position - harmonic_frequencies[i] + qha_shift[i]))
-            position += qha_shift[i]
+        if thermal_expansion_shift is not None:
+            print ('Frequency shift (+T. exp.) {0:15.6f} THz'.format(position - harmonic_frequencies[i] + thermal_expansion_shift[i]))
+            position += thermal_expansion_shift[i]
 
         positions.append(position)
         widths.append(width)
