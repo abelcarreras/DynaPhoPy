@@ -8,6 +8,7 @@ import argparse
 import glob
 
 from phonopy import PhonopyQHA
+from scipy.interpolate import interp1d
 
 parser = argparse.ArgumentParser(description='thermal_extractor options')
 parser.add_argument('input_file', metavar='data_file', type=str,
@@ -98,15 +99,9 @@ if args.p:
 
 volume_temperature = phonopy_qha.get_volume_temperature()
 qha_temperatures = phonopy_qha._qha._temperatures[:phonopy_qha._qha._max_t_index]
-# helmholtz_volume = phonopy_qha.get_helmholtz_volume()
-# thermal_expansion = phonopy_qha.get_thermal_expansion()
-# heat_capacity_P_numerical = phonopy_qha.get_heat_capacity_P_numerical()
-# volume_expansion = phonopy_qha.get_volume_expansion()
-# gibbs_temperature = phonopy_qha.get_gibbs_temperature()
+
 
 # Fit force constants as a function of the temperature
-from scipy.interpolate import interp1d
-
 fit_vt = interp1d(qha_temperatures, volume_temperature, kind='quadratic')
 target_volume = fit_vt(target_temperature)
 
