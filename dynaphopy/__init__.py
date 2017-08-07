@@ -607,17 +607,11 @@ class Quasiparticle:
 
     def phonon_individual_analysis(self):
         print("Peak analysis analysis")
-        if self._force_constants_qha is not None:
-            qha_frequencies = self._get_frequencies_from_force_constants(self._force_constants_qha,
-                                                                         self.get_reduced_q_vector())
-            qha_shift = qha_frequencies - self.get_frequencies()
-        else:
-            qha_shift = None
 
         fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                         self.parameters.frequency_range,
                                         harmonic_frequencies=self.get_frequencies(),
-                                        thermal_expansion_shift=qha_shift,
+                                        thermal_expansion_shift=self.get_qha_shift(self.get_reduced_q_vector()),
                                         show_plots=not self.parameters.silent,
                                         fitting_function_type=self.parameters.fitting_function,
                                         use_degeneracy=self.parameters.use_symmetry,
@@ -838,16 +832,6 @@ class Quasiparticle:
     def get_algorithm_list(self):
         return power_spectrum_functions.values()
 
-    def _get_frequencies_from_force_constants(self, force_constants, reduced_q_vector):
-        import copy
-        structure_qha = copy.copy(self.dynamic.structure)
-        structure_qha.set_force_constants(force_constants)
-        qha_frequencies = pho_interface.obtain_eigenvectors_and_frequencies(structure_qha,
-                                                                            reduced_q_vector,
-                                                                            print_data=False)[1]
-        return qha_frequencies
-
-
     def get_commensurate_points_data(self, auto_range=True):
 
         if self._commensurate_points_data is None:
@@ -886,7 +870,7 @@ class Quasiparticle:
 
                 q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(reduced_q_vector,
                                                                                         self.dynamic.structure)
-                q_index = vector_in_list(q_points_equivalent, q_points_list)
+                q_index = _vector_in_list(q_points_equivalent, q_points_list)
                 q_points_list.append(reduced_q_vector)
 
                 if q_index != 0 and self.parameters.use_symmetry:
@@ -897,18 +881,10 @@ class Quasiparticle:
 
                 self.set_reduced_q_vector(reduced_q_vector)
 
-                # Adding QHA shift if available
-                if self._force_constants_qha is not None:
-                    qha_frequencies = self._get_frequencies_from_force_constants(self._force_constants_qha,
-                                                                                 reduced_q_vector)
-                    qha_shift = qha_frequencies - self.get_frequencies()
-                else:
-                    qha_shift = None
-
                 data = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                                        self.parameters.frequency_range,
                                                        harmonic_frequencies=self.get_frequencies(),
-                                                       thermal_expansion_shift=qha_shift,
+                                                       thermal_expansion_shift=self.get_qha_shift(reduced_q_vector),
                                                        show_plots=False,
                                                        fitting_function_type=self.parameters.fitting_function,
                                                        use_degeneracy=self.parameters.use_symmetry)
@@ -1136,24 +1112,30 @@ class Quasiparticle:
         for i, coordinate in enumerate(positions_average):
             print ('{0:2} '.format(elements[i]) + '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*coordinate.real))
 
+    # QHA methods
     def set_qha_force_constants(self, fc_qha_file):
         self._force_constants_qha = pho_interface.get_force_constants_from_file(fc_qha_file,
                                                                           fc_supercell=self.dynamic.structure.get_supercell_phonon())
 
-        #com_points = phonopy_link.get_commensurate_points(structure, fc_supercell)
-        #structure.set_force_constants(phonopy_link.ForceConstants(target_fc, supercell=fc_supercell))
-
-        #for q_point in com_points:
-        #    print q_point
-        #    print phonopy_link.obtain_eigenvectors_and_frequencies(structure, q_point, print_data=False)[1]
-
-        #exit()
+    def get_qha_shift(self, reduced_q_vector):
+        if self._force_constants_qha is not None:
+            import copy
+            structure_qha = copy.copy(self.dynamic.structure)
+            structure_qha.set_force_constants(self._force_constants_qha)
+            qha_frequencies = pho_interface.obtain_eigenvectors_and_frequencies(structure_qha,
+                                                                                reduced_q_vector,
+                                                                                print_data=False)[1]
+            return qha_frequencies - self.get_frequencies()
+        else:
+            return None
 
 
 # Support functions
-def vector_in_list(vector_test_list, vector_full_list):
+def _vector_in_list(vector_test_list, vector_full_list):
     for vector_test in vector_test_list:
         for i, vector_full in enumerate(vector_full_list):
             if (vector_full == vector_test).all():
                 return i
     return 0
+
+
