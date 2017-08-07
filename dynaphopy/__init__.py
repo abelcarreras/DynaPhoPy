@@ -878,9 +878,24 @@ class Quasiparticle:
                     continue
 
                 self.set_reduced_q_vector(reduced_q_point)
+
+                # Adding QHA shift if available
+                if self._force_constants_qha is not None:
+                    import copy
+                    structure_qha = copy.copy(self.dynamic.structure)
+                    structure_qha.set_force_constants(self._force_constants_qha)
+                    qha_frequencies = pho_interface.obtain_eigenvectors_and_frequencies(structure_qha,
+                                                                                        reduced_q_point,
+                                                                                        print_data=False)[1]
+
+                    qha_shift = qha_frequencies - self.get_frequencies()
+                else:
+                    qha_shift = None
+
                 data = fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                                        self.parameters.frequency_range,
                                                        harmonic_frequencies=self.get_frequencies(),
+                                                       qha_shift=qha_shift,
                                                        show_plots=False,
                                                        fitting_function_type=self.parameters.fitting_function,
                                                        use_degeneracy=self.parameters.use_symmetry)
@@ -895,21 +910,6 @@ class Quasiparticle:
                     widths[0] = 0
                     widths[1] = 0
                     widths[2] = 0
-
-                # Adding QHA shift if available
-                if self._force_constants_qha is not None:
-                    import copy
-                    structure_qha = copy.copy(self.dynamic.structure)
-                    structure_qha.set_force_constants(self._force_constants_qha)
-                    qha_frequencies = pho_interface.obtain_eigenvectors_and_frequencies(structure_qha,
-                                                                                        reduced_q_point,
-                                                                                        print_data=False)[1]
-
-                    qha_shift = qha_frequencies - self.get_frequencies()
-
-                    print ('QHA shift (THz):')
-                    print(qha_shift)
-                    positions += qha_shift
 
                 renormalized_frequencies.append(positions)
                 linewidths.append(widths)
