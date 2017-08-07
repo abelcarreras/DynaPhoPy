@@ -23,7 +23,7 @@ parser.add_argument('-ev', metavar='data', type=str, required=True,
                     help='Energy volume file')
 
 parser.add_argument('-t', metavar='F', type=float, required=True,
-                    help='define custom supercell')
+                    help='temperature at which the renormalized force constants are calculated')
 
 parser.add_argument('-p', action='store_true',
                     help='plot QHA data')
