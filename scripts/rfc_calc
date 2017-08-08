@@ -115,7 +115,8 @@ if 'structure_file_name_outcar' in input_parameters:
     structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name_outcar'])
 else:
     structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
-    structure.get_data_from_dict(input_parameters)
+
+structure.get_data_from_dict(input_parameters)
 
 #if args.dim is not None:
 #    structure.set_supercell_phonon_renormalized(np.diag(np.array(args.dim, dtype=int)))
