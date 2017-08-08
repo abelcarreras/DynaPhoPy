@@ -167,7 +167,7 @@ be noisy and a post processing may be needed to improve the fitting quality.
 <br>In dynaphopy package, <strong>fitdata</strong> script is included in scripts folder to extract the anharmonic information from a power 
 spectrum file obtained with Dynaphopy throught <strong>-sw</strong> or <strong>-sp</strong> options. This allows to first calculate the 
 power spectrum using Dynaphopy in a cluster computer, saving it in a file and later extract the information in a local machine.
-Additionally this script allows to smooth the spectrum using <a href="http://en.wikipedia.org/wiki/Local_regression">LOESS</a> method before fitting it with a Lorentzian function.
+Additionally this script allows to smooth the spectrum using <a href="http://en.wikipedia.org/wiki/Local_regression">Local regression</a> method before fitting it with a Lorentzian function.
 <br>During the execution it shows the smoothing result and the fitting result for each spectrum present in the spectrum file allowing to test
 different smoothing parameters to obtain the best results.
 </p>
@@ -179,8 +179,8 @@ different smoothing parameters to obtain the best results.
 </code></pre>
 <img src="images/fitting.png" alt="Interactive" style="width:605px">
 
-<LI><h5>Smoothing spectra using LOESS method</h5>
-<p>LOESS method works very well removing the noise in very noisy spectra. This allows to obtain much better results in the fitting and, in many cases, it becomes indispensable in order to get a meaningful result. To do this, the visual analysis becomes crucial to compare the original noisy spectrum and the smoothed one to make sure that the essetial peak shape is kept. To request the smooth methos use <strong>-sm</strong> flag.
+<LI><h5>Smoothing spectra using local regression method</h5>
+<p>This method works very well removing the noise in very noisy spectra. This allows to obtain much better results in the fitting and, in many cases, it becomes indispensable in order to get a meaningful result. To do this, the visual analysis becomes crucial to compare the original noisy spectrum and the smoothed one to make sure that the essetial peak shape is kept. To request the smooth methos use <strong>-sm</strong> flag.
 </p>
 <pre><code>$ fitdata -sm file
 </code></pre>
@@ -188,7 +188,7 @@ different smoothing parameters to obtain the best results.
 <img src="images/smooth.png" alt="Interactive" style="width:605px">
 <img src="images/fit_smooth.png" alt="Interactive" style="width:605px">
 <LI><h5>Changing smoothing parameters</h5>
-<p> In case that the smoothing process is not succesfull, the LOESS method can be ajusted via smoothing span parameter <strong>-f</strong> (Default: 0.2). Increasing its value will make the strectra smoother but will differ more from the original spectrum. 
+<p> In case that the smoothing process is not succesfull, it can be ajusted via smoothing span parameter <strong>-f</strong> (Default: 0.2). Increasing its value will make the strectra smoother but may differ more from the original spectrum. 
 </p>
 <pre><code>$ fitdata -sm -f 0.4 file
 </code></pre>
@@ -206,10 +206,46 @@ using the average of spectra 3, 4 and 5.
 
 </UL>
 
+<h3>Thermal expansion contribution</h3>
+<p>
+Thermal expansion may have a huge contribution to the frequency shift at high temperatures. This contribution can be included in DynaPhoPy via force constants. These force constants are obtained from a lattice dynamics calculation using a unit cell correspoponding to the cell volume at a given temperature. This temperature should correspond to the temperature at which the MD simulation is calculated. The crystal structure should be the same than the one used to compute the MD simulation. If the crystal structure changes this approximation cannot be used.
+<BR>In order to calculate the thermal expansion contribution the quasi-harmonic approximation (QHA) may be used. DynaPhoPy package includes a script to facilitate this calculation using phonopy: <strong>qha_extract</strong>.
+To use this script, first it is necessary to prepare a set of phonon calculations at different volumes as described in <a href="https://atztogo.github.io/phonopy/qha.html#id1.">phonopy-qha manual</a>. Using this procedure we should obtain 3 kinds of files:
+<BR> 1) A FORCE_CONSTANTS file at each volume.
+<BR> 2) A thermal_properties.yaml file at each volume
+<BR> 3) A e-v.dat file.
 
+<BR> The <strong>qha_extract</strong> is executed by:
+</p>
+<p>
+<pre><code>$ qha_extract input_file -ev e-v.dat 
+-fc FORCE_CONSTANTS_1 FORCE_CONSTANTS_2 FORCE_CONSTANTS_3 ...  
+-tp thermal_properties_1.yaml thermal_properties_2.yaml ...
+-t 800
+</code></pre>
+</p>
+ <p>where <em>input_file</em> is a usual DynaPhoPy input file (the same used to analyze the MD is OK) and <strong>-t</strong> flag indicates the temperature at which the force constants are obtained. This temperature should be the one at which the MD simulation is calculated. The output result of this script is a file named <em>FORCE_CONSTANTS_QHA</em> that contains the force constants at the given temperature.
 
-
-
+<BR>The order in which the files are introduced using <strong>-fc</strong> and <strong>-tp</strong> flags matters, make sure to be consistent each other. Wildcards can be used, just make sure the filenames is properly set according to alphanumeric order:
+</p>
+<p>
+<pre><code>$ qha_extract input_file -ev e-v.dat 
+-fc FORCE_CONSTANTS_*...  
+-tp thermal_properties_* ...
+-t 800
+</code></pre>
+</p>
+<p>Optional flags:  
+    <BR><strong>-p</strong> Plot results of the QHA calculation using phonopy-qha
+        <BR><strong>-sfc</strong> Defines custom name for the ouput <em>FORCE_CONSTANTS_QHA</em> file.
+</p>
+<p>Once the calculation is finished, the file <em>FORCE_CONSTANTS_QHA</em> is used in DynaPhoPy by the flag <strong>--qha_force_constants</strong>:  
+</p>
+<p>
+<pre><code>$ dynaphopy input_file TRAJECTORY 
+--qha_force_constants FORCE_CONSTANTS_QHA
+</code></pre>
+</p>
 
     </section>
     </div>
