@@ -106,7 +106,7 @@ fit_vt = interp1d(qha_temperatures, volume_temperature, kind='quadratic')
 try:
     target_volume = fit_vt(target_temperature)
 except ValueError:
-    print ('Error interpolating this temperature!'
+    print ('Error interpolating this temperature!\n'
            'Make sure the requested temperature is within the range of thermal_properties.yaml files')
     exit()
 
