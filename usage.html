@@ -151,14 +151,15 @@ This is specified with  <strong>--dim</strong> flag in Phonopy. For further info
 </code></pre>
 
 <LI><h5>Mesh</h5>
-<p>Interfacing with Phonopy, Dynaphopy can obtain the density of states (DOS). This can be directly compared with the full power spectra of the velocity autocorrection function. MESH keyword determines the number of sampling q-points  used to calculate the DoS calculation. This keyword is equivalent to <a href="http://atztogo.github.io/phonopy/setting-tags.html#mp-mesh">MESH tag</a> in Phonopy. For additional information refere to phonopy manual. For additional features please use <a href="http://atztogo.github.io/phonopy/">phonopy</a> directly.
+<p>Interfacing with Phonopy, DynaPhoPy can obtain the density of states (DOS). The DOS can be directly compared with the full power spectra of the velocity autocorrection function. MESH keyword determines the number of sampling q-points used to calculate the DOS calculation. This keyword is equivalent to <a href="http://atztogo.github.io/phonopy/setting-tags.html#mp-mesh">MESH tag</a> in Phonopy. For additional information refere to phonopy manual. For additional features please use <a href="http://atztogo.github.io/phonopy/">phonopy</a> directly.
 </p><pre><code>MESH PHONOPY
-8 8 8
+40 40 40
 </code></pre>
-<p>Since the calculation of thermal properties rely on the DOS, MESH also influence the results of harmonic thermal properties and renormalized thermal properties. Thermal properties obtained from power spectra are not affected. 
+<p>Since the calculation of thermal properties rely on the DOS, MESH also influence the results of harmonic thermal properties and renormalized thermal properties. Thermal properties obtained from power spectra are not affected.
+<br><em>Note: The DOS is calculated using the tetrahedron method. A dense mesh may be necessary to obtain well converged results</em>.
 </p>    
 <LI><h5>Comments</h5>
-    <p>Inside the input file, any line starting with <strong>#</strong> will be ignored. This can be used to write comments in the input file.
+<p>Inside the input file, any line starting with <strong>#</strong> will be ignored. This can be used to write comments in the input file.
 </p>
     
 </UL>
