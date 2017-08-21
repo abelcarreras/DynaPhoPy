@@ -165,17 +165,18 @@ When the calculation is finished the individual information of each phonon (sort
 </p>
 <pre><code>Peak # 7
 ------------------------------------------
-Width (FWHM):               0.98920371 THz
-Position:                   21.9736957 THz
-Area (1/2&lt;K&gt;) (Lorentzian): 0.02523055 eV
-Area (1/2&lt;K&gt;) (Total):      0.02562331 eV
-<|dQ/dt|^2>      :          0.10092221 eV
-Occupation number:          0.61054975
-Fit temperature             1171.15374 K
-Base line                   0.00012439 ev * ps
-Maximum height:             0.10214808 eV * ps
-Fitting global error :      0.03340609
-Frequency shift:           -0.82162488 THz
+Width (FWHM):                0.98920371 THz
+Position:                    21.9736957 THz
+Area (1/2&lt;K&gt;) (Lorentzian):  0.02523055 eV
+Area (1/2&lt;K&gt;) (Total):       0.02562331 eV
+<|dQ/dt|^2>      :           0.10092221 eV
+Occupation number:           0.61054975
+Fit temperature              1171.15374 K
+Base line                    0.00012439 ev * ps
+Maximum height:              0.10214808 eV * ps
+Fitting global error :       0.03340609
+Frequency shift:            -0.82162488 THz
+Frequency shift (+T. exp.): -0.92346783 THz
 </code></pre>
 <p>
 <br><strong>Width:</strong>	Phonon linewidth
@@ -204,7 +205,8 @@ $$ \left\langle {{{\left| {\dot Q} \right|}^2}} \right\rangle = \left\langle E \
 </p>
     where <em>n</em> is the occupation number and <em>&omega;</em> is the phonon frequency (<strong>Position</strong>).
 <p>
-    <br><strong>Frequency shift:</strong> Difference between the anharmonic frequency (<strong>Position</strong>) and the harmonic frequency (obtained from phonopy).
+<br><strong>Frequency shift:</strong> Difference between the anharmonic frequency (<strong>Position</strong>) and the harmonic frequency (obtained from phonopy).
+<br><strong>Frequency shift (+T. exp.):</strong> Sum of the frequency shift calculated from the MD (described above) plus the frequency shift due to thermal expansion (obtained from the QHA).
 <br><strong>Fitting global error:</strong> Fitting error is calculated as the average of the standard errors of the position and the width divided by the squareroot of the area to make it dimensionless so it can be comparable between diferent peak sizes. The standard errors are obtained from the squareroot of the diagonal elements of the covariance matrix</p>
 <p style="text-align:center">
 $$ 
