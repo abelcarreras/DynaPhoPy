@@ -60,7 +60,7 @@ More information in the online manual at: http://abelcarreras.github.io/DynaPhoP
 Files and directories included in DynaPhoPy distribution
 --------------------------------------------------------
 
-| Test | Test |
+|  |  |
 | --- | --- |
 | README          |  this file |
 | LICENSE         |  the MIT license |
