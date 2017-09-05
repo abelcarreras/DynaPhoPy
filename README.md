@@ -47,8 +47,9 @@ Executing this software
 
 2. Interactive mode
   - Use -i option from command line method and follow the instructions
-  - $dynaphopy input_file MD_file -i
-
+    ```
+    dynaphopy input_file MD_file -i
+    ```
 3. Scripting method (as a module)
   - Dynaphopy can be imported as a python module
   - In Example directory an example script is available (script_silicon.py)
