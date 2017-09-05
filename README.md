@@ -60,15 +60,13 @@ More information in the online manual at: http://abelcarreras.github.io/DynaPhoP
 Files and directories included in DynaPhoPy distribution
 --------------------------------------------------------
 
-|  |  |
-| --- | --- |
-| README          |  this file |
-| LICENSE         |  the MIT license |
-
- -  setup.py           installation script (serial)
- -  setup_openmp.py    installation script (parallel)
- -  requirements.txt   list of required packages
 ~~~
+  README             this file 
+  LICENSE            the MIT license 
+  setup.py           installation script (serial)
+  setup_openmp.py    installation script (parallel)
+  requirements.txt   list of required packages
+
   /dynaphopy          main code in python
   /c                  additional functions in c
   /doc                documentation
