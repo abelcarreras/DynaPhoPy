@@ -1,0 +1,33 @@
+##############################################################################
+# Example: Si with VASP at 800 K                                             #
+# -------------------------------------------------------------------------- #
+# Calculation of anharmonic properties of Si using VASP MD.                  #
+# The results include the phonon frequency shift and linewidth, renormalized #
+# force constants, phonon dispersion relations and thermal properties.       #
+##############################################################################
+
+1. Generate the MD initial crystal structure for VASP from a POSCAR type 
+   file (POSCAR_unitcell):
+
+$ dynaphopy input_si -c_poscar POSCAR --dim 2 2 2
+
+2. Compute a MD simulation using VASP. For this example DFT method using the 
+   PBESol functional was used. (This calculations requires the PAW pseudopotentials included
+   in the standard distribution of VASP):
+
+$ vasp
+
+3. Compute the phonon anharmonic properties using DynaPhoPy:
+
+a) Using command line interface
+$ dynaphopy input_si XDATCAR -ts 0.002 -n 8000 -sdata -thm --normalize_dos --silent -sfc renormalized_fc
+
+b) Using interactive menu interface (renormalized phonon dispersion and DOS) 
+$ dynaphopy input_si XDATCAR -ts 0.002 --normalize_dos -i
+
+Result files:
+ - renormalized_fc : Renormalized force constants in PHONOPY format.
+ - quasiparticles_data.yaml : Phonon frequencies and linewidths at each commensurate q-point 
+                              in yaml format
+
+

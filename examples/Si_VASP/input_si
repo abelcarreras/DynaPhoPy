@@ -1,0 +1,26 @@
+STRUCTURE FILE POSCAR
+POSCAR_unitcell
+
+FORCE SETS
+FORCE_SETS_2x2x2
+
+
+PRIMITIVE MATRIX
+0.0 0.5 0.5
+0.5 0.0 0.5
+0.5 0.5 0.0
+
+SUPERCELL MATRIX PHONOPY
+2 0 0
+0 2 0
+0 0 2
+
+MESH PHONOPY
+40 40 40
+
+BANDS
+0.0,   0.0,   0.0         0.5,   0.0,  0.5
+0.5,   0.0,   0.5         0.625  0.25  0.625
+0.375, 0.375, 0.75        0.0,   0.0,  0.0
+0.0,   0.0,   0.0         0.5,   0.5,  0.5
+

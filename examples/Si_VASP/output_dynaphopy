@@ -1,0 +1,1115 @@
+Reading VASP POSCAR structure
+Reading XDATCAR file
+This could take long, please wait..
+No velocity provided! calculating it from coordinates...
+MD cell size relation: [2 2 2]
+Using 8000 steps
+set frequency range: 0.0 - 18.2
+
+Q-point: 1 / 32      [ 0.  0.  0.]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[ -4.17181119e-03  -4.17181118e-03  -4.17181118e-03   1.51362543e+01
+   1.51362543e+01   1.51362543e+01]
+Calculating phonon projection power spectra
+Projecting into phonon mode
+Projecting into wave vector
+
+Peak # 1
+----------------------------------------------
+Width                             0.200000 THz
+Position                          0.000000 THz
+Area (<K>)    (Lorentzian)        0.000000 eV
+Area (<K>)    (Total)             0.000000 eV
+<|dQ/dt|^2>                       0.000000 eV
+Occupation number                      nan
+Fit temperature                        nan K
+Base line                         0.000000 eV * ps
+Maximum height                    0.000000 eV * ps
+Fitting global error                   inf
+Frequency shift                   0.004172 THz
+
+Peak # 2
+----------------------------------------------
+Width                             0.200000 THz
+Position                          0.000000 THz
+Area (<K>)    (Lorentzian)        0.000000 eV
+Area (<K>)    (Total)             0.000000 eV
+<|dQ/dt|^2>                       0.000000 eV
+Occupation number                      nan
+Fit temperature                        nan K
+Base line                         0.000000 eV * ps
+Maximum height                    0.000000 eV * ps
+Fitting global error                   inf
+Frequency shift                   0.004172 THz
+
+Peak # 3
+----------------------------------------------
+Width                             0.200000 THz
+Position                          0.000000 THz
+Area (<K>)    (Lorentzian)        0.000000 eV
+Area (<K>)    (Total)             0.000000 eV
+<|dQ/dt|^2>                       0.000000 eV
+Occupation number                      nan
+Fit temperature                        nan K
+Base line                         0.000000 eV * ps
+Maximum height                    0.000000 eV * ps
+Fitting global error                   inf
+Frequency shift                   0.004172 THz
+
+Peak # 4
+----------------------------------------------
+Width                             0.416888 THz
+Position                         14.650139 THz
+Area (<K>)    (Lorentzian)        0.029202 eV
+Area (<K>)    (Total)             0.030788 eV
+<|dQ/dt|^2>                       0.058404 eV
+Occupation number                 5.556676
+Fit temperature                 676.206679 K
+Base line                         0.000125 eV * ps
+Maximum height                    0.044594 eV * ps
+Fitting global error              0.015977
+Frequency shift                  -0.486115 THz
+
+Peak # 5
+----------------------------------------------
+Width                             0.416888 THz
+Position                         14.650139 THz
+Area (<K>)    (Lorentzian)        0.029202 eV
+Area (<K>)    (Total)             0.030788 eV
+<|dQ/dt|^2>                       0.058404 eV
+Occupation number                 5.556676
+Fit temperature                 676.206679 K
+Base line                         0.000125 eV * ps
+Maximum height                    0.044594 eV * ps
+Fitting global error              0.015977
+Frequency shift                  -0.486115 THz
+
+Peak # 6
+----------------------------------------------
+Width                             0.416888 THz
+Position                         14.650139 THz
+Area (<K>)    (Lorentzian)        0.029202 eV
+Area (<K>)    (Total)             0.030788 eV
+<|dQ/dt|^2>                       0.058404 eV
+Occupation number                 5.556676
+Fit temperature                 676.206679 K
+Base line                         0.000125 eV * ps
+Maximum height                    0.044594 eV * ps
+Fitting global error              0.015977
+Frequency shift                  -0.486115 THz
+Fixing gamma point 0 frequencies
+
+Q-point: 2 / 32      [ 0.    0.25  0.25]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+Calculating phonon projection power spectra
+Projecting into phonon mode
+Projecting into wave vector
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+
+Peak # 1
+----------------------------------------------
+Width                             0.166511 THz
+Position                          3.430006 THz
+Area (<K>)    (Lorentzian)        0.025598 eV
+Area (<K>)    (Total)             0.035226 eV
+<|dQ/dt|^2>                       0.051196 eV
+Occupation number                22.176678
+Fit temperature                 594.014223 K
+Base line                         0.000540 eV * ps
+Maximum height                    0.097870 eV * ps
+Fitting global error              0.006585
+Frequency shift                  -0.258370 THz
+
+Peak # 2
+----------------------------------------------
+Width                             0.166511 THz
+Position                          3.430006 THz
+Area (<K>)    (Lorentzian)        0.025598 eV
+Area (<K>)    (Total)             0.035226 eV
+<|dQ/dt|^2>                       0.051196 eV
+Occupation number                22.176678
+Fit temperature                 594.014223 K
+Base line                         0.000540 eV * ps
+Maximum height                    0.097870 eV * ps
+Fitting global error              0.006585
+Frequency shift                  -0.258370 THz
+
+Peak # 3
+----------------------------------------------
+Width                             0.130603 THz
+Position                          6.814096 THz
+Area (<K>)    (Lorentzian)        0.029839 eV
+Area (<K>)    (Total)             0.041070 eV
+<|dQ/dt|^2>                       0.059679 eV
+Occupation number                12.805960
+Fit temperature                 692.217886 K
+Base line                         0.000632 eV * ps
+Maximum height                    0.145452 eV * ps
+Fitting global error              0.006982
+Frequency shift                  -0.257827 THz
+
+Peak # 4
+----------------------------------------------
+Width                             0.425847 THz
+Position                         13.504766 THz
+Area (<K>)    (Lorentzian)        0.035989 eV
+Area (<K>)    (Total)             0.035206 eV
+<|dQ/dt|^2>                       0.071979 eV
+Occupation number                 7.597506
+Fit temperature                 834.215724 K
+Base line                        -0.000018 eV * ps
+Maximum height                    0.053802 eV * ps
+Fitting global error              0.019915
+Frequency shift                  -0.457566 THz
+
+Peak # 5
+----------------------------------------------
+Width                             0.425847 THz
+Position                         13.504766 THz
+Area (<K>)    (Lorentzian)        0.035989 eV
+Area (<K>)    (Total)             0.035206 eV
+<|dQ/dt|^2>                       0.071979 eV
+Occupation number                 7.597506
+Fit temperature                 834.215724 K
+Base line                        -0.000018 eV * ps
+Maximum height                    0.053802 eV * ps
+Fitting global error              0.019915
+Frequency shift                  -0.457566 THz
+
+Peak # 6
+----------------------------------------------
+Width                             0.212618 THz
+Position                         14.056962 THz
+Area (<K>)    (Lorentzian)        0.024663 eV
+Area (<K>)    (Total)             0.030957 eV
+<|dQ/dt|^2>                       0.049325 eV
+Occupation number                 4.831040
+Fit temperature                 570.713372 K
+Base line                         0.000347 eV * ps
+Maximum height                    0.073845 eV * ps
+Fitting global error              0.010713
+Frequency shift                  -0.461773 THz
+
+Q-point: 3 / 32      [ 0.   0.5  0.5]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  4.13444852   4.13444852  12.05209355  12.05209355  13.55780147
+  13.55780147]
+Calculating phonon projection power spectra
+Projecting into phonon mode
+Projecting into wave vector
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  4.13444852   4.13444852  12.05209355  12.05209355  13.55780147
+  13.55780147]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  4.13444852   4.13444852  12.05209355  12.05209355  13.55780147
+  13.55780147]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  4.13444852   4.13444852  12.05209355  12.05209355  13.55780147
+  13.55780147]
+
+Peak # 1
+----------------------------------------------
+Width                             0.217819 THz
+Position                          3.788893 THz
+Area (<K>)    (Lorentzian)        0.020846 eV
+Area (<K>)    (Total)             0.033675 eV
+<|dQ/dt|^2>                       0.041692 eV
+Occupation number                16.217657
+Fit temperature                 483.672264 K
+Base line                         0.000732 eV * ps
+Maximum height                    0.060927 eV * ps
+Fitting global error              0.019498
+Frequency shift                  -0.345555 THz
+
+Peak # 2
+----------------------------------------------
+Width                             0.217819 THz
+Position                          3.788893 THz
+Area (<K>)    (Lorentzian)        0.020846 eV
+Area (<K>)    (Total)             0.033675 eV
+<|dQ/dt|^2>                       0.041692 eV
+Occupation number                16.217657
+Fit temperature                 483.672264 K
+Base line                         0.000732 eV * ps
+Maximum height                    0.060927 eV * ps
+Fitting global error              0.019498
+Frequency shift                  -0.345555 THz
+
+Peak # 3
+----------------------------------------------
+Width                             0.274425 THz
+Position                         11.749498 THz
+Area (<K>)    (Lorentzian)        0.024277 eV
+Area (<K>)    (Total)             0.029300 eV
+<|dQ/dt|^2>                       0.048554 eV
+Occupation number                 5.778285
+Fit temperature                 562.253998 K
+Base line                         0.000285 eV * ps
+Maximum height                    0.056319 eV * ps
+Fitting global error              0.019067
+Frequency shift                  -0.302596 THz
+
+Peak # 4
+----------------------------------------------
+Width                             0.274425 THz
+Position                         11.749498 THz
+Area (<K>)    (Lorentzian)        0.024277 eV
+Area (<K>)    (Total)             0.029300 eV
+<|dQ/dt|^2>                       0.048554 eV
+Occupation number                 5.778285
+Fit temperature                 562.253998 K
+Base line                         0.000285 eV * ps
+Maximum height                    0.056319 eV * ps
+Fitting global error              0.019067
+Frequency shift                  -0.302596 THz
+
+Peak # 5
+----------------------------------------------
+Width                             0.581721 THz
+Position                         13.151690 THz
+Area (<K>)    (Lorentzian)        0.032783 eV
+Area (<K>)    (Total)             0.031370 eV
+<|dQ/dt|^2>                       0.065565 eV
+Occupation number                 7.074002
+Fit temperature                 759.744977 K
+Base line                        -0.000030 eV * ps
+Maximum height                    0.035876 eV * ps
+Fitting global error              0.027745
+Frequency shift                  -0.406112 THz
+
+Peak # 6
+----------------------------------------------
+Width                             0.581721 THz
+Position                         13.151690 THz
+Area (<K>)    (Lorentzian)        0.032783 eV
+Area (<K>)    (Total)             0.031370 eV
+<|dQ/dt|^2>                       0.065565 eV
+Occupation number                 7.074002
+Fit temperature                 759.744977 K
+Base line                        -0.000030 eV * ps
+Maximum height                    0.035876 eV * ps
+Fitting global error              0.027745
+Frequency shift                  -0.406112 THz
+
+Q-point: 4 / 32      [ 0.    0.75  0.75]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+Calculating phonon projection power spectra
+Projecting into phonon mode
+Projecting into wave vector
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+
+Peak # 1
+----------------------------------------------
+Width                             0.169648 THz
+Position                          3.431301 THz
+Area (<K>)    (Lorentzian)        0.023597 eV
+Area (<K>)    (Total)             0.035122 eV
+<|dQ/dt|^2>                       0.047194 eV
+Occupation number                20.395974
+Fit temperature                 547.559659 K
+Base line                         0.000650 eV * ps
+Maximum height                    0.088550 eV * ps
+Fitting global error              0.009439
+Frequency shift                  -0.257075 THz
+
+Peak # 2
+----------------------------------------------
+Width                             0.169648 THz
+Position                          3.431301 THz
+Area (<K>)    (Lorentzian)        0.023597 eV
+Area (<K>)    (Total)             0.035122 eV
+<|dQ/dt|^2>                       0.047194 eV
+Occupation number                20.395974
+Fit temperature                 547.559659 K
+Base line                         0.000650 eV * ps
+Maximum height                    0.088550 eV * ps
+Fitting global error              0.009439
+Frequency shift                  -0.257075 THz
+
+Peak # 3
+----------------------------------------------
+Width                             0.149418 THz
+Position                          6.813281 THz
+Area (<K>)    (Lorentzian)        0.030624 eV
+Area (<K>)    (Total)             0.041283 eV
+<|dQ/dt|^2>                       0.061248 eV
+Occupation number                13.157522
+Fit temperature                 710.439338 K
+Base line                         0.000586 eV * ps
+Maximum height                    0.130479 eV * ps
+Fitting global error              0.008293
+Frequency shift                  -0.258642 THz
+
+Peak # 4
+----------------------------------------------
+Width                             0.438510 THz
+Position                         13.504885 THz
+Area (<K>)    (Lorentzian)        0.036401 eV
+Area (<K>)    (Total)             0.034813 eV
+<|dQ/dt|^2>                       0.072802 eV
+Occupation number                 7.690021
+Fit temperature                 843.778401 K
+Base line                        -0.000043 eV * ps
+Maximum height                    0.052846 eV * ps
+Fitting global error              0.017965
+Frequency shift                  -0.457447 THz
+
+Peak # 5
+----------------------------------------------
+Width                             0.438510 THz
+Position                         13.504885 THz
+Area (<K>)    (Lorentzian)        0.036401 eV
+Area (<K>)    (Total)             0.034813 eV
+<|dQ/dt|^2>                       0.072802 eV
+Occupation number                 7.690021
+Fit temperature                 843.778401 K
+Base line                        -0.000043 eV * ps
+Maximum height                    0.052846 eV * ps
+Fitting global error              0.017965
+Frequency shift                  -0.457447 THz
+
+Peak # 6
+----------------------------------------------
+Width                             0.213284 THz
+Position                         14.060133 THz
+Area (<K>)    (Lorentzian)        0.024534 eV
+Area (<K>)    (Total)             0.030974 eV
+<|dQ/dt|^2>                       0.049068 eV
+Occupation number                 4.802006
+Fit temperature                 567.714707 K
+Base line                         0.000354 eV * ps
+Maximum height                    0.073230 eV * ps
+Fitting global error              0.011245
+Frequency shift                  -0.458602 THz
+
+Q-point: 5 / 32      [ 0.25  0.    0.25]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+Skipped, equivalent to [ 0.    0.25  0.25]
+
+Q-point: 6 / 32      [ 0.25  0.25  0.5 ]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Calculating phonon projection power spectra
+Projecting into phonon mode
+Projecting into wave vector
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+
+Peak # 1
+----------------------------------------------
+Width                             0.081744 THz
+Position                          3.706440 THz
+Area (<K>)    (Lorentzian)        0.023733 eV
+Area (<K>)    (Total)             0.039699 eV
+<|dQ/dt|^2>                       0.047465 eV
+Occupation number                18.956020
+Fit temperature                 550.691395 K
+Base line                         0.000952 eV * ps
+Maximum height                    0.184829 eV * ps
+Fitting global error              0.003820
+Frequency shift                  -0.285766 THz
+
+Peak # 2
+----------------------------------------------
+Width                             0.136615 THz
+Position                          5.373538 THz
+Area (<K>)    (Lorentzian)        0.028369 eV
+Area (<K>)    (Total)             0.035279 eV
+<|dQ/dt|^2>                       0.056738 eV
+Occupation number                15.541680
+Fit temperature                 658.206792 K
+Base line                         0.000413 eV * ps
+Maximum height                    0.132199 eV * ps
+Fitting global error              0.004628
+Frequency shift                  -0.290786 THz
+
+Peak # 3
+----------------------------------------------
+Width                             0.257402 THz
+Position                          7.980404 THz
+Area (<K>)    (Lorentzian)        0.030309 eV
+Area (<K>)    (Total)             0.037404 eV
+<|dQ/dt|^2>                       0.060618 eV
+Occupation number                11.040122
+Fit temperature                 703.001426 K
+Base line                         0.000385 eV * ps
+Maximum height                    0.074962 eV * ps
+Fitting global error              0.017886
+Frequency shift                  -0.342301 THz
+
+Peak # 4
+----------------------------------------------
+Width                             0.154572 THz
+Position                         12.083929 THz
+Area (<K>)    (Lorentzian)        0.033701 eV
+Area (<K>)    (Total)             0.040430 eV
+<|dQ/dt|^2>                       0.067401 eV
+Occupation number                 7.974110
+Fit temperature                 781.250735 K
+Base line                         0.000412 eV * ps
+Maximum height                    0.138800 eV * ps
+Fitting global error              0.006262
+Frequency shift                  -0.275913 THz
+
+Peak # 5
+----------------------------------------------
+Width                             0.391455 THz
+Position                         13.592172 THz
+Area (<K>)    (Lorentzian)        0.026089 eV
+Area (<K>)    (Total)             0.027123 eV
+<|dQ/dt|^2>                       0.052178 eV
+Occupation number                 5.332182
+Fit temperature                 604.011836 K
+Base line                         0.000083 eV * ps
+Maximum height                    0.042428 eV * ps
+Fitting global error              0.023200
+Frequency shift                  -0.359276 THz
+
+Peak # 6
+----------------------------------------------
+Width                             0.304892 THz
+Position                         13.964045 THz
+Area (<K>)    (Lorentzian)        0.030881 eV
+Area (<K>)    (Total)             0.032057 eV
+<|dQ/dt|^2>                       0.061763 eV
+Occupation number                 6.219698
+Fit temperature                 715.402551 K
+Base line                         0.000092 eV * ps
+Maximum height                    0.064481 eV * ps
+Fitting global error              0.007528
+Frequency shift                  -0.400891 THz
+
+Q-point: 7 / 32      [ 0.25  0.5   0.75]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+Calculating phonon projection power spectra
+Projecting into phonon mode
+Projecting into wave vector
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+
+Peak # 1
+----------------------------------------------
+Width                             0.144208 THz
+Position                          5.537078 THz
+Area (<K>)    (Lorentzian)        0.015648 eV
+Area (<K>)    (Total)             0.023549 eV
+<|dQ/dt|^2>                       0.031297 eV
+Occupation number                 8.087212
+Fit temperature                 362.772413 K
+Base line                         0.000428 eV * ps
+Maximum height                    0.069081 eV * ps
+Fitting global error              0.007645
+Frequency shift                  -0.338544 THz
+
+Peak # 2
+----------------------------------------------
+Width                             0.144208 THz
+Position                          5.537078 THz
+Area (<K>)    (Lorentzian)        0.015648 eV
+Area (<K>)    (Total)             0.023549 eV
+<|dQ/dt|^2>                       0.031297 eV
+Occupation number                 8.087212
+Fit temperature                 362.772413 K
+Base line                         0.000428 eV * ps
+Maximum height                    0.069081 eV * ps
+Fitting global error              0.007645
+Frequency shift                  -0.338544 THz
+
+Peak # 3
+----------------------------------------------
+Width                             0.466903 THz
+Position                         10.063867 THz
+Area (<K>)    (Lorentzian)        0.029328 eV
+Area (<K>)    (Total)             0.031243 eV
+<|dQ/dt|^2>                       0.058657 eV
+Occupation number                 8.354982
+Fit temperature                 679.959867 K
+Base line                         0.000132 eV * ps
+Maximum height                    0.039989 eV * ps
+Fitting global error              0.013162
+Frequency shift                  -0.329103 THz
+
+Peak # 4
+----------------------------------------------
+Width                             0.466903 THz
+Position                         10.063867 THz
+Area (<K>)    (Lorentzian)        0.029328 eV
+Area (<K>)    (Total)             0.031243 eV
+<|dQ/dt|^2>                       0.058657 eV
+Occupation number                 8.354982
+Fit temperature                 679.959867 K
+Base line                         0.000132 eV * ps
+Maximum height                    0.039989 eV * ps
+Fitting global error              0.013162
+Frequency shift                  -0.329103 THz
+
+Peak # 5
+----------------------------------------------
+Width                             0.200617 THz
+Position                         13.244837 THz
+Area (<K>)    (Lorentzian)        0.025053 eV
+Area (<K>)    (Total)             0.030890 eV
+<|dQ/dt|^2>                       0.050105 eV
+Occupation number                 5.247378
+Fit temperature                 579.976047 K
+Base line                         0.000333 eV * ps
+Maximum height                    0.079500 eV * ps
+Fitting global error              0.009339
+Frequency shift                  -0.467653 THz
+
+Peak # 6
+----------------------------------------------
+Width                             0.200617 THz
+Position                         13.244837 THz
+Area (<K>)    (Lorentzian)        0.025053 eV
+Area (<K>)    (Total)             0.030890 eV
+<|dQ/dt|^2>                       0.050105 eV
+Occupation number                 5.247378
+Fit temperature                 579.976047 K
+Base line                         0.000333 eV * ps
+Maximum height                    0.079500 eV * ps
+Fitting global error              0.009339
+Frequency shift                  -0.467653 THz
+
+Q-point: 8 / 32      [ 0.25  0.75  0.  ]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Calculating phonon projection power spectra
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+
+Peak # 1
+----------------------------------------------
+Width                             0.108199 THz
+Position                          3.702517 THz
+Area (<K>)    (Lorentzian)        0.018925 eV
+Area (<K>)    (Total)             0.030048 eV
+<|dQ/dt|^2>                       0.037850 eV
+Occupation number                15.031251
+Fit temperature                 439.082746 K
+Base line                         0.000656 eV * ps
+Maximum height                    0.111352 eV * ps
+Fitting global error              0.005668
+Frequency shift                  -0.289689 THz
+
+Peak # 2
+----------------------------------------------
+Width                             0.137113 THz
+Position                          5.369868 THz
+Area (<K>)    (Lorentzian)        0.021609 eV
+Area (<K>)    (Total)             0.030959 eV
+<|dQ/dt|^2>                       0.043218 eV
+Occupation number                11.727448
+Fit temperature                 501.245104 K
+Base line                         0.000530 eV * ps
+Maximum height                    0.100331 eV * ps
+Fitting global error              0.005529
+Frequency shift                  -0.294456 THz
+
+Peak # 3
+----------------------------------------------
+Width                             0.230505 THz
+Position                          7.989269 THz
+Area (<K>)    (Lorentzian)        0.033359 eV
+Area (<K>)    (Total)             0.039535 eV
+<|dQ/dt|^2>                       0.066718 eV
+Occupation number                12.187409
+Fit temperature                 773.834230 K
+Base line                         0.000346 eV * ps
+Maximum height                    0.092133 eV * ps
+Fitting global error              0.011228
+Frequency shift                  -0.333435 THz
+
+Peak # 4
+----------------------------------------------
+Width                             0.186193 THz
+Position                         12.078249 THz
+Area (<K>)    (Lorentzian)        0.026566 eV
+Area (<K>)    (Total)             0.035029 eV
+<|dQ/dt|^2>                       0.053131 eV
+Occupation number                 6.183140
+Fit temperature                 615.410956 K
+Base line                         0.000494 eV * ps
+Maximum height                    0.090832 eV * ps
+Fitting global error              0.010155
+Frequency shift                  -0.281593 THz
+
+Peak # 5
+----------------------------------------------
+Width                             0.376819 THz
+Position                         13.613305 THz
+Area (<K>)    (Lorentzian)        0.027250 eV
+Area (<K>)    (Total)             0.029400 eV
+<|dQ/dt|^2>                       0.054500 eV
+Occupation number                 5.582259
+Fit temperature                 631.015742 K
+Base line                         0.000138 eV * ps
+Maximum height                    0.046037 eV * ps
+Fitting global error              0.018254
+Frequency shift                  -0.338143 THz
+
+Peak # 6
+----------------------------------------------
+Width                             0.223125 THz
+Position                         13.933582 THz
+Area (<K>)    (Lorentzian)        0.028098 eV
+Area (<K>)    (Total)             0.032803 eV
+<|dQ/dt|^2>                       0.056196 eV
+Occupation number                 5.627403
+Fit temperature                 650.676953 K
+Base line                         0.000288 eV * ps
+Maximum height                    0.080169 eV * ps
+Fitting global error              0.009187
+Frequency shift                  -0.431354 THz
+
+Q-point: 9 / 32      [ 0.5  0.   0.5]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  4.13444852   4.13444852  12.05209355  12.05209355  13.55780147
+  13.55780147]
+Skipped, equivalent to [ 0.   0.5  0.5]
+
+Q-point: 10 / 32      [ 0.5   0.25  0.75]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+Skipped, equivalent to [ 0.25  0.5   0.75]
+
+Q-point: 11 / 32      [ 0.5  0.5  0. ]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  4.13444852   4.13444852  12.05209355  12.05209355  13.55780147
+  13.55780147]
+Skipped, equivalent to [ 0.5  0.   0.5]
+
+Q-point: 12 / 32      [ 0.5   0.75  0.25]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+Skipped, equivalent to [ 0.25  0.5   0.75]
+
+Q-point: 13 / 32      [ 0.75  0.    0.75]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+Skipped, equivalent to [ 0.    0.75  0.75]
+
+Q-point: 14 / 32      [ 0.75  0.25  0.  ]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Skipped, equivalent to [ 0.25  0.75  0.  ]
+
+Q-point: 15 / 32      [ 0.75  0.5   0.25]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+Skipped, equivalent to [ 0.5   0.25  0.75]
+
+Q-point: 16 / 32      [ 0.75  0.75  0.5 ]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Skipped, equivalent to [ 0.25  0.75  0.  ]
+
+Q-point: 17 / 32      [ 0.25  0.25  0.  ]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+Skipped, equivalent to [ 0.25  0.    0.25]
+
+Q-point: 18 / 32      [ 0.25  0.5   0.25]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Skipped, equivalent to [ 0.25  0.25  0.5 ]
+
+Q-point: 19 / 32      [ 0.25  0.75  0.5 ]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+Skipped, equivalent to [ 0.5   0.75  0.25]
+
+Q-point: 20 / 32      [ 0.25  0.    0.75]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Skipped, equivalent to [ 0.25  0.75  0.  ]
+
+Q-point: 21 / 32      [ 0.5   0.25  0.25]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Skipped, equivalent to [ 0.25  0.5   0.25]
+
+Q-point: 22 / 32      [ 0.5  0.5  0.5]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.1587991    3.1587991   11.03905069  12.11877041  14.41738056
+  14.41738056]
+Calculating phonon projection power spectra
+Projecting into phonon mode
+Projecting into wave vector
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.1587991    3.1587991   11.03905069  12.11877041  14.41738056
+  14.41738056]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.1587991    3.1587991   11.03905069  12.11877041  14.41738056
+  14.41738056]
+Projecting into phonon mode
+Projecting into wave vector
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.1587991    3.1587991   11.03905069  12.11877041  14.41738056
+  14.41738056]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.1587991    3.1587991   11.03905069  12.11877041  14.41738056
+  14.41738056]
+
+Peak # 1
+----------------------------------------------
+Width                             0.129097 THz
+Position                          2.839903 THz
+Area (<K>)    (Lorentzian)        0.039492 eV
+Area (<K>)    (Total)             0.073903 eV
+<|dQ/dt|^2>                       0.078984 eV
+Occupation number                41.754060
+Fit temperature                 916.525452 K
+Base line                         0.001917 eV * ps
+Maximum height                    0.194748 eV * ps
+Fitting global error              0.009268
+Frequency shift                  -0.318897 THz
+
+Peak # 2
+----------------------------------------------
+Width                             0.129097 THz
+Position                          2.839903 THz
+Area (<K>)    (Lorentzian)        0.039492 eV
+Area (<K>)    (Total)             0.073903 eV
+<|dQ/dt|^2>                       0.078984 eV
+Occupation number                41.754060
+Fit temperature                 916.525452 K
+Base line                         0.001917 eV * ps
+Maximum height                    0.194748 eV * ps
+Fitting global error              0.009268
+Frequency shift                  -0.318897 THz
+
+Peak # 3
+----------------------------------------------
+Width                             0.343290 THz
+Position                         10.749899 THz
+Area (<K>)    (Lorentzian)        0.024207 eV
+Area (<K>)    (Total)             0.029421 eV
+<|dQ/dt|^2>                       0.048415 eV
+Occupation number                 6.342395
+Fit temperature                 560.829252 K
+Base line                         0.000307 eV * ps
+Maximum height                    0.044892 eV * ps
+Fitting global error              0.027686
+Frequency shift                  -0.289152 THz
+
+Peak # 4
+----------------------------------------------
+Width                             0.258075 THz
+Position                         11.875927 THz
+Area (<K>)    (Lorentzian)        0.031477 eV
+Area (<K>)    (Total)             0.034661 eV
+<|dQ/dt|^2>                       0.062955 eV
+Occupation number                 7.553667
+Fit temperature                 729.617456 K
+Base line                         0.000191 eV * ps
+Maximum height                    0.077648 eV * ps
+Fitting global error              0.010211
+Frequency shift                  -0.242843 THz
+
+Peak # 5
+----------------------------------------------
+Width                             0.443980 THz
+Position                         13.965491 THz
+Area (<K>)    (Lorentzian)        0.035064 eV
+Area (<K>)    (Total)             0.034989 eV
+<|dQ/dt|^2>                       0.070129 eV
+Occupation number                 7.129118
+Fit temperature                 812.644262 K
+Base line                         0.000030 eV * ps
+Maximum height                    0.050279 eV * ps
+Fitting global error              0.015491
+Frequency shift                  -0.451890 THz
+
+Peak # 6
+----------------------------------------------
+Width                             0.443980 THz
+Position                         13.965491 THz
+Area (<K>)    (Lorentzian)        0.035064 eV
+Area (<K>)    (Total)             0.034989 eV
+<|dQ/dt|^2>                       0.070129 eV
+Occupation number                 7.129118
+Fit temperature                 812.644262 K
+Base line                         0.000030 eV * ps
+Maximum height                    0.050279 eV * ps
+Fitting global error              0.015491
+Frequency shift                  -0.451890 THz
+
+Q-point: 23 / 32      [ 0.5   0.75  0.75]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Skipped, equivalent to [ 0.25  0.75  0.  ]
+
+Q-point: 24 / 32      [ 0.5  0.   0. ]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.1587991    3.1587991   11.03905069  12.11877041  14.41738056
+  14.41738056]
+Skipped, equivalent to [ 0.5  0.5  0.5]
+
+Q-point: 25 / 32      [ 0.75  0.25  0.5 ]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  5.87562209   5.87562209  10.39296971  10.39296971  13.71248999
+  13.71248999]
+Skipped, equivalent to [ 0.25  0.5   0.75]
+
+Q-point: 26 / 32      [ 0.75  0.5   0.75]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Skipped, equivalent to [ 0.5   0.75  0.75]
+
+Q-point: 27 / 32      [ 0.75  0.75  0.  ]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.68837625   3.68837625   7.07192297  13.96233165  13.96233165
+  14.51873527]
+Skipped, equivalent to [ 0.75  0.    0.75]
+
+Q-point: 28 / 32      [ 0.75  0.    0.25]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Skipped, equivalent to [ 0.25  0.    0.75]
+
+Q-point: 29 / 32      [ 0.    0.25  0.75]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Skipped, equivalent to [ 0.5   0.75  0.75]
+
+Q-point: 30 / 32      [ 0.   0.5  0. ]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.1587991    3.1587991   11.03905069  12.11877041  14.41738056
+  14.41738056]
+Skipped, equivalent to [ 0.5  0.5  0.5]
+
+Q-point: 31 / 32      [ 0.    0.75  0.25]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.99220615   5.66432389   8.32270441  12.35984189  13.95144766
+  14.36493635]
+Skipped, equivalent to [ 0.75  0.25  0.  ]
+
+Q-point: 32 / 32      [ 0.   0.   0.5]
+Getting frequencies & eigenvectors from Phonopy
+Harmonic frequencies (THz):
+[  3.1587991    3.1587991   11.03905069  12.11877041  14.41738056
+  14.41738056]
+Skipped, equivalent to [ 0.5  0.   0. ]
+
+Maxwell-Boltzmann distribution analysis
+----------------------------------------------
+Average: 4.0738702e+01 Angstrom/ps
+Deviation: 1.7217459e+01 Angstrom/ps
+Distribution parameter: 2.5534811e+01 Angstrom/ps
+Temperature fit: 784.207976 K
+Using mesh: (40, 40, 40)
+
+Thermal properties per unit cell (784.21 K) [From DoS]
+----------------------------------------------
+                            Harmonic    Quasiparticle
+
+Free energy   (KJ/mol):     -98.4853     -105.9840
+Entropy      (J/K/mol):     334.0799      344.0946
+Cv           (J/K/mol):     194.5371      196.1337
+Total energy  (KJ/mol):     163.5028      163.8578
+Integration:                  1.0095        1.0158
+
