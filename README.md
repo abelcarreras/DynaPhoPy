@@ -60,7 +60,7 @@ Executing this software
   - In Example directory an example script is available (script_silicon.py)
   - The comments in the script makes it (hopefully) self explained.
 
-Input files for several materials can be found in the same example/inputs directory
+Input files for several materials can be found in the same example/inputs directory.
 More information in the online manual at: http://abelcarreras.github.io/DynaPhoPy
 
 Files and directories included in DynaPhoPy distribution
