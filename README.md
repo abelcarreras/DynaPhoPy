@@ -30,15 +30,15 @@ Installation instructions
 
 3. Install requirements manually or using pip:
    ```
-   $ pip install -r requirements.txt --user
+   pip install -r requirements.txt --user
    ```
 4. Run setup.py to install dynaphopy
    ```
-   $ python setup.py install --user
+   python setup.py install --user
    ```
 * NEW! Now you can use pip to install/update dynaphopy module
    ```
-   $ pip install dynaphopy --user
+   pip install dynaphopy --user
    ```
 
 Executing this software
@@ -47,13 +47,13 @@ Executing this software
 1. Command line method
   - execute ***$dynaphopy -h*** for detailed description of available options
     ```
-    $ dynaphopy input_file MD_file [Options]
+    dynaphopy input_file MD_file [Options]
     ```
 
 2. Interactive mode
   - Use -i option from command line method and follow the instructions
     ```
-    $ dynaphopy input_file MD_file -i
+    dynaphopy input_file MD_file -i
     ```
 3. Scripting method (as a module)
   - Dynaphopy can be imported as a python module
