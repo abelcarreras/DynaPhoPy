@@ -57,6 +57,23 @@ Executing this software
 Input files for several materials can be found in the same example/inputs directory
 More information in the online manual at: http://abelcarreras.github.io/DynaPhoPy
 
+Files and directories included in DynaPhoPy distribution
+--------------------------------------------------------
+
+  README             this file
+  LICENSE            the MIT license
+  setup.py           installation script (serial)
+  setup_openmp.py    installation script (parallel)
+  requirements.txt   list of required packages
+
+  /dynaphopy          main code in python
+  /c                  additional functions in c
+  /doc                documentation
+  /examples           simple examples
+  /script             executable scripts to run dynaphopy in command line
+  /unittest           unit tests for checking the integrity of the code
+
+
 Contact info
 ---------------------------------------------------------
 Abel Carreras
