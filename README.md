@@ -42,13 +42,15 @@ Executing this software
 ---------------------------------------------------------
 
 1. Command line method
-  - $dynaphopy input_file MD_file [Options]
-  - execute $dynaphopy -h for detailed description of available options
+  - execute ***$dynaphopy -h*** for detailed description of available options
+    ```
+    $ dynaphopy input_file MD_file [Options]
+    ```
 
 2. Interactive mode
   - Use -i option from command line method and follow the instructions
     ```
-    dynaphopy input_file MD_file -i
+    $ dynaphopy input_file MD_file -i
     ```
 3. Scripting method (as a module)
   - Dynaphopy can be imported as a python module
