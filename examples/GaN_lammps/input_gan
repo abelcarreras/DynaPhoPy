@@ -1,0 +1,25 @@
+STRUCTURE FILE POSCAR
+POSCAR_unitcell
+
+FORCE CONSTANTS
+FORCE_CONSTANTS_3x3x3
+
+PRIMITIVE MATRIX
+1.0 0.0 0.0
+0.0 1.0 0.0
+0.0 0.0 1.0
+
+SUPERCELL MATRIX PHONOPY
+3 0 0
+0 3 0
+0 0 3
+
+MESH PHONOPY
+10 10 10
+
+BANDS
+0.0,   0.0,     0.0            0.333,   0.333,  0.0
+0.333, 0.333,   0.0            0.5,     0.0,    0.0
+0.5,   0.0,     0.0            0.0,     0.0,    0.0
+0.0,   0.0,     0.0            0.0,     0.0,    0.5
+

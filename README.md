@@ -4,10 +4,13 @@
 
 DynaPhoPy
 =========
-Software to calculate crystal microscopical anharmonic properties
-from molecular dynamics using the normal-mode-decomposition technique.
-VASP or LAMMPS codes can be used to calculate MD. PHONOPY code
-is used to obtain harmonic phonon modes.
+Software to calculate crystal microscopic anharmonic properties
+from molecular dynamics (MD) using the normal-mode-decomposition technique.
+These properties include the phonon frequency shifts and linewidths, 
+as well as the renormalized force constanst and thermal properties 
+by using quasiparticle theory. This code includes interfaces for MD 
+outputs from VASP and LAMMPS .PHONOPY code is used to obtain harmonic
+phonon modes.
 
 Installation instructions
 ---------------------------------------------------------
@@ -20,13 +23,14 @@ Installation instructions
   - h5py
   - pyYAML
 
-2. Download the source code and place it in the installation directory
+2. Download the source code from GitHub (https://github.com/abelcarreras/DynaPhoPy/) 
+   and place it in the installation directory
 
-3. (optional) Install requirements using pip
+3. Install requirements manually or using pip:
    <br>pip install -r requirements.txt --user
 
 4. Run setup.py to install dynaphopy
-  <br>python setup.py install --user
+   <br>python setup.py install --user
 
 * NEW! Now you can use pip to install/update dynaphopy module
    <br>pip install dynaphopy --user
@@ -49,8 +53,7 @@ Executing this software
   - The comments in the script makes it (hopefully) self explained.
 
 Input files for several materials can be found in the same Example directory
-More information at: http://abelcarreras.github.io/DynaPhoPy
-
+More information in the online manual at: http://abelcarreras.github.io/DynaPhoPy
 
 Contact info
 ---------------------------------------------------------

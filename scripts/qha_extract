@@ -24,7 +24,7 @@ parser.add_argument('-ev', metavar='data', type=str, required=True,
                     help='Energy volume file')
 
 parser.add_argument('-t', metavar='F', type=float, required=True,
-                    help='temperature at which the renormalized force constants are calculated')
+                    help='temperature at which the renormalized force constants will be calculated')
 
 parser.add_argument('-p', action='store_true',
                     help='plot QHA data')
@@ -103,8 +103,12 @@ qha_temperatures = phonopy_qha._qha._temperatures[:phonopy_qha._qha._max_t_index
 
 # Fit force constants as a function of the temperature
 fit_vt = interp1d(qha_temperatures, volume_temperature, kind='quadratic')
-target_volume = fit_vt(target_temperature)
-
+try:
+    target_volume = fit_vt(target_temperature)
+except ValueError:
+    print ('Error interpolating this temperature!\n'
+           'Make sure the requested temperature is within the range of thermal_properties.yaml files')
+    exit()
 
 input_parameters = iofile.read_parameters_from_input_file(args.input_file)
 

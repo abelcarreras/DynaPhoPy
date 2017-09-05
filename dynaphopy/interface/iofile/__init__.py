@@ -606,6 +606,12 @@ def save_quasiparticle_data_to_file(quasiparticle_data, filename):
 
     import yaml
 
+    def float_representer(dumper, value):
+        text = '{0:.8f}'.format(value)
+        return dumper.represent_scalar(u'tag:yaml.org,2002:float', text)
+
+    yaml.add_representer(float, float_representer)
+
     output_dict = {}
     for i, q_point in enumerate(quasiparticle_data['q_points']):
         q_point_dict = {'reduced_wave_vector': q_point.tolist()}
