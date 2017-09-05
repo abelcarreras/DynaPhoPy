@@ -38,7 +38,7 @@ Installation instructions
    ```
 * NEW! Now you can use pip to install/update dynaphopy module
    ```
-   pip install dynaphopy --user
+   $ pip install dynaphopy --user
    ```
 
 Executing this software
