@@ -22,6 +22,8 @@ Installation instructions
   - Scipy
   - h5py
   - pyYAML
+  - (optional) FFTW
+  - (optional) cuda
 
 2. Download the source code from GitHub (https://github.com/abelcarreras/DynaPhoPy/) 
    and place it in the installation directory
@@ -52,7 +54,7 @@ Executing this software
   - In Example directory an example script is available (script_silicon.py)
   - The comments in the script makes it (hopefully) self explained.
 
-Input files for several materials can be found in the same Example directory
+Input files for several materials can be found in the same example/inputs directory
 More information in the online manual at: http://abelcarreras.github.io/DynaPhoPy
 
 Contact info
