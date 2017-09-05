@@ -35,7 +35,7 @@ parser.add_argument('-n', metavar='N', type=int, default=0,
 parser.add_argument('-ts', '--time_step', metavar='step', type=float, default=None,
                     help='time step in ps (default: Read from trajectory file)')
 
-parser.add_argument('-pd', '--plot_direct', action='store_true',
+parser.add_argument('-pd', '--plot_full', action='store_true',
                     help='plot full power spectrum')
 
 parser.add_argument('-pw', '--plot_wave_vector', action='store_true',
@@ -44,7 +44,7 @@ parser.add_argument('-pw', '--plot_wave_vector', action='store_true',
 parser.add_argument('-pp', '--plot_phonon_mode', action='store_true',
                     help='plot projection into phonon modes')
 
-parser.add_argument('-sd', '--save_direct', metavar='file', type=str, nargs=1,
+parser.add_argument('-sd', '--save_full', metavar='file', type=str, nargs=1,
                     help='save full power spectrum to file')
 
 parser.add_argument('-sw', '--save_wave_vector', metavar='file', type=str, nargs=1,
@@ -291,8 +291,8 @@ if args.frequency_range:
 if args.save_force_constants:
     calculation.write_renormalized_constants(args.save_force_constants[0])
 
-if args.save_direct:
-    calculation.write_power_spectrum_full(args.save_direct[0])
+if args.save_full:
+    calculation.write_power_spectrum_full(args.save_full[0])
 
 if args.save_wave_vector:
     calculation.write_power_spectrum_wave_vector(args.save_wave_vector[0])
@@ -300,7 +300,7 @@ if args.save_wave_vector:
 if args.save_phonon_mode:
     calculation.write_power_spectrum_phonon(args.save_phonon_mode[0])
 
-if args.plot_direct:
+if args.plot_full:
     calculation.plot_power_spectrum_full()
 
 if args.plot_wave_vector:

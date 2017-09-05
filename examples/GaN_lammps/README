@@ -1,0 +1,37 @@
+##############################################################################
+# GaN with LAMMPS at 2000 K                                                  #
+# -------------------------------------------------------------------------- #
+# Example of calculation of anharmonic properties of GaN using LAMMPS MD.    #
+# The results include the phonon frequnecy shift and linewidth, renormalized #
+# force constants, phonon dispersion relations and thermal propeties.        #
+##############################################################################
+
+1. Generate the MD initial crystal structure for LAMMPS from a POSCAR type 
+   file (POSCAR_unitcell):
+
+$ dynaphopy input_gan -c_lammps data.gan --dim 3 3 3
+
+2. Compute a MD simulation using LAMMPS (input provided: in.md). For this 
+   example the tersoff empirical potential file included in LAMMPS standard 
+   package is necessary (GaN.tersoff)
+
+$ lammps -in in.md_pos
+
+3. Compute the phonon anharmonic properties using DynaPhoPy:
+
+a) Using command line interface
+$ dynaphopy input_gan gan_2000_test.lammpstrj -sdata -thm --normalize_dos -sfc renormalized_fc
+
+b) Using interactive menu interface (renormalized phonon dispersion and DOS) 
+$ dynaphopy input_gan gan_2000_test.lammpstrj --normalize_dos -i
+
+Result files:
+ - renormalized_fc : Renormalized force constants in PHONOPY format.
+ - quasiparticles_data.yaml : Phonon frequencies and linewidths at each commensurate q-point 
+                              in yaml format
+
+
+Note: This example also includes an alternative LAMMPS input that tells LAMMPS to store the MD
+atomic velocities instead of the positions (in.md_vel). Reading the velocities can save RAM 
+memory in dynaphopy calculation and may increase the accuracy of the calculation. This option is
+preferable when working with long MD simulation.

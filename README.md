@@ -30,7 +30,7 @@ Installation instructions
    <br>pip install -r requirements.txt --user
 
 4. Run setup.py to install dynaphopy
-  <br>python setup.py install --user
+   <br>python setup.py install --user
 
 * NEW! Now you can use pip to install/update dynaphopy module
    <br>pip install dynaphopy --user
