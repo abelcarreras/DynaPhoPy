@@ -908,7 +908,7 @@ class Quasiparticle:
 
             # To be deprecated
             if self.parameters.save_renormalized_frequencies:
-                print "This option will be deprecated in the future. Please use save quasiparticle data option"
+                print ("This option will be deprecated in the future. Please use save quasiparticle data option")
                 np.savetxt('renormalized_frequencies', renormalized_frequencies)
             #            np.savetxt('test_line', linewidths)
 

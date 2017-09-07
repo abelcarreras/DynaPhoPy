@@ -20,7 +20,7 @@ def get_trajectory_parser(file_name, bytes_to_check=1000000):
 
     #Check file exists
     if not os.path.isfile(file_name):
-        print file_name + ' file does not exist'
+        print (file_name + ' file does not exist')
         exit()
 
     file_size = os.stat(file_name).st_size
@@ -185,7 +185,7 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
 
     #Old style POSCAR format
     except ValueError:
-        print "Reading old style POSCAR"
+        print ("Reading old style POSCAR")
         number_of_types = np.array(data_lines[5].split(), dtype=int)
         coordinates_type = data_lines[6][0]
         if coordinates_type == 'D' or coordinates_type == 'd':
@@ -422,7 +422,7 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
 
     #Check file exists
     if not os.path.isfile(file_name):
-        print file_name + ' file does not exist'
+        print (file_name + ' file does not exist')
         exit()
 
     input_file = open(file_name, "r").readlines()
