@@ -2,8 +2,9 @@ import numpy as np
 import sys
 
 import matplotlib.pyplot as plt
-import correlation
+
 import mem
+import correlation
 
 unit_conversion = 0.00010585723  # u * A^2 * THz -> eV*ps
 
