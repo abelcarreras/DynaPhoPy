@@ -1,6 +1,6 @@
 import numpy as np
 from dynaphopy.orm import atoms
-from dynaphopy.displacements import atomic_displacement
+from dynaphopy.displacements import atomic_displacements
 import os
 
 
@@ -277,7 +277,7 @@ class Dynamics:
                 normalized_trajectory = self.trajectory.copy()
 
             for i in range(number_of_atoms):
-                normalized_trajectory[:, i, :] = atomic_displacement(trajectory[:, i, :], position[i], cell)
+                normalized_trajectory[:, i, :] = atomic_displacements(trajectory[:, i, :], position[i], cell)
 
             self._relative_trajectory = normalized_trajectory
         return self._relative_trajectory

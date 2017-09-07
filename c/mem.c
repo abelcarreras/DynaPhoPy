@@ -15,6 +15,69 @@ static double FrequencyEvaluation(double Delta, double  Coefficients[], int m, d
 static double GetCoefficients(double  *data, int n, int m, double  d[]);
 static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *keywords);
 
+
+//  Python Interface
+static char function_docstring[] =
+    "mem(frequency, velocity, time_step, coefficients=100 )\n\n Maximum Entropy Method\n Constant time step";
+
+
+static PyMethodDef extension_funcs[] = {
+    {"mem",  (PyCFunction)MaximumEntropyMethod, METH_VARARGS|METH_KEYWORDS, function_docstring},
+    {NULL, NULL, 0, NULL}
+};
+
+
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef moduledef = {
+  PyModuleDef_HEAD_INIT,
+  "displacements",
+  "Maximum entropy method module",
+  -1,
+  extension_funcs,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+};
+#endif
+
+
+static PyObject *
+moduleinit(void)
+{
+    PyObject *m;
+
+#if PY_MAJOR_VERSION >= 3
+    m = PyModule_Create(&moduledef);
+#else
+    m = Py_InitModule3("mem",
+        extension_funcs, "Maximum entropy method module");
+#endif
+
+  return m;
+}
+
+#if PY_MAJOR_VERSION < 3
+    PyMODINIT_FUNC
+    initmem(void)
+    {
+        import_array();
+        moduleinit();
+    }
+#else
+    PyMODINIT_FUNC
+    PyInit_mem(void)
+    {
+        import_array();
+        return moduleinit();
+    }
+
+#endif
+
+
+
+
+
 static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *keywords)
 {
     //  Declaring initial variables
@@ -155,25 +218,3 @@ static double  GetCoefficients(double  *Data, int NumberOfData, int NumberOfCoef
     return MeanSquareDiscrepancy;
 };
 
-
-//static char extension_docs[] =
-//"MEM ( ): Calculation of Power spectra with <Maximum Entropy Method";
-
-static char extension_docs[] =
-    "mem(frequency, velocity, time_step, coefficients=100 )\n\n Maximum Entropy Method\n Constant time step ";
-
-
-static PyMethodDef extension_funcs[] =
-{
-    {"mem",  (PyCFunction)MaximumEntropyMethod, METH_VARARGS|METH_KEYWORDS, extension_docs},
-    {NULL}
-};
-
-
-void initmem(void)
-{
-//  Importing numpy array types
-    import_array();
-    Py_InitModule3("mem", extension_funcs,
-                   "Fast Correlation Functions ");
-};

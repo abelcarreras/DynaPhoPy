@@ -17,10 +17,69 @@ static double _Complex  **pymatrix_to_c_array_complex   (PyArrayObject *array);
 static double   **matrix_inverse ( double ** a ,int n);
 static double     Determinant(double  **a,int n);
 static double   **CoFactor(double  **a,int n);
-static PyObject  *atomic_displacement(PyObject* self, PyObject *arg, PyObject *keywords);
+static PyObject* atomic_displacements(PyObject* self, PyObject *arg, PyObject *keywords);
 
 
-static PyObject *atomic_displacement(PyObject *self, PyObject *arg, PyObject *keywords) {
+//  Python Interface
+static char function_docstring[] =
+    "atomic_displacements(cell, trajectory, positions )";
+
+static PyMethodDef extension_funcs[] = {
+    {"atomic_displacements", (PyCFunction)atomic_displacements, METH_VARARGS|METH_KEYWORDS, function_docstring},
+    {NULL, NULL, 0, NULL}
+};
+
+
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef moduledef = {
+  PyModuleDef_HEAD_INIT,
+  "displacements",
+  "This is a module",
+  -1,
+  extension_funcs,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+};
+#endif
+
+
+static PyObject *
+moduleinit(void)
+{
+    PyObject *m;
+
+#if PY_MAJOR_VERSION >= 3
+    m = PyModule_Create(&moduledef);
+#else
+    m = Py_InitModule3("displacements",
+        extension_funcs, "This is a module");
+#endif
+
+  return m;
+}
+
+#if PY_MAJOR_VERSION < 3
+    PyMODINIT_FUNC
+    initdisplacements(void)
+    {
+        import_array();
+        moduleinit();
+    }
+#else
+    PyMODINIT_FUNC
+    PyInit_displacements(void)
+    {
+        import_array();
+        return moduleinit();
+    }
+
+#endif
+
+
+
+static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *keywords) {
 
 
 //  Interface with python
@@ -278,24 +337,4 @@ static double  **matrix_multiplication ( double   **a, double   **b, int n, int 
 
 static int TwotoOne(int Row, int Column, int NumColumns) {
 	return Row*NumColumns + Column;
-};
-
-
-//  Python Interface
-
-static char extension_docs[] =
-    "atomic_displacement(cell, trajectory, positions )\n";
-
-static PyMethodDef extension_funcs[] = {
-    {"atomic_displacement", (PyCFunction)atomic_displacement, METH_VARARGS|METH_KEYWORDS, extension_docs},
-    {NULL}
-};
-
-void initdisplacements(void)
-{
-//  Importing numpy array types
-    import_array();
-
-    Py_InitModule3("displacements", extension_funcs,
-                   "Calculate the trajectory relative to atoms position");
 };

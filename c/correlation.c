@@ -14,6 +14,68 @@
 
 static double EvaluateCorrelation (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod);
 static double EvaluateCorrelation2 (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod);
+static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywords);
+
+
+
+//  Python Interface
+static char function_docstring[] =
+    "correlation_par(frequency, velocity, timestep, step=10, integration_method=1 )\n\n Calculation of the correlation\n Constant time step method (faster)\n OpenMP parallel";
+
+static PyMethodDef extension_funcs[] = {
+    {"correlation_par", (PyCFunction)correlation_par, METH_VARARGS|METH_KEYWORDS, function_docstring},
+    {NULL, NULL, 0, NULL}
+};
+
+
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef moduledef = {
+  PyModuleDef_HEAD_INIT,
+  "correlation",
+  "This is a module",
+  -1,
+  extension_funcs,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+};
+#endif
+
+
+static PyObject *
+moduleinit(void)
+{
+    PyObject *m;
+
+#if PY_MAJOR_VERSION >= 3
+    m = PyModule_Create(&moduledef);
+#else
+    m = Py_InitModule3("correlation",
+        extension_funcs, "This is a module");
+#endif
+
+  return m;
+}
+
+#if PY_MAJOR_VERSION < 3
+    PyMODINIT_FUNC
+    initcorrelation(void)
+    {
+        import_array();
+        moduleinit();
+    }
+#else
+    PyMODINIT_FUNC
+    PyInit_correlation(void)
+    {
+        import_array();
+        return moduleinit();
+    }
+
+#endif
+
+
 
 
 // Correlation method for constant time (TimeStep) step trajectories paralellized with OpenMP
@@ -117,19 +179,3 @@ double EvaluateCorrelation2 (double AngularFrequency, double _Complex Velocity[]
     return  creal(Integral)* TimeStep * Increment;
 }
 
-static char extension_docs_3[] =
-    "correlation_par(frequency, velocity, timestep, step=10, integration_method=1 )\n\n Calculation of the correlation\n Constant time step method (faster)\n OpenMP parallel";
-
-static PyMethodDef extension_funcs[] =
-{
-    {"correlation_par", (PyCFunction)correlation_par, METH_VARARGS|METH_KEYWORDS, extension_docs_3},
-    {NULL}
-};
-
-void initcorrelation(void)
-{
-//  Importing numpy array types
-    import_array();
-    Py_InitModule3("correlation", extension_funcs,
-                   "Fast Correlation Functions ");
-};
