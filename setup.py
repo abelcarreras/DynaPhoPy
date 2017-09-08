@@ -14,10 +14,9 @@ include_dirs_numpy = [numpy.get_include()]
 
 
 def get_version_number():
-    __version__ = None
     for l in open('dynaphopy/__init__.py', 'r').readlines():
         if not(l.find('__version__')):
-            exec(l)
+            exec(l, globals())
             return __version__
 
 correlation = Extension('dynaphopy.power_spectrum.correlation',

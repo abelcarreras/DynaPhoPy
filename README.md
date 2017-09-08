@@ -16,7 +16,7 @@ Installation instructions
 ---------------------------------------------------------
 
 1. Requirements
-  - Python 2.7 or higher
+  - Python 2.7/3.4 or higher
   - Phonopy 1.9.6 or higher (http://phonopy.sourceforge.net)
   - Matplotlib
   - Scipy
@@ -40,6 +40,7 @@ Installation instructions
    ```
    pip install dynaphopy --user
    ```
+* NEW! Added compatibility with python 3.4
 
 Executing this software
 ---------------------------------------------------------
