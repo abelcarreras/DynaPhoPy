@@ -112,9 +112,11 @@ static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *k
     double _Complex **Displacement;
     PyArrayObject *Displacement_object;
 
-    int dims[2]={NumberOfData, NumberOfDimensions};
+    //int dims[2]={NumberOfData, NumberOfDimensions};
 
-    Displacement_object=(PyArrayObject *) PyArray_FromDims(2,dims,NPY_CDOUBLE);
+    //Displacement_object=(PyArrayObject *) PyArray_FromDims(2,dims,NPY_CDOUBLE);
+    npy_intp dims[]={NumberOfData, NumberOfDimensions};
+    Displacement_object=(PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_CDOUBLE);
     Displacement=pymatrix_to_c_array_complex( Displacement_object);
 
 

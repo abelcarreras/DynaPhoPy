@@ -10,7 +10,8 @@ def averaged_positions(trajectory, number_of_samples=1000):
         number_of_samples = trajectory.shape[0]
 
     lenght = trajectory.shape[0]
-    positions = np.random.random_integers(lenght, size=(number_of_samples,))-1
+    #positions = np.random.random_integers(lenght, size=(number_of_samples,))-1
+    positions = np.random.randint(lenght, size=(number_of_samples,))-1
 
     return np.average(trajectory[positions,:], axis=0)
 

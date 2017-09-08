@@ -107,8 +107,14 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
 
     //Create new numpy array for storing result
     PyArrayObject *PowerSpectrum_object;
-    int dims[1]={NumberOfFrequencies};
-    PowerSpectrum_object = (PyArrayObject *) PyArray_FromDims(1,dims,NPY_DOUBLE);
+
+    // int dims[1]={NumberOfFrequencies};
+    // PowerSpectrum_object = (PyArrayObject *) PyArray_FromDims(1,dims,NPY_DOUBLE);
+
+    npy_intp dims[]={NumberOfFrequencies};
+    PowerSpectrum_object = (PyArrayObject *) PyArray_SimpleNew(1,dims,NPY_DOUBLE);
+
+
     double *PowerSpectrum  = (double*)PyArray_DATA(PowerSpectrum_object);
 
     //Declare variables

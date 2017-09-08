@@ -130,7 +130,7 @@ class Quasiparticle:
             exit()
 
     def _set_frequency_range(self, frequency_range):
-        if np.array(np.array(frequency_range) != np.array(self.parameters.frequency_range)).any():
+        if not np.array_equiv(np.array(frequency_range), np.array(self.parameters.frequency_range)):
             self.power_spectra_clear()
             self.parameters.frequency_range = frequency_range
 

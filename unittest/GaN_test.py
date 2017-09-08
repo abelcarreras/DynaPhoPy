@@ -62,8 +62,8 @@ class TestDynaphopy(unittest.TestCase):
         harmonic = np.array(self.calculation.get_thermal_properties())
         anharmonic = np.array(self.calculation.get_thermal_properties(force_constants=self.calculation.get_renormalized_force_constants()))
 
-        print harmonic
-        print anharmonic
+        print (harmonic)
+        print (anharmonic)
         maximum = np.max((harmonic-anharmonic)**2/harmonic)
         print ('maximum: {}'.format(maximum))
         self.assertLess(maximum, 0.025)
