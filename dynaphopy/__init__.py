@@ -999,9 +999,8 @@ class Quasiparticle:
                                                                                       force_constants=self.get_renormalized_force_constants())
 
             print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy (Reference)]\n'
-                  '----------------------------------------------').format(temperature)
+                  '----------------------------------------------'.format(temperature))
             print('                               Harmonic    Quasiparticle\n')
-
             print('Free energy (not corrected):   {0:.4f}       {3:.4f}     KJ/mol\n'
                   'Entropy:                       {1:.4f}       {4:.4f}     J/K/mol\n'
                   'Cv:                            {2:.4f}       {5:.4f}     J/K/mol\n'.format(
@@ -1048,7 +1047,7 @@ class Quasiparticle:
 
         else:
             print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
-                  '----------------------------------------------').format(temperature)
+                  '----------------------------------------------'.format(temperature))
             print('                            Harmonic    Quasiparticle\n')
             print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}\n'
                   'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}\n'

@@ -3,8 +3,8 @@ import sys
 
 import matplotlib.pyplot as plt
 
-import mem
-import correlation
+from dynaphopy.power_spectrum import mem
+from dynaphopy.power_spectrum import correlation
 
 unit_conversion = 0.00010585723  # u * A^2 * THz -> eV*ps
 
