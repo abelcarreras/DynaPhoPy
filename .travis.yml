@@ -2,11 +2,13 @@ language: python
 
 python:
     - "2.7"
+    - "3.4"
 
 branches:
   only:
   - master
   - development
+  - python_3_development
 
 install:
     - sudo apt-get install libhdf5-serial-dev
