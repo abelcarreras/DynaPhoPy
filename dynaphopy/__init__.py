@@ -69,8 +69,14 @@ class Quasiparticle:
 
     def force_constants_clear(self):
         self._renormalized_force_constants = None
-        self._renormalized_bands = None
         self._commensurate_points_data = None
+        self.bands_clear()
+
+    def bands_clear(self):
+        self._bands = None
+        self._renormalized_bands = None
+
+
 
     # Properties
     @property
@@ -175,7 +181,7 @@ class Quasiparticle:
         return self._frequencies
 
     def set_band_ranges(self, band_ranges):
-        self.power_spectra_clear()
+        self.bands_clear()
         self.parameters.band_ranges = band_ranges
 
     def get_band_ranges_and_labels(self):
@@ -235,6 +241,7 @@ class Quasiparticle:
 
     def plot_renormalized_phonon_dispersion_bands(self, plot_linewidths=False):
 
+        renormalized_force_constants = self.get_renormalized_force_constants()
         bands = self.get_band_ranges_and_labels()
         band_ranges = bands['ranges']
 
@@ -246,7 +253,7 @@ class Quasiparticle:
         if self._renormalized_bands is None:
             self._renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                     band_ranges,
-                                                                                    force_constants=self.get_renormalized_force_constants(),
+                                                                                    force_constants=renormalized_force_constants,
                                                                                     NAC=self.parameters.use_NAC)
 
         data = self.get_commensurate_points_data()
@@ -923,7 +930,6 @@ class Quasiparticle:
         return self._commensurate_points_data
 
     def get_renormalized_force_constants(self):
-
         data = self.get_commensurate_points_data()
         renormalized_frequencies = data['frequencies']
         eigenvectors = data['eigenvectors']
