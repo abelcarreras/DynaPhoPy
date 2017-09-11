@@ -141,7 +141,7 @@ This is specified with  <strong>--dim</strong> flag in Phonopy. For further info
 </code></pre>
 
 <LI><h5>Phonon dispersion bands</h5>
-<p>Interfacing with Phonopy, Dynaphopy can obtain the phonon dispersion relations. This parameter defines the path in the reciprocal space used to calculate the bands. This path is defined small linear segments. Each segment is written in a diferent input line. The first 3 values indicate the origin point in reduced coordinates while tha last 3 indicate the destination. There is no limit for the number of segments used to define the path. If this parameter is not defined DynaPhoPy uses seekpath module to determine the path automatically. 
+<p>Interfacing with Phonopy, Dynaphopy can obtain the phonon dispersion relations. This parameter defines the path in the reciprocal space used to calculate the bands. This path is defined small linear segments. Each segment is written in a diferent input line. The first 3 values indicate the origin point in reduced coordinates while tha last 3 indicate the destination. There is no limit for the number of segments used to define the path. If this parameter is not defined DynaPhoPy uses <a href="https://github.com/giovannipizzi/seekpath">seekpath module</a> to determine the path automatically ). 
 <br><em>This feature is a simple interface to phonopy and is mean to be used as reference only. For additional features please use <a href="http://atztogo.github.io/phonopy/">phonopy</a> directly.</em>
 </p><pre><code>BANDS
 0.0,   0.0,   0.0         0.5,   0.0,  0.5
