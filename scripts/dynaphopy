@@ -174,15 +174,20 @@ else:
     structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
     structure_file = input_parameters['structure_file_name_poscar']
 
+structure.get_data_from_dict(input_parameters)
+
+if 'supercell_phonon' in input_parameters:
+    supercell_phonon = input_parameters['supercell_phonon']
+else:
+    supercell_phonon = np.identity(3)
+
 if 'force_sets_file_name' in input_parameters:
     structure.set_force_set(get_force_sets_from_file(file_name=input_parameters['force_sets_file_name'],
-                                                     fs_supercell=input_parameters['supercell_phonon']))
-    structure.get_data_from_dict(input_parameters)
+                                                     fs_supercell=supercell_phonon))
 
 if 'force_constants_file_name' in input_parameters:
     structure.set_force_constants(get_force_constants_from_file(file_name=input_parameters['force_constants_file_name'],
-                                  fc_supercell=input_parameters['supercell_phonon']))
-    structure.get_data_from_dict(input_parameters)
+                                  fc_supercell=supercell_phonon))
 
 if 'force_sets_file_name' in input_parameters and 'force_constants_file_name' in input_parameters:
     print('Both FORCE SETS and FORCE CONSTANTS are found in input file, only one is allowed')

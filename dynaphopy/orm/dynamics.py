@@ -241,6 +241,8 @@ class Dynamics:
             for i in range(len(self.get_time()) - 1):
                 self._time_step_average += (self.get_time()[i+1] - self.get_time()[i])/(len(self.get_time()) - 1)
    #         self._time_step_average /= (self.get_time().shape[0]-1)
+        self._time_step_average = np.round(self._time_step_average, decimals=8)
+
         return self._time_step_average
 
     def set_structure(self, structure):

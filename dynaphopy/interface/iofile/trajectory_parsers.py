@@ -272,6 +272,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 
             #Initial cut control
             if initial_cut > counter:
+                time = []
                 continue
 
             #Reading coordinates
@@ -308,6 +309,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
         if last_steps is not None:
             data = data[-last_steps:, :, :]
             time = time[-last_steps:]
+
 
     # Check position/velocity dump
     if b'vx vy' in lammps_labels:

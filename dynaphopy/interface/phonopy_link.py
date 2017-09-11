@@ -49,6 +49,9 @@ def get_force_sets_from_file(file_name='FORCE_SETS', fs_supercell=None):
 
     if fs_supercell is not None:
         force_sets.set_supercell(fs_supercell)
+    else:
+        print ('No force sets supercell defined, set to identity')
+        force_sets.set_supercell(np.identity(3))
 
     return force_sets
 
@@ -58,6 +61,10 @@ def get_force_constants_from_file(file_name='FORCE_CONSTANTS', fc_supercell=None
     force_constants = ForceConstants(np.array(parse_FORCE_CONSTANTS(filename=file_name)))
     if fc_supercell is not None:
         force_constants.set_supercell(fc_supercell)
+    else:
+        print ('No force sets supercell defined, set to identity')
+        force_constants.set_supercell(np.identity(3))
+
     return force_constants
 
 
