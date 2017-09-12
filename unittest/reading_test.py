@@ -10,7 +10,7 @@ import unittest
 class TestDynaphopy(unittest.TestCase):
 
     def setUp(self):
-        self.structure = io.read_from_file_structure_outcar('Si_data/OUTCAR')
+        self.structure = io.read_from_file_structure_poscar('Si_data/POSCAR')
 
         self.structure.set_primitive_matrix([[0.0, 0.5, 0.5],
                                              [0.5, 0.0, 0.5],
