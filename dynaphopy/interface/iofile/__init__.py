@@ -8,7 +8,7 @@ from dynaphopy.interface import phonopy_link as pho_interface
 
 
 def get_trajectory_parser(file_name, bytes_to_check=1000000):
-    import trajectory_parsers as tp
+    from dynaphopy.interface.iofile import trajectory_parsers as tp
 
     parsers_keywords = {'vasp_outcar': {'function': tp.read_vasp_trajectory,
                                         'keywords': ['NIONS', 'POMASS', 'direct lattice vectors']},
@@ -26,10 +26,10 @@ def get_trajectory_parser(file_name, bytes_to_check=1000000):
     file_size = os.stat(file_name).st_size
 
     #Check available parsers
-    for parser in parsers_keywords.itervalues():
-        with open(file_name, "r+") as f:
+    for parser in parsers_keywords.values():
+        with open(file_name, "r+b") as f:
             file_map = mmap.mmap(f.fileno(), np.min([bytes_to_check, file_size]))
-            num_test = [file_map.find(keyword) for keyword in parser['keywords']]
+            num_test = [file_map.find(keyword.encode()) for keyword in list(parser['keywords'])]
 
         if not -1 in num_test:
             return parser['function']
@@ -47,7 +47,7 @@ def read_from_file_structure_outcar(file_name):
     #Read from VASP OUTCAR file
     print('Reading VASP structure')
 
-    with open(file_name, "r+") as f:
+    with open(file_name, "r+b") as f:
         # memory-map the file
         file_map = mmap.mmap(f.fileno(), 0)
 
@@ -58,9 +58,9 @@ def read_from_file_structure_outcar(file_name):
         #trash reading for guessing primitive cell (Not stable)
         if False:
            #Reading primitive cell (not sure about this, by default disabled)
-            position_number = file_map.find('PRICEL')
+            position_number = file_map.find(b'PRICEL')
             file_map.seek(position_number)
-            position_number = file_map.find('A1')
+            position_number = file_map.find(b'A1')
             file_map.seek(position_number)
 
             primitive_cell = []    #Primitive Cell
@@ -74,19 +74,19 @@ def read_from_file_structure_outcar(file_name):
 
 
         #Reading number of atoms
-        position_number = file_map.find('NIONS =')
+        position_number = file_map.find(b'NIONS =')
         file_map.seek(position_number+7)
         number_of_atoms = int(file_map.readline())
 
 
         #Reading atoms per type
-        position_number = file_map.find('ions per type')
+        position_number = file_map.find(b'ions per type')
         file_map.seek(position_number+15)
         atoms_per_type = np.array(file_map.readline().split(),dtype=int)
 
 
         #Reading atoms  mass
-        position_number = file_map.find('POMASS =')
+        position_number = file_map.find(b'POMASS =')
         atomic_mass_per_type = []
         for i in range(atoms_per_type.shape[0]):
             file_map.seek(position_number+9+6*i)
@@ -98,7 +98,7 @@ def read_from_file_structure_outcar(file_name):
 
 
         #Reading cell
-        position_number = file_map.find('direct lattice vectors')
+        position_number = file_map.find(b'direct lattice vectors')
         file_map.seek(position_number)
         file_map.readline()
         direct_cell = []    #Direct Cell
@@ -116,7 +116,7 @@ def read_from_file_structure_outcar(file_name):
 
 
         #Reading positions fractional cartesian
-        position_number=file_map.find('position of ions in fractional coordinates')
+        position_number=file_map.find(b'position of ions in fractional coordinates')
         file_map.seek(position_number)
         file_map.readline()
 
@@ -127,7 +127,7 @@ def read_from_file_structure_outcar(file_name):
 
 
         #Reading positions cartesian
-        position_number=file_map.find('position of ions in cartesian coordinates')
+        position_number=file_map.find(b'position of ions in cartesian coordinates')
         file_map.seek(position_number)
         file_map.readline()
 

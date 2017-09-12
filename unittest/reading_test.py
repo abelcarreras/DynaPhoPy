@@ -1,31 +1,31 @@
 #!/usr/bin/env python
 
 import numpy as np
-import dynaphopy.interface.iofile.trajectory_parsers as trajectory_parsers
 import dynaphopy.interface.iofile as io
-from dynaphopy import Quasiparticle
 from dynaphopy.interface.phonopy_link import get_force_constants_from_file
 
 import unittest
 
+
 class TestDynaphopy(unittest.TestCase):
 
     def setUp(self):
-        self.structure = io.read_from_file_structure_poscar('Si_data/POSCAR')
+        self.structure = io.read_from_file_structure_outcar('Si_data/OUTCAR')
 
         self.structure.set_primitive_matrix([[0.0, 0.5, 0.5],
                                              [0.5, 0.0, 0.5],
                                              [0.5, 0.5, 0.0]])
 
         self.structure.set_force_constants(get_force_constants_from_file(file_name='Si_data/FORCE_CONSTANTS',
-                                                                    fc_supercell=[[2, 0, 0],
-                                                                                  [0, 2, 0],
-                                                                                  [0, 0, 2]]))
+                                                                         fc_supercell=[[2, 0, 0],
+                                                                                       [0, 2, 0],
+                                                                                       [0, 0, 2]]))
 
     def test_XDATCAR(self):
         defined_time_step = 0.0005
-        trajectory = trajectory_parsers.read_VASP_XDATCAR('Si_data/XDATCAR', self.structure,
-                                                          initial_cut=3, end_cut=14, time_step=defined_time_step)
+        parser = io.get_trajectory_parser('Si_data/XDATCAR')
+        trajectory = parser('Si_data/XDATCAR', self.structure,
+                            initial_cut=3, end_cut=14, time_step=defined_time_step)
 
         rel_traj_ref = [[ 3.83203119e-09,  1.41927075e-09,  1.70312506e-09],
                         [ 4.25781249e-10,  3.12239576e-09,  5.10937512e-09],
@@ -39,6 +39,7 @@ class TestDynaphopy(unittest.TestCase):
                         [ 3.83203120e-09,  1.41927079e-09,  3.46944695e-17],
                         [ 2.12890631e-09,  3.12239582e-09,  3.40625004e-09],
                         [-4.68359377e-09, -3.69010417e-09, -3.40624993e-09]]
+
         rel_traj = np.array([np.average(trajectory.average_positions().real - traj, axis=0).real
                              for traj in trajectory.trajectory])
 
@@ -62,8 +63,10 @@ class TestDynaphopy(unittest.TestCase):
 
     def test_lammpstraj(self):
         defined_time_step = 0.001
-        trajectory = trajectory_parsers.read_lammps_trajectory('Si_data/si.lammpstrj', self.structure, initial_cut=3,
-                                                               end_cut=14, time_step=defined_time_step)
+        parser = io.get_trajectory_parser('Si_data/si.lammpstrj')
+
+        trajectory = parser('Si_data/si.lammpstrj', self.structure,
+                            initial_cut=3, end_cut=14, time_step=defined_time_step)
 
         rel_traj_ref = [[-3.51562529e-12,  -1.82290120e-12,   2.99481620e-12],
                         [-3.90621563e-13,   4.42701258e-12,  -1.30178854e-13],

@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
+import unittest
 import numpy as np
 import dynaphopy.interface.iofile as io
 import dynaphopy
 from dynaphopy.interface.phonopy_link import get_force_constants_from_file
 
-import unittest
 
 class TestDynaphopy(unittest.TestCase):
 
     def setUp(self):
-        structure = io.read_from_file_structure_poscar('Si_data/POSCAR')
+        # structure = io.read_from_file_structure_poscar('Si_data/POSCAR')
+        structure = io.read_from_file_structure_outcar('Si_data/OUTCAR')
 
         structure.set_primitive_matrix([[0.0, 0.5, 0.5],
                                         [0.5, 0.0, 0.5],
@@ -30,6 +31,7 @@ class TestDynaphopy(unittest.TestCase):
         harmonic_force_constants = self.calculation.dynamic.structure.get_force_constants().get_array()
 
         self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
+
 
 if __name__ == '__main__':
     unittest.main()
