@@ -22,8 +22,8 @@ Installation instructions
   - Scipy
   - h5py
   - pyYAML
-  - (optional) FFTW
-  - (optional) cuda
+  - (optional) pyFFTW (http://www.fftw.org/)
+  - (optional) cuda_functions (https://github.com/abelcarreras/cuda_functions)
 
 2. Download the source code from GitHub (https://github.com/abelcarreras/DynaPhoPy/) 
    and place it in the installation directory
