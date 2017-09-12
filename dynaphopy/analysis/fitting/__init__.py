@@ -85,16 +85,26 @@ def phonon_fitting_analysis(original, ps_frequencies,
         dt_Q2_lor = 2 * area
         dt_Q2_tot = 2 * total_integral
 
-        # Only within harmonic approximation
-        Q2_lor = dt_Q2_lor / pow(position * 2 * np.pi, 2)
-        Q2_tot = dt_Q2_tot / pow(position * 2 * np.pi,2)
+        try:
+            # Only within harmonic approximation
+            # Q2_lor = dt_Q2_lor / pow(position * 2 * np.pi, 2)
+            # Q2_tot = dt_Q2_tot / pow(position * 2 * np.pi,2)
 
-        occupancy_lor = dt_Q2_lor / (position * h_planck_bar) - 0.5
-        occupancy_tot = dt_Q2_tot / (position * h_planck_bar) - 0.5
+            occupancy_lor = dt_Q2_lor / (position * h_planck_bar) - 0.5
+            occupancy_tot = dt_Q2_tot / (position * h_planck_bar) - 0.5
 
-        # fit_temperature = dt_Q2_lor / kb_boltzmann  # High temperature limit
-        fit_temperature = h_planck_bar * position / (kb_boltzmann * np.log((1.0 / occupancy_lor + 1.0)))
-        fit_temperature_tot = h_planck_bar * position / (kb_boltzmann * np.log((1.0 / occupancy_tot + 1.0)))
+            # fit_temperature = dt_Q2_lor / kb_boltzmann  # High temperature limit
+            fit_temperature = h_planck_bar * position / (kb_boltzmann * np.log((1.0 / occupancy_lor + 1.0)))
+            fit_temperature_tot = h_planck_bar * position / (kb_boltzmann * np.log((1.0 / occupancy_tot + 1.0)))
+
+        except RuntimeWarning:
+            # This warning happens in acoustic branches at gamma point because the peak
+            # position is zero (If this warning is raised at GAMMA it is OK!)
+            occupancy_lor = np.nan
+            occupancy_tot = np.nan
+            fit_temperature = np.nan
+            fit_temperature_tot = np.nan
+            pass
 
         #Print section
         print ('\nPeak # {0}'.format(i+1))

@@ -39,17 +39,17 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
 
         #Memory-map the file
         file_map = mmap.mmap(f.fileno(), 0)
-        position_number=file_map.find('NIONS =')
+        position_number=file_map.find(b'NIONS =')
         file_map.seek(position_number+7)
         number_of_atoms = int(file_map.readline())
 
         #Read time step
-        position_number=file_map.find('POTIM  =')
+        position_number=file_map.find(b'POTIM  =')
         file_map.seek(position_number+8)
         time_step = float(file_map.readline().split()[0])* 1E-3 # in picoseconds
 
         #Reading super cell
-        position_number = file_map.find('direct lattice vectors')
+        position_number = file_map.find(b'direct lattice vectors')
         file_map.seek(position_number)
         file_map.readline()
         super_cell = []
@@ -79,7 +79,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                 continue
 
 
-            position_number=file_map.find('POSITION')
+            position_number=file_map.find(b'POSITION')
             if position_number < 0 : break
 
             file_map.seek(position_number)
@@ -89,7 +89,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
             read_coordinates = []
             for i in range (number_of_atoms):
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
-            position_number=file_map.find('energy(')
+            position_number=file_map.find(b'energy(')
             file_map.seek(position_number)
             read_energy = file_map.readline().split()[2]
             trajectory.append(np.array(read_coordinates,dtype=float).flatten()) #in angstrom
@@ -189,7 +189,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             counter += 1
 
             #Read time steps
-            position_number=file_map.find('TIMESTEP')
+            position_number=file_map.find(b'TIMESTEP')
             if position_number < 0: break
 
             file_map.seek(position_number)
@@ -200,7 +200,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             if number_of_atoms is None:
                 #Read number of atoms
                 file_map = mmap.mmap(f.fileno(), 0)
-                position_number=file_map.find('NUMBER OF ATOMS')
+                position_number=file_map.find(b'NUMBER OF ATOMS')
                 file_map.seek(position_number)
                 file_map.readline()
                 number_of_atoms = int(file_map.readline())
@@ -213,7 +213,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             if bounds is None:
                 #Read cell
                 file_map = mmap.mmap(f.fileno(), 0)
-                position_number=file_map.find('BOX BOUNDS')
+                position_number=file_map.find(b'BOX BOUNDS')
                 file_map.seek(position_number)
                 file_map.readline()
 
@@ -265,13 +265,14 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                         print('Memory mapping requires to define reading range (use read_from/read_to option)')
                         exit()
 
-            position_number = file_map.find('ITEM: ATOMS')
+            position_number = file_map.find(b'ITEM: ATOMS')
 
             file_map.seek(position_number)
             lammps_labels=file_map.readline()
 
             #Initial cut control
             if initial_cut > counter:
+                time = []
                 continue
 
             #Reading coordinates
@@ -309,15 +310,16 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             data = data[-last_steps:, :, :]
             time = time[-last_steps:]
 
+
     # Check position/velocity dump
-    if 'vx vy' in lammps_labels:
+    if b'vx vy' in lammps_labels:
         return dyn.Dynamics(structure=structure,
                             velocity=data,
                             time=time,
                             supercell=supercell,
                             memmap=memmap)
 
-    if 'x y' in lammps_labels:
+    if b'x y' in lammps_labels:
         return dyn.Dynamics(structure=structure,
                             trajectory=data,
                             time=time,
@@ -374,7 +376,7 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
     data = []
     counter = 0
 
-    with open(file_name, "r+") as f:
+    with open(file_name, "r+b") as f:
 
         file_map = mmap.mmap(f.fileno(), 0)
 
@@ -391,13 +393,12 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
         while True:
 
             counter += 1
-
             #Read time steps
-            position_number=file_map.find('Direct configuration')
+            position_number=file_map.find(b'Direct configuration')
             if position_number < 0: break
 
             file_map.seek(position_number)
-            time.append(float(file_map.readline().split('=')[1]))
+            time.append(float(file_map.readline().split(b'=')[1]))
 
             if memmap:
                 if end_cut:

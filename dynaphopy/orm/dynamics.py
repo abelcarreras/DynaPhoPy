@@ -1,6 +1,6 @@
 import numpy as np
 from dynaphopy.orm import atoms
-from dynaphopy.displacements import atomic_displacement
+from dynaphopy.displacements import atomic_displacements
 import os
 
 
@@ -10,7 +10,8 @@ def averaged_positions(trajectory, number_of_samples=1000):
         number_of_samples = trajectory.shape[0]
 
     lenght = trajectory.shape[0]
-    positions = np.random.random_integers(lenght, size=(number_of_samples,))-1
+    #positions = np.random.random_integers(lenght, size=(number_of_samples,))-1
+    positions = np.random.randint(lenght, size=(number_of_samples,))-1
 
     return np.average(trajectory[positions,:], axis=0)
 
@@ -240,6 +241,8 @@ class Dynamics:
             for i in range(len(self.get_time()) - 1):
                 self._time_step_average += (self.get_time()[i+1] - self.get_time()[i])/(len(self.get_time()) - 1)
    #         self._time_step_average /= (self.get_time().shape[0]-1)
+        self._time_step_average = np.round(self._time_step_average, decimals=8)
+
         return self._time_step_average
 
     def set_structure(self, structure):
@@ -277,7 +280,7 @@ class Dynamics:
                 normalized_trajectory = self.trajectory.copy()
 
             for i in range(number_of_atoms):
-                normalized_trajectory[:, i, :] = atomic_displacement(trajectory[:, i, :], position[i], cell)
+                normalized_trajectory[:, i, :] = atomic_displacements(trajectory[:, i, :], position[i], cell)
 
             self._relative_trajectory = normalized_trajectory
         return self._relative_trajectory

@@ -35,8 +35,8 @@ class TestDynaphopy(unittest.TestCase):
                                                   initial_cut=1,
                                                   final_cut=4000,
                                                   memmap=False)
-        self.calculation = dynaphopy.Quasiparticle(trajectory)
 
+        self.calculation = dynaphopy.Quasiparticle(trajectory)
         self.calculation.get_anisotropic_displacement_parameters()
 
         positions_average = self.calculation.dynamic.average_positions(to_unit_cell=True).real
@@ -60,12 +60,13 @@ class TestDynaphopy(unittest.TestCase):
 
         self.calculation.select_power_spectra_algorithm(1)
         harmonic = np.array(self.calculation.get_thermal_properties())
-        anharmonic = np.array(self.calculation.get_thermal_properties(force_constants=self.calculation.get_renormalized_force_constants()))
+        anharmonic = np.array(self.calculation.get_thermal_properties(
+            force_constants=self.calculation.get_renormalized_force_constants()))
 
-        print harmonic
-        print anharmonic
+        print(harmonic)
+        print(anharmonic)
         maximum = np.max((harmonic-anharmonic)**2/harmonic)
-        print ('maximum: {}'.format(maximum))
+        print('maximum: {}'.format(maximum))
         self.assertLess(maximum, 0.025)
 
     def test_force_constants_self_consistency(self):
@@ -84,7 +85,8 @@ class TestDynaphopy(unittest.TestCase):
 
     def __del__(self):
         os.remove('test_gan.h5')
-        print ('end')
+        print('end')
+
 
 if __name__ == '__main__':
     unittest.main()

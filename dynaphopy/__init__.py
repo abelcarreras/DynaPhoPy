@@ -1,4 +1,4 @@
-__version__ = '1.15.2'
+__version__ = '1.15.3'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -69,8 +69,14 @@ class Quasiparticle:
 
     def force_constants_clear(self):
         self._renormalized_force_constants = None
-        self._renormalized_bands = None
         self._commensurate_points_data = None
+        self.bands_clear()
+
+    def bands_clear(self):
+        self._bands = None
+        self._renormalized_bands = None
+
+
 
     # Properties
     @property
@@ -124,7 +130,7 @@ class Quasiparticle:
             exit()
 
     def _set_frequency_range(self, frequency_range):
-        if np.array(np.array(frequency_range) != np.array(self.parameters.frequency_range)).any():
+        if not np.array_equiv(np.array(frequency_range), np.array(self.parameters.frequency_range)):
             self.power_spectra_clear()
             self.parameters.frequency_range = frequency_range
 
@@ -175,7 +181,7 @@ class Quasiparticle:
         return self._frequencies
 
     def set_band_ranges(self, band_ranges):
-        self.power_spectra_clear()
+        self.bands_clear()
         self.parameters.band_ranges = band_ranges
 
     def get_band_ranges_and_labels(self):
@@ -235,6 +241,7 @@ class Quasiparticle:
 
     def plot_renormalized_phonon_dispersion_bands(self, plot_linewidths=False):
 
+        renormalized_force_constants = self.get_renormalized_force_constants()
         bands = self.get_band_ranges_and_labels()
         band_ranges = bands['ranges']
 
@@ -246,7 +253,7 @@ class Quasiparticle:
         if self._renormalized_bands is None:
             self._renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                     band_ranges,
-                                                                                    force_constants=self.get_renormalized_force_constants(),
+                                                                                    force_constants=renormalized_force_constants,
                                                                                     NAC=self.parameters.use_NAC)
 
         data = self.get_commensurate_points_data()
@@ -908,7 +915,7 @@ class Quasiparticle:
 
             # To be deprecated
             if self.parameters.save_renormalized_frequencies:
-                print "This option will be deprecated in the future. Please use save quasiparticle data option"
+                print ("This option will be deprecated in the future. Please use save quasiparticle data option")
                 np.savetxt('renormalized_frequencies', renormalized_frequencies)
             #            np.savetxt('test_line', linewidths)
 
@@ -923,7 +930,6 @@ class Quasiparticle:
         return self._commensurate_points_data
 
     def get_renormalized_force_constants(self):
-
         data = self.get_commensurate_points_data()
         renormalized_frequencies = data['frequencies']
         eigenvectors = data['eigenvectors']
@@ -999,9 +1005,8 @@ class Quasiparticle:
                                                                                       force_constants=self.get_renormalized_force_constants())
 
             print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy (Reference)]\n'
-                  '----------------------------------------------').format(temperature)
+                  '----------------------------------------------'.format(temperature))
             print('                               Harmonic    Quasiparticle\n')
-
             print('Free energy (not corrected):   {0:.4f}       {3:.4f}     KJ/mol\n'
                   'Entropy:                       {1:.4f}       {4:.4f}     J/K/mol\n'
                   'Cv:                            {2:.4f}       {5:.4f}     J/K/mol\n'.format(
@@ -1048,7 +1053,7 @@ class Quasiparticle:
 
         else:
             print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
-                  '----------------------------------------------').format(temperature)
+                  '----------------------------------------------'.format(temperature))
             print('                            Harmonic    Quasiparticle\n')
             print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}\n'
                   'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}\n'

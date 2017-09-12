@@ -16,44 +16,71 @@ Installation instructions
 ---------------------------------------------------------
 
 1. Requirements
-  - Python 2.7 or higher
+  - Python 2.7/3.4 or higher
   - Phonopy 1.9.6 or higher (http://phonopy.sourceforge.net)
   - Matplotlib
   - Scipy
   - h5py
   - pyYAML
+  - (optional) FFTW
+  - (optional) cuda
 
 2. Download the source code from GitHub (https://github.com/abelcarreras/DynaPhoPy/) 
    and place it in the installation directory
 
 3. Install requirements manually or using pip:
-   <br>pip install -r requirements.txt --user
-
+   ```
+   pip install -r requirements.txt --user
+   ```
 4. Run setup.py to install dynaphopy
-   <br>python setup.py install --user
-
+   ```
+   python setup.py install --user
+   ```
 * NEW! Now you can use pip to install/update dynaphopy module
-   <br>pip install dynaphopy --user
-
+   ```
+   pip install dynaphopy --user
+   ```
+* NEW! Added compatibility with python 3.4
 
 Executing this software
 ---------------------------------------------------------
 
 1. Command line method
-  - $dynaphopy input_file MD_file [Options]
-  - execute $dynaphopy -h for detailed description of available options
+  - execute ***dynaphopy -h*** for detailed description of available options
+    ```
+    dynaphopy input_file MD_file [Options]
+    ```
 
 2. Interactive mode
   - Use -i option from command line method and follow the instructions
-  - $dynaphopy input_file MD_file -i
-
+    ```
+    dynaphopy input_file MD_file -i
+    ```
 3. Scripting method (as a module)
   - Dynaphopy can be imported as a python module
-  - In Example directory an example script is available (script_silicon.py)
+  - In examples/api_scripts directory an example script is available (script_silicon.py)
   - The comments in the script makes it (hopefully) self explained.
 
-Input files for several materials can be found in the same Example directory
+Input files for several materials can be found in the same example/inputs directory.
 More information in the online manual at: http://abelcarreras.github.io/DynaPhoPy
+
+Files and directories included in DynaPhoPy distribution
+--------------------------------------------------------
+
+~~~
+  README             this file 
+  LICENSE            the MIT license 
+  setup.py           installation script (serial)
+  setup_openmp.py    installation script (parallel)
+  requirements.txt   list of required packages
+
+  /dynaphopy          main code in python
+  /c                  additional functions in c
+  /doc                documentation
+  /examples           simple examples
+  /script             executable scripts to run dynaphopy in command line
+  /unittest           unit tests for checking the integrity of the code
+~~~~
 
 Contact info
 ---------------------------------------------------------
