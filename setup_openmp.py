@@ -11,6 +11,7 @@ import numpy
 
 include_dirs_numpy = [numpy.get_include()]
 
+
 def get_version_number():
     for l in open('dynaphopy/__init__.py', 'r').readlines():
         if not(l.find('__version__')):
@@ -21,20 +22,20 @@ def get_version_number():
 correlation = Extension('dynaphopy.power_spectrum.correlation',
                         extra_compile_args=['-std=c99', '-fopenmp'],
                         extra_link_args=['-lgomp'],
-                        include_dirs = include_dirs_numpy,
+                        include_dirs=include_dirs_numpy,
                         sources=['c/correlation.c'])
 
 mem = Extension('dynaphopy.power_spectrum.mem',
                 extra_compile_args=['-std=c99', '-fopenmp'],
                 extra_link_args=['-lgomp'],
-                include_dirs = include_dirs_numpy,
+                include_dirs=include_dirs_numpy,
                 sources=['c/mem.c'])
 
 displacements = Extension('dynaphopy.displacements',
-                extra_compile_args=['-std=c99', '-fopenmp'],
-                extra_link_args=['-lgomp'],
-                include_dirs = include_dirs_numpy,
-                sources=['c/displacements.c'])
+                          extra_compile_args=['-std=c99', '-fopenmp'],
+                          extra_link_args=['-lgomp'],
+                          include_dirs=include_dirs_numpy,
+                          sources=['c/displacements.c'])
 
 setup(name='dynaphopy',
       version=get_version_number(),
@@ -57,5 +58,3 @@ setup(name='dynaphopy',
       requires=['phonopy', 'numpy', 'scipy', 'matplotlib'],
       license='MIT License',
       ext_modules=[correlation, mem, displacements])
-
-exit()
