@@ -24,7 +24,6 @@ correlation = Extension('dynaphopy.power_spectrum.correlation',
                         include_dirs = include_dirs_numpy,
                         sources=['c/correlation.c'])
 
-
 mem = Extension('dynaphopy.power_spectrum.mem',
                 extra_compile_args=['-std=c99', '-fopenmp'],
                 extra_link_args=['-lgomp'],
@@ -50,8 +49,13 @@ setup(name='dynaphopy',
                 'dynaphopy.analysis.fitting',
                 'dynaphopy.interface',
                 'dynaphopy.interface.iofile'],
-      scripts=['scripts/dynaphopy'],
+      scripts=['scripts/dynaphopy',
+               'scripts/concath5',
+               'scripts/fitdata',
+               'scripts/qha_extract',
+               'scripts/rfc_calc'],
+      requires=['phonopy', 'numpy', 'scipy', 'matplotlib'],
+      license='MIT License',
       ext_modules=[correlation, mem, displacements])
-
 
 exit()
