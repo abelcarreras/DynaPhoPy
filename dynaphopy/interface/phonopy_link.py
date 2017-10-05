@@ -94,9 +94,8 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
     if NAC:
         print("Phonopy warning: Using Non Analytical Corrections")
-        get_is_symmetry = True  # from phonopy: settings.get_is_symmetry()
         primitive = phonon.get_primitive()
-        nac_params = parse_BORN(primitive, get_is_symmetry)
+        nac_params = parse_BORN(primitive, is_symmetry=True)
         phonon.set_nac_params(nac_params=nac_params)
 
     if setup_forces:

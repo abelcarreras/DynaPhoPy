@@ -103,13 +103,13 @@ parser.add_argument('--silent', action='store_true',
 parser.add_argument('--velocity_only', action='store_true',
                     help='loads only velocity data from hdf5 file')
 
-parser.add_argument('--fitting_function', metavar='N', type=int, default=0,
+parser.add_argument('--fitting_function', metavar='index', type=int, default=0,
                     help='define fitting function (default: Lorentzian)')
 
-parser.add_argument('--read_from', metavar='N', type=int, default=1,
+parser.add_argument('--read_from', metavar='step', type=int, default=1,
                     help='define interval of trajectory to read (default: 1)')
 
-parser.add_argument('--read_to', metavar='N', type=int, default=None,
+parser.add_argument('--read_to', metavar='step', type=int, default=None,
                     help='define interval of trajectory to read (default: end)')
 
 parser.add_argument('--fcsymm', action='store_true',
@@ -155,10 +155,10 @@ parser.add_argument('--qha_force_constants', metavar='file', type=str, nargs=1,
 
 #Temporal interface on development
 
-parser.add_argument('--project_on_atom', metavar='N', type=int, default=None,
+parser.add_argument('--project_on_atom', metavar='atom_index', type=int, default=None,
                     help='calculate PS projected onto one atom')
 
-parser.add_argument('--save_power_spectrum_partials', metavar='F', type=str, default=None,
+parser.add_argument('--save_power_spectrum_partials', metavar='filename', type=str, default=None,
                     help='store the full power spectrum separated by atom contributions')
 
 
