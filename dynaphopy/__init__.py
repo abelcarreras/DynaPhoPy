@@ -330,6 +330,83 @@ class Quasiparticle:
 
         plt.show()
 
+    def get_renormalized_phonon_dispersion_bands(self, with_linewidths=False):
+
+        renormalized_force_constants = self.get_renormalized_force_constants()
+        bands = self.get_band_ranges_and_labels()
+        band_ranges = bands['ranges']
+
+        if self._bands is None:
+            self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                       band_ranges,
+                                                                       NAC=self.parameters.use_NAC)
+
+        if self._renormalized_bands is None:
+            self._renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                                    band_ranges,
+                                                                                    force_constants=renormalized_force_constants,
+                                                                                    NAC=self.parameters.use_NAC)
+
+        data = self.get_commensurate_points_data()
+        renormalized_frequencies = data['frequencies']
+        eigenvectors = data['eigenvectors']
+        linewidths = data['linewidths']
+        fc_supercell = data['fc_supercell']
+
+        plt.suptitle('Renormalized phonon dispersion relations')
+
+        sup_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies + linewidths / 2,
+                                                                 eigenvectors,
+                                                                 self.dynamic.structure,
+                                                                 fc_supercell,
+                                                                 symmetrize=self.parameters.symmetrize)
+
+        inf_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies - linewidths / 2,
+                                                                 eigenvectors,
+                                                                 self.dynamic.structure,
+                                                                 fc_supercell,
+                                                                 symmetrize=self.parameters.symmetrize)
+
+        if with_linewidths:
+            plt.suptitle('Renormalized phonon dispersion relations and linewidths')
+            renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                                band_ranges,
+                                                                                force_constants=sup_lim,
+                                                                                NAC=self.parameters.use_NAC)
+
+            renormalized_bands_i = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+                                                                                band_ranges,
+                                                                                force_constants=inf_lim,
+                                                                                NAC=self.parameters.use_NAC)
+
+        rb_list = []
+        for i, q_path in enumerate(self._bands[1]):
+
+            band = {'q_path_distances': q_path.tolist(),
+                    'q_bounds': {'inf': list(band_ranges[i][0]), 'sup': list(band_ranges[i][1])},
+                    'harmonic_frequencies': {'branch_{}'.format(key): value.tolist() for (key, value) in
+                                             enumerate(self._bands[2][i].T)},
+                    'renormalized_frequencies': {'branch_{}'.format(key): value.tolist() for (key, value) in
+                                                 enumerate(self._renormalized_bands[2][i].T)}}
+
+            if with_linewidths:
+                #for lim_i, lim_s in zip(np.array(renormalized_bands_i[2][i]).T, np.array(renormalized_bands_s[2][i]).T):
+                #    plt.fill_between(q_path, lim_i, lim_s, color='r', alpha=0.2, interpolate=True, linewidth=0)
+                band.update({'linewidth_minus': {'branch_{}'.format(key): value.tolist() for (key, value) in
+                                                 enumerate(renormalized_bands_i[2][i].T)},
+                             'linewidth_plus': {'branch_{}'.format(key): value.tolist() for (key, value) in
+                                                 enumerate(renormalized_bands_s[2][i].T)}})
+                if 'labels' in bands:
+                    labels = bands['labels']
+                    band.update({'labels': {'inf': labels[i][0], 'sup': labels[i][1]}})
+            rb_list.append({'path_{}'.format(i): band})
+
+        return rb_list
+
+    def write_renormalized_phonon_dispersion_bands(self, with_linewidths=True, filename='bands_data.yaml'):
+        bands_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=with_linewidths)
+        reading.save_bands_data_to_file(bands_data, filename)
+
     def print_phonon_dispersion_bands(self):
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,

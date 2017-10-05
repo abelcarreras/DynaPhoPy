@@ -78,7 +78,7 @@ parser.add_argument('-sad', '--save_atomic_displacements', metavar='S', type=str
                     help='save atomic displacements into a file [ F F F filename ]')
 
 parser.add_argument('-sfc', '--save_force_constants', metavar='file', type=str, nargs=1, default=False,
-                    help='save the renormalized force constants to a file')
+                    help='save the renormalized force constants into a file')
 
 parser.add_argument('-adp', action='store_true',
                     help='print anisotropic displacement parameters')
@@ -120,6 +120,9 @@ parser.add_argument('--no_symmetry', action='store_true',
 
 parser.add_argument('--save_renormalized_frequencies', action='store_true',
                     help='save renormalized frequencies in a file when renormalized force constants are calculated')
+
+parser.add_argument('--save_band_structure', metavar='file', type=str, default=False,
+                    help='save renormalized phonon dispersion bands into a yaml file')
 
 parser.add_argument('--resolution', metavar='F', type=float, default=None, nargs=1,
                     help='define power spectrum resolution in THz (default 0.05)')
@@ -295,6 +298,9 @@ if args.frequency_range:
 
 if args.save_force_constants:
     calculation.write_renormalized_constants(args.save_force_constants[0])
+
+if args.save_band_structure:
+    calculation.write_renormalized_phonon_dispersion_bands(filename=args.save_band_structure)
 
 if args.save_full:
     calculation.write_power_spectrum_full(args.save_full[0])

@@ -621,3 +621,16 @@ def save_quasiparticle_data_to_file(quasiparticle_data, filename):
 
     with open(filename, 'w') as outfile:
         yaml.dump(output_dict, outfile, default_flow_style=False)
+
+
+def save_bands_data_to_file(bands_data, filename):
+    import yaml
+
+    def float_representer(dumper, value):
+        text = '{0:.8f}'.format(value)
+        return dumper.represent_scalar(u'tag:yaml.org,2002:float', text)
+
+    yaml.add_representer(float, float_representer)
+
+    with open(filename, 'w') as outfile:
+        yaml.dump(bands_data, outfile, default_flow_style=False)
