@@ -9,6 +9,7 @@ from time import sleep
 from fractions import Fraction
 from os.path import isfile
 
+
 def list_on_screen(screen, pile, posx, posy):
 
     pile = np.array(pile).reshape((-1,3))
@@ -174,7 +175,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.refresh()
 
                 x2 = screen.getch()
-
 
                 if x2 == ord('1'):
                     curses.endwin()
@@ -376,11 +376,12 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
     curses.endwin()
 
-#Just for testing
+# Testing
 if __name__ == 'test_gui.py':
     import dynaphopy as controller
     import dynaphopy.functions.iofunctions as reading
-    #Get data from input file
+
+    # Get data from input file
     input_parameters = reading.read_parameters_from_input_file(sys.argv[1])
 
     structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name'])
