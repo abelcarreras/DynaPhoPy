@@ -386,7 +386,6 @@ class Quasiparticle:
                                                        mesh=self.parameters.mesh_phonopy,
                                                        projected_on_atom=self.parameters.project_on_atom)
 
-  #      plt.plot(phonopy_dos[0], phonopy_dos[1], 'r-')
         plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-', label='Harmonic')
 
         if force_constants is not None:
