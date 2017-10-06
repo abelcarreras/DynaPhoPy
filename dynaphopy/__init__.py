@@ -303,43 +303,55 @@ class Quasiparticle:
             prop_cicle = plt.rcParams['axes.prop_cycle']
             colors = prop_cicle.by_key()['color']
             for j in range(number_of_branches):
+                plt.figure(0)
                 branch = path['linewidth']['branch_{}'.format(j)]
                 plt.plot(path['q_path_distances'], branch, color=colors[j], label='linewidth')
 
+                plt.figure(1)
+                branch = path['renormalized_frequencies']['branch_{}'.format(j)]
+                plt.plot(path['q_path_distances'], branch, color=colors[j], label='linewidth')
 
+
+        plt.figure(0)
         plt.suptitle('Phonon linewidths')
-        # plt.axes().get_xaxis().set_visible(False)
-        plt.axes().get_xaxis().set_ticks([])
-        plt.ylabel('Frequency [THz]')
-        plt.xlabel('Wave vector')
-        plt.xlim([0, self._bands[1][-1][-1]])
-        plt.axhline(y=0, color='k', ls='dashed')
-        handles, labels = plt.gca().get_legend_handles_labels()
-        plt.legend([handles[i] for i in range(number_of_branches)],
-                   ['branch {}'.format(i) for i in range(number_of_branches)])
 
-        if 'labels' in bands_full_data[0]:
-            plt.rcParams.update({'mathtext.default': 'regular'})
+        plt.figure(1)
+        plt.suptitle('Phonon frequencies')
 
-            labels = [[bands_full_data[i]['labels']['inf'],
-                       bands_full_data[i]['labels']['sup']]
-                       for i in range(len(bands_full_data))]
+        for ifig in [0, 1]:
+            plt.figure(ifig)
+            # plt.axes().get_xaxis().set_visible(False)
+            plt.axes().get_xaxis().set_ticks([])
+            plt.ylabel('Frequency [THz]')
+            plt.xlabel('Wave vector')
+            plt.xlim([0, self._bands[1][-1][-1]])
+            plt.axhline(y=0, color='k', ls='dashed')
+            handles, labels = plt.gca().get_legend_handles_labels()
+            plt.legend([handles[i] for i in range(number_of_branches)],
+                       ['branch {}'.format(i) for i in range(number_of_branches)])
 
-            labels_e = []
-            x_labels = []
-            for i, freq in enumerate(self._bands[1]):
-                if labels[i][0] == labels[i - 1][1]:
-                    labels_e.append('$' + labels[i][0].replace('GAMMA', '\Gamma') + '$')
-                else:
-                    labels_e.append(
-                        '$' + labels[i - 1][1].replace('GAMMA', '\Gamma') + '/' + labels[i][0].replace('GAMMA',
-                                                                                                       '\Gamma') + '$')
-                x_labels.append(self._bands[1][i][0])
-            x_labels.append(self._bands[1][-1][-1])
-            labels_e.append('$' + labels[-1][1].replace('GAMMA', '\Gamma') + '$')
-            labels_e[0] = '$' + labels[0][0].replace('GAMMA', '\Gamma') + '$'
+            if 'labels' in bands_full_data[0]:
+                plt.rcParams.update({'mathtext.default': 'regular'})
 
-            plt.xticks(x_labels, labels_e, rotation='horizontal')
+                labels = [[bands_full_data[i]['labels']['inf'],
+                           bands_full_data[i]['labels']['sup']]
+                           for i in range(len(bands_full_data))]
+
+                labels_e = []
+                x_labels = []
+                for i, freq in enumerate(self._bands[1]):
+                    if labels[i][0] == labels[i - 1][1]:
+                        labels_e.append('$' + labels[i][0].replace('GAMMA', '\Gamma') + '$')
+                    else:
+                        labels_e.append(
+                            '$' + labels[i - 1][1].replace('GAMMA', '\Gamma') + '/' + labels[i][0].replace('GAMMA',
+                                                                                                           '\Gamma') + '$')
+                    x_labels.append(self._bands[1][i][0])
+                x_labels.append(self._bands[1][-1][-1])
+                labels_e.append('$' + labels[-1][1].replace('GAMMA', '\Gamma') + '$')
+                labels_e[0] = '$' + labels[0][0].replace('GAMMA', '\Gamma') + '$'
+
+                plt.xticks(x_labels, labels_e, rotation='horizontal')
 
         plt.show()
 
