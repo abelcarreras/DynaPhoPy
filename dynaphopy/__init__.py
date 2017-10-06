@@ -239,20 +239,26 @@ class Quasiparticle:
 
         plt.show()
 
-    def plot_renormalized_phonon_dispersion_bands(self, plot_linewidths=True):
+    def plot_renormalized_phonon_dispersion_bands(self, plot_linewidths=False):
 
-        bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True)
+        bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=plot_linewidths)
+        plt.suptitle('Renormalized phonon dispersion relations')
 
-        for i in range(len(bands_full_data)):
-            path = bands_full_data['path_{}'.format(i)]
+        for i, path in enumerate(bands_full_data):
 
             plt.plot(path['q_path_distances'], np.array(list(path['harmonic_frequencies'].values())).T, color='b', label='Harmonic')
             plt.plot(path['q_path_distances'], np.array(list(path['renormalized_frequencies'].values())).T, color='r', label='Renormalized')
 
-            if plot_linewidths:
-                for lim_i, lim_s in zip(list(path['linewidth_minus'].values()), list(path['linewidth_plus'].values())):
-                    plt.fill_between(path['q_path_distances'], lim_i, lim_s, color='r', alpha=0.2, interpolate=True, linewidth=0)
+            # if plot_linewidths:
+            #     for lim_i, lim_s in zip(list(path['linewidth_minus'].values()), list(path['linewidth_plus'].values())):
+            #         plt.fill_between(path['q_path_distances'], lim_i, lim_s, color='b', alpha=0.2, interpolate=True, linewidth=0)
 
+            if plot_linewidths:
+                for freq, linewidth in zip(list(path['renormalized_frequencies'].values()), list(path['linewidth'].values())):
+                    plt.fill_between(path['q_path_distances'], freq+np.array(linewidth)/2, freq-np.array(linewidth)/2, color='r', alpha=0.2, interpolate=True, linewidth=0)
+
+
+            plt.suptitle('Renormalized phonon dispersion relations and linewidths')
 
         # plt.axes().get_xaxis().set_visible(False)
         plt.axes().get_xaxis().set_ticks([])
@@ -263,13 +269,12 @@ class Quasiparticle:
         handles, labels = plt.gca().get_legend_handles_labels()
         plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
 
-        if 'labels' in bands_full_data['path_0']:
+        if 'labels' in bands_full_data[0]:
             plt.rcParams.update({'mathtext.default': 'regular'})
 
-            #labels = bands['labels']
-            labels = [[bands_full_data['path_{}'.format(i)]['labels']['inf'],
-                      bands_full_data['path_{}'.format(i)]['labels']['sup']]
-                      for i in range(len(bands_full_data))]
+            labels = [[bands_full_data[i]['labels']['inf'],
+                       bands_full_data[i]['labels']['sup']]
+                       for i in range(len(bands_full_data))]
 
             labels_e = []
             x_labels = []
@@ -288,6 +293,56 @@ class Quasiparticle:
             plt.xticks(x_labels, labels_e, rotation='horizontal')
 
         plt.show()
+
+    def plot_linewidth_bands(self):
+
+        bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True)
+        number_of_branches = len(bands_full_data[0]['linewidth'])
+
+        for i, path in enumerate(bands_full_data):
+            prop_cicle = plt.rcParams['axes.prop_cycle']
+            colors = prop_cicle.by_key()['color']
+            for j in range(number_of_branches):
+                branch = path['linewidth']['branch_{}'.format(j)]
+                plt.plot(path['q_path_distances'], branch, color=colors[j], label='linewidth')
+
+
+        plt.suptitle('Phonon linewidths')
+        # plt.axes().get_xaxis().set_visible(False)
+        plt.axes().get_xaxis().set_ticks([])
+        plt.ylabel('Frequency [THz]')
+        plt.xlabel('Wave vector')
+        plt.xlim([0, self._bands[1][-1][-1]])
+        plt.axhline(y=0, color='k', ls='dashed')
+        handles, labels = plt.gca().get_legend_handles_labels()
+        plt.legend([handles[i] for i in range(number_of_branches)],
+                   ['branch {}'.format(i) for i in range(number_of_branches)])
+
+        if 'labels' in bands_full_data[0]:
+            plt.rcParams.update({'mathtext.default': 'regular'})
+
+            labels = [[bands_full_data[i]['labels']['inf'],
+                       bands_full_data[i]['labels']['sup']]
+                       for i in range(len(bands_full_data))]
+
+            labels_e = []
+            x_labels = []
+            for i, freq in enumerate(self._bands[1]):
+                if labels[i][0] == labels[i - 1][1]:
+                    labels_e.append('$' + labels[i][0].replace('GAMMA', '\Gamma') + '$')
+                else:
+                    labels_e.append(
+                        '$' + labels[i - 1][1].replace('GAMMA', '\Gamma') + '/' + labels[i][0].replace('GAMMA',
+                                                                                                       '\Gamma') + '$')
+                x_labels.append(self._bands[1][i][0])
+            x_labels.append(self._bands[1][-1][-1])
+            labels_e.append('$' + labels[-1][1].replace('GAMMA', '\Gamma') + '$')
+            labels_e[0] = '$' + labels[0][0].replace('GAMMA', '\Gamma') + '$'
+
+            plt.xticks(x_labels, labels_e, rotation='horizontal')
+
+        plt.show()
+
 
     def get_renormalized_phonon_dispersion_bands(self, with_linewidths=False):
 
@@ -312,7 +367,6 @@ class Quasiparticle:
         linewidths = data['linewidths']
         fc_supercell = data['fc_supercell']
 
-        plt.suptitle('Renormalized phonon dispersion relations')
 
         sup_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies + linewidths / 2,
                                                                  eigenvectors,
@@ -326,6 +380,7 @@ class Quasiparticle:
                                                                  fc_supercell,
                                                                  symmetrize=self.parameters.symmetrize)
 
+
         if with_linewidths:
             plt.suptitle('Renormalized phonon dispersion relations and linewidths')
             renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
@@ -338,7 +393,7 @@ class Quasiparticle:
                                                                                 force_constants=inf_lim,
                                                                                 NAC=self.parameters.use_NAC)
 
-        bands_full_data = {}
+        bands_full_data = []
         for i, q_path in enumerate(self._bands[1]):
 
             band = {'q_path_distances': q_path.tolist(),
@@ -348,16 +403,18 @@ class Quasiparticle:
                     'renormalized_frequencies': {'branch_{}'.format(key): value.tolist() for (key, value) in
                                                  enumerate(self._renormalized_bands[2][i].T)}}
             if with_linewidths:
-                #for lim_i, lim_s in zip(np.array(renormalized_bands_i[2][i]).T, np.array(renormalized_bands_s[2][i]).T):
-                #    plt.fill_between(q_path, lim_i, lim_s, color='r', alpha=0.2, interpolate=True, linewidth=0)
                 band.update({'linewidth_minus': {'branch_{}'.format(key): value.tolist() for (key, value) in
                                                  enumerate(renormalized_bands_i[2][i].T)},
                              'linewidth_plus': {'branch_{}'.format(key): value.tolist() for (key, value) in
-                                                 enumerate(renormalized_bands_s[2][i].T)}})
+                                                 enumerate(renormalized_bands_s[2][i].T)},
+                             'linewidth': {'branch_{}'.format(key): value.tolist() for (key, value) in
+                                                 enumerate(renormalized_bands_s[2][i].T - renormalized_bands_i[2][i].T)}},
+
+                            )
                 if 'labels' in bands:
                     labels = bands['labels']
                     band.update({'labels': {'inf': labels[i][0], 'sup': labels[i][1]}})
-            bands_full_data.update({'path_{}'.format(i): band})
+            bands_full_data.append(band)
 
         return bands_full_data
 
