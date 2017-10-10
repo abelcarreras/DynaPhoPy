@@ -239,14 +239,15 @@ class Quasiparticle:
 
         plt.show()
 
-    def plot_renormalized_phonon_dispersion_bands(self, plot_linewidths=False):
+    def plot_renormalized_phonon_dispersion_bands(self, plot_linewidths=False, plot_harmonic=True):
 
         bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=plot_linewidths)
-        plt.suptitle('Renormalized phonon dispersion relations')
 
+        plot_title = 'Renormalized phonon dispersion relations'
         for i, path in enumerate(bands_full_data):
 
-            plt.plot(path['q_path_distances'], np.array(list(path['harmonic_frequencies'].values())).T, color='b', label='Harmonic')
+            if plot_harmonic:
+                plt.plot(path['q_path_distances'], np.array(list(path['harmonic_frequencies'].values())).T, color='b', label='Harmonic')
             plt.plot(path['q_path_distances'], np.array(list(path['renormalized_frequencies'].values())).T, color='r', label='Renormalized')
 
             # if plot_linewidths:
@@ -256,18 +257,19 @@ class Quasiparticle:
             if plot_linewidths:
                 for freq, linewidth in zip(list(path['renormalized_frequencies'].values()), list(path['linewidth'].values())):
                     plt.fill_between(path['q_path_distances'], freq+np.array(linewidth)/2, freq-np.array(linewidth)/2, color='r', alpha=0.2, interpolate=True, linewidth=0)
-
-
-            plt.suptitle('Renormalized phonon dispersion relations and linewidths')
+                    plot_title = 'Renormalized phonon dispersion relations and linewidths'
 
         # plt.axes().get_xaxis().set_visible(False)
+        plt.suptitle(plot_title)
         plt.axes().get_xaxis().set_ticks([])
         plt.ylabel('Frequency [THz]')
         plt.xlabel('Wave vector')
         plt.xlim([0, self._bands[1][-1][-1]])
         plt.axhline(y=0, color='k', ls='dashed')
-        handles, labels = plt.gca().get_legend_handles_labels()
-        plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
+
+        if plot_harmonic:
+            handles = plt.gca().get_legend_handles_labels()[0]
+            plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
 
         if 'labels' in bands_full_data[0]:
             plt.rcParams.update({'mathtext.default': 'regular'})

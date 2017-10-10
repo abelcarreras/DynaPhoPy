@@ -197,9 +197,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.border(0)
 
                 screen.addstr(2, 2, "Plotting...")
-                screen.addstr(4, 4, "1 - Renormalized phonon dispersion relations")
-                screen.addstr(5, 4, "2 - Renormalized phonon dispersion relations and linewidths")
-                screen.addstr(6, 4, "3 - Phonon linewidths")
+                screen.addstr(4, 4, "1 - Harmonic and renormalized phonon dispersion relations")
+                screen.addstr(5, 4, "2 - Renormalized phonon dispersions and linewidths (fat bands)")
+                screen.addstr(6, 4, "3 - Renormalized phonon dispersions and linewidths (separated)")
                 screen.addstr(8, 4, "0 - Return")
                 screen.refresh()
 
@@ -211,7 +211,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 if x2 == ord('2'):
                     curses.endwin()
-                    calculation.plot_renormalized_phonon_dispersion_bands(plot_linewidths=True)
+                    calculation.plot_renormalized_phonon_dispersion_bands(plot_linewidths=True,
+                                                                          plot_harmonic=False)
 
                 if x2 == ord('3'):
                     curses.endwin()
