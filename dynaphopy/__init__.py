@@ -300,18 +300,20 @@ class Quasiparticle:
 
         bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True)
         number_of_branches = len(bands_full_data[0]['linewidth'])
+        print('number_of branches', number_of_branches)
 
         for i, path in enumerate(bands_full_data):
             prop_cicle = plt.rcParams['axes.prop_cycle']
             colors = prop_cicle.by_key()['color']
+
             for j in range(number_of_branches):
                 plt.figure(0)
                 branch = path['linewidth']['branch_{}'.format(j)]
-                plt.plot(path['q_path_distances'], branch, color=colors[j], label='linewidth')
 
+                plt.plot(path['q_path_distances'], branch, color=np.roll(colors, -j)[0], label='linewidth')
                 plt.figure(1)
                 branch = path['renormalized_frequencies']['branch_{}'.format(j)]
-                plt.plot(path['q_path_distances'], branch, color=colors[j], label='linewidth')
+                plt.plot(path['q_path_distances'], branch, color=np.roll(colors, -j)[0], label='linewidth')
 
 
         plt.figure(0)

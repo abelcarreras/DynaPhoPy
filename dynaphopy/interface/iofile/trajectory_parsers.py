@@ -134,7 +134,9 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                            last_steps=None,
                            initial_cut=1,
                            end_cut=None,
-                           memmap=False):
+                           memmap=False,
+                           template=None):
+
 
     # Time in picoseconds
     # Coordinates in Angstroms
@@ -279,12 +281,17 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             read_coordinates = []
             for i in range (number_of_atoms):
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
+            read_coordinates = np.array(read_coordinates, dtype=float)
+
+            if template is not None:
+                indexing = np.argsort(template)
+                read_coordinates = read_coordinates[indexing, :]
 
             try:
                 if memmap:
-                    data[counter-initial_cut, :, :] = np.array(read_coordinates, dtype=float) #in angstroms
+                    data[counter-initial_cut, :, :] = read_coordinates #in angstroms
                 else:
-                    data.append(np.array(read_coordinates, dtype=float)) #in angstroms
+                    data.append(read_coordinates) #in angstroms
 
             except ValueError:
                 print("Error reading step {0}".format(counter))
