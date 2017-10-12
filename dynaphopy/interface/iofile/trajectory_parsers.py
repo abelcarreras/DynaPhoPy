@@ -70,14 +70,12 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
         trajectory = []
         energy = []
         counter = 0
-        while True :
+        while True:
 
             counter +=1
-
             #Initial cut control
             if initial_cut > counter:
                 continue
-
 
             position_number=file_map.find(b'POSITION')
             if position_number < 0 : break
@@ -114,7 +112,6 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
             trajectory = trajectory[-last_steps:,:,:]
             energy = energy[-last_steps:]
 
-
         print('Number of total steps read: {0}'.format(trajectory.shape[0]))
         time = np.array([i*time_step for i in range(trajectory.shape[0])], dtype=float)
 
@@ -125,7 +122,6 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                             time=time,
                             supercell=super_cell,
                             memmap=memmap)
-
 
 
 # LAMMPS custom dump file parser
