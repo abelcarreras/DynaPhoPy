@@ -208,16 +208,18 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
                               )
 
 
-
-
-#Just for testing (use with care) Generates perfectly harmonic trajectory
+# Just for testing (use with care) Generates a harmonic trajectory using the harmonic eigenvectors.
+# All phonon are set to have the same phase defined by phase_0. The aplitude of each phonon mode is
+# ajusted for all to have the same energy. This amplitude is given in temperature units assuming that
+# phonon energy follows a Maxwell-Boltzmann distribution
 def generate_test_trajectory(structure, supercell=(1, 1, 1),
                              minimum_frequency=0.1,  # THz
                              total_time=2,  # picoseconds
                              time_step=0.002,  # picoseconds
                              temperature=400,  # Kelvin
                              silent=False,
-                             memmap=False):
+                             memmap=False,
+                             phase_0=0.0):
 
     import random
     from dynaphopy.power_spectrum import _progress_bar
@@ -288,7 +290,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
                 if abs(frequencies_r[i_long][i_freq]) > minimum_frequency: # Prevent error due to small frequencies
                     amplitude = np.sqrt(number_of_dimensions * kb_boltzmann * temperature / number_of_primitive_cells * atoms_relation)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
                     normal_mode = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
-                    phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions.T))
+                    phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions.T) + phase_0)
 
                     coordinates += (1.0 / np.sqrt(masses)[None].T *
                                    eigenvectors_r[i_long][i_freq, atom_type] *

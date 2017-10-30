@@ -14,19 +14,19 @@ class Structure:
                  atomic_numbers=None,
                  atomic_elements=None,
                  atom_type_index=None,
-                 primitive_cell=None):
+                 primitive_matrix=None):
 
         """
-        :param atoms cartesian positions (array Ndim x Natoms):
-        :param atom positions scaled to 1 (array Ndim x Natoms):
-        :param masses of the atoms (vector NAtoms):
-        :param real space cell matrix (array Ndim x Ndim):
-        :param force constants:
-        :param atomic numbers vector (1x Natoms):
-        :param number of total atoms in the crystal:
-        :param atomic names of each element (ex: H, Be, Si,..) (vector Natoms):
-        :param index vector that contains the number of different types of atoms in crystal (vector NdiferentAtoms):
-        :param number of atoms in the defined cell (lattice vectors in columns):
+        :param positions: atoms cartesian positions (array Ndim x Natoms)
+        :param scaled_positions: atom positions scaled to 1 (array Ndim x Natoms)
+        :param masses: masses of the atoms (vector NAtoms)
+        :param cell: Numpy array containing the unit cell (lattice vectors in columns)
+        :param force_sets: force constants: Harmonic force constants
+        :param force_constants: atomic numbers vector (1x Natoms):
+        :param atomic_numbers: number of total atoms in the crystal:
+        :param atomic_elements: atomic names of each element (ex: H, Be, Si,..) (vector Natoms):
+        :param atom_type_index: index vector that contains the number of different types of atoms in crystal (vector NdiferentAtoms)
+        :param primitive_matrix: matrix that defines the primitive cell respect to the unicell
         """
 
         self._cell = np.array(cell, dtype='double')
@@ -39,15 +39,15 @@ class Structure:
         self._atom_type_index = atom_type_index
         self._scaled_positions = scaled_positions
         self._positions = positions
-        self._primitive_cell = primitive_cell
+        self._primitive_matrix = primitive_matrix
 
+        self._primitive_cell = None
         self._supercell_matrix = None
         self._supercell_phonon = None
         self._supercell_phonon_renormalized = None
         self._number_of_cell_atoms = None
         self._number_of_atoms = None
         self._number_of_atom_types = None
-        self._primitive_matrix = None
         self._number_of_primitive_atoms = None
 
         # Get normalized cell from cell
