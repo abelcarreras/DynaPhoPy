@@ -25,7 +25,7 @@ structure.set_primitive_matrix([[0.0, 0.5, 0.5],
 # 3. Set the hamonic phonon data (input for phonopy)
 # fs_supercell: supercell matrix used in PHONOPY to obtain the force_sets
 # FORCE_SETS : force set file obtained from PHONOPY calculation that contains the forces
-structure.set_force_set(get_force_sets_from_file(file_name=directory+'FORCE_SETS',
+structure.set_force_set(get_force_sets_from_file(file_name=directory + 'FORCE_SETS',
                                                  fs_supercell=[[2, 0, 0],
                                                                [0, 2, 0],
                                                                [0, 0, 2]]))

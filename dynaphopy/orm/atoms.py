@@ -26,7 +26,7 @@ class Structure:
         :param number of total atoms in the crystal:
         :param atomic names of each element (ex: H, Be, Si,..) (vector Natoms):
         :param index vector that contains the number of different types of atoms in crystal (vector NdiferentAtoms):
-        :param number of atoms in the defined cell:
+        :param number of atoms in the defined cell (lattice vectors in columns):
         """
 
         self._cell = np.array(cell, dtype='double')

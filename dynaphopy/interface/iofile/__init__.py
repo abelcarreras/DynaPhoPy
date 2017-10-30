@@ -159,7 +159,7 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
 
     multiply = float(data_lines[1])
     direct_cell = np.array([data_lines[i].split()
-                            for i in range(2, 2+number_of_dimensions)],dtype=float).T
+                            for i in range(2, 2+number_of_dimensions)], dtype=float).T
     direct_cell *= multiply
     scaled_positions = None
     positions = None
@@ -200,7 +200,7 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
             atomic_types.append([j]*number_of_types[i])
         atomic_types = [item for sublist in atomic_types for item in sublist]
        # atomic_types = np.array(atomic_types).flatten().tolist()
-    return atomtest.Structure(cell= direct_cell,
+    return atomtest.Structure(cell= direct_cell,  # cell_matrix, lattice vectors in columns
                               scaled_positions=scaled_positions,
                               positions=positions,
                               atomic_elements=atomic_types,
