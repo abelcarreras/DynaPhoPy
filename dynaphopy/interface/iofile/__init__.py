@@ -6,6 +6,18 @@ import dynaphopy.orm.dynamics as dyn
 import dynaphopy.orm.atoms as atomtest
 from dynaphopy.interface import phonopy_link as pho_interface
 
+def diff_matrix(array_1, array_2, cell_size):
+    """
+    :param array_1: supercell scaled positions respect unit cell
+    :param array_2: supercell scaled positions respect unit cell
+    :param cell_size: diference between arrays accounting for periodicity
+    :return:
+    """
+    array_1_norm = np.array(array_1) / np.array(cell_size, dtype=float)[None,:]
+    array_2_norm = np.array(array_2) / np.array(cell_size, dtype=float)[None,:]
+
+    return array_2_norm - array_1_norm
+
 
 def check_atoms_order(filename, trajectory_reading_function, structure):
 
@@ -23,47 +35,67 @@ def check_atoms_order(filename, trajectory_reading_function, structure):
 
 def get_correct_arrangement(reference, structure):
 
-    unit_coordinates = []
+    print structure.get_scaled_positions()
+#    exit()
+    scaled_coordinates = []
     for coordinate in reference:
         trans = np.dot(coordinate, np.linalg.inv(structure.get_cell()).T)
-        unit_coordinates.append(np.array(trans.real, dtype=int))
+        print coordinate.real, trans.real
+        scaled_coordinates.append(np.array(trans.real, dtype=float))
 
     number_of_cell_atoms = structure.get_number_of_atoms()
-    number_of_supercell_atoms = len(unit_coordinates)
-    cell_size = [int(round(2*a+1)) for a in np.average(unit_coordinates, axis=0)]
+    number_of_supercell_atoms = len(scaled_coordinates)
+    supercell_dim = np.array([int(round(2*a+1)) for a in np.average(scaled_coordinates, axis=0)])-1
 
-    print 'atom', number_of_cell_atoms, number_of_supercell_atoms
-    unit_coordinates =  np.array(unit_coordinates, dtype=int)
-    np.savetxt('test.txt', unit_coordinates)
-    np.savetxt('test2.txt', np.array([type_0(j, cell_size, number_of_cell_atoms)[:3] for j in range(number_of_supercell_atoms)]))
+    #print 'atom', number_of_cell_atoms, number_of_supercell_atoms
+    unit_cell_scaled_coordinates = scaled_coordinates - np.array(scaled_coordinates, dtype=int)
 
-    print cell_size, number_of_supercell_atoms
-    original_conf = np.array([type_0(j, cell_size, number_of_cell_atoms)[:3] for j in range(number_of_supercell_atoms)])
+    atom_unit_cell_index = []
+    for coordinate in unit_cell_scaled_coordinates:
+        # Only works for non symmetric cell (must be changed)
+        sin_scaled_pos_mat = np.sin(np.pi*structure.get_scaled_positions())
+        sin_remainder_mat = np.sin(np.pi*np.array([coordinate]*number_of_cell_atoms))
+        index = np.argmin(np.linalg.norm(sin_scaled_pos_mat - sin_remainder_mat, axis=1))
+        print coordinate, index
+        atom_unit_cell_index.append(index)
+    atom_unit_cell_index = np.array(atom_unit_cell_index)
+    np.savetxt('index.txt', np.sort(atom_unit_cell_index))
 
-    a = []
-    #for j in range(number_of_supercell_atoms):
-    #    c = type_0(j, cell_size, number_of_cell_atoms)[:3]
-    #    b = type_0(j, cell_size, number_of_cell_atoms)[3]
-    #    diference = np.linalg.norm(c - np.array(unit_coordinates), axis=1)
-    #    a.append(np.argmin(diference)+b)
-    #np.savetxt('list.txt', np.sort(a))
-    #exit()
+#    np.savetxt('test.txt', unit_coordinates)
+#    np.savetxt('test2.txt', np.array([type_0(j, cell_size, number_of_cell_atoms)[:3] for j in range(number_of_supercell_atoms)]))
+
+    print supercell_dim, number_of_supercell_atoms
+    original_conf = np.array([type_0(j, supercell_dim, number_of_cell_atoms)[:3] for j in range(number_of_supercell_atoms)])
+
+    np.savetxt('original.txt', original_conf)
+    np.savetxt('unitcoor.txt', scaled_coordinates)
 
     template = []
-    for i, coordinate in enumerate(unit_coordinates):
-        print i
-        diference = np.linalg.norm(original_conf - np.array([coordinate]*number_of_supercell_atoms), axis=1)
+    lp_coordinates = []
+    print np.array(scaled_coordinates).shape
+    print original_conf.shape
+    for i, coordinate in enumerate(scaled_coordinates):
+        lattice_points_coordinates = coordinate - structure.get_scaled_positions()[atom_unit_cell_index[i]]
+        #print 'c', i, coordinate, coordinate2
+        for k in range(3):
+            if lattice_points_coordinates[k] > supercell_dim[k]-0.5:
+                lattice_points_coordinates[k] = lattice_points_coordinates[k] - supercell_dim[k]
+            if lattice_points_coordinates[k] < -0.5:
+                lattice_points_coordinates[k] = lattice_points_coordinates[k] + supercell_dim[k]
+
+        comparison_cell = np.array([lattice_points_coordinates]*number_of_supercell_atoms)
+        diference = np.linalg.norm(diff_matrix(original_conf, comparison_cell, supercell_dim), axis=1)
         template.append(np.argmin(diference))
-    np.savetxt('list.txt', np.sort(template))
+        lp_coordinates.append(lattice_points_coordinates)
+    template = np.array(template)
+    np.savetxt('index2.txt', np.sort(template))
+    np.savetxt('index_tot.txt', np.sort(template*number_of_cell_atoms + atom_unit_cell_index))
+
+    dm = diff_matrix(original_conf[template], np.array(lp_coordinates), supercell_dim)
+    np.savetxt('lp.txt', lp_coordinates)
+    np.savetxt('diff.txt', dm)
 
     exit()
-    template = []
-    for i, coordinate in enumerate(unit_coordinates):
-        index = np.argmin([np.power(np.linalg.norm(type_0(j, cell_size, number_of_cell_atoms)[:3] - coordinate), 2)
-                           for j in range(number_of_supercell_atoms)])
-        print i, index
-        template.append(index)
-    np.savetxt('list2.txt', np.sort(template))
 
     return template
 
@@ -75,6 +107,7 @@ def type_0(i, size, natom):
     k = i/(size[1]*size[0]*size[2])
 
     return np.array([x, y, z, k])
+
 
 def type_1(i, size, natom):
     x = np.mod(i, size[0]*natom)/natom
