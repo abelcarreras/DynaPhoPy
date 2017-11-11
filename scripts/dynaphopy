@@ -157,6 +157,8 @@ parser.add_argument('--qha_force_constants', metavar='file', type=str, nargs=1,
 
 
 #Temporal interface on development
+parser.add_argument('--auto_order', action='store_true',
+                    help='set the atom order from trajectory for non standard supercell')
 
 parser.add_argument('--project_on_atom', metavar='atom_index', type=int, default=None,
                     help='calculate PS projected onto one atom')
@@ -219,17 +221,22 @@ if args.load_data:
                                                    memmap=args.memmap)
     structure_file = args.load_data[0]
 if args.md_file:
-    trajectory_reading_function = reading.get_trajectory_parser(args.md_file, structure=structure)
+    trajectory_reading_function, template = reading.get_trajectory_parser(args.md_file, structure=structure)
     if trajectory_reading_function is None:
         print('Trajectory file format not recognized')
         exit()
+    if not args.auto_order:
+        template = None
 
     trajectory = trajectory_reading_function(args.md_file,
                                              structure,
                                              args.time_step,
                                              initial_cut=args.read_from,
                                              end_cut=args.read_to,
-                                             memmap=args.memmap)
+                                             memmap=args.memmap,
+                                             template=template
+                                             )
+    np.savetxt('trajectory', trajectory.trajectory.real[0], fmt='C %.4e %.4e %.4e')
 
 if args.generate_trajectory:
     trajectory = reading.generate_test_trajectory(structure,

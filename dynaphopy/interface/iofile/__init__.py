@@ -6,6 +6,7 @@ import dynaphopy.orm.dynamics as dyn
 import dynaphopy.orm.atoms as atomtest
 from dynaphopy.interface import phonopy_link as pho_interface
 
+
 def diff_matrix(array_1, array_2, cell_size):
     """
     :param array_1: supercell scaled positions respect unit cell
@@ -29,18 +30,18 @@ def check_atoms_order(filename, trajectory_reading_function, structure):
     reference = trajectory.average_positions()
 
     template = get_correct_arrangement(reference, structure)
-    print template
+
     return template
 
 
 def get_correct_arrangement(reference, structure):
 
-    print structure.get_scaled_positions()
+    #print structure.get_scaled_positions()
 #    exit()
     scaled_coordinates = []
     for coordinate in reference:
         trans = np.dot(coordinate, np.linalg.inv(structure.get_cell()).T)
-        print coordinate.real, trans.real
+        #print coordinate.real, trans.real
         scaled_coordinates.append(np.array(trans.real, dtype=float))
 
     number_of_cell_atoms = structure.get_number_of_atoms()
@@ -53,89 +54,76 @@ def get_correct_arrangement(reference, structure):
     atom_unit_cell_index = []
     for coordinate in unit_cell_scaled_coordinates:
         # Only works for non symmetric cell (must be changed)
-        sin_scaled_pos_mat = np.sin(np.pi*structure.get_scaled_positions())
-        sin_remainder_mat = np.sin(np.pi*np.array([coordinate]*number_of_cell_atoms))
-        index = np.argmin(np.linalg.norm(sin_scaled_pos_mat - sin_remainder_mat, axis=1))
-        print coordinate, index
+
+        diff = np.abs(np.array([coordinate]*number_of_cell_atoms) - structure.get_scaled_positions())
+
+        diff[diff >= 0.5] -= 1.0
+        diff[diff < -0.5] += 1.0
+
+        #print 'diff', diff
+        #print 'postions', structure.get_scaled_positions()
+        index = np.argmin(np.linalg.norm(diff, axis=1))
+
+        #print 'test', coordinate, index
         atom_unit_cell_index.append(index)
     atom_unit_cell_index = np.array(atom_unit_cell_index)
-    np.savetxt('index.txt', np.sort(atom_unit_cell_index))
+    #np.savetxt('index.txt', np.sort(atom_unit_cell_index))
 
 #    np.savetxt('test.txt', unit_coordinates)
 #    np.savetxt('test2.txt', np.array([type_0(j, cell_size, number_of_cell_atoms)[:3] for j in range(number_of_supercell_atoms)]))
 
-    print supercell_dim, number_of_supercell_atoms
-    original_conf = np.array([type_0(j, supercell_dim, number_of_cell_atoms)[:3] for j in range(number_of_supercell_atoms)])
+    #print supercell_dim, number_of_supercell_atoms
+    original_conf = np.array([dynaphopy_order(j, supercell_dim)[:3] for j in range(number_of_supercell_atoms)])
 
-    np.savetxt('original.txt', original_conf)
-    np.savetxt('unitcoor.txt', scaled_coordinates)
+    #np.savetxt('original.txt', original_conf)
+    #np.savetxt('unitcoor.txt', scaled_coordinates)
+
+    #print np.array(scaled_coordinates).shape
+    #print original_conf.shape
 
     template = []
     lp_coordinates = []
-    print np.array(scaled_coordinates).shape
-    print original_conf.shape
     for i, coordinate in enumerate(scaled_coordinates):
         lattice_points_coordinates = coordinate - structure.get_scaled_positions()[atom_unit_cell_index[i]]
         #print 'c', i, coordinate, coordinate2
+
         for k in range(3):
-            if lattice_points_coordinates[k] > supercell_dim[k]-0.5:
+            if lattice_points_coordinates[k] > supercell_dim[k] - 0.5:
                 lattice_points_coordinates[k] = lattice_points_coordinates[k] - supercell_dim[k]
             if lattice_points_coordinates[k] < -0.5:
                 lattice_points_coordinates[k] = lattice_points_coordinates[k] + supercell_dim[k]
 
         comparison_cell = np.array([lattice_points_coordinates]*number_of_supercell_atoms)
         diference = np.linalg.norm(diff_matrix(original_conf, comparison_cell, supercell_dim), axis=1)
-        template.append(np.argmin(diference))
+        template.append(np.argmin(diference) + atom_unit_cell_index[i]*number_of_supercell_atoms/number_of_cell_atoms)
         lp_coordinates.append(lattice_points_coordinates)
     template = np.array(template)
-    np.savetxt('index2.txt', np.sort(template))
-    np.savetxt('index_tot.txt', np.sort(template*number_of_cell_atoms + atom_unit_cell_index))
+    #lp_coordinates = np.array(lp_coordinates)
+    #print original_conf.shape, lp_coordinates.shape, template.shape
+    #np.savetxt('index2.txt', np.sort(template))
+    #np.savetxt('index_tot.txt', np.sort(template*number_of_cell_atoms + atom_unit_cell_index))
 
-    dm = diff_matrix(original_conf[template], np.array(lp_coordinates), supercell_dim)
-    np.savetxt('lp.txt', lp_coordinates)
-    np.savetxt('diff.txt', dm)
+    # inv_template = inverse_template(template)
+    # inv_template = np.argsort(template)
 
-    exit()
+    #dm = diff_matrix(original_conf, lp_coordinates[inv_template], supercell_dim)
+    #dm = diff_matrix(original_conf[template], lp_coordinates, supercell_dim)
+
+    #np.savetxt('template.txt', template)
+
+    #np.savetxt('lp.txt', lp_coordinates[inv_template])
+    #np.savetxt('diff.txt', dm)
 
     return template
 
 
-def type_0(i, size, natom):
+def dynaphopy_order(i, size):
     x = np.mod(i, size[0])
     y = np.mod(i, size[0]*size[1])/size[1]
     z = np.mod(i, size[0]*size[1]*size[2])/(size[1]*size[0])
     k = i/(size[1]*size[0]*size[2])
 
     return np.array([x, y, z, k])
-
-
-def type_1(i, size, natom):
-    x = np.mod(i, size[0]*natom)/natom
-    y = np.mod(i, size[0]*natom*size[1])/(size[0]*natom)
-    z = i/(size[1]*size[0]*natom)
-    k = np.mod(i, natom)
-
-    return np.array([x, y, z, k])
-
-#Test function (works for 2 mpi instances with lammps)
-def type_2(i, size, natom, mpi_lammps=2):
-
-    half_size = size[0]/mpi_lammps
-    if half_size == 0:
-        half_size = 1
-
-    total = size[0]*size[1]*size[2]*natom
-    x = np.mod(i, half_size*natom)/natom
-    y = np.mod(i, half_size*natom*size[1])/(half_size*natom)
-    z = i/(size[1]*half_size*natom)
-    k = np.mod(i, natom)
-
-    if i>= total/mpi_lammps:
-        x += half_size
-        z -= half_size
-
-    return np.array([x, y, z, k])
-
 
 def get_trajectory_parser(file_name, bytes_to_check=1000000, structure=None):
     from dynaphopy.interface.iofile import trajectory_parsers as tp
@@ -164,8 +152,10 @@ def get_trajectory_parser(file_name, bytes_to_check=1000000, structure=None):
             # check order of atoms
             if structure is not None:
                 template = check_atoms_order(file_name, parser['function'], structure)
-                print template
-            return parser['function']
+            else:
+                template = None
+
+            return parser['function'], template
 
 
     return None
