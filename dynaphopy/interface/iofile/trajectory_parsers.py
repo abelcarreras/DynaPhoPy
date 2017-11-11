@@ -11,7 +11,8 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                          last_steps=None,
                          initial_cut=1,
                          end_cut=None,
-                         memmap=False):
+                         memmap=False,
+                         template=None):
 
     # warning
     warnings.warn('This parser will be deprecated, you can use XDATCAR instead', DeprecationWarning)
@@ -61,7 +62,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
         file_map.readline()
 
     # Check if number of atoms is multiple of cell atoms
-        if structure:
+        if structure is not None:
             if number_of_atoms % structure.get_number_of_cell_atoms() != 0:
                 print('Warning: Number of atoms not matching, check VASP output files')
     #        structure.set_number_of_atoms(number_of_atoms)
@@ -87,6 +88,11 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
             read_coordinates = []
             for i in range (number_of_atoms):
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
+
+            if template is not None:
+                indexing = np.argsort(template)
+                read_coordinates = read_coordinates[indexing, :]
+
             position_number=file_map.find(b'energy(')
             file_map.seek(position_number)
             read_energy = file_map.readline().split()[2]
@@ -167,10 +173,10 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
     print("This could take long, please wait..")
 
     # Dimension of LAMMP calculation
-    if structure:
-        number_of_dimensions = structure.get_number_of_dimensions()
-    else:
+    if structure is None:
         number_of_dimensions = 3
+    else:
+        number_of_dimensions = structure.get_number_of_dimensions()
 
     time = []
     data = []
@@ -204,7 +210,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 number_of_atoms = int(file_map.readline())
 
                 # Check if number of atoms is multiple of cell atoms
-                if structure:
+                if structure is not None:
                     if number_of_atoms % structure.get_number_of_cell_atoms() != 0:
                         print('Warning: Number of atoms not matching, check LAMMPS output file')
 
@@ -214,7 +220,6 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 position_number=file_map.find(b'BOX BOUNDS')
                 file_map.seek(position_number)
                 file_map.readline()
-
 
                 bounds = []
                 for i in range(3):
@@ -338,7 +343,8 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
                       last_steps=None,
                       initial_cut=1,
                       end_cut=None,
-                      memmap=False):
+                      memmap=False,
+                      template=None):
 
     # Time in picoseconds
     # Coordinates in Angstroms
@@ -419,6 +425,10 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
             read_coordinates = []
             for i in range (number_of_atoms):
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
+
+            if template is not None:
+                indexing = np.argsort(template)
+                read_coordinates = read_coordinates[indexing, :]
 
             try:
                 if memmap:

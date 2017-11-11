@@ -219,7 +219,7 @@ if args.load_data:
                                                    memmap=args.memmap)
     structure_file = args.load_data[0]
 if args.md_file:
-    trajectory_reading_function = reading.get_trajectory_parser(args.md_file)
+    trajectory_reading_function = reading.get_trajectory_parser(args.md_file, structure=structure)
     if trajectory_reading_function is None:
         print('Trajectory file format not recognized')
         exit()

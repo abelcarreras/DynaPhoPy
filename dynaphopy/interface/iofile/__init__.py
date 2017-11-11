@@ -7,7 +7,104 @@ import dynaphopy.orm.atoms as atomtest
 from dynaphopy.interface import phonopy_link as pho_interface
 
 
-def get_trajectory_parser(file_name, bytes_to_check=1000000):
+def check_atoms_order(filename, trajectory_reading_function, structure):
+
+    trajectory = trajectory_reading_function(filename,
+                                             structure=structure,
+                                             initial_cut=0,
+                                             end_cut=1)
+
+    reference = trajectory.average_positions()
+
+    template = get_correct_arrangement(reference, structure)
+    print template
+    return template
+
+
+def get_correct_arrangement(reference, structure):
+
+    unit_coordinates = []
+    for coordinate in reference:
+        trans = np.dot(coordinate, np.linalg.inv(structure.get_cell()).T)
+        unit_coordinates.append(np.array(trans.real, dtype=int))
+
+    number_of_cell_atoms = structure.get_number_of_atoms()
+    number_of_supercell_atoms = len(unit_coordinates)
+    cell_size = [int(round(2*a+1)) for a in np.average(unit_coordinates, axis=0)]
+
+    print 'atom', number_of_cell_atoms, number_of_supercell_atoms
+    unit_coordinates =  np.array(unit_coordinates, dtype=int)
+    np.savetxt('test.txt', unit_coordinates)
+    np.savetxt('test2.txt', np.array([type_0(j, cell_size, number_of_cell_atoms)[:3] for j in range(number_of_supercell_atoms)]))
+
+    print cell_size, number_of_supercell_atoms
+    original_conf = np.array([type_0(j, cell_size, number_of_cell_atoms)[:3] for j in range(number_of_supercell_atoms)])
+
+    a = []
+    #for j in range(number_of_supercell_atoms):
+    #    c = type_0(j, cell_size, number_of_cell_atoms)[:3]
+    #    b = type_0(j, cell_size, number_of_cell_atoms)[3]
+    #    diference = np.linalg.norm(c - np.array(unit_coordinates), axis=1)
+    #    a.append(np.argmin(diference)+b)
+    #np.savetxt('list.txt', np.sort(a))
+    #exit()
+
+    template = []
+    for i, coordinate in enumerate(unit_coordinates):
+        print i
+        diference = np.linalg.norm(original_conf - np.array([coordinate]*number_of_supercell_atoms), axis=1)
+        template.append(np.argmin(diference))
+    np.savetxt('list.txt', np.sort(template))
+
+    exit()
+    template = []
+    for i, coordinate in enumerate(unit_coordinates):
+        index = np.argmin([np.power(np.linalg.norm(type_0(j, cell_size, number_of_cell_atoms)[:3] - coordinate), 2)
+                           for j in range(number_of_supercell_atoms)])
+        print i, index
+        template.append(index)
+    np.savetxt('list2.txt', np.sort(template))
+
+    return template
+
+
+def type_0(i, size, natom):
+    x = np.mod(i, size[0])
+    y = np.mod(i, size[0]*size[1])/size[1]
+    z = np.mod(i, size[0]*size[1]*size[2])/(size[1]*size[0])
+    k = i/(size[1]*size[0]*size[2])
+
+    return np.array([x, y, z, k])
+
+def type_1(i, size, natom):
+    x = np.mod(i, size[0]*natom)/natom
+    y = np.mod(i, size[0]*natom*size[1])/(size[0]*natom)
+    z = i/(size[1]*size[0]*natom)
+    k = np.mod(i, natom)
+
+    return np.array([x, y, z, k])
+
+#Test function (works for 2 mpi instances with lammps)
+def type_2(i, size, natom, mpi_lammps=2):
+
+    half_size = size[0]/mpi_lammps
+    if half_size == 0:
+        half_size = 1
+
+    total = size[0]*size[1]*size[2]*natom
+    x = np.mod(i, half_size*natom)/natom
+    y = np.mod(i, half_size*natom*size[1])/(half_size*natom)
+    z = i/(size[1]*half_size*natom)
+    k = np.mod(i, natom)
+
+    if i>= total/mpi_lammps:
+        x += half_size
+        z -= half_size
+
+    return np.array([x, y, z, k])
+
+
+def get_trajectory_parser(file_name, bytes_to_check=1000000, structure=None):
     from dynaphopy.interface.iofile import trajectory_parsers as tp
 
     parsers_keywords = {'vasp_outcar': {'function': tp.read_vasp_trajectory,
@@ -17,34 +114,38 @@ def get_trajectory_parser(file_name, bytes_to_check=1000000):
                         'vasp_xdatcar': {'function': tp.read_VASP_XDATCAR,
                                          'keywords': ['Direct configuration=', 'Direct configuration=', 'Direct configuration=']}}
 
-
-    #Check file exists
+    # Check file exists
     if not os.path.isfile(file_name):
         print (file_name + ' file does not exist')
         exit()
 
     file_size = os.stat(file_name).st_size
 
-    #Check available parsers
+    # Check available parsers
     for parser in parsers_keywords.values():
         with open(file_name, "r+b") as f:
             file_map = mmap.mmap(f.fileno(), np.min([bytes_to_check, file_size]))
             num_test = [file_map.find(keyword.encode()) for keyword in list(parser['keywords'])]
 
         if not -1 in num_test:
+            # check order of atoms
+            if structure is not None:
+                template = check_atoms_order(file_name, parser['function'], structure)
+                print template
             return parser['function']
+
 
     return None
 
 
 def read_from_file_structure_outcar(file_name):
 
-    #Check file exists
+    # Check file exists
     if not os.path.isfile(file_name):
         print('Structure file does not exist!')
         exit()
 
-    #Read from VASP OUTCAR file
+    # Read from VASP OUTCAR file
     print('Reading VASP structure')
 
     with open(file_name, "r+b") as f:
@@ -115,7 +216,7 @@ def read_from_file_structure_outcar(file_name):
         reciprocal_cell = np.array(reciprocal_cell,dtype='double').T
 
 
-        #Reading positions fractional cartesian
+        # Reading positions fractional cartesian
         position_number=file_map.find(b'position of ions in fractional coordinates')
         file_map.seek(position_number)
         file_map.readline()
