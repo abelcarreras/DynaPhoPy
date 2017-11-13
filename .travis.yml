@@ -12,6 +12,7 @@ branches:
 
 install:
     - sudo apt-get install libhdf5-serial-dev
+    - pip install python-coveralls
     - pip install -r requirements.txt
     - python setup.py install
 
