@@ -337,8 +337,8 @@ class Quasiparticle:
             plt.xlim([0, self._bands[1][-1][-1]])
             plt.axhline(y=0, color='k', ls='dashed')
             handles, labels = plt.gca().get_legend_handles_labels()
-            plt.legend([handles[i] for i in range(number_of_branches)],
-                       ['branch {}'.format(i) for i in range(number_of_branches)])
+            #plt.legend([handles[i] for i in range(number_of_branches)],
+            #           ['branch {}'.format(i) for i in range(number_of_branches)])
 
             if 'labels' in bands_full_data[0]:
                 plt.rcParams.update({'mathtext.default': 'regular'})
