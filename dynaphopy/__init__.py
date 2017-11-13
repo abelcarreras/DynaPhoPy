@@ -301,7 +301,6 @@ class Quasiparticle:
 
         bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True)
         number_of_branches = len(bands_full_data[0]['linewidth'])
-        print('number_of branches', number_of_branches)
 
         for i, path in enumerate(bands_full_data):
             prop_cicle = plt.rcParams['axes.prop_cycle']
