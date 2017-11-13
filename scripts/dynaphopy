@@ -221,11 +221,14 @@ if args.load_data:
                                                    memmap=args.memmap)
     structure_file = args.load_data[0]
 if args.md_file:
-    trajectory_reading_function, template = reading.get_trajectory_parser(args.md_file, structure=structure)
+    trajectory_reading_function = reading.get_trajectory_parser(args.md_file)
     if trajectory_reading_function is None:
         print('Trajectory file format not recognized')
         exit()
-    if not args.auto_order:
+    if args.auto_order:
+        print ('Use auto order')
+        template = reading.check_atoms_order(args.md_file, trajectory_reading_function, structure)
+    else:
         template = None
 
     trajectory = trajectory_reading_function(args.md_file,
@@ -236,7 +239,7 @@ if args.md_file:
                                              memmap=args.memmap,
                                              template=template
                                              )
-    np.savetxt('trajectory', trajectory.trajectory.real[0], fmt='C %.4e %.4e %.4e')
+    # np.savetxt('trajectory.xyz', trajectory.trajectory.real[0], fmt='C %.4e %.4e %.4e')
 
 if args.generate_trajectory:
     trajectory = reading.generate_test_trajectory(structure,

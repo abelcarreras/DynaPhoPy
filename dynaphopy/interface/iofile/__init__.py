@@ -25,9 +25,15 @@ def check_atoms_order(filename, trajectory_reading_function, structure):
     trajectory = trajectory_reading_function(filename,
                                              structure=structure,
                                              initial_cut=0,
-                                             end_cut=1)
+                                             end_cut=1
+                                             )
 
-    reference = trajectory.average_positions()
+    # For now average_positions() depends on order of atoms so can't used for this at this time
+    # In future however this should work
+    # reference = trajectory.average_positions()
+
+    # Only using first step
+    reference = trajectory.trajectory[0]
 
     template = get_correct_arrangement(reference, structure)
 
@@ -36,8 +42,7 @@ def check_atoms_order(filename, trajectory_reading_function, structure):
 
 def get_correct_arrangement(reference, structure):
 
-    #print structure.get_scaled_positions()
-#    exit()
+    # print structure.get_scaled_positions()
     scaled_coordinates = []
     for coordinate in reference:
         trans = np.dot(coordinate, np.linalg.inv(structure.get_cell()).T)
@@ -47,8 +52,7 @@ def get_correct_arrangement(reference, structure):
     number_of_cell_atoms = structure.get_number_of_atoms()
     number_of_supercell_atoms = len(scaled_coordinates)
     supercell_dim = np.array([int(round(2*a+1)) for a in np.average(scaled_coordinates, axis=0)])-1
-
-    #print 'atom', number_of_cell_atoms, number_of_supercell_atoms
+    # print 'atom', number_of_cell_atoms, number_of_supercell_atoms
     unit_cell_scaled_coordinates = scaled_coordinates - np.array(scaled_coordinates, dtype=int)
 
     atom_unit_cell_index = []
@@ -60,26 +64,26 @@ def get_correct_arrangement(reference, structure):
         diff[diff >= 0.5] -= 1.0
         diff[diff < -0.5] += 1.0
 
-        #print 'diff', diff
-        #print 'postions', structure.get_scaled_positions()
+        # print 'diff', diff
+        # print 'postions', structure.get_scaled_positions()
         index = np.argmin(np.linalg.norm(diff, axis=1))
 
-        #print 'test', coordinate, index
+        # print 'test', coordinate, index
         atom_unit_cell_index.append(index)
     atom_unit_cell_index = np.array(atom_unit_cell_index)
-    #np.savetxt('index.txt', np.sort(atom_unit_cell_index))
+    # np.savetxt('index.txt', np.sort(atom_unit_cell_index))
 
-#    np.savetxt('test.txt', unit_coordinates)
-#    np.savetxt('test2.txt', np.array([type_0(j, cell_size, number_of_cell_atoms)[:3] for j in range(number_of_supercell_atoms)]))
+    # np.savetxt('test.txt', unit_coordinates)
+    # np.savetxt('test2.txt', np.array([type_0(j, cell_size, number_of_cell_atoms)[:3] for j in range(number_of_supercell_atoms)]))
 
-    #print supercell_dim, number_of_supercell_atoms
+    # print supercell_dim, number_of_supercell_atoms
     original_conf = np.array([dynaphopy_order(j, supercell_dim)[:3] for j in range(number_of_supercell_atoms)])
 
-    #np.savetxt('original.txt', original_conf)
-    #np.savetxt('unitcoor.txt', scaled_coordinates)
+    # np.savetxt('original.txt', original_conf)
+    # np.savetxt('unitcoor.txt', scaled_coordinates)
 
-    #print np.array(scaled_coordinates).shape
-    #print original_conf.shape
+    # print np.array(scaled_coordinates).shape
+    # print original_conf.shape
 
     template = []
     lp_coordinates = []
@@ -96,23 +100,29 @@ def get_correct_arrangement(reference, structure):
         comparison_cell = np.array([lattice_points_coordinates]*number_of_supercell_atoms)
         diference = np.linalg.norm(diff_matrix(original_conf, comparison_cell, supercell_dim), axis=1)
         template.append(np.argmin(diference) + atom_unit_cell_index[i]*number_of_supercell_atoms/number_of_cell_atoms)
+
         lp_coordinates.append(lattice_points_coordinates)
     template = np.array(template)
-    #lp_coordinates = np.array(lp_coordinates)
-    #print original_conf.shape, lp_coordinates.shape, template.shape
-    #np.savetxt('index2.txt', np.sort(template))
-    #np.savetxt('index_tot.txt', np.sort(template*number_of_cell_atoms + atom_unit_cell_index))
+    # lp_coordinates = np.array(lp_coordinates)
+    # print original_conf.shape, lp_coordinates.shape, template.shape
+    # np.savetxt('index2.txt', np.sort(template))
+    # np.savetxt('index_tot.txt', np.sort(template*number_of_cell_atoms + atom_unit_cell_index))
 
     # inv_template = inverse_template(template)
     # inv_template = np.argsort(template)
 
-    #dm = diff_matrix(original_conf, lp_coordinates[inv_template], supercell_dim)
-    #dm = diff_matrix(original_conf[template], lp_coordinates, supercell_dim)
+    # dm = diff_matrix(original_conf, lp_coordinates[inv_template], supercell_dim)
+    # dm = diff_matrix(original_conf[template], lp_coordinates, supercell_dim)
 
-    #np.savetxt('template.txt', template)
+    # np.savetxt('template.txt', template)
 
-    #np.savetxt('lp.txt', lp_coordinates[inv_template])
-    #np.savetxt('diff.txt', dm)
+    # np.savetxt('lp.txt', lp_coordinates[inv_template])
+    # np.savetxt('diff.txt', dm)
+
+    if len(np.unique(template)) < len(template):
+        print ('template failed, auto-order will not be applied')
+        print ('unique: {} / {}', len(np.unique(template)), len(template))
+        return None
 
     return template
 
@@ -125,7 +135,8 @@ def dynaphopy_order(i, size):
 
     return np.array([x, y, z, k])
 
-def get_trajectory_parser(file_name, bytes_to_check=1000000, structure=None):
+
+def get_trajectory_parser(file_name, bytes_to_check=1000000):
     from dynaphopy.interface.iofile import trajectory_parsers as tp
 
     parsers_keywords = {'vasp_outcar': {'function': tp.read_vasp_trajectory,
@@ -149,14 +160,7 @@ def get_trajectory_parser(file_name, bytes_to_check=1000000, structure=None):
             num_test = [file_map.find(keyword.encode()) for keyword in list(parser['keywords'])]
 
         if not -1 in num_test:
-            # check order of atoms
-            if structure is not None:
-                template = check_atoms_order(file_name, parser['function'], structure)
-            else:
-                template = None
-
-            return parser['function'], template
-
+            return parser['function']
 
     return None
 
