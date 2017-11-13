@@ -18,10 +18,9 @@ install:
     - python setup.py install
 
 script:
-     - cd unittest
+    - cd unittest
     # - python -m unittest discover . "*_test.py"
     - coverage run -m unittest discover . "*_test.py"
-    #- coverage run -m unittest discover . \"*_test.py\"
     - cd ..
 
 
