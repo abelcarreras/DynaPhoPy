@@ -21,7 +21,7 @@ script:
      - cd unittest
     # - python -m unittest discover . "*_test.py"
     - coverage run -m unittest discover . "*_test.py"
-    - cp lcov.info ../
+    - cp lcov.info ..
     - cd ..
 
 
