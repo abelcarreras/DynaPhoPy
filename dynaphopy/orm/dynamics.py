@@ -115,7 +115,7 @@ def type_2(i, size, natom, mpi_lammps=2):
 class Dynamics:
 
     def __init__(self,
-                 structure=atoms.Structure,
+                 structure=None,
                  trajectory=None,
                  scaled_trajectory=None,
                  velocity=None,
@@ -139,13 +139,15 @@ class Dynamics:
         self._number_of_atoms = None
         self._mean_displacement_matrix = None
 
-        if structure:
+        if structure is not None:
             self._structure = structure
 
-            #Check order of atoms
-            if trajectory is not None and structure.get_number_of_dimensions() == 3:
-                self._trajectory = check_trajectory_structure(trajectory, structure)
+            if trajectory is not None:
+                self._trajectory = trajectory
 
+            #Check order of atoms
+            #if trajectory is not None and structure.get_number_of_dimensions() == 3:
+            #    self._trajectory = check_trajectory_structure(trajectory, structure)
 
         else:
             print('Warning: Initialization without structure')
@@ -389,10 +391,7 @@ class Dynamics:
             averaged_positions = np.array(averaged_positions)
 
         # Average respect to unit cell
-
-
         averaged_positions += positions
-
 
         for j in range(number_of_atoms):
 
@@ -400,7 +399,6 @@ class Dynamics:
                                                  averaged_positions[j, :] - 0.5 * np.dot(np.ones((number_of_dimensions)), cell.T)),
                                                  decimals=0)
             averaged_positions[j, :] -= np.dot(difference_matrix, cell.T)
-
 
         return averaged_positions
 

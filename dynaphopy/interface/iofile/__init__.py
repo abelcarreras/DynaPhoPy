@@ -7,6 +7,135 @@ import dynaphopy.orm.atoms as atomtest
 from dynaphopy.interface import phonopy_link as pho_interface
 
 
+def diff_matrix(array_1, array_2, cell_size):
+    """
+    :param array_1: supercell scaled positions respect unit cell
+    :param array_2: supercell scaled positions respect unit cell
+    :param cell_size: diference between arrays accounting for periodicity
+    :return:
+    """
+    array_1_norm = np.array(array_1) / np.array(cell_size, dtype=float)[None,:]
+    array_2_norm = np.array(array_2) / np.array(cell_size, dtype=float)[None,:]
+
+    return array_2_norm - array_1_norm
+
+
+def check_atoms_order(filename, trajectory_reading_function, structure):
+
+    trajectory = trajectory_reading_function(filename,
+                                             structure=structure,
+                                             initial_cut=0,
+                                             end_cut=1
+                                             )
+
+    # For now average_positions() depends on order of atoms so can't used for this at this time
+    # In future however this should work
+    # reference = trajectory.average_positions()
+
+    # Only using first step
+    reference = trajectory.trajectory[0]
+
+    template = get_correct_arrangement(reference, structure)
+
+    return template
+
+
+def get_correct_arrangement(reference, structure):
+
+    # print structure.get_scaled_positions()
+    scaled_coordinates = []
+    for coordinate in reference:
+        trans = np.dot(coordinate, np.linalg.inv(structure.get_cell()).T)
+        #print coordinate.real, trans.real
+        scaled_coordinates.append(np.array(trans.real, dtype=float))
+
+    number_of_cell_atoms = structure.get_number_of_atoms()
+    number_of_supercell_atoms = len(scaled_coordinates)
+    supercell_dim = np.array([int(round(2*a+1)) for a in np.average(scaled_coordinates, axis=0)])-1
+    # print 'atom', number_of_cell_atoms, number_of_supercell_atoms
+    unit_cell_scaled_coordinates = scaled_coordinates - np.array(scaled_coordinates, dtype=int)
+
+    atom_unit_cell_index = []
+    for coordinate in unit_cell_scaled_coordinates:
+        # Only works for non symmetric cell (must be changed)
+
+        diff = np.abs(np.array([coordinate]*number_of_cell_atoms) - structure.get_scaled_positions())
+
+        diff[diff >= 0.5] -= 1.0
+        diff[diff < -0.5] += 1.0
+
+        # print 'diff', diff
+        # print 'postions', structure.get_scaled_positions()
+        index = np.argmin(np.linalg.norm(diff, axis=1))
+
+        # print 'test', coordinate, index
+        atom_unit_cell_index.append(index)
+    atom_unit_cell_index = np.array(atom_unit_cell_index)
+    # np.savetxt('index.txt', np.sort(atom_unit_cell_index))
+
+    # np.savetxt('test.txt', unit_coordinates)
+    # np.savetxt('test2.txt', np.array([type_0(j, cell_size, number_of_cell_atoms)[:3] for j in range(number_of_supercell_atoms)]))
+
+    # print supercell_dim, number_of_supercell_atoms
+    original_conf = np.array([dynaphopy_order(j, supercell_dim)[:3] for j in range(number_of_supercell_atoms)])
+
+    # np.savetxt('original.txt', original_conf)
+    # np.savetxt('unitcoor.txt', scaled_coordinates)
+
+    # print np.array(scaled_coordinates).shape
+    # print original_conf.shape
+
+    template = []
+    lp_coordinates = []
+    for i, coordinate in enumerate(scaled_coordinates):
+        lattice_points_coordinates = coordinate - structure.get_scaled_positions()[atom_unit_cell_index[i]]
+        #print 'c', i, coordinate, coordinate2
+
+        for k in range(3):
+            if lattice_points_coordinates[k] > supercell_dim[k] - 0.5:
+                lattice_points_coordinates[k] = lattice_points_coordinates[k] - supercell_dim[k]
+            if lattice_points_coordinates[k] < -0.5:
+                lattice_points_coordinates[k] = lattice_points_coordinates[k] + supercell_dim[k]
+
+        comparison_cell = np.array([lattice_points_coordinates]*number_of_supercell_atoms)
+        diference = np.linalg.norm(diff_matrix(original_conf, comparison_cell, supercell_dim), axis=1)
+        template.append(np.argmin(diference) + atom_unit_cell_index[i]*number_of_supercell_atoms/number_of_cell_atoms)
+
+        lp_coordinates.append(lattice_points_coordinates)
+    template = np.array(template)
+    # lp_coordinates = np.array(lp_coordinates)
+    # print original_conf.shape, lp_coordinates.shape, template.shape
+    # np.savetxt('index2.txt', np.sort(template))
+    # np.savetxt('index_tot.txt', np.sort(template*number_of_cell_atoms + atom_unit_cell_index))
+
+    # inv_template = inverse_template(template)
+    # inv_template = np.argsort(template)
+
+    # dm = diff_matrix(original_conf, lp_coordinates[inv_template], supercell_dim)
+    # dm = diff_matrix(original_conf[template], lp_coordinates, supercell_dim)
+
+    # np.savetxt('template.txt', template)
+
+    # np.savetxt('lp.txt', lp_coordinates[inv_template])
+    # np.savetxt('diff.txt', dm)
+
+    if len(np.unique(template)) < len(template):
+        print ('template failed, auto-order will not be applied')
+        print ('unique: {} / {}', len(np.unique(template)), len(template))
+        return None
+
+    return template
+
+
+def dynaphopy_order(i, size):
+    x = np.mod(i, size[0])
+    y = np.mod(i, size[0]*size[1])/size[1]
+    z = np.mod(i, size[0]*size[1]*size[2])/(size[1]*size[0])
+    k = i/(size[1]*size[0]*size[2])
+
+    return np.array([x, y, z, k])
+
+
 def get_trajectory_parser(file_name, bytes_to_check=1000000):
     from dynaphopy.interface.iofile import trajectory_parsers as tp
 
@@ -17,15 +146,14 @@ def get_trajectory_parser(file_name, bytes_to_check=1000000):
                         'vasp_xdatcar': {'function': tp.read_VASP_XDATCAR,
                                          'keywords': ['Direct configuration=', 'Direct configuration=', 'Direct configuration=']}}
 
-
-    #Check file exists
+    # Check file exists
     if not os.path.isfile(file_name):
         print (file_name + ' file does not exist')
         exit()
 
     file_size = os.stat(file_name).st_size
 
-    #Check available parsers
+    # Check available parsers
     for parser in parsers_keywords.values():
         with open(file_name, "r+b") as f:
             file_map = mmap.mmap(f.fileno(), np.min([bytes_to_check, file_size]))
@@ -39,12 +167,12 @@ def get_trajectory_parser(file_name, bytes_to_check=1000000):
 
 def read_from_file_structure_outcar(file_name):
 
-    #Check file exists
+    # Check file exists
     if not os.path.isfile(file_name):
         print('Structure file does not exist!')
         exit()
 
-    #Read from VASP OUTCAR file
+    # Read from VASP OUTCAR file
     print('Reading VASP structure')
 
     with open(file_name, "r+b") as f:
@@ -115,7 +243,7 @@ def read_from_file_structure_outcar(file_name):
         reciprocal_cell = np.array(reciprocal_cell,dtype='double').T
 
 
-        #Reading positions fractional cartesian
+        # Reading positions fractional cartesian
         position_number=file_map.find(b'position of ions in fractional coordinates')
         file_map.seek(position_number)
         file_map.readline()
@@ -450,13 +578,11 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
             primitive_matrix = [input_file[i+j+1].replace('\n','').split() for j in range(number_of_dimensions)]
             input_parameters.update({'_primitive_matrix': np.array(primitive_matrix, dtype=float)})
 
-
-        if "SUPERCELL MATRIX PHONOPY" in line:
+        if "SUPERCELL MATRIX" in line:
             super_cell_matrix = [input_file[i+j+1].replace('\n','').split() for j in range(number_of_dimensions)]
 
             super_cell_matrix = np.array(super_cell_matrix, dtype=int)
             input_parameters.update({'supercell_phonon': np.array(super_cell_matrix, dtype=int)})
-
 
         if "BANDS" in line:
             bands = []

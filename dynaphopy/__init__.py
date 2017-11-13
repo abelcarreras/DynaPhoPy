@@ -16,6 +16,7 @@ import dynaphopy.analysis.thermal_properties as thm
 from dynaphopy.power_spectrum import power_spectrum_functions
 from scipy import integrate
 
+
 class Quasiparticle:
     def __init__(self,
                  dynamic,
