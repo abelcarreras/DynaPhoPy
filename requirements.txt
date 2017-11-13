@@ -21,6 +21,7 @@ scipy
 matplotlib
 seekpath
 PyYAML
+python-coveralls
 
 ### These packages are optional (uncomment to install) ###
 
