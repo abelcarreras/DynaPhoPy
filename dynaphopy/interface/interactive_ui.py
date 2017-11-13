@@ -150,8 +150,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             calculation.display_thermal_properties()
             curses.endwin()
 
-       #     curses.endwin()
-
 ######## OPTION 4 :  BOLTZMANN DISTRIBUTION
         if x == ord('4'):
             curses.endwin()
