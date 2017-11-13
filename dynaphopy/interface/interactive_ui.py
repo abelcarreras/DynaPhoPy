@@ -65,11 +65,11 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(6,45,"Wave vector: {0} ".format(calculation.get_reduced_q_vector()))
         screen.addstr(7,45,"Frequency range: {0} - {1} THz".format(calculation.get_frequency_range()[0],
                                                                    calculation.get_frequency_range()[-1]))
-        screen.addstr(8,45,"Spectrum resolution: {0} THz".format(calculation.parameters.spectrum_resolution))
+        screen.addstr(8,45,"Pow. spectr. resolution: {0} THz".format(calculation.parameters.spectrum_resolution))
 
         screen.addstr(10,45,"Primitive cell atoms: {0}".format(trajectory.structure.get_number_of_primitive_atoms()))
         screen.addstr(11,45,"Unit cell atoms: {0}".format(trajectory.structure.get_number_of_atoms()))
-        screen.addstr(12,45,"MD  cell atoms: {0} ".format(trajectory.get_number_of_atoms()))
+        screen.addstr(12,45,"MD supercell atoms: {0} ".format(trajectory.get_number_of_atoms()))
         screen.addstr(13,45,"Number of MD time steps: {0}".format(len(trajectory.velocity)))
         screen.addstr(14,45,"Time step: {0} ps".format(np.round(trajectory.get_time_step_average(),decimals=12)))
 
