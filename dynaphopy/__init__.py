@@ -246,13 +246,10 @@ class Quasiparticle:
         plot_title = 'Renormalized phonon dispersion relations'
         for i, path in enumerate(bands_full_data):
 
-            if plot_harmonic:
-                plt.plot(path['q_path_distances'], np.array(list(path['harmonic_frequencies'].values())).T, color='b', label='Harmonic')
             plt.plot(path['q_path_distances'], np.array(list(path['renormalized_frequencies'].values())).T, color='r', label='Renormalized')
 
-            # if plot_linewidths:
-            #     for lim_i, lim_s in zip(list(path['linewidth_minus'].values()), list(path['linewidth_plus'].values())):
-            #         plt.fill_between(path['q_path_distances'], lim_i, lim_s, color='b', alpha=0.2, interpolate=True, linewidth=0)
+            if plot_harmonic:
+                plt.plot(path['q_path_distances'], np.array(list(path['harmonic_frequencies'].values())).T, color='b', label='Harmonic')
 
             if plot_linewidths:
                 for freq, linewidth in zip(list(path['renormalized_frequencies'].values()), list(path['linewidth'].values())):
@@ -300,7 +297,7 @@ class Quasiparticle:
 
         bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True)
         number_of_branches = len(bands_full_data[0]['linewidth'])
-        print('number_of branches', number_of_branches)
+        # print('number_of branches', number_of_branches)
 
         for i, path in enumerate(bands_full_data):
             prop_cicle = plt.rcParams['axes.prop_cycle']
@@ -427,9 +424,10 @@ class Quasiparticle:
                                                  enumerate(renormalized_bands_s[2][i].T - renormalized_bands_i[2][i].T)}},
 
                             )
-                if 'labels' in bands:
-                    labels = bands['labels']
-                    band.update({'labels': {'inf': labels[i][0], 'sup': labels[i][1]}})
+            if 'labels' in bands:
+                labels = bands['labels']
+                band.update({'labels': {'inf': labels[i][0], 'sup': labels[i][1]}})
+
             bands_full_data.append(band)
 
         return bands_full_data
