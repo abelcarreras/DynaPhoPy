@@ -745,6 +745,7 @@ def save_quasiparticle_data_to_file(quasiparticle_data, filename):
         q_point_dict = {'reduced_wave_vector': q_point.tolist()}
         q_point_dict.update({'frequencies': quasiparticle_data['frequencies'][i].tolist()})
         q_point_dict.update({'linewidths': quasiparticle_data['linewidths'][i].tolist()})
+        q_point_dict.update({'frequency_shifts': quasiparticle_data['frequency_shifts'][i].tolist()})
         output_dict.update({'q_point_{}'.format(i): q_point_dict})
 
     with open(filename, 'w') as outfile:

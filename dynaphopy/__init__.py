@@ -294,7 +294,7 @@ class Quasiparticle:
 
         plt.show()
 
-    def plot_linewidth_bands(self):
+    def plot_linewidths_and_shifts_bands(self):
 
         bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True)
         number_of_branches = len(bands_full_data[0]['linewidth'])
@@ -310,7 +310,11 @@ class Quasiparticle:
 
                 plt.plot(path['q_path_distances'], branch, color=np.roll(colors, -j)[0], label='linewidth')
                 plt.figure(1)
-                branch = path['renormalized_frequencies']['branch_{}'.format(j)]
+                branch = path['harmonic_frequencies']['branch_{}'.format(j)]
+                plt.plot(path['q_path_distances'], branch, color=np.roll(colors, -j)[0], label='linewidth')
+
+                plt.figure(2)
+                branch = path['frequency_shifts']['branch_{}'.format(j)]
                 plt.plot(path['q_path_distances'], branch, color=np.roll(colors, -j)[0], label='linewidth')
 
 
@@ -318,9 +322,13 @@ class Quasiparticle:
         plt.suptitle('Phonon linewidths')
 
         plt.figure(1)
-        plt.suptitle('Phonon frequencies')
+        plt.suptitle('Harmonic phonon dispersion relations')
 
-        for ifig in [0, 1]:
+        plt.figure(2)
+        plt.suptitle('Frequency shifts')
+
+
+        for ifig in [0, 1, 2]:
             plt.figure(ifig)
             # plt.axes().get_xaxis().set_visible(False)
             plt.axes().get_xaxis().set_ticks([])
@@ -407,6 +415,8 @@ class Quasiparticle:
                                                                                 force_constants=inf_lim,
                                                                                 NAC=self.parameters.use_NAC)
 
+
+
         bands_full_data = []
         for i, q_path in enumerate(self._bands[1]):
 
@@ -415,16 +425,21 @@ class Quasiparticle:
                     'harmonic_frequencies': {'branch_{}'.format(key): value.tolist() for (key, value) in
                                              enumerate(self._bands[2][i].T)},
                     'renormalized_frequencies': {'branch_{}'.format(key): value.tolist() for (key, value) in
-                                                 enumerate(self._renormalized_bands[2][i].T)}}
+                                                 enumerate(self._renormalized_bands[2][i].T)},
+                    'frequency_shifts': {'branch_{}'.format(key): value.tolist() for (key, value) in
+                                                 enumerate(self._renormalized_bands[2][i].T - self._bands[2][i].T)},
+                    }
+
+
             if with_linewidths:
                 band.update({'linewidth_minus': {'branch_{}'.format(key): value.tolist() for (key, value) in
                                                  enumerate(renormalized_bands_i[2][i].T)},
                              'linewidth_plus': {'branch_{}'.format(key): value.tolist() for (key, value) in
                                                  enumerate(renormalized_bands_s[2][i].T)},
                              'linewidth': {'branch_{}'.format(key): value.tolist() for (key, value) in
-                                                 enumerate(renormalized_bands_s[2][i].T - renormalized_bands_i[2][i].T)}},
-
+                                                 enumerate(renormalized_bands_s[2][i].T - renormalized_bands_i[2][i].T)}}
                             )
+
             if 'labels' in bands:
                 labels = bands['labels']
                 band.update({'labels': {'inf': labels[i][0], 'sup': labels[i][1]}})
@@ -970,6 +985,7 @@ class Quasiparticle:
             initial_reduced_q_vector = self.get_reduced_q_vector()
 
             renormalized_frequencies = []
+            frequency_shifts = []
             eigenvectors = []
             linewidths = []
             q_points_list = []
@@ -989,6 +1005,8 @@ class Quasiparticle:
                 if q_index != 0 and self.parameters.use_symmetry:
                     renormalized_frequencies.append(renormalized_frequencies[q_index])
                     linewidths.append(linewidths[q_index])
+                    frequency_shifts.append(frequency_shifts[q_index])
+
                     print('Skipped, equivalent to {0}'.format(q_points_list[q_index]))
                     continue
 
@@ -1006,18 +1024,20 @@ class Quasiparticle:
                 widths = data['widths']
                 if (reduced_q_vector == [0, 0, 0]).all():
                     print('Fixing gamma point 0 frequencies')
-                    positions[0] = 0
-                    positions[1] = 0
-                    positions[2] = 0
-                    widths[0] = 0
-                    widths[1] = 0
-                    widths[2] = 0
+                    positions[0] = 0.
+                    positions[1] = 0.
+                    positions[2] = 0.
+                    widths[0] = 0.
+                    widths[1] = 0.
+                    widths[2] = 0.
 
                 renormalized_frequencies.append(positions)
                 linewidths.append(widths)
+                frequency_shifts.append(np.array(positions) - self.get_frequencies())
 
             renormalized_frequencies = np.array(renormalized_frequencies)
             linewidths = np.array(linewidths)
+            frequency_shifts = np.array(frequency_shifts)
 
             # To be deprecated
             if self.parameters.save_renormalized_frequencies:
@@ -1028,6 +1048,7 @@ class Quasiparticle:
             self._commensurate_points_data = {'frequencies': renormalized_frequencies,
                                               'eigenvectors': eigenvectors,
                                               'linewidths': linewidths,
+                                              'frequency_shifts': frequency_shifts,
                                               'q_points': q_points_list,
                                               'fc_supercell': fc_supercell}
 

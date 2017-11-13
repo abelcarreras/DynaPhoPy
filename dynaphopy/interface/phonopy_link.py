@@ -114,7 +114,6 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 def obtain_eigenvectors_and_frequencies(structure, q_vector, NAC=False, test_orthonormal=False, print_data=True):
 
     phonon = get_phonon(structure, NAC=NAC)
-
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
     if False:
@@ -221,7 +220,7 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None
         for i in range(band_resolution+1):
             band.append(np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i)
         bands.append(band)
-    phonon.set_band_structure(bands)
+    phonon.set_band_structure(bands, is_band_connection=False)
 
     return phonon.get_band_structure()
 
