@@ -89,6 +89,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
             for i in range (number_of_atoms):
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
 
+            read_coordinates = np.array(read_coordinates, dtype=float) # in angstrom
             if template is not None:
                 indexing = np.argsort(template)
                 read_coordinates = read_coordinates[indexing, :]
@@ -96,7 +97,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
             position_number=file_map.find(b'energy(')
             file_map.seek(position_number)
             read_energy = file_map.readline().split()[2]
-            trajectory.append(np.array(read_coordinates,dtype=float).flatten()) #in angstrom
+            trajectory.append(read_coordinates.flatten()) #in angstrom
             energy.append(np.array(read_energy, dtype=float))
 
             #security routine to limit maximum of steps to read and put in memory
