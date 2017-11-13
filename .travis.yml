@@ -19,7 +19,7 @@ install:
 script:
     # - cd unittest
     # - python -m unittest discover . "*_test.py"
-    - coverage run -m unittest discover unittests "*_test.py"
+    - coverage run -m unittest discover unittest "*_test.py"
     # - cd ..
 
 
