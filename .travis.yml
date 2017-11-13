@@ -15,13 +15,12 @@ install:
     - pip install coverage
     - pip install python-coveralls
     - pip install -r requirements.txt
-    - python setup.py install
+    - pip install -e .
+    # - python setup.py install
 
 script:
     - cd unittest
     - coverage run --source=../dynaphopy -m unittest discover . "*_test.py"
-
-
 
 after_success:
     - coveralls
