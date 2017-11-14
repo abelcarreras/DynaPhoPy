@@ -32,16 +32,12 @@
 
 <h3>Introduction</h3>
 <p>
-Dynaphopy calculates the phonon linewidths and frequency shifts analizing the power spectrum of the velocity projected into the
-phonon modes coordinates. As a first step the velocity is be projected into the point in thereciprocal space (wave vector) in which 
-the harmonic phonon modes are defined.
-To calculate this power spectrum dynaphopy can use either <a href="http://mathworld.wolfram.com/FourierTransform.html">Fourier transform</a>, or <a href="http://cmm.cit.nih.gov/maxent/letsgo.html">Maximum Entropy Method</a>(MEM). Fourier transform is a robust method widely used in many fields 
-of physics to descompose signals into elemental frequencies without information loss. On the other hand, MEM is a very fast method that approximates the whole signal into a much simpler function made by the most representative frequencies. This way it allows to separate the noise from the important data showing smoother spectra that becomes easier to analize. For this reason MEM is highly recomended when working with very long MD and is the default option. 
-
-<br>Fourier transform algorith may be used to corroborate the results obtained using MEM. Fourier transform is expected to work better when the number of samples is low, and it will yield better measures of the power spectrum area if the spectra is calculated with high resolution. 
+DynaPhoPy calculates the phonon linewidths and frequency shifts by fitting the power spectrum of the atomic velocity projected into the
+phonon modes coordinates into model-spectral-function shapes. As a first step the velocity is be projected into the point in thereciprocal space (wave vector) in which  the harmonic phonon modes are defined.
+To calculate this power spectrum dynaphopy can use either <a href="http://mathworld.wolfram.com/FourierTransform.html">Fourier transform(FT) </a>, or <a href="http://cmm.cit.nih.gov/maxent/letsgo.html">Maximum Entropy(ME) methods</a>. FT is a robust method to calculate the power spectrum without information loss. On the other hand, ME is a fast method that approximates the power spectrum by accounting only for the most representative frequencies in the signal. Using ME method smoother power spectrums are obtained, which are easier to fit to model functions. However when the number of MD data is low usually the accuracy is lower than using FT. For this reason ME is recomended when working with large MD for high speed and FT is recommended when the available MD data is relatively low. 
  
 <h3>Power spectra</h3>
-<p>The power spectrum calculated by Dynaphopy can be either displayed in a matplotlib X window or stored in a file. All power spectra calculated by DynaPhoPy are by default two sided. The selection of the algorithm used to calculate the power spectra is defined by <strong>-psm</strong> flag followed by algorithm number.
+<p>The power spectrum calculated by DynaPhoPy can be either plotted in screen or stored in a file. All power spectra calculated by DynaPhoPy are by default one sided. The selection of the algorithm used to calculate the power spectra is defined by <strong>-psm</strong> flag followed by algorithm number.
 <br>At the present time there are 4 algorithms available:</p>
 <UL>
 <LI>0: Fourier transform algorithm (direct method).
@@ -55,8 +51,8 @@ If not specified algorithm 1 is used.</em>
 
 <pre><code>$ dynaphopy input_file TRAJECTORY -psm 1
 </code></pre>
-<p> Fourier methods do not require additional parameters but Maximum Entropy Method (MEM) does. MEM allows to obtain smoother and faster 
-power spectra interpolating the velocity using a polynomia which depends on a certain number of coefficents. The higher this number is, the heavier the calculation becomes and the result becomes closer to Fourier transfom solution. Fortunatelly, usually the convergence of the peaks shape in MEM can be found with 1000-3000 coeficients obtaining a very good performance. By default the number of coefficents used is 1000 but it can be changed using <strong>-cf</strong> followed by the number of coeficients.</p>
+<p> Fourier methods do not require additional parameters but ME method does. This method allows to obtain smoother and faster 
+power spectra interpolating the velocity using a polynomia which depends on a certain number of coefficents. The higher this number is, the heavier the calculation becomes and the result becomes closer to Fourier transfom solution. Usually the convergence of the peaks shape in ME is faund to be found around 1000-3000 coeficients obtaining a very good performance. By default the number of coefficents used is 1000 but it can be changed using <strong>-cf</strong> followed by the number of coeficients.</p>
 
 <pre><code>$ dynaphopy input_file TRAJECTORY -cf 2000
 </code></pre>
@@ -82,11 +78,11 @@ This options calculate the power spectrum of the autocorrelation function of the
 <pre><code>$ dynaphopy input_file TRAJECTORY -sd filename
 </code></pre>
 
-When this spectrum is requested, the area bellow the curve is also calculated. This area correspond to one half of the total kinetic energy of the phonon within the MD cell. According to the <a href="https://en.wikipedia.org/wiki/Equipartition_theorem">equipartition theorem</a>, at high temperatures this area can be approximated to:
+When this spectrum is requested, the area bellow the curve is also calculated. This area correspond to the total kinetic energy of the phonon quasiparticle. According to the <a href="https://en.wikipedia.org/wiki/Equipartition_theorem">equipartition theorem</a>, at high temperatures this area may be approximated to:
 
 </p>
 <p style="text-align:center">
-$$ \frac{1}4 N K_bT$$
+$$ \frac{1}2 N K_bT$$
 </p>
 where <em>N</em> is the number of phonon in the MD cell, <em>Kb</em> the <a href="https://en.wikipedia.org/wiki/Boltzmann_constant">Boltzmann constant</a> and <em>T</em> the temperature.
 
@@ -167,8 +163,8 @@ When the calculation is finished the individual information of each phonon (sort
 ------------------------------------------
 Width (FWHM):                0.98920371 THz
 Position:                    21.9736957 THz
-Area (1/2&lt;K&gt;) (Lorentzian):  0.02523055 eV
-Area (1/2&lt;K&gt;) (Total):       0.02562331 eV
+Area (&lt;K&gt;) (Lorentzian):     0.05023055 eV
+Area (&lt;K&gt;) (Total):          0.05062331 eV
 <|dQ/dt|^2>      :           0.10092221 eV
 Occupation number:           0.61054975
 Fit temperature              1171.15374 K
@@ -210,7 +206,7 @@ $$ \left\langle {{{\left| {\dot Q} \right|}^2}} \right\rangle = \left\langle E \
 <br><strong>Fitting global error:</strong> Fitting error is calculated as the average of the standard errors of the position and the width divided by the squareroot of the area to make it dimensionless so it can be comparable between diferent peak sizes. The standard errors are obtained from the squareroot of the diagonal elements of the covariance matrix</p>
 <p style="text-align:center">
 $$ 
-Global error = \frac{(e_p + e_w)}{2\sqrt(A)}
+Global error = \frac{(e_p + e_w)}{2\sqrt(Area)}
 $$
 </p>
 <br><p>By default, when the calculation is finished, a plot is shown for each phonon mode showing the fitting result for visual inspection. 
