@@ -32,14 +32,12 @@
 <h3>Obtain input data</h3>
 <UL>
 <LI><h5>Prepare Phonopy harmonic lattice dynamics calculation</h5>
-<p> Dynaphopy interface with phonopy and needs <strong>FORCE_SETS</strong> file created by it to work properly. 
-<br> This file contains the information about atomic forces and it is required in order to calculate the harmonic phonon modes.
-You can follow the instruction in phonopy <a href="http://atztogo.github.io/phonopy//procedure.html">tutorial</a> to obtain it.
-<br><em>Keep original <strong>POSCAR</strong> file used in the calculation containing the unaltered unit cell (VASP 5.x style prefered)</em></p>
+<p> For many of the features of Dynaphopy the phonon eigenvectors are necessary. These eigenvectors are calculated from the harmonic phonon force constants using phonopy. To do this calculation DynaPhoPy requires either a phonopy <strong>FORCE_SETS</strong> or <strong>FORCE_CONSTANTS</strong> type file. These files can be created using phonopy, just follow the instruction in phonopy <a href="http://atztogo.github.io/phonopy//procedure.html">tutorial</a> to obtain them.
+<br><em>Keep the original <strong>POSCAR</strong> file used in the calculation containing the unaltered unit cell. This file is used as input for DynaPhoPy to define the unitcell.</em></p>
 
 <div id="prepare_MD"></div>  
-<LI><h5>Prepare Molecular Dynamics calculation</h5>
-<p> At the present time DynaPhoPy implements parsers to read MD trajectories from VASP and LAMMPS.
+<LI><h5>Prepare Molecular Dynamics (MD) calculation</h5>
+<p> At the present time DynaPhoPy implements interfaces for VASP and LAMMPS output files.
 
 <br><strong>- Using VASP</strong>
 <br>VASP is a  popular software to perform first principles calculations of solids.
@@ -47,8 +45,8 @@ DynaphoPy can read the MD trajectory from either <strong>OUTCAR</strong> or <str
 <br>Please, refere to VASP <a href="http://cms.mpi.univie.ac.at/vasp/vasp/vasp.html"> online manual</a> for detailed information to how to calculate a MD simulation.
 
 <br><strong>- Using LAMMPS</strong>
-<br>LAMMPS is a extremely flexible software that allows to calculate Molecular dynamics of a large variety of systems using empirical potentials.
-LAMMPS outputs may vary depending on the output style you use. DynaPhoPy only can read lammpstrj outputs using the custom dump output style. At this time DynaPhoPy supports reading either atomic positions and atomic velocities. DynaPhoPy will detect automatically the file type. 
+<br>LAMMPS is a flexible software that allows to calculate MD of a large variety of systems using empirical potentials.
+    LAMMPS outputs may vary depending on the output style you use. DynaPhoPy only can read lammpstrj outputs using the custom dump output style using <em>metal</em> units. At this time DynaPhoPy supports reading either atomic positions and atomic velocities. DynaPhoPy will detect automatically the file type. 
 <br>-Reading atomic positions:
 <pre><code>dump         dynaphopy all custom 1 output_file_name.lammpstrj x y z
 dump_modify  dynaphopy sort id
@@ -63,7 +61,7 @@ dump_modify  dynaphopy sort id
 flag is used. This flag accepts a float number that indicated the time step in picoseconds.
 </p><pre><code>$ dynaphopy input_file TRAJECTORY -ts 0.002 
 </code></pre>
-<br>This flag is ignored reading a trajectory from VASP OUTCAR or hdf5 file (generated using dynaphopy). If not specified 0.001 ps time step is used.
+<br>This flag is ignored reading a trajectory from VASP OUTCAR or hdf5 file (generated using DynaPhoPy). If not specified 0.001 ps time step is used.
 LAMMPS may not write the coordinates at each time step. This information is obtained from the trajectory file and taken in account. <strong>-ts</strong>
 should contain the time step specified in <a href="http://lammps.sandia.gov/doc/timestep.html">timestep command</a>.
 
@@ -92,9 +90,9 @@ The order of the atoms within the cell has to be kept in both cells to work prop
 
 <div id="input_file"></div>  
 <h3>Dynaphopy input file</h3>
-<p>To run Dynaphopy needs an input file. The input file is an plain text that contains basic information about files location, estructural data and other parameters that Dynaphopy may requiere to work.
+<p>To run Dynaphopy it is necessary to prepare a input file. This file is a plain text file and contains basic information about files location, estructural data and other parameters that Dynaphopy requires to work.
 <br> All these parameters are optional, in case of not beeing explicitly especificated dynaphopy will use default ones.
-<br> Each parameter is preceded by a label which indicates the kind of parameter it is. Altering this label may prevent the parameters to be recognized correctly, be carefull. The order of the parameters inside input file is not important, neither the blank lines used between them. The only requisite is to not leave any blank line between labels and parameters. Comments can be added to the input file while not interfearing with the parameters labels. To avoid future inconvenients it is recomended to start each comment line with some special character.</p>
+<br> Each parameter is preceded by a label which indicates the kind of parameter followerd by its value. Altering this label may prevent the parameters to be recognized correctly. The order of the parameters inside input file is not fix, neither the blank lines used between them. The only requisite is to not leave any blank line between labels and values. Comments can be added to the input file by adding the cheracter # at the begining of each comment line.</p>
 
 <UL><LI><h5>Unit cell and atomic forces files location</h5>
 <p>Unit cell is defined using a POSCAR type file. Alternativelly a OUTCAR file can be used to read the unit cell.
@@ -122,7 +120,7 @@ If POSCAR file is not specified DynaPhoPy will use POSCAR file name stored in th
 
 
 <LI><h5>Primitive matrix definition</h5>
-<p>This matrix defines the primitive cell size respect to the unit cell. The rows of this matrix corresponds to the primitive axis defined in <a href="http://atztogo.github.io/phonopy/setting-tags.html?highlight=tag#primitive-axis">phonopy manual</a>. If not defined it takes identity matrix meaning that primitive cell and unit cell are the same.
+<p>This matrix defines the primitive cell respect to the unit cell. The rows of this matrix corresponds to the primitive axis defined in <a href="http://atztogo.github.io/phonopy/setting-tags.html?highlight=tag#primitive-axis">phonopy manual</a>. If not defined it takes identity matrix meaning that primitive cell and unit cell are the same.
 </p><pre><code>PRIMITIVE MATRIX
 0.0 0.5 0.5
 0.5 0.0 0.5
@@ -130,8 +128,8 @@ If POSCAR file is not specified DynaPhoPy will use POSCAR file name stored in th
 </code></pre>
 
 <div id="phonopy_matrix"></div> 
-<LI><h5>Supercell matrix used in lattice dynamics calculation</h5>
-<p>In order to interface correctly with Phonopy, Dynaphopy needs to know the size of the supercell used to calculate the forces in Phonopy. 
+<LI><h5>Supercell matrix</h5>
+<p>This matrix defines the size of the supercell with displacements used to calculate the force constants in phonopy. This file should match with the FORCE_SETS file provided. If using a FORCE_CONSTANTS file this keyword is not necessary.
 This is specified with  <strong>--dim</strong> flag in Phonopy. For further information, please check Phonopy online<a href="http://atztogo.github.io/phonopy/procedure.html"> tutorial</a> .
 <br>This matrix is integer and diagonal. If not especified, by default it takes identity matrix.
 </p><pre><code>SUPERCELL MATRIX PHONOPY
@@ -141,7 +139,7 @@ This is specified with  <strong>--dim</strong> flag in Phonopy. For further info
 </code></pre>
 
 <LI><h5>Phonon dispersion bands</h5>
-<p>Interfacing with Phonopy, Dynaphopy can obtain the phonon dispersion relations. This parameter defines the path in the reciprocal space used to calculate the bands. This path is defined small linear segments. Each segment is written in a diferent input line. The first 3 values indicate the origin point in reduced coordinates while tha last 3 indicate the destination. There is no limit for the number of segments used to define the path. If this parameter is not defined DynaPhoPy uses <a href="https://github.com/giovannipizzi/seekpath">seekpath module</a> to determine the path automatically ). 
+<p>Interfacing with Phonopy, Dynaphopy can obtain the phonon dispersion relations. This parameter defines the path in the reciprocal space used to calculate the bands. This path is defined by small linear segments. Each segment is written in a diferent input line. The first 3 values indicate the origin point in reduced coordinates while tha last 3 indicate the destination. There is no limit for the number of segments used to define the path. If this parameter is not defined DynaPhoPy uses <a href="https://github.com/giovannipizzi/seekpath">seekpath module</a> to determine the path automatically ). 
 <br><em>This feature is a simple interface to phonopy and is mean to be used as reference only. For additional features please use <a href="http://atztogo.github.io/phonopy/">phonopy</a> directly.</em>
 </p><pre><code>BANDS
 0.0,   0.0,   0.0         0.5,   0.0,  0.5
@@ -155,7 +153,7 @@ This is specified with  <strong>--dim</strong> flag in Phonopy. For further info
 </p><pre><code>MESH PHONOPY
 40 40 40
 </code></pre>
-<p>Since the calculation of thermal properties rely on the DOS, MESH also influence the results of harmonic thermal properties and renormalized thermal properties. Thermal properties obtained from power spectra are not affected.
+<p>Since the calculation of thermal properties rely on the DOS, MESH also influence the results of harmonic thermal properties and renormalized thermal properties.
 <br><em>Note: The DOS is calculated using the tetrahedron method. A dense mesh may be necessary to obtain well converged results. If not defined its default value is: 40 40 40.</em>.
 </p>    
 <LI><h5>Comments</h5>
@@ -170,13 +168,11 @@ Interactive interface is the most simple way to work with dynaphopy, however com
 has more options and becomes very usefull to calculate in batch. Some options that are not directly editables in interactive interface 
 can be set when loading dynaphopy using additional flags.
 <UL><LI><h5>Command line interface</h5>
-<p>To run Dynaphopy only is nedeed to call dynaphopy script (places in script folder) with Dynaphonpy input file and trajectory file file as arguments. 
-Input file defines where the FORCE_SETS and POSCAR are and OUTCAR/LAMMPStrj file contain the MD trajectory.</p>
+<p>Run DynaPhoPy using the script provided in <em>/scripts</em> directory, this script requires the input file and trajectory file file as arguments. Additional flags may be added to requrest the different types of calculations. Basic call:</p>
 </p><pre><code>$ dynaphopy input_file OUTCAR				(VASP)
 $ dynaphopy input_file LAMMPS.lammpstrj -ts 0.002	(LAMMPS)
 </code></pre>
-<p>This command does essentially nothing, since no calculation has been requested. It just checks that all the necessary files exists and can be loaded correctly.
-<br>To request a calculation, additional flags have to be set. Using <strong>-h</strong> flag shows all available options.</p>
+<p>Using <strong>-h</strong> flag shows all available options.</p>
 </p><pre><code>$ dynaphopy -h
 usage: dynaphopy [-h] [-lv file] [-i] [-q F F F] [-r F F] [-n N] [-ts step]
                  [-pd] [-pw] [-pp] [-sd file] [-sw file] [-sp file] [-sv file]
@@ -269,21 +265,21 @@ optional arguments:
 
 
 <LI><h5>Interactive interface</h5>
-<p>Interactive interface is the easiest way to run Dynaphopy. The interface show a menu screen which can be used to navigate through the different
-options. To start interactive interaface  <strong><nobr>-i</nobr></strong> flag has to be added. Additional flags may be used to set different initial parameters but direct calculations requests (such as power spectra calculations) are not recomended.</p>
-</p><pre><code>$ dynaphopy input_file OUTCAR -i 
+    <p>Interactive interface is the easiest way to run Dynaphopy. This interface presents a menu screen which can be used to browse through the different options. To start the interactive interaface use <strong><nobr>-i</nobr></strong> flag. <br><em>Note: Additional flags may be used in combination to this one to set different initial parameters.</em></p>
+<pre><code>$ dynaphopy input_file OUTCAR -i 
 </code></pre>
 <img src="images/dynaphopy_inter.png" alt="Interactive" style="width:605px">
 </UL>
-Interactive interface can be used to check preliminary results in and easy way. 
-Interactive interface is mean to be used to visualize information, so xwindows should be
-available for most of the features. To store the data in files command line should be used.
+Interactive interface can be used to check the results in and easy way. 
+This mode is intended to be used to visualize information, so xwindows should be
+available for most of the features. To store the data in files command line interface should be used.
 </p>
 <p><br><strong>List of exclusive features in interactive interface</strong>
-<br> Velocity distribution analysis (Boltzmann analysis)
-<br> Harmonic eigenvectors representation
-<br> Harmonic phonon dispersion bands
+<br> Show atomic velocity distribution analysis (Boltzmann analysis)
+<br> Plot harmonic eigenvectors representation
+<br> plot harmonic phonon dispersion bands
 <br> Plot renormalized phonon dispersion bands
+<br> Plot atomic displacements distribution
 
 
 
