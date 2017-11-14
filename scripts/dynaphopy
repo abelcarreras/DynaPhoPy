@@ -158,7 +158,7 @@ parser.add_argument('--qha_force_constants', metavar='file', type=str, nargs=1,
 
 #Temporal interface on development
 parser.add_argument('--auto_order', action='store_true',
-                    help='set the atom order from trajectory for non standard supercell')
+                    help='set the atoms order automatically from the first step of the MD)')
 
 parser.add_argument('--project_on_atom', metavar='atom_index', type=int, default=None,
                     help='calculate PS projected onto one atom')
