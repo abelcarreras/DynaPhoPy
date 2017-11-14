@@ -317,7 +317,6 @@ class Quasiparticle:
                 branch = path['frequency_shifts']['branch_{}'.format(j)]
                 plt.plot(path['q_path_distances'], branch, color=np.roll(colors, -j)[0], label='linewidth')
 
-
         plt.figure(0)
         plt.suptitle('Phonon linewidths')
 
@@ -326,7 +325,6 @@ class Quasiparticle:
 
         plt.figure(2)
         plt.suptitle('Frequency shifts')
-
 
         for ifig in [0, 1, 2]:
             plt.figure(ifig)
