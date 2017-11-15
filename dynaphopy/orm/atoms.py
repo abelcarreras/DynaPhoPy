@@ -68,7 +68,7 @@ class Structure:
             self._atomic_numbers = np.array(atomic_numbers)
 
         if masses is None and self._atomic_numbers is not None:
-            self._masses = np.array([ atom_data[i][3] for i in self._atomic_numbers ])
+            self._masses = np.array([atom_data[i][3] for i in self._atomic_numbers])
         else:
             self._masses = masses
 
@@ -130,7 +130,7 @@ class Structure:
                 print('Warning: No primitive matrix defined! Using unit cell as primitive')
                 self._primitive_matrix = np.identity(self.get_number_of_dimensions())
             else:
-                self._primitive_matrix = np.dot(np.linalg.inv(self.get_cell()),self._primitive_cell)
+                self._primitive_matrix = np.dot(np.linalg.inv(self.get_cell()), self._primitive_cell)
         return  self._primitive_matrix
 
     # Positions related methods
@@ -151,7 +151,7 @@ class Structure:
         position_supercell = []
         for k in range(self._positions.shape[0]):
             for r in itertools.product(*[range (i) for i in supercell[::-1]]):
-                position_supercell.append(self._positions[k,:] + np.dot(np.array(r[::-1]),self.get_cell()))
+                position_supercell.append(self._positions[k,:] + np.dot(np.array(r[::-1]), self.get_cell()))
         position_supercell = np.array(position_supercell)
 
         return position_supercell
