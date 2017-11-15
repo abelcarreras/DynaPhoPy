@@ -227,8 +227,8 @@ class Dynamics:
     def get_time(self):
         return self._time
 
-    def set_supercell(self, supercell):
-        self._supercell = supercell
+    #def set_supercell(self, supercell):
+    #    self._supercell = supercell
 
     def get_supercell(self):
         return self._supercell
@@ -268,10 +268,10 @@ class Dynamics:
     def get_relative_trajectory(self):
         if self._relative_trajectory is None:
 
-            cell = self.get_supercell()
+            supercell = self.get_supercell()
             number_of_atoms = self.trajectory.shape[1]
-            supercell = self.get_supercell_matrix()
-            position = self.structure.get_positions(supercell=supercell)
+            supercell_matrix = self.get_supercell_matrix()
+            position = self.structure.get_positions(supercell=supercell_matrix)
 
             trajectory = self.trajectory
 
@@ -282,7 +282,7 @@ class Dynamics:
                 normalized_trajectory = self.trajectory.copy()
 
             for i in range(number_of_atoms):
-                normalized_trajectory[:, i, :] = atomic_displacements(trajectory[:, i, :], position[i], cell)
+                normalized_trajectory[:, i, :] = atomic_displacements(trajectory[:, i, :], position[i], supercell)
 
             self._relative_trajectory = normalized_trajectory
         return self._relative_trajectory
@@ -299,7 +299,9 @@ class Dynamics:
             return [np.linalg.norm(h[:, i]) for i in range(h.shape[1])]
 
         if self._supercell_matrix is None:
-            supercell_matrix_real = np.divide(parameters(self.get_supercell()), parameters(self.structure.get_cell().T))
+            supercell_matrix_real = np.divide(parameters(self.get_supercell()), parameters(self.structure.get_cell()))
+            print self.get_supercell()
+            print supercell_matrix_real
             self._supercell_matrix = np.around(supercell_matrix_real).astype("int")
 
             if abs(sum(self._supercell_matrix - supercell_matrix_real)/np.linalg.norm(supercell_matrix_real)) > tolerance:
