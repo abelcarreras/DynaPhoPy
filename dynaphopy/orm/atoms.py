@@ -89,7 +89,7 @@ class Structure:
     def get_cell(self, supercell=None):
 
         if supercell is not None:
-            return np.dot(self._cell.T, np.diag(supercell))
+            return np.dot(self._cell, np.diag(supercell))
 
         return self._cell
 
@@ -162,8 +162,8 @@ class Structure:
             self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self.get_cell()))
 
         if supercell is not None:
-            cell = np.dot(self.get_cell().T, np.diag(supercell))
-            scaled_positions = np.dot(self.get_positions(supercell), np.linalg.inv(cell))
+            cell = self.get_cell(supercell=supercell)
+            scaled_positions = np.dot(self.get_positions(supercell), np.linalg.inv(cell).T)
             return scaled_positions
 
         return self._scaled_positions
@@ -309,7 +309,8 @@ class Structure:
         if supercell is None:
             supercell = self.get_number_of_dimensions() * [1]
 
-        cell = self.get_cell(supercell=supercell).T
+        cell = self.get_cell(supercell=supercell)
+
         a = np.linalg.norm(cell[0])
         b = np.linalg.norm(cell[1])
         c = np.linalg.norm(cell[2])
