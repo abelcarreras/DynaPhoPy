@@ -300,8 +300,6 @@ class Dynamics:
 
         if self._supercell_matrix is None:
             supercell_matrix_real = np.divide(parameters(self.get_supercell()), parameters(self.structure.get_cell()))
-            print self.get_supercell()
-            print supercell_matrix_real
             self._supercell_matrix = np.around(supercell_matrix_real).astype("int")
 
             if abs(sum(self._supercell_matrix - supercell_matrix_real)/np.linalg.norm(supercell_matrix_real)) > tolerance:

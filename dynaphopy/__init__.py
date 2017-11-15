@@ -1235,10 +1235,16 @@ class Quasiparticle:
 
         return anisotropic_displacements
 
-    def get_average_atomic_positions(self):
+    def get_average_atomic_positions(self, to_unit_cell=True):
         print ('Average atomic positions')
-        positions_average = self.dynamic.average_positions(to_unit_cell=True)
-        elements = self.dynamic.structure.get_atomic_elements()
+
+        supercell = None
+        if not to_unit_cell:
+            supercell = self.dynamic.get_supercell_matrix()
+
+        positions_average = self.dynamic.average_positions(to_unit_cell=to_unit_cell)
+        elements = self.dynamic.structure.get_atomic_elements(supercell=supercell)
+
         for i, coordinate in enumerate(positions_average):
             print ('{0:2} '.format(elements[i]) + '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*coordinate.real))
 
