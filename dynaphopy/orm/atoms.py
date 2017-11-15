@@ -20,7 +20,7 @@ class Structure:
         :param positions: atoms cartesian positions (array Ndim x Natoms)
         :param scaled_positions: atom positions scaled to 1 (array Ndim x Natoms)
         :param masses: masses of the atoms (vector NAtoms)
-        :param cell: Numpy array containing the unit cell (lattice vectors in columns)
+        :param cell: Numpy array containing the unit cell (lattice vectors in rows)
         :param force_sets: force constants: Harmonic force constants
         :param force_constants: atomic numbers vector (1x Natoms):
         :param atomic_numbers: number of total atoms in the crystal:
@@ -113,7 +113,7 @@ class Structure:
 
     def get_primitive_cell(self):
         if self._primitive_cell is None:
-            self._primitive_cell = (np.dot(self.get_cell().T, self.get_primitive_matrix())).T
+            self._primitive_cell = (np.dot(self.get_cell().T, self.get_primitive_matrix()))
         return self._primitive_cell
 
     # Cell matrix related methods
@@ -276,7 +276,7 @@ class Structure:
         masses = self.get_masses(supercell=supercell)
         tolerance = 0.001
         if self._atom_type_index is None:
-            primitive_cell_inverse = np.linalg.inv(self.get_primitive_cell().T)
+            primitive_cell_inverse = np.linalg.inv(self.get_primitive_cell())
 
             self._atom_type_index = np.array(self.get_number_of_cell_atoms() * [None])
             counter = 0
@@ -289,7 +289,7 @@ class Structure:
                     coordinates_atom_j = self.get_positions()[j]
 
                     difference_in_cell_coordinates = np.around((np.dot(primitive_cell_inverse,(coordinates_atom_j - coordinates_atom_i))))
-                    projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_primitive_cell().T, difference_in_cell_coordinates)
+                    projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_primitive_cell(), difference_in_cell_coordinates)
                     separation = pow(np.linalg.norm(projected_coordinates_atom_j - coordinates_atom_i),2)
 
                     if separation < tolerance and  masses[i] == masses[j]:

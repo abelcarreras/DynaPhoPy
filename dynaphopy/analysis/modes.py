@@ -30,7 +30,7 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
 
     cell_t = structure.get_cell()
     if draw_primitive:
-        cell_t = structure.get_primitive_cell().T
+        cell_t = structure.get_primitive_cell()
 
     for i_phonon in range(eigenvectors.shape[0]):
 

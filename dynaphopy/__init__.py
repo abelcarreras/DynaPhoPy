@@ -160,7 +160,7 @@ class Quasiparticle:
 
     def get_q_vector(self):
         return np.dot(self.parameters.reduced_q_vector,
-                      2.0 * np.pi * np.linalg.inv(self.dynamic.structure.get_primitive_cell().T))
+                      2.0 * np.pi * np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
 
     # Phonopy harmonic calculation related methods
     def get_eigenvectors(self):

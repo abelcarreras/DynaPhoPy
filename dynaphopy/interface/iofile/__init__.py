@@ -387,7 +387,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
 
     q_vector_list = pho_interface.get_commensurate_points(structure, np.diag(supercell))
 
-    q_vector_list_cart = [ np.dot(q_vector, 2*np.pi*np.linalg.inv(structure.get_primitive_cell().T))
+    q_vector_list_cart = [ np.dot(q_vector, 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
                            for q_vector in q_vector_list]
 
     atoms_relation = float(len(q_vector_list)*number_of_primitive_atoms)/number_of_atoms
