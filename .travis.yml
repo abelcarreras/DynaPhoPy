@@ -8,6 +8,7 @@ branches:
   only:
   - master
   - development
+  - improve_API
   - python_3_development
 
 install:
