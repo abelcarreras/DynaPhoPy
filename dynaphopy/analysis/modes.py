@@ -28,7 +28,7 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
     elements = structure.get_atomic_elements(supercell=supercell)
     np.set_printoptions(precision=8, suppress=True)
 
-    cell_t = structure.get_cell().T
+    cell_t = structure.get_cell()
     if draw_primitive:
         cell_t = structure.get_primitive_cell().T
 

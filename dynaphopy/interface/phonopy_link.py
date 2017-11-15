@@ -83,7 +83,7 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
     # Preparing the bulk type object
     bulk = PhonopyAtoms(symbols=structure.get_atomic_elements(),
                         scaled_positions=structure.get_scaled_positions(),
-                        cell=structure.get_cell().T)
+                        cell=structure.get_cell())
 
 
     phonon = Phonopy(bulk, super_cell_phonon,
@@ -243,7 +243,7 @@ def get_equivalent_q_points_by_symmetry(q_point, structure):
     from phonopy.structure.symmetry import Symmetry
     bulk = PhonopyAtoms(symbols=structure.get_atomic_elements(),
                         scaled_positions=structure.get_scaled_positions(),
-                        cell=structure.get_cell().T)
+                        cell=structure.get_cell())
 
     tot_points = []
     for operation_matrix in Symmetry(bulk).get_reciprocal_operations():
@@ -282,7 +282,7 @@ def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, str
     if symmetrize:
         print('Symmetrizing force constants')
         set_tensor_symmetry_PJ(force_constants.get_array(),
-                               phonon.supercell.get_cell().T,
+                               phonon.supercell.get_cell(),
                                phonon.supercell.get_scaled_positions(),
                                phonon.symmetry)
 

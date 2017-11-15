@@ -32,7 +32,7 @@ def get_correct_arrangement(reference, structure):
 
     unit_coordinates = []
     for coordinate in reference:
-        trans = np.dot(coordinate, np.linalg.inv(structure.get_cell()).T)
+        trans = np.dot(coordinate, np.linalg.inv(structure.get_cell()))
         unit_coordinates.append(np.array(trans.real, dtype=int))
 
     number_of_cell_atoms = structure.get_number_of_atoms()
@@ -299,7 +299,7 @@ class Dynamics:
             return [np.linalg.norm(h[:, i]) for i in range(h.shape[1])]
 
         if self._supercell_matrix is None:
-            supercell_matrix_real = np.divide(parameters(self.get_supercell()), parameters(self.structure.get_cell()))
+            supercell_matrix_real = np.divide(parameters(self.get_supercell()), parameters(self.structure.get_cell().T))
             self._supercell_matrix = np.around(supercell_matrix_real).astype("int")
 
             if abs(sum(self._supercell_matrix - supercell_matrix_real)/np.linalg.norm(supercell_matrix_real)) > tolerance:
@@ -395,10 +395,10 @@ class Dynamics:
 
         for j in range(number_of_atoms):
 
-            difference_matrix = np.around(np.dot(np.linalg.inv(cell),
-                                                 averaged_positions[j, :] - 0.5 * np.dot(np.ones((number_of_dimensions)), cell.T)),
+            difference_matrix = np.around(np.dot(np.linalg.inv(cell.T),
+                                                 averaged_positions[j, :] - 0.5 * np.dot(np.ones((number_of_dimensions)), cell)),
                                                  decimals=0)
-            averaged_positions[j, :] -= np.dot(difference_matrix, cell.T)
+            averaged_positions[j, :] -= np.dot(difference_matrix, cell)
 
         return averaged_positions
 

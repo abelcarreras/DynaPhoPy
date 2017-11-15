@@ -160,7 +160,7 @@ class Quasiparticle:
 
     def get_q_vector(self):
         return np.dot(self.parameters.reduced_q_vector,
-                      2.0 * np.pi * np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
+                      2.0 * np.pi * np.linalg.inv(self.dynamic.structure.get_primitive_cell().T))
 
     # Phonopy harmonic calculation related methods
     def get_eigenvectors(self):
@@ -1208,7 +1208,7 @@ class Quasiparticle:
         for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix(use_average_positions=True)):
 
             cell = self.dynamic.structure.get_cell()
-            cell_inv = np.linalg.inv(cell)
+            cell_inv = np.linalg.inv(cell.T)  # Check this point
             n = np.array([[np.linalg.norm(cell_inv[0]), 0, 0],
                           [0, np.linalg.norm(cell_inv[1]), 0],
                           [0, 0, np.linalg.norm(cell_inv[2])]])
