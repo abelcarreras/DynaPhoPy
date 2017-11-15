@@ -267,7 +267,7 @@ class Quasiparticle:
 
         if plot_harmonic:
             handles = plt.gca().get_legend_handles_labels()[0]
-            plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
+            plt.legend([handles[-1], handles[0]], ['Harmonic', 'Renormalized'])
 
         if 'labels' in bands_full_data[0]:
             plt.rcParams.update({'mathtext.default': 'regular'})
