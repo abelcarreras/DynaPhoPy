@@ -162,7 +162,7 @@ class Structure:
             self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self.get_cell()))
 
         if supercell is not None:
-            cell = (np.dot(self.get_cell().T, np.diag(supercell)).T)
+            cell = np.dot(self.get_cell().T, np.diag(supercell))
             scaled_positions = np.dot(self.get_positions(supercell), np.linalg.inv(cell))
             return scaled_positions
 
