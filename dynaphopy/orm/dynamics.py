@@ -413,7 +413,7 @@ class Dynamics:
     def trajectory(self):
         if self._trajectory is None:
             if self._scaled_trajectory is not None:
-                self._trajectory = np.dot(self._scaled_trajectory, self.get_supercell().T)
+                self._trajectory = np.dot(self._scaled_trajectory, self.get_supercell())
             else:
                 print('No trajectory loaded')
                 exit()
