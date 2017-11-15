@@ -50,9 +50,6 @@ class Structure:
         self._number_of_atom_types = None
         self._number_of_primitive_atoms = None
 
-        # Get normalized cell from cell
-        #self._cell_normalized = (cell.T / np.linalg.norm(cell.T, axis=-1)[:, np.newaxis]).T
-
         # Get atomic types from masses if available
         if atomic_elements is None and masses is not None:
             self._atomic_elements = []
