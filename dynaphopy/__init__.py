@@ -402,7 +402,6 @@ class Quasiparticle:
 
 
         if with_linewidths:
-            plt.suptitle('Renormalized phonon dispersion relations and linewidths')
             renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                 band_ranges,
                                                                                 force_constants=sup_lim,
