@@ -121,7 +121,7 @@ def get_correct_arrangement(reference, structure):
 
     if len(np.unique(template)) < len(template):
         print ('template failed, auto-order will not be applied')
-        print ('unique: {} / {}', len(np.unique(template)), len(template))
+        print ('unique: {} / {}'.format(len(np.unique(template)), len(template)))
         return None
 
     return template
