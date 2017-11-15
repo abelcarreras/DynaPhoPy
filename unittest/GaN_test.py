@@ -132,9 +132,9 @@ class TestDynaphopy(unittest.TestCase):
 
     def __del__(self):
         os.remove('test_gan.h5')
-        #os.remove('atomic_displacements.dat')
-        #os.remove('quasiparticles_data.yaml')
-        #os.remove('bands_data.yaml')
+        os.remove('atomic_displacements.dat')
+        os.remove('quasiparticles_data.yaml')
+        os.remove('bands_data.yaml')
 
         print('end')
 

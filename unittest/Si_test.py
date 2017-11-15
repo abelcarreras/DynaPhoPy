@@ -74,6 +74,14 @@ class TestDynaphopy(unittest.TestCase):
 
                 #def qha_shift check
 
+    def __del__(self):
+        import os
+        os.remove('atomic_displacements.dat')
+        os.remove('quasiparticles_data.yaml')
+        os.remove('bands_data.yaml')
+
+        print('end')
+
 if __name__ == '__main__':
 
     import yaml
