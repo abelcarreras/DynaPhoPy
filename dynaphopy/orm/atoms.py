@@ -309,14 +309,14 @@ class Structure:
         if supercell is None:
             supercell = self.get_number_of_dimensions() * [1]
 
-        cell = self.get_cell(supercell=supercell)
-        a = np.linalg.norm(cell.T[0])
-        b = np.linalg.norm(cell.T[1])
-        c = np.linalg.norm(cell.T[2])
+        cell = self.get_cell(supercell=supercell).T
+        a = np.linalg.norm(cell[0])
+        b = np.linalg.norm(cell[1])
+        c = np.linalg.norm(cell[2])
 
-        alpha = np.arccos(np.dot(cell.T[1], cell.T[2])/(c*b))
-        gamma = np.arccos(np.dot(cell.T[1], cell.T[0])/(a*b))
-        beta = np.arccos(np.dot(cell.T[2], cell.T[0])/(a*c))
+        alpha = np.arccos(np.dot(cell[1], cell[2])/(c*b))
+        gamma = np.arccos(np.dot(cell[1], cell[0])/(a*b))
+        beta = np.arccos(np.dot(cell[2], cell[0])/(a*c))
 
         return a, b, c, alpha, beta, gamma
 
