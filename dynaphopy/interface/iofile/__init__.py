@@ -328,7 +328,8 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
             atomic_types.append([j]*number_of_types[i])
         atomic_types = [item for sublist in atomic_types for item in sublist]
        # atomic_types = np.array(atomic_types).flatten().tolist()
-    return atomtest.Structure(cell= direct_cell,  # cell_matrix, lattice vectors in columns
+
+    return atomtest.Structure(cell= direct_cell,  # cell_matrix, lattice vectors in rows
                               scaled_positions=scaled_positions,
                               positions=positions,
                               atomic_elements=atomic_types,
