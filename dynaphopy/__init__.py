@@ -1207,12 +1207,12 @@ class Quasiparticle:
         for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix(use_average_positions=True)):
 
             cell = self.dynamic.structure.get_cell()
-            cell_inv = np.linalg.inv(cell.T)  # Check this point
-            n = np.array([[np.linalg.norm(cell_inv[0]), 0, 0],
-                          [0, np.linalg.norm(cell_inv[1]), 0],
-                          [0, 0, np.linalg.norm(cell_inv[2])]])
+            cell_inv = np.linalg.inv(cell)  # Check this point
+            n = np.array([[np.linalg.norm(cell_inv.T[0]), 0, 0],
+                          [0, np.linalg.norm(cell_inv.T[1]), 0],
+                          [0, 0, np.linalg.norm(cell_inv.T[2])]])
 
-            u_crys = np.dot(np.dot(cell_inv, u_cart), cell_inv.T)
+            u_crys = np.dot(np.dot(cell_inv.T, u_cart), cell_inv)
             u_uvrs = np.dot(np.dot(np.linalg.inv(n), u_crys), np.linalg.inv(n).T)
 
             u = {'cart': u_cart,
