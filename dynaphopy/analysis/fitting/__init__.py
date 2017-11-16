@@ -104,6 +104,7 @@ def phonon_fitting_analysis(original, ps_frequencies,
             occupancy_tot = np.nan
             fit_temperature = np.nan
             fit_temperature_tot = np.nan
+            error = np.nan
             pass
 
         #Print section
