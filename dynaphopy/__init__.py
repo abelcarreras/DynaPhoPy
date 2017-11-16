@@ -872,10 +872,10 @@ class Quasiparticle:
 
             parameters = fitting_function.get_fitting()
             print('\nAtom {0}, Element {1}'.format(atom, atomic_types_unique[atom]))
-            print ('-----------------------------------------')
-            print ('Mean               {0:15.6f} Angstrom'.format(parameters['peak_position']))
-            print ('Standard deviation {0:15.6f} Angstrom'.format(parameters['width']))
-            print ('Global fit error   {0:15.6f}'.format(parameters['global_error']))
+            print('-----------------------------------------')
+            print('Mean               {0:15.6f} Angstrom'.format(parameters['peak_position']))
+            print('Standard deviation {0:15.6f} Angstrom'.format(parameters['width']))
+            print('Global fit error   {0:15.6f}'.format(parameters['global_error']))
 
             plt.figure(atom + 1)
             plt.title('Atomic displacements')
