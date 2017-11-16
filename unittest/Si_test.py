@@ -26,7 +26,7 @@ class TestDynaphopy(unittest.TestCase):
         trajectory = io.generate_test_trajectory(structure, supercell=[2, 2, 2], total_time=5, silent=False)
         self.calculation = dynaphopy.Quasiparticle(trajectory)
 
-    def _test_force_constants_self_consistency(self):
+    def test_force_constants_self_consistency(self):
         self.calculation.select_power_spectra_algorithm(2)
         renormalized_force_constants = self.calculation.get_renormalized_force_constants().get_array()
         harmonic_force_constants = self.calculation.dynamic.structure.get_force_constants().get_array()
