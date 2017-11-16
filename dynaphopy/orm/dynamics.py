@@ -296,7 +296,8 @@ class Dynamics:
             return [a, b, c]
 
         def parameters(h):
-            return [np.linalg.norm(h[:, i]) for i in range(h.shape[1])]
+            #return [np.linalg.norm(h[i, :]) for i in range(h.shape[1])]
+            return np.linalg.norm(h, axis=1)
 
         if self._supercell_matrix is None:
             supercell_matrix_real = np.divide(parameters(self.get_supercell()), parameters(self.structure.get_cell()))

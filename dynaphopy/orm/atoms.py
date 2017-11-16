@@ -110,7 +110,7 @@ class Structure:
 
     def get_primitive_cell(self):
         if self._primitive_cell is None:
-            self._primitive_cell = (np.dot(self.get_cell().T, self.get_primitive_matrix()))
+            self._primitive_cell = np.dot(self.get_cell().T, self.get_primitive_matrix()).T
         return self._primitive_cell
 
     # Cell matrix related methods
@@ -285,11 +285,11 @@ class Structure:
                     coordinates_atom_i = self.get_positions()[i]
                     coordinates_atom_j = self.get_positions()[j]
 
-                    difference_in_cell_coordinates = np.around((np.dot(primitive_cell_inverse,(coordinates_atom_j - coordinates_atom_i))))
-                    projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_primitive_cell(), difference_in_cell_coordinates)
+                    difference_in_cell_coordinates = np.around((np.dot(primitive_cell_inverse.T, (coordinates_atom_j - coordinates_atom_i))))
+                    projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_primitive_cell().T, difference_in_cell_coordinates)
                     separation = pow(np.linalg.norm(projected_coordinates_atom_j - coordinates_atom_i),2)
 
-                    if separation < tolerance and  masses[i] == masses[j]:
+                    if separation < tolerance and masses[i] == masses[j]:
                         self._atom_type_index[j] = self._atom_type_index[i]
         self._atom_type_index = np.array(self._atom_type_index,dtype=int)
 

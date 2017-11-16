@@ -88,6 +88,6 @@ if __name__ == '__main__':
     with open('quasiparticles_data.yaml') as stream:
         data = yaml.load(stream)
 
-    print data
+    print (data)
 
     unittest.main()
