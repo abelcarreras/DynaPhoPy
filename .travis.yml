@@ -15,10 +15,6 @@ branches:
     - improve_API
     - python_3_development
 
-compiler:
-  - gcc
-  - clang
-
 addons:
   apt:
     packages:
