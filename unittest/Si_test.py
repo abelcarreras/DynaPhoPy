@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
+import os
 import numpy as np
 import dynaphopy.interface.iofile as io
 import dynaphopy
@@ -69,17 +70,11 @@ class TestDynaphopy(unittest.TestCase):
             for dict_data, dict_reference in zip(data, reference):
                 assertDictAlmostEqual(dict_data, dict_reference, decimal=1)
 
+
 if __name__ == '__main__':
-
-    import yaml
-    with open('quasiparticles_data.yaml') as stream:
-        data = yaml.load(stream)
-
-    print (data)
 
     unittest.main()
 
-    import os
     os.remove('atomic_displacements.dat')
     os.remove('quasiparticles_data.yaml')
     os.remove('bands_data.yaml')

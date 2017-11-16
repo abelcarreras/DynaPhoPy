@@ -100,7 +100,6 @@ class TestDynaphopy(unittest.TestCase):
         self.calculation.write_quasiparticles_data(filename='quasiparticles_data.yaml')
         self.calculation.write_renormalized_phonon_dispersion_bands(filename='bands_data.yaml')
 
-
         reference = np.loadtxt('GaN_data/atomic_displacements.dat')
         data = np.loadtxt('atomic_displacements.dat')
         test_range = np.arange(-5, 5, 0.1)
@@ -128,8 +127,6 @@ class TestDynaphopy(unittest.TestCase):
 
             for dict_data, dict_reference in zip(data, reference):
                 assertDictAlmostEqual(dict_data, dict_reference, decimal=1)
-
-        print('end')
 
 
 if __name__ == '__main__':

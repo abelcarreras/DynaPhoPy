@@ -2,10 +2,11 @@
 
 import unittest
 import numpy as np
-import dynaphopy.interface.iofile as io
 import dynaphopy
+import dynaphopy.interface.iofile as io
 from dynaphopy.interface.phonopy_link import get_force_sets_from_file
 from dynaphopy.orm.atoms import Structure
+
 
 class TestDynaphopy(unittest.TestCase):
 
@@ -27,19 +28,20 @@ class TestDynaphopy(unittest.TestCase):
 
         atomic_symbols = ['Ag', 'Ag', 'Cu', 'Cu', 'O', 'O', 'O', 'O']
 
-        structure = Structure(cell=unit_cell,
-                              scaled_positions=scaled_positions,
-                              atomic_elements=atomic_symbols)
+        self.structure = Structure(cell=unit_cell,
+                                   scaled_positions=scaled_positions,
+                                   atomic_elements=atomic_symbols)
 
-        structure.set_primitive_matrix([[0.5, -0.5, 0.0],
-                                        [0.5,  0.5, 0.0],
-                                        [0.0,  0.0, 1.0]])
+        self.structure.set_primitive_matrix([[0.5, -0.5, 0.0],
+                                             [0.5,  0.5, 0.0],
+                                             [0.0,  0.0, 1.0]])
 
-        structure.set_force_set(get_force_sets_from_file(file_name='Ag2Cu2O4_data/FORCE_SETS',
-                                                         fs_supercell=[[2, 0, 0],
-                                                                       [0, 2, 0],
-                                                                       [0, 0, 2]]))
-        self.structure = structure
+        force_sets = get_force_sets_from_file(file_name='Ag2Cu2O4_data/FORCE_SETS',
+                                              fs_supercell=[[2, 0, 0],
+                                                            [0, 2, 0],
+                                                            [0, 0, 2]])
+
+        self.structure.set_force_set(force_sets)
 
     def test_force_constants_self_consistency(self):
 
@@ -79,6 +81,7 @@ class TestDynaphopy(unittest.TestCase):
                      [-4.79090372e-01,   1.22256709e-04,   3.83078280e+00]]
 
         np.testing.assert_array_almost_equal(positions_average, reference, decimal=0)
+
 
 if __name__ == '__main__':
     unittest.main()
