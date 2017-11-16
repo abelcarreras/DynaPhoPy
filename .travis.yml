@@ -2,7 +2,6 @@ language: python
 
 os:
   - linux
-  - osx
 
 python:
   - "2.7"
@@ -15,17 +14,8 @@ branches:
     - improve_API
     - python_3_development
 
-addons:
-  apt:
-    packages:
-      - libhdf5-serial-dev
-
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install hdf5; fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;bash miniconda.sh -b -p $HOME/miniconda; export PATH="$HOME/miniconda/bin:$PATH" ;  fi
-
 install:
-    # - sudo apt-get install libhdf5-serial-dev
+    - sudo apt-get install libhdf5-serial-dev
     - pip install coverage
     - pip install python-coveralls
     - pip install -r requirements.txt
