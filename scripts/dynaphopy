@@ -136,7 +136,7 @@ group.add_argument('--generate_trajectory', metavar='F', type=float, default=Non
                          'time step (ps), amplitude (Kelvin)]')
 
 group.add_argument('--run_lammps', metavar='F', type=str, default=None, nargs=4,
-                    help='Run lammps input file ')
+                    help='Run lammps input file [input_file  total_time time_step relaxation_time]')
 
 
 group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
