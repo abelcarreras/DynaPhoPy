@@ -6,6 +6,7 @@ import dynaphopy.interface.iofile as reading
 import dynaphopy.interface.interactive_ui as interactive_ui
 import dynaphopy.generate_cell as generate
 from dynaphopy.interface.phonopy_link import get_force_sets_from_file, get_force_constants_from_file
+from dynaphopy.interface.lammps_link import generate_lammps_trajectory
 
 from fractions import Fraction
 
@@ -134,6 +135,10 @@ group.add_argument('--generate_trajectory', metavar='F', type=float, default=Non
                     help='generate a test harmonic trajectory using force constants [total time (ps), '
                          'time step (ps), amplitude (Kelvin)]')
 
+group.add_argument('--run_lammps', metavar='F', type=str, default=None, nargs=4,
+                    help='Run lammps input file ')
+
+
 group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
                     help='generate supercell in VASP POSCAR file format')
 
@@ -250,6 +255,13 @@ if args.generate_trajectory:
                                                   silent=args.silent,
                                                   memmap=args.memmap)
 
+if args.run_lammps:
+    trajectory = generate_lammps_trajectory(structure, args.run_lammps[0],
+                                            total_time=float(args.run_lammps[1]),
+                                            time_step=float(args.run_lammps[2]),
+                                            relaxation_time=float(args.run_lammps[3]),
+                                            silent=args.silent,
+                                            memmap=args.memmap)
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
     print('Loading projected velocity only (limited features only)')
