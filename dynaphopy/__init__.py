@@ -77,8 +77,6 @@ class Quasiparticle:
         self._bands = None
         self._renormalized_bands = None
 
-
-
     # Properties
     @property
     def dynamic(self):
@@ -362,7 +360,6 @@ class Quasiparticle:
                 plt.xticks(x_labels, labels_e, rotation='horizontal')
 
         plt.show()
-
 
     def get_renormalized_phonon_dispersion_bands(self, with_linewidths=False):
 
