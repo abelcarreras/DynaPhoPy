@@ -117,7 +117,7 @@ static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *k
     Displacement=pymatrix_to_c_array_complex( Displacement_object);
 
 
-//  Create a pointer array for cell matrix (to be improved)
+//  Create a pointer array from cell matrix (to be improved)
     double  **Cell_c = pymatrix_to_c_array_real((PyArrayObject *) Cell_array);
 
 /*
@@ -130,7 +130,7 @@ static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *k
 
 */
 
-//	Matrix inversion
+//	Matrix inverse
 	double  **Cell_i = matrix_inverse(Cell_c, NumberOfDimensions);
 
 /*
@@ -203,12 +203,23 @@ static double  **pymatrix_to_c_array_real(PyArrayObject *array)  {
 
       int n=(*array).dimensions[0];
       int m=(*array).dimensions[1];
-      double  ** c = malloc(n*sizeof(double));
+      //PyObject *transpose_array = PyArray_Transpose(array, dims);
 
-      double  *a = (double  *) (*array).data;  /* pointer to array data as double  */
+      double  ** c = malloc(n*sizeof(double));
+      double  *a = (double  *) (*array).data;
+
       for ( int i=0; i<n; i++)  {
-          c[i]=a+i*m;
+          double  *b = malloc(m*sizeof(double));
+          for ( int j=0; j<m; j++)  {
+              b[j] = a[i+n*j];
+          }
+          c[i]=b;
       }
+
+      //for ( int i=0; i<n; i++)  {
+      //    c[i]=b+i*m;
+      //}
+
 
       return c;
 };

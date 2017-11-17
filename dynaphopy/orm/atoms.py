@@ -20,7 +20,7 @@ class Structure:
         :param positions: atoms cartesian positions (array Ndim x Natoms)
         :param scaled_positions: atom positions scaled to 1 (array Ndim x Natoms)
         :param masses: masses of the atoms (vector NAtoms)
-        :param cell: Numpy array containing the unit cell (lattice vectors in columns)
+        :param cell: Numpy array containing the unit cell (lattice vectors in rows)
         :param force_sets: force constants: Harmonic force constants
         :param force_constants: atomic numbers vector (1x Natoms):
         :param atomic_numbers: number of total atoms in the crystal:
@@ -50,9 +50,6 @@ class Structure:
         self._number_of_atom_types = None
         self._number_of_primitive_atoms = None
 
-        # Get normalized cell from cell
-        self._cell_normalized = cell / np.linalg.norm(cell, axis=-1)[:, np.newaxis]
-
         # Get atomic types from masses if available
         if atomic_elements is None and masses is not None:
             self._atomic_elements = []
@@ -68,7 +65,7 @@ class Structure:
             self._atomic_numbers = np.array(atomic_numbers)
 
         if masses is None and self._atomic_numbers is not None:
-            self._masses = np.array([ atom_data[i][3] for i in self._atomic_numbers ])
+            self._masses = np.array([atom_data[i][3] for i in self._atomic_numbers])
         else:
             self._masses = masses
 
@@ -113,7 +110,7 @@ class Structure:
 
     def get_primitive_cell(self):
         if self._primitive_cell is None:
-            self._primitive_cell = np.dot(self.get_cell(), self.get_primitive_matrix())
+            self._primitive_cell = np.dot(self.get_cell().T, self.get_primitive_matrix()).T
         return self._primitive_cell
 
     # Cell matrix related methods
@@ -130,12 +127,12 @@ class Structure:
                 print('Warning: No primitive matrix defined! Using unit cell as primitive')
                 self._primitive_matrix = np.identity(self.get_number_of_dimensions())
             else:
-                self._primitive_matrix = np.dot(np.linalg.inv(self.get_cell().T),self._primitive_cell)
+                self._primitive_matrix = np.dot(np.linalg.inv(self.get_cell()), self._primitive_cell)
         return  self._primitive_matrix
 
     # Positions related methods
     def set_positions(self, cart_positions):
-        self._scaled_positions = np.dot(cart_positions, np.linalg.inv(self.get_cell().T))
+        self._scaled_positions = np.dot(cart_positions, np.linalg.inv(self.get_cell()))
 
     def get_positions(self, supercell=None):
         if self._positions is None:
@@ -143,7 +140,7 @@ class Structure:
                 print('No positions provided')
                 exit()
             else:
-                self._positions = np.dot(self._scaled_positions, self.get_cell().T)
+                self._positions = np.dot(self._scaled_positions, self.get_cell())
 
         if supercell is None:
             supercell = self.get_number_of_dimensions() * [1]
@@ -151,7 +148,7 @@ class Structure:
         position_supercell = []
         for k in range(self._positions.shape[0]):
             for r in itertools.product(*[range (i) for i in supercell[::-1]]):
-                position_supercell.append(self._positions[k,:] + np.dot(np.array(r[::-1]),self.get_cell().T))
+                position_supercell.append(self._positions[k,:] + np.dot(np.array(r[::-1]), self.get_cell()))
         position_supercell = np.array(position_supercell)
 
         return position_supercell
@@ -159,11 +156,11 @@ class Structure:
     def get_scaled_positions(self, supercell=None):
 
         if self._scaled_positions is None:
-            self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self.get_cell().T))
+            self._scaled_positions = np.dot(self.get_positions(), np.linalg.inv(self.get_cell()))
 
         if supercell is not None:
-            cell = np.dot(self.get_cell(), np.diag(supercell))
-            scaled_positions = np.dot(self.get_positions(supercell), np.linalg.inv(cell.T))
+            cell = self.get_cell(supercell=supercell)
+            scaled_positions = np.dot(self.get_positions(supercell), np.linalg.inv(cell))
             return scaled_positions
 
         return self._scaled_positions
@@ -215,7 +212,7 @@ class Structure:
         return self._number_of_cell_atoms
 
     def get_number_of_dimensions(self):
-        return self.get_cell().shape[0]
+        return self.get_cell().shape[1]
 
     def get_atomic_numbers(self, supercell=None):
         if supercell is None:
@@ -288,11 +285,11 @@ class Structure:
                     coordinates_atom_i = self.get_positions()[i]
                     coordinates_atom_j = self.get_positions()[j]
 
-                    difference_in_cell_coordinates = np.around((np.dot(primitive_cell_inverse,(coordinates_atom_j - coordinates_atom_i))))
-                    projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_primitive_cell(), difference_in_cell_coordinates)
+                    difference_in_cell_coordinates = np.around((np.dot(primitive_cell_inverse.T, (coordinates_atom_j - coordinates_atom_i))))
+                    projected_coordinates_atom_j = coordinates_atom_j - np.dot(self.get_primitive_cell().T, difference_in_cell_coordinates)
                     separation = pow(np.linalg.norm(projected_coordinates_atom_j - coordinates_atom_i),2)
 
-                    if separation < tolerance and  masses[i] == masses[j]:
+                    if separation < tolerance and masses[i] == masses[j]:
                         self._atom_type_index[j] = self._atom_type_index[i]
         self._atom_type_index = np.array(self._atom_type_index,dtype=int)
 
@@ -310,13 +307,14 @@ class Structure:
             supercell = self.get_number_of_dimensions() * [1]
 
         cell = self.get_cell(supercell=supercell)
-        a = np.linalg.norm(cell.T[0])
-        b = np.linalg.norm(cell.T[1])
-        c = np.linalg.norm(cell.T[2])
 
-        alpha = np.arccos(np.dot(cell.T[1], cell.T[2])/(c*b))
-        gamma = np.arccos(np.dot(cell.T[1], cell.T[0])/(a*b))
-        beta = np.arccos(np.dot(cell.T[2], cell.T[0])/(a*c))
+        a = np.linalg.norm(cell[0])
+        b = np.linalg.norm(cell[1])
+        c = np.linalg.norm(cell[2])
+
+        alpha = np.arccos(np.dot(cell[1], cell[2])/(c*b))
+        gamma = np.arccos(np.dot(cell[1], cell[0])/(a*b))
+        beta = np.arccos(np.dot(cell[2], cell[0])/(a*c))
 
         return a, b, c, alpha, beta, gamma
 
@@ -346,7 +344,7 @@ class Structure:
         try:
             import seekpath
 
-            cell = self.get_cell().T
+            cell = self.get_cell()
             positions = self.get_scaled_positions()
             numbers = np.unique(self.get_atomic_elements(), return_inverse=True)[1]
             structure = (cell, positions, numbers)

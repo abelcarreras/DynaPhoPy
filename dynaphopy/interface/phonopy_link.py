@@ -50,7 +50,7 @@ def get_force_sets_from_file(file_name='FORCE_SETS', fs_supercell=None):
     if fs_supercell is not None:
         force_sets.set_supercell(fs_supercell)
     else:
-        print ('No force sets supercell defined, set to identity')
+        print('No force sets supercell defined, set to identity')
         force_sets.set_supercell(np.identity(3))
 
     return force_sets
@@ -62,7 +62,7 @@ def get_force_constants_from_file(file_name='FORCE_CONSTANTS', fc_supercell=None
     if fc_supercell is not None:
         force_constants.set_supercell(fc_supercell)
     else:
-        print ('No force sets supercell defined, set to identity')
+        print('No force sets supercell defined, set to identity')
         force_constants.set_supercell(np.identity(3))
 
     return force_constants
@@ -83,8 +83,7 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
     # Preparing the bulk type object
     bulk = PhonopyAtoms(symbols=structure.get_atomic_elements(),
                         scaled_positions=structure.get_scaled_positions(),
-                        cell=structure.get_cell().T)
-
+                        cell=structure.get_cell())
 
     phonon = Phonopy(bulk, super_cell_phonon,
                      primitive_matrix=structure.get_primitive_matrix(),
@@ -104,6 +103,8 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
         elif structure.get_force_sets() is not None:
             phonon.set_displacement_dataset(structure.get_force_sets().get_dict())
             phonon.produce_force_constants(computation_algorithm="svd")
+            structure.set_force_constants(ForceConstants(phonon.get_force_constants(),
+                                                         supercell=structure.get_force_sets().get_supercell()))
         else:
             print('No force sets/constants available!')
             exit()
@@ -243,7 +244,7 @@ def get_equivalent_q_points_by_symmetry(q_point, structure):
     from phonopy.structure.symmetry import Symmetry
     bulk = PhonopyAtoms(symbols=structure.get_atomic_elements(),
                         scaled_positions=structure.get_scaled_positions(),
-                        cell=structure.get_cell().T)
+                        cell=structure.get_cell())
 
     tot_points = []
     for operation_matrix in Symmetry(bulk).get_reciprocal_operations():
@@ -282,7 +283,7 @@ def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, str
     if symmetrize:
         print('Symmetrizing force constants')
         set_tensor_symmetry_PJ(force_constants.get_array(),
-                               phonon.supercell.get_cell().T,
+                               phonon.supercell.get_cell(),
                                phonon.supercell.get_scaled_positions(),
                                phonon.symmetry)
 

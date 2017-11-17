@@ -45,7 +45,7 @@ def get_correct_arrangement(reference, structure):
     # print structure.get_scaled_positions()
     scaled_coordinates = []
     for coordinate in reference:
-        trans = np.dot(coordinate, np.linalg.inv(structure.get_cell()).T)
+        trans = np.dot(coordinate, np.linalg.inv(structure.get_cell()))
         #print coordinate.real, trans.real
         scaled_coordinates.append(np.array(trans.real, dtype=float))
 
@@ -198,7 +198,7 @@ def read_from_file_structure_outcar(file_name):
                                           .replace(")", "")
                                           .replace(")","")
                                           .split()[3:number_of_dimensions+3])
-            primitive_cell = np.array(primitive_cell,dtype="double").T
+            primitive_cell = np.array(primitive_cell,dtype="double")
 
 
         #Reading number of atoms
@@ -232,7 +232,7 @@ def read_from_file_structure_outcar(file_name):
         direct_cell = []    #Direct Cell
         for i in range (number_of_dimensions):
             direct_cell.append(file_map.readline().split()[0:number_of_dimensions])
-        direct_cell = np.array(direct_cell,dtype='double').T
+        direct_cell = np.array(direct_cell,dtype='double')
 
         file_map.seek(position_number)
         file_map.readline()
@@ -240,7 +240,7 @@ def read_from_file_structure_outcar(file_name):
         reciprocal_cell = []    #Reciprocal cell
         for i in range (number_of_dimensions):
             reciprocal_cell.append(file_map.readline().split()[number_of_dimensions:number_of_dimensions*2])
-        reciprocal_cell = np.array(reciprocal_cell,dtype='double').T
+        reciprocal_cell = np.array(reciprocal_cell,dtype='double')
 
 
         # Reading positions fractional cartesian
@@ -287,7 +287,7 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
 
     multiply = float(data_lines[1])
     direct_cell = np.array([data_lines[i].split()
-                            for i in range(2, 2+number_of_dimensions)], dtype=float).T
+                            for i in range(2, 2+number_of_dimensions)], dtype=float)
     direct_cell *= multiply
     scaled_positions = None
     positions = None
@@ -328,7 +328,8 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
             atomic_types.append([j]*number_of_types[i])
         atomic_types = [item for sublist in atomic_types for item in sublist]
        # atomic_types = np.array(atomic_types).flatten().tolist()
-    return atomtest.Structure(cell= direct_cell,  # cell_matrix, lattice vectors in columns
+
+    return atomtest.Structure(cell= direct_cell,  # cell_matrix, lattice vectors in rows
                               scaled_positions=scaled_positions,
                               positions=positions,
                               atomic_elements=atomic_types,
@@ -387,7 +388,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
 
     q_vector_list = pho_interface.get_commensurate_points(structure, np.diag(supercell))
 
-    q_vector_list_cart = [ np.dot(q_vector, 2*np.pi*np.linalg.inv(structure.get_primitive_cell()))
+    q_vector_list_cart = [ np.dot(q_vector, 2*np.pi*np.linalg.inv(structure.get_primitive_cell()).T)
                            for q_vector in q_vector_list]
 
     atoms_relation = float(len(q_vector_list)*number_of_primitive_atoms)/number_of_atoms
@@ -430,7 +431,6 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
             _progress_bar(float(time + time_step) / total_time, 'generating', )
 
     trajectory = np.array(trajectory)
-    print(trajectory.shape[0])
 
     time = np.array([i * time_step for i in range(trajectory.shape[0])], dtype=float)
     energy = np.array([number_of_atoms * number_of_dimensions *
@@ -444,7 +444,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
                                  trajectory=np.array(trajectory, dtype=complex),
                                  energy=np.array(energy),
                                  time=time,
-                                 supercell=np.dot(np.diagflat(supercell), structure.get_cell().T).T),
+                                 supercell=np.dot(np.diagflat(supercell), structure.get_cell())),
                     dump_file)
 
         dump_file.close()
@@ -455,7 +455,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
                         trajectory=np.array(trajectory,dtype=complex),
                         energy=np.array(energy),
                         time=time,
-                        supercell=np.dot(np.diagflat(supercell), structure.get_cell().T).T,
+                        supercell=np.dot(np.diagflat(supercell), structure.get_cell()),
                         memmap=memmap)
 
 #Testing function
@@ -486,7 +486,7 @@ def read_from_file_test():
     structure = atomtest.Structure(positions=positions,
                                    atomic_numbers=atom_type,
                                    cell=[[2,0],[0,1]],
-                                   masses=[1 for i in range(positions.shape[0])]) #all 1
+                                   masses=[1] * positions.shape[0]) #all 1
     number_of_atoms = structure.get_number_of_atoms()
 
     structure.set_number_of_primitive_atoms(2)
@@ -623,11 +623,11 @@ def write_xsf_file(file_name,structure):
     xsf_file.write("CRYSTAL\n")
     xsf_file.write("PRIMVEC\n")
 
-    for row in structure.get_primitive_cell().T:
+    for row in structure.get_primitive_cell():
         xsf_file.write("{0:10.4f}\t{1:10.4f}\t{2:10.4f}\n".format(*row))
     xsf_file.write("CONVVEC\n")
 
-    for row in structure.get_cell().T:
+    for row in structure.get_cell():
         xsf_file.write("{0:10.4f}\t{1:10.4f}\t{2:10.4f}\n".format(*row))
     xsf_file.write("PRIMCOORD\n")
 
@@ -712,7 +712,7 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
         print("Load trajectory projected onto {0}".format(reduced_q_vector))
 
     time = hdf5_file['time'][:]
-    super_cell = hdf5_file['super_cell'][:]
+    supercell = hdf5_file['super_cell'][:]
     hdf5_file.close()
 
 
@@ -721,12 +721,12 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
                             trajectory=trajectory,
                             velocity=velocity,
                             time=time,
-                            supercell=np.dot(np.diagflat(super_cell), structure.get_cell()),
+                            supercell=np.dot(np.diagflat(supercell), structure.get_cell()),
                             memmap=memmap)
     else:
         return vc, reduced_q_vector, dyn.Dynamics(structure=structure,
                                                   time=time,
-                                                  supercell=np.dot(np.diagflat(super_cell), structure.get_cell()),
+                                                  supercell=np.dot(np.diagflat(supercell), structure.get_cell()),
                                                   memmap=memmap)
 
 
@@ -740,13 +740,14 @@ def save_quasiparticle_data_to_file(quasiparticle_data, filename):
 
     yaml.add_representer(float, float_representer)
 
-    output_dict = {}
+    output_dict = []
     for i, q_point in enumerate(quasiparticle_data['q_points']):
         q_point_dict = {'reduced_wave_vector': q_point.tolist()}
         q_point_dict.update({'frequencies': quasiparticle_data['frequencies'][i].tolist()})
         q_point_dict.update({'linewidths': quasiparticle_data['linewidths'][i].tolist()})
         q_point_dict.update({'frequency_shifts': quasiparticle_data['frequency_shifts'][i].tolist()})
-        output_dict.update({'q_point_{}'.format(i): q_point_dict})
+        #output_dict.update({'q_point_{}'.format(i): q_point_dict})
+        output_dict.append(q_point_dict)
 
     with open(filename, 'w') as outfile:
         yaml.dump(output_dict, outfile, default_flow_style=False)

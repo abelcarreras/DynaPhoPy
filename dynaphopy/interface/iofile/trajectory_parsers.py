@@ -56,7 +56,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
         super_cell = []
         for i in range (number_of_dimensions):
             super_cell.append(file_map.readline().split()[0:number_of_dimensions])
-        super_cell = np.array(super_cell, dtype='double').T
+        super_cell = np.array(super_cell, dtype='double')
 
         file_map.seek(position_number)
         file_map.readline()
@@ -243,7 +243,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 
                 supercell = np.array([[xhi-xlo, xy,  xz],
                                        [0,  yhi-ylo,  yz],
-                                       [0,   0,  zhi-zlo]])
+                                       [0,   0,  zhi-zlo]]).T
 
                 #for 2D
                 supercell = supercell[:number_of_dimensions, :number_of_dimensions]
@@ -395,7 +395,7 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
         a = file_map.readline().split()
         b = file_map.readline().split()
         c = file_map.readline().split()
-        super_cell = np.array([a, b, c], dtype='double').T
+        super_cell = np.array([a, b, c], dtype='double')
 
         for i in range(1): file_map.readline()
         number_of_atoms = np.array(file_map.readline().split(), dtype=int).sum()

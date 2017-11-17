@@ -77,8 +77,6 @@ class Quasiparticle:
         self._bands = None
         self._renormalized_bands = None
 
-
-
     # Properties
     @property
     def dynamic(self):
@@ -160,7 +158,7 @@ class Quasiparticle:
 
     def get_q_vector(self):
         return np.dot(self.parameters.reduced_q_vector,
-                      2.0 * np.pi * np.linalg.inv(self.dynamic.structure.get_primitive_cell()))
+                      2.0 * np.pi * np.linalg.inv(self.dynamic.structure.get_primitive_cell()).T)
 
     # Phonopy harmonic calculation related methods
     def get_eigenvectors(self):
@@ -267,7 +265,7 @@ class Quasiparticle:
 
         if plot_harmonic:
             handles = plt.gca().get_legend_handles_labels()[0]
-            plt.legend([handles[0], handles[-1]], ['Harmonic', 'Renormalized'])
+            plt.legend([handles[-1], handles[0]], ['Harmonic', 'Renormalized'])
 
         if 'labels' in bands_full_data[0]:
             plt.rcParams.update({'mathtext.default': 'regular'})
@@ -363,7 +361,6 @@ class Quasiparticle:
 
         plt.show()
 
-
     def get_renormalized_phonon_dispersion_bands(self, with_linewidths=False):
 
         renormalized_force_constants = self.get_renormalized_force_constants()
@@ -402,7 +399,6 @@ class Quasiparticle:
 
 
         if with_linewidths:
-            plt.suptitle('Renormalized phonon dispersion relations and linewidths')
             renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                 band_ranges,
                                                                                 force_constants=sup_lim,
@@ -873,10 +869,10 @@ class Quasiparticle:
 
             parameters = fitting_function.get_fitting()
             print('\nAtom {0}, Element {1}'.format(atom, atomic_types_unique[atom]))
-            print ('-----------------------------------------')
-            print ('Mean               {0:15.6f} Angstrom'.format(parameters['peak_position']))
-            print ('Standard deviation {0:15.6f} Angstrom'.format(parameters['width']))
-            print ('Global fit error   {0:15.6f}'.format(parameters['global_error']))
+            print('-----------------------------------------')
+            print('Mean               {0:15.6f} Angstrom'.format(parameters['peak_position']))
+            print('Standard deviation {0:15.6f} Angstrom'.format(parameters['width']))
+            print('Global fit error   {0:15.6f}'.format(parameters['global_error']))
 
             plt.figure(atom + 1)
             plt.title('Atomic displacements')
@@ -1208,12 +1204,12 @@ class Quasiparticle:
         for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix(use_average_positions=True)):
 
             cell = self.dynamic.structure.get_cell()
-            cell_inv = np.linalg.inv(cell)
-            n = np.array([[np.linalg.norm(cell_inv[0]), 0, 0],
-                          [0, np.linalg.norm(cell_inv[1]), 0],
-                          [0, 0, np.linalg.norm(cell_inv[2])]])
+            cell_inv = np.linalg.inv(cell)  # Check this point
+            n = np.array([[np.linalg.norm(cell_inv.T[0]), 0, 0],
+                          [0, np.linalg.norm(cell_inv.T[1]), 0],
+                          [0, 0, np.linalg.norm(cell_inv.T[2])]])
 
-            u_crys = np.dot(np.dot(cell_inv, u_cart), cell_inv.T)
+            u_crys = np.dot(np.dot(cell_inv.T, u_cart), cell_inv)
             u_uvrs = np.dot(np.dot(np.linalg.inv(n), u_crys), np.linalg.inv(n).T)
 
             u = {'cart': u_cart,
@@ -1235,10 +1231,16 @@ class Quasiparticle:
 
         return anisotropic_displacements
 
-    def get_average_atomic_positions(self):
+    def get_average_atomic_positions(self, to_unit_cell=True):
         print ('Average atomic positions')
-        positions_average = self.dynamic.average_positions(to_unit_cell=True)
-        elements = self.dynamic.structure.get_atomic_elements()
+
+        supercell = None
+        if not to_unit_cell:
+            supercell = self.dynamic.get_supercell_matrix()
+
+        positions_average = self.dynamic.average_positions(to_unit_cell=to_unit_cell)
+        elements = self.dynamic.structure.get_atomic_elements(supercell=supercell)
+
         for i, coordinate in enumerate(positions_average):
             print ('{0:2} '.format(elements[i]) + '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*coordinate.real))
 
