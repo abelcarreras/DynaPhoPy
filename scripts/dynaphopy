@@ -138,7 +138,6 @@ group.add_argument('--generate_trajectory', metavar='F', type=float, default=Non
 group.add_argument('--run_lammps', metavar='F', type=str, default=None, nargs=4,
                     help='Run lammps input file [input_file  total_time time_step relaxation_time]')
 
-
 group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
                     help='generate supercell in VASP POSCAR file format')
 
@@ -261,6 +260,7 @@ if args.run_lammps:
                                             time_step=float(args.run_lammps[2]),
                                             relaxation_time=float(args.run_lammps[3]),
                                             silent=args.silent,
+                                            supercell=args.dim,
                                             memmap=args.memmap)
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):

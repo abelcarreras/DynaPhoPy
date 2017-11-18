@@ -12,6 +12,7 @@ def generate_lammps_trajectory(structure,
                                time_step=0.002,  # picoseconds
                                relaxation_time=0,
                                silent=False,
+                               supercell=(1, 1, 1),
                                memmap=False):
 
     sampling=1
@@ -22,6 +23,7 @@ def generate_lammps_trajectory(structure,
 
     lmp.file(input_file)
     lmp.command('timestep {}'.format(time_step))
+    lmp.command('replicate {} {} {}'.format(*supercell))
     lmp.command('run 0')
 
     #natoms = lmp.extract_global("natoms",0)
@@ -44,7 +46,7 @@ def generate_lammps_trajectory(structure,
     yz =lmp.extract_global("yz", 1)
     xz =lmp.extract_global("xz", 1)
 
-    supercell = np.array([[xhi-xlo, xy,  xz],
+    simulation_cell = np.array([[xhi-xlo, xy,  xz],
                            [0,  yhi-ylo,  yz],
                            [0,   0,  zhi-zlo]]).T
 
@@ -89,10 +91,10 @@ def generate_lammps_trajectory(structure,
 
     return dyn.Dynamics(structure=structure,
                         trajectory=np.array(positions,dtype=complex),
-                        velocity=np.array(velocity,dtype=complex),
+                        #velocity=np.array(velocity,dtype=complex),
                         energy=np.array(energy),
                         time=time,
-                        supercell=supercell,
+                        supercell=simulation_cell,
                         memmap=memmap)
 
 if __name__ == '__main__':
