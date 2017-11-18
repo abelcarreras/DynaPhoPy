@@ -261,7 +261,8 @@ if args.run_lammps:
                                             relaxation_time=float(args.run_lammps[3]),
                                             silent=args.silent,
                                             supercell=args.dim,
-                                            memmap=args.memmap)
+                                            memmap=args.memmap,
+                                            velocity_only=args.velocity_only)
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
     print('Loading projected velocity only (limited features only)')

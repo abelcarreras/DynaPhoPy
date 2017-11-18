@@ -6,6 +6,7 @@ from dynaphopy.power_spectrum import _progress_bar
 from lammps import lammps, PyLammps
 from dynaphopy.interface.iofile import get_correct_arrangement
 
+
 def generate_lammps_trajectory(structure,
                                input_file,
                                total_time=0.1,  # picoseconds
@@ -13,7 +14,8 @@ def generate_lammps_trajectory(structure,
                                relaxation_time=0,
                                silent=False,
                                supercell=(1, 1, 1),
-                               memmap=False):
+                               memmap=False,
+                               velocity_only=False):
 
     sampling=1
 
@@ -75,24 +77,27 @@ def generate_lammps_trajectory(structure,
         xc = lmp.gather_atoms("x", 1, 3)
         vc = lmp.gather_atoms("v", 1, 3)
 
-        positions.append(np.array(xc).reshape((-1,3))[indexing, :])
-        velocity.append(np.array(vc).reshape((-1,3))[indexing, :])
         energy.append(lmp.gather_atoms("pe",1,1))
+        velocity.append(np.array(vc).reshape((-1,3))[indexing, :])
 
-        #energy.append(lmp.extract_variable("eng",None,0))
+        if not velocity_only:
+            positions.append(np.array(xc).reshape((-1,3))[indexing, :])
 
-    positions = np.array(positions)
-    velocity = np.array(velocity)
+    positions = np.array(positions, dtype=complex)
+    velocity = np.array(velocity, dtype=complex)
     energy = np.array(energy)
+
+    if velocity_only:
+        positions = None
 
     lmp.close()
 
-    time = np.array([i * time_step * sampling for i in range(positions.shape[0])], dtype=float)
+    time = np.array([i * time_step * sampling for i in range(n_loops)], dtype=float)
 
     return dyn.Dynamics(structure=structure,
-                        trajectory=np.array(positions,dtype=complex),
-                        #velocity=np.array(velocity,dtype=complex),
-                        energy=np.array(energy),
+                        trajectory=positions,
+                        velocity=velocity,
+                        energy=energy,
                         time=time,
                         supercell=simulation_cell,
                         memmap=memmap)

@@ -268,12 +268,13 @@ class Dynamics:
     def get_relative_trajectory(self):
         if self._relative_trajectory is None:
 
+            trajectory = self.trajectory
+
             supercell = self.get_supercell()
             number_of_atoms = self.trajectory.shape[1]
             supercell_matrix = self.get_supercell_matrix()
             position = self.structure.get_positions(supercell=supercell_matrix)
 
-            trajectory = self.trajectory
 
             if self._memmap:
                 normalized_trajectory = np.memmap(self._temp_directory+'r_trajectory.{0}'.format(os.getpid()),
