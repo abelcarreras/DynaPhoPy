@@ -58,8 +58,6 @@ def get_force_constants(structure, data_sets):
     :return: force_constants matrix [3Natoms x 3Natoms]
     """
 
-    print 'force_constants'
-
     phonon = get_phonon(structure, setup_forces=False,
                         custom_supercell=structure.get_supercell_matrix())
 
@@ -192,4 +190,5 @@ if args.p:
     plot_phonon_dispersion_bands(structure, force_constants)
 
 # Write force constants in file
+print('writing force constants')
 write_FORCE_CONSTANTS(force_constants, filename=args.o)
