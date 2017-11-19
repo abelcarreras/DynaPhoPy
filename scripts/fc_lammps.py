@@ -27,18 +27,19 @@ parser.add_argument('-p', action='store_true',
 args = parser.parse_args()
 
 
-def get_cells_with_displacements(structure, displacement_distance=0.01):
+def get_force_constants(structure, supercell_phonon, displacement_distance=0.01):
     """
-    generate the cells with displacements using phonopy
+    calculate the force constants with phonopy using lammps to calculate forces
 
     :param structure:  dynaphopy type Structure object
+    :param supercell_phonon: supercell matrix that defines the supercell used to calculate the force_constants
     :param displacement_distance: displacement distance in Angstroms
     :return: data_sets phonopy dictionary (without forces) and list of numpy arrays containing
-    the atoms positions of supecells with displacements with shape [Natoms x 3]
+    :return: dynaphopy ForceConstants type object
     """
 
     phonon = get_phonon(structure, setup_forces=False,
-                        custom_supercell=structure.get_supercell_matrix())
+                        custom_supercell=supercell_phonon)
     phonon.get_displacement_dataset()
     phonon.generate_displacements(distance=displacement_distance)
     cells_with_disp = phonon.get_supercells_with_displacements()
@@ -47,42 +48,35 @@ def get_cells_with_displacements(structure, displacement_distance=0.01):
 
     data_sets = phonon.get_displacement_dataset()
 
-    return data_sets, cells_with_disp
-
-
-def get_force_constants(structure, data_sets):
-    """
-    calculate force constants from structure and data_sets using phonopy (synaphopy interface)
-    :param structure: dynaphopy Structure type object
-    :param data_sets: phonopy data_sets dictionary (with forces)
-    :return: force_constants matrix [3Natoms x 3Natoms]
-    """
-
-    phonon = get_phonon(structure, setup_forces=False,
-                        custom_supercell=structure.get_supercell_matrix())
+    # Get forces from lammps
+    for i, cell in enumerate(cells_with_disp):
+        print ('displacement {} / {}'.format(i+1, len(cells_with_disp)))
+        forces = get_lammps_forces(structure, cell, supercell_phonon, args.lammps_input_file)
+        data_sets['first_atoms'][i]['forces'] = forces
 
     phonon.set_displacement_dataset(data_sets)
     phonon.produce_force_constants()
     force_constants = phonon.get_force_constants()
 
-    return force_constants
+    return ForceConstants(force_constants, supercell=supercell_phonon)
 
 
-def get_lammps_forces(structure, cell_with_disp, input_file):
+def get_lammps_forces(structure, cell_with_disp, supercell_matrix, input_file):
     """
     Calculate the forces of a supercell using lammps
     :param structure: unit cell
     :param cell_with_disp: supercell from which determine the forces
+    :param supercell_matrix: supercell matrix that define cell_with_disp respect to unit cell
     :param input_file: input file name of lammps script containg potential information
     :return: numpy array matrix with forces of atoms [Natoms x 3]
     """
 
     lmp = lammps(cmdargs=['-echo','none', '-log', 'none', '-screen', 'none'])
 
-    supercell = np.diag(structure.get_supercell_matrix())
+    supercell_sizes = np.diag(supercell_matrix)
 
     lmp.file(input_file)
-    lmp.command('replicate {} {} {}'.format(*supercell))
+    lmp.command('replicate {} {} {}'.format(*supercell_sizes))
     lmp.command('run 0')
 
     xc = lmp.gather_atoms("x", 1, 3)
@@ -122,8 +116,7 @@ def plot_phonon_dispersion_bands(structure, force_constants):
     bands_and_labels = structure.get_path_using_seek_path()
     _bands = pho_interface.obtain_phonon_dispersion_bands(structure,
                                                           bands_and_labels['ranges'],
-                                                          force_constants=ForceConstants(force_constants,
-                                                          supercell=structure.get_supercell_matrix()))
+                                                          force_constants=force_constants)
 
     for i, freq in enumerate(_bands[1]):
         plt.plot(_bands[1][i], _bands[2][i], color='r')
@@ -167,23 +160,13 @@ if 'structure_file_name_outcar' in input_parameters:
     structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name_outcar'])
 else:
     structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
+
 structure.get_data_from_dict(input_parameters)
 
-# Alternative use of supercell_matrix for convenience
-structure.set_supercell_matrix(input_parameters['supercell_phonon'])
-
-# Get cells with displacements
-data_sets, disp_cells = get_cells_with_displacements(structure,
-                                                     displacement_distance=0.01)
-
-# Get forces from lammps
-for i, cell in enumerate(disp_cells):
-    print ('displacement {} / {}'.format(i+1, len(disp_cells)))
-    force = get_lammps_forces(structure, cell, args.lammps_input_file)
-    data_sets['first_atoms'][i]['forces'] = force
-
-# Get force constants from phonopy
-force_constants = get_force_constants(structure, data_sets)
+# Calculate force constants
+force_constants = get_force_constants(structure,
+                                      input_parameters['supercell_phonon'],
+                                      displacement_distance=0.01)
 
 # Plot data if requested
 if args.p:
@@ -191,4 +174,4 @@ if args.p:
 
 # Write force constants in file
 print('writing force constants')
-write_FORCE_CONSTANTS(force_constants, filename=args.o)
+write_FORCE_CONSTANTS(force_constants.get_array(), filename=args.o)
