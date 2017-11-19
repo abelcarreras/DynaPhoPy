@@ -858,28 +858,35 @@ class Quasiparticle:
 
         plt.figure()
         for atom in range(distributions.shape[0]):
-            width = (distance[1] - distance[0])
-            center = (distance[:-1] + distance[1:] + width) / 2
-
-            distance_centers = distance[:-1] + width
-            fitting_function = Gaussian_function(distance_centers,
-                                                 distributions[atom],
-                                                 guess_height=1,
-                                                 guess_position=0)
-
-            parameters = fitting_function.get_fitting()
-            print('\nAtom {0}, Element {1}'.format(atom, atomic_types_unique[atom]))
-            print('-----------------------------------------')
-            print('Mean               {0:15.6f} Angstrom'.format(parameters['peak_position']))
-            print('Standard deviation {0:15.6f} Angstrom'.format(parameters['width']))
-            print('Global fit error   {0:15.6f}'.format(parameters['global_error']))
 
             plt.figure(atom + 1)
             plt.title('Atomic displacements')
             plt.suptitle('Atom {0}, Element {1}'.format(atom, atomic_types_unique[atom]))
-            plt.plot(distance, fitting_function.get_curve(distance),
-                     label=fitting_function.curve_name,
-                     linewidth=3, color='g')
+
+            width = (distance[1] - distance[0])
+            center = (distance[:-1] + distance[1:] + width) / 2
+
+            print('\nAtom {0}, Element {1}'.format(atom, atomic_types_unique[atom]))
+            print('-----------------------------------------')
+            try:
+
+                distance_centers = distance[:-1] + width
+                fitting_function = Gaussian_function(distance_centers,
+                                                     distributions[atom],
+                                                     guess_height=1,
+                                                     guess_position=0)
+
+                parameters = fitting_function.get_fitting()
+                print('Mean               {0:15.6f} Angstrom'.format(parameters['peak_position']))
+                print('Standard deviation {0:15.6f} Angstrom'.format(parameters['width']))
+                print('Global fit error   {0:15.6f}'.format(parameters['global_error']))
+
+                plt.plot(distance, fitting_function.get_curve(distance),
+                         label=fitting_function.curve_name,
+                         linewidth=3, color='g')
+            except:
+                print ('Gaussian fitting failed')
+
             plt.bar(center, distributions[atom], align='center', width=width)
             plt.xlabel('Direction: ' + ' '.join(np.array(direction, dtype=str)) + ' [Angstrom]')
             plt.xlim([distance[0], distance[-1]])
@@ -1196,12 +1203,13 @@ class Quasiparticle:
         atom_equivalent = np.unique(atom_type, return_counts=True)[1]
         atomic_types_unique = [elements[i] for i in atom_type_index_unique]
 
+        average_positions = self.dynamic.get_mean_displacement_matrix(use_average_positions=True)
         if print_on_screen:
             print('Anisotropic displacement parameters ({0}) [relative to average atomic positions]'.format(coordinate_type))
             print('          U11          U22          U33          U23          U13          U12')
 
         anisotropic_displacements = []
-        for i, u_cart in enumerate(self.dynamic.get_mean_displacement_matrix(use_average_positions=True)):
+        for i, u_cart in enumerate(average_positions):
 
             cell = self.dynamic.structure.get_cell()
             cell_inv = np.linalg.inv(cell)  # Check this point

@@ -3,7 +3,7 @@
 import dynaphopy.orm.dynamics as dyn
 import numpy as np
 from dynaphopy.power_spectrum import _progress_bar
-from lammps import lammps, PyLammps
+from lammps import lammps
 from dynaphopy.interface.iofile import get_correct_arrangement
 
 
