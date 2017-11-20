@@ -43,7 +43,11 @@ def get_renormalized_constants(freq_filename, structure, symmetrize=False, degen
 
     fc_supercell = structure.get_supercell_phonon()
     if args.dim is None:
-        fc_supercell = input_parameters['supercell_phonon']
+        if 'supercell_phonon' in input_parameters:
+            fc_supercell = input_parameters['supercell_phonon']
+        else:
+            print('please define supercell phonon in inputfile')
+            exit()
 
     com_points = pho_interface.get_commensurate_points(structure, fc_supercell)
 
@@ -125,7 +129,11 @@ structure.get_data_from_dict(input_parameters)
 if args.cp:
 
     if args.dim is None:
-        fc_supercell = input_parameters['supercell_phonon']
+        if 'supercell_phonon' in input_parameters:
+            fc_supercell = input_parameters['supercell_phonon']
+        else:
+            print('Warning: No supercell matrix defined! using unitcell as supercell')
+            fc_supercell = np.identity(3)
         com_points = pho_interface.get_commensurate_points(structure, fc_supercell)
     else:
         com_points = pho_interface.get_commensurate_points(structure, np.diag(args.dim))

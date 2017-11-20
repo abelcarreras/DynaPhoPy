@@ -78,7 +78,7 @@ parser.add_argument('-sad', '--save_atomic_displacements', metavar='S', type=str
                     help='save atomic displacements into a file [ F F F filename ]')
 
 parser.add_argument('-sfc', '--save_force_constants', metavar='file', type=str, nargs=1, default=False,
-                    help='save the renormalized force constants to a file')
+                    help='save the renormalized force constants into a file')
 
 parser.add_argument('-adp', action='store_true',
                     help='print anisotropic displacement parameters')
@@ -103,13 +103,13 @@ parser.add_argument('--silent', action='store_true',
 parser.add_argument('--velocity_only', action='store_true',
                     help='loads only velocity data from hdf5 file')
 
-parser.add_argument('--fitting_function', metavar='N', type=int, default=0,
+parser.add_argument('--fitting_function', metavar='index', type=int, default=0,
                     help='define fitting function (default: Lorentzian)')
 
-parser.add_argument('--read_from', metavar='N', type=int, default=1,
+parser.add_argument('--read_from', metavar='step', type=int, default=1,
                     help='define interval of trajectory to read (default: 1)')
 
-parser.add_argument('--read_to', metavar='N', type=int, default=None,
+parser.add_argument('--read_to', metavar='step', type=int, default=None,
                     help='define interval of trajectory to read (default: end)')
 
 parser.add_argument('--fcsymm', action='store_true',
@@ -120,6 +120,9 @@ parser.add_argument('--no_symmetry', action='store_true',
 
 parser.add_argument('--save_renormalized_frequencies', action='store_true',
                     help='save renormalized frequencies in a file when renormalized force constants are calculated')
+
+parser.add_argument('--save_band_structure', metavar='file', type=str, default=False,
+                    help='save renormalized phonon dispersion bands into a yaml file')
 
 parser.add_argument('--resolution', metavar='F', type=float, default=None, nargs=1,
                     help='define power spectrum resolution in THz (default 0.05)')
@@ -154,11 +157,13 @@ parser.add_argument('--qha_force_constants', metavar='file', type=str, nargs=1,
 
 
 #Temporal interface on development
+parser.add_argument('--auto_order', action='store_true',
+                    help='set the atoms order automatically from the first step of the MD)')
 
-parser.add_argument('--project_on_atom', metavar='N', type=int, default=None,
+parser.add_argument('--project_on_atom', metavar='atom_index', type=int, default=None,
                     help='calculate PS projected onto one atom')
 
-parser.add_argument('--save_power_spectrum_partials', metavar='F', type=str, default=None,
+parser.add_argument('--save_power_spectrum_partials', metavar='filename', type=str, default=None,
                     help='store the full power spectrum separated by atom contributions')
 
 
@@ -220,13 +225,21 @@ if args.md_file:
     if trajectory_reading_function is None:
         print('Trajectory file format not recognized')
         exit()
+    if args.auto_order:
+        print ('Use auto order')
+        template = reading.check_atoms_order(args.md_file, trajectory_reading_function, structure)
+    else:
+        template = None
 
     trajectory = trajectory_reading_function(args.md_file,
                                              structure,
                                              args.time_step,
                                              initial_cut=args.read_from,
                                              end_cut=args.read_to,
-                                             memmap=args.memmap)
+                                             memmap=args.memmap,
+                                             template=template
+                                             )
+    # np.savetxt('trajectory.xyz', trajectory.trajectory.real[0], fmt='C %.4e %.4e %.4e')
 
 if args.generate_trajectory:
     trajectory = reading.generate_test_trajectory(structure,
@@ -295,6 +308,9 @@ if args.frequency_range:
 
 if args.save_force_constants:
     calculation.write_renormalized_constants(args.save_force_constants[0])
+
+if args.save_band_structure:
+    calculation.write_renormalized_phonon_dispersion_bands(filename=args.save_band_structure)
 
 if args.save_full:
     calculation.write_power_spectrum_full(args.save_full[0])

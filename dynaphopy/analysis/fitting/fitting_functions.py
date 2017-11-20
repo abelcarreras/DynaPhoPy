@@ -340,7 +340,6 @@ class Gaussian_function:
             frequency = fit_params[0]
             maximum = self.get_curve(frequency)
 
-
             area, error_integration = quad(self._function, 0, self.test_frequencies_range[-1],
                                            args=tuple(fit_params),
                                            epsabs=1e-8)

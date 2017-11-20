@@ -11,7 +11,8 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                          last_steps=None,
                          initial_cut=1,
                          end_cut=None,
-                         memmap=False):
+                         memmap=False,
+                         template=None):
 
     # warning
     warnings.warn('This parser will be deprecated, you can use XDATCAR instead', DeprecationWarning)
@@ -55,13 +56,13 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
         super_cell = []
         for i in range (number_of_dimensions):
             super_cell.append(file_map.readline().split()[0:number_of_dimensions])
-        super_cell = np.array(super_cell, dtype='double').T
+        super_cell = np.array(super_cell, dtype='double')
 
         file_map.seek(position_number)
         file_map.readline()
 
     # Check if number of atoms is multiple of cell atoms
-        if structure:
+        if structure is not None:
             if number_of_atoms % structure.get_number_of_cell_atoms() != 0:
                 print('Warning: Number of atoms not matching, check VASP output files')
     #        structure.set_number_of_atoms(number_of_atoms)
@@ -70,14 +71,12 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
         trajectory = []
         energy = []
         counter = 0
-        while True :
+        while True:
 
             counter +=1
-
             #Initial cut control
             if initial_cut > counter:
                 continue
-
 
             position_number=file_map.find(b'POSITION')
             if position_number < 0 : break
@@ -89,10 +88,16 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
             read_coordinates = []
             for i in range (number_of_atoms):
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
+
+            read_coordinates = np.array(read_coordinates, dtype=float) # in angstrom
+            if template is not None:
+                indexing = np.argsort(template)
+                read_coordinates = read_coordinates[indexing, :]
+
             position_number=file_map.find(b'energy(')
             file_map.seek(position_number)
             read_energy = file_map.readline().split()[2]
-            trajectory.append(np.array(read_coordinates,dtype=float).flatten()) #in angstrom
+            trajectory.append(read_coordinates.flatten()) #in angstrom
             energy.append(np.array(read_energy, dtype=float))
 
             #security routine to limit maximum of steps to read and put in memory
@@ -114,7 +119,6 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
             trajectory = trajectory[-last_steps:,:,:]
             energy = energy[-last_steps:]
 
-
         print('Number of total steps read: {0}'.format(trajectory.shape[0]))
         time = np.array([i*time_step for i in range(trajectory.shape[0])], dtype=float)
 
@@ -127,14 +131,15 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
                             memmap=memmap)
 
 
-
 # LAMMPS custom dump file parser
 def read_lammps_trajectory(file_name, structure=None, time_step=None,
                            limit_number_steps=10000000,
                            last_steps=None,
                            initial_cut=1,
                            end_cut=None,
-                           memmap=False):
+                           memmap=False,
+                           template=None):
+
 
     # Time in picoseconds
     # Coordinates in Angstroms
@@ -169,10 +174,10 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
     print("This could take long, please wait..")
 
     # Dimension of LAMMP calculation
-    if structure:
-        number_of_dimensions = structure.get_number_of_dimensions()
-    else:
+    if structure is None:
         number_of_dimensions = 3
+    else:
+        number_of_dimensions = structure.get_number_of_dimensions()
 
     time = []
     data = []
@@ -206,7 +211,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 number_of_atoms = int(file_map.readline())
 
                 # Check if number of atoms is multiple of cell atoms
-                if structure:
+                if structure is not None:
                     if number_of_atoms % structure.get_number_of_cell_atoms() != 0:
                         print('Warning: Number of atoms not matching, check LAMMPS output file')
 
@@ -216,7 +221,6 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 position_number=file_map.find(b'BOX BOUNDS')
                 file_map.seek(position_number)
                 file_map.readline()
-
 
                 bounds = []
                 for i in range(3):
@@ -239,7 +243,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 
                 supercell = np.array([[xhi-xlo, xy,  xz],
                                        [0,  yhi-ylo,  yz],
-                                       [0,   0,  zhi-zlo]])
+                                       [0,   0,  zhi-zlo]]).T
 
                 #for 2D
                 supercell = supercell[:number_of_dimensions, :number_of_dimensions]
@@ -279,12 +283,17 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
             read_coordinates = []
             for i in range (number_of_atoms):
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
+            read_coordinates = np.array(read_coordinates, dtype=float)
+
+            if template is not None:
+                indexing = np.argsort(template)
+                read_coordinates = read_coordinates[indexing, :]
 
             try:
                 if memmap:
-                    data[counter-initial_cut, :, :] = np.array(read_coordinates, dtype=float) #in angstroms
+                    data[counter-initial_cut, :, :] = read_coordinates #in angstroms
                 else:
-                    data.append(np.array(read_coordinates, dtype=float)) #in angstroms
+                    data.append(read_coordinates) #in angstroms
 
             except ValueError:
                 print("Error reading step {0}".format(counter))
@@ -335,7 +344,8 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
                       last_steps=None,
                       initial_cut=1,
                       end_cut=None,
-                      memmap=False):
+                      memmap=False,
+                      template=None):
 
     # Time in picoseconds
     # Coordinates in Angstroms
@@ -385,7 +395,7 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
         a = file_map.readline().split()
         b = file_map.readline().split()
         c = file_map.readline().split()
-        super_cell = np.array([a, b, c], dtype='double').T
+        super_cell = np.array([a, b, c], dtype='double')
 
         for i in range(1): file_map.readline()
         number_of_atoms = np.array(file_map.readline().split(), dtype=int).sum()
@@ -417,11 +427,16 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
             for i in range (number_of_atoms):
                 read_coordinates.append(file_map.readline().split()[0:number_of_dimensions])
 
+            read_coordinates = np.array(read_coordinates, dtype=float)  # in angstroms
+            if template is not None:
+                indexing = np.argsort(template)
+                read_coordinates = read_coordinates[indexing, :]
+
             try:
                 if memmap:
-                    data[counter-initial_cut, :, :] = np.array(read_coordinates, dtype=float) #in angstroms
+                    data[counter-initial_cut, :, :] = read_coordinates #in angstroms
                 else:
-                    data.append(np.array(read_coordinates, dtype=float)) #in angstroms
+                    data.append(read_coordinates) #in angstroms
 
             except ValueError:
                 print("Error reading step {0}".format(counter))

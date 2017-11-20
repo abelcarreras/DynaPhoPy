@@ -9,6 +9,7 @@ from time import sleep
 from fractions import Fraction
 from os.path import isfile
 
+
 def list_on_screen(screen, pile, posx, posy):
 
     pile = np.array(pile).reshape((-1,3))
@@ -64,11 +65,11 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(6,45,"Wave vector: {0} ".format(calculation.get_reduced_q_vector()))
         screen.addstr(7,45,"Frequency range: {0} - {1} THz".format(calculation.get_frequency_range()[0],
                                                                    calculation.get_frequency_range()[-1]))
-        screen.addstr(8,45,"Spectrum resolution: {0} THz".format(calculation.parameters.spectrum_resolution))
+        screen.addstr(8,45,"Pow. spectr. resolution: {0} THz".format(calculation.parameters.spectrum_resolution))
 
         screen.addstr(10,45,"Primitive cell atoms: {0}".format(trajectory.structure.get_number_of_primitive_atoms()))
         screen.addstr(11,45,"Unit cell atoms: {0}".format(trajectory.structure.get_number_of_atoms()))
-        screen.addstr(12,45,"MD  cell atoms: {0} ".format(trajectory.get_number_of_atoms()))
+        screen.addstr(12,45,"MD supercell atoms: {0} ".format(trajectory.get_number_of_atoms()))
         screen.addstr(13,45,"Number of MD time steps: {0}".format(len(trajectory.velocity)))
         screen.addstr(14,45,"Time step: {0} ps".format(np.round(trajectory.get_time_step_average(),decimals=12)))
 
@@ -82,7 +83,7 @@ def interactive_interface(calculation, trajectory, args, structure_file):
         screen.addstr(8, 4, "5 - Power spectrum")
         screen.addstr(9, 4, "6 - Renormalized phonon dispersion")
         screen.addstr(10, 4, "7 - Peak analysis")
-        screen.addstr(11, 4, "8 - Atomic displacements")
+        screen.addstr(11, 4, "8 - Atomic displacements distribution")
         screen.addstr(12, 4, "9 - Preferences")
         screen.addstr(14, 4, "0 - Exit")
 
@@ -149,8 +150,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             calculation.display_thermal_properties()
             curses.endwin()
 
-       #     curses.endwin()
-
 ######## OPTION 4 :  BOLTZMANN DISTRIBUTION
         if x == ord('4'):
             curses.endwin()
@@ -175,7 +174,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 x2 = screen.getch()
 
-
                 if x2 == ord('1'):
                     curses.endwin()
                     calculation.plot_power_spectrum_full()
@@ -190,10 +188,34 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
 ######## OPTION 6 :  Renormalized phonon dispersion
         if x == ord('6'):
-            curses.endwin()
-      #      calculation.plot_renormalized_phonon_dispersion_bands()
-            calculation.plot_renormalized_phonon_dispersion_bands()
-            calculation.plot_renormalized_phonon_dispersion_bands(plot_linewidths=True)
+            x2 = 0
+            while x2 != ord('0'):
+                screen = curses.initscr()
+                screen.clear()
+                screen.border(0)
+
+                screen.addstr(2, 2, "Plotting...")
+                screen.addstr(4, 4, "1 - Harmonic and renormalized phonon dispersion relations")
+                screen.addstr(5, 4, "2 - Renormalized phonon dispersions and linewidths (fat bands)")
+                screen.addstr(6, 4, "3 - Frequency shifts and linewidths (separated)")
+                screen.addstr(8, 4, "0 - Return")
+                screen.refresh()
+
+                x2 = screen.getch()
+
+                if x2 == ord('1'):
+                    curses.endwin()
+                    calculation.plot_renormalized_phonon_dispersion_bands()
+
+                if x2 == ord('2'):
+                    curses.endwin()
+                    calculation.plot_renormalized_phonon_dispersion_bands(plot_linewidths=True,
+                                                                          plot_harmonic=False)
+
+                if x2 == ord('3'):
+                    curses.endwin()
+                    calculation.plot_linewidths_and_shifts_bands()
+
             curses.endwin()
 
 ######## OPTION 7 :  PEAK ANALYSIS
@@ -353,11 +375,12 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
     curses.endwin()
 
-#Just for testing
+# Testing
 if __name__ == 'test_gui.py':
     import dynaphopy as controller
     import dynaphopy.functions.iofunctions as reading
-    #Get data from input file
+
+    # Get data from input file
     input_parameters = reading.read_parameters_from_input_file(sys.argv[1])
 
     structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name'])

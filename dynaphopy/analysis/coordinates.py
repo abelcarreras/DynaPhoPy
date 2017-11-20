@@ -69,7 +69,7 @@ def relativize_trajectory_py(dynamic):
 
             # difference_matrix = np.array(np.dot(np.linalg.inv(cell),(IniSep)),dtype=int)
             difference_matrix = np.around(np.dot(np.linalg.inv(cell), difference), decimals=0)
-            normalized_trajectory[i, j, :] -= np.dot(difference_matrix, cell.T) + position[j]
+            normalized_trajectory[i, j, :] -= np.dot(difference_matrix, cell) + position[j]
 
         progress_bar(float(j+1)/number_of_atoms)
 

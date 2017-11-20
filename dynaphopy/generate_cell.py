@@ -17,7 +17,7 @@ def generate_VASP_structure(structure, scaled=False, supercell=(1, 1, 1)):
 
     vasp_POSCAR = 'Generated using dynaphopy\n'
     vasp_POSCAR += '1.0\n'
-    for row in cell.T:
+    for row in cell:
         vasp_POSCAR += '{0:20.10f} {1:20.10f} {2:20.10f}\n'.format(*row)
     vasp_POSCAR += ' '.join(elements)
     vasp_POSCAR += ' \n'

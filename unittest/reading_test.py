@@ -24,8 +24,10 @@ class TestDynaphopy(unittest.TestCase):
     def test_XDATCAR(self):
         defined_time_step = 0.0005
         parser = io.get_trajectory_parser('Si_data/XDATCAR')
+        template = io.check_atoms_order('Si_data/XDATCAR', parser, self.structure)
+
         trajectory = parser('Si_data/XDATCAR', self.structure,
-                            initial_cut=3, end_cut=14, time_step=defined_time_step)
+                            initial_cut=3, end_cut=14, time_step=defined_time_step, template=template)
 
         rel_traj_ref = [[ 3.83203119e-09,  1.41927075e-09,  1.70312506e-09],
                         [ 4.25781249e-10,  3.12239576e-09,  5.10937512e-09],

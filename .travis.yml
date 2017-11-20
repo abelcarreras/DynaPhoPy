@@ -1,24 +1,32 @@
 language: python
 
+os:
+  - linux
+
 python:
-    - "2.7"
-    - "3.4"
+  - "2.7"
+  - "3.4"
 
 branches:
   only:
-  - master
-  - development
-  - python_3_development
+    - master
+    - development
+    - improve_API
+    - python_3_development
 
 install:
     - sudo apt-get install libhdf5-serial-dev
+    - pip install coverage
+    - pip install python-coveralls
     - pip install -r requirements.txt
-    - python setup.py install
+    - pip install -e .
 
 script:
     - cd unittest
-    - python -m unittest discover . "*_test.py"
-    - cd ..
+    - coverage run --source=../dynaphopy -m unittest discover . "*_test.py"
+
+after_success:
+    - coveralls
 
 deploy:
     # pypi
