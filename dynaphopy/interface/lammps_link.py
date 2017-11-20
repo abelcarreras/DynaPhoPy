@@ -78,7 +78,7 @@ def generate_lammps_trajectory(structure,
         xc = lmp.gather_atoms("x", 1, 3)
         vc = lmp.gather_atoms("v", 1, 3)
 
-        energy.append(lmp.gather_atoms("pe", 1, 1))
+        energy.append(lmp.gather_atoms("pe", 1, 1)[0])
         velocity.append(np.array([vc[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :])
 
         if not velocity_only:
