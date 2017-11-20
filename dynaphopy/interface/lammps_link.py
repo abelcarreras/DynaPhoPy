@@ -19,7 +19,7 @@ def generate_lammps_trajectory(structure,
 
     sampling=1
 
-    lmp = lammps(cmdargs=['-echo','none', '-log', 'none', '-screen', 'none'])
+    lmp = lammps(cmdargs=['-echo','none', '-log', 'none', '-screen', 'none', '-pk omp 2 -sf omp'])
 
     # test out various library functions after running in.demo
 
