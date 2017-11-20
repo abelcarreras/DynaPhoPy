@@ -79,12 +79,14 @@ def get_lammps_forces(structure, cell_with_disp, supercell_matrix, input_file):
     lmp.command('replicate {} {} {}'.format(*supercell_sizes))
     lmp.command('run 0')
 
+    na = lmp.get_natoms()
+
     xc = lmp.gather_atoms("x", 1, 3)
-    reference = np.array(xc).reshape((-1, 3))
+    reference = np.array([xc[i] for i in range(na*3)]).reshape((na,3))
+
     template = get_correct_arrangement(reference, structure)
     indexing = np.argsort(template)
 
-    na = lmp.get_natoms()
     for i in range(na):
         lmp.command('set atom {} x {} y {} z {}'.format(i+1,
                                                         cell_with_disp[template[i], 0],
@@ -95,7 +97,7 @@ def get_lammps_forces(structure, cell_with_disp, supercell_matrix, input_file):
 
     forces = lmp.gather_atoms("f", 1, 3)
 
-    forces = np.array(forces).reshape((-1,3))[indexing, :]
+    forces = np.array([forces[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :]
 
     lmp.close()
 
