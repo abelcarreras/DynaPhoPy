@@ -256,9 +256,6 @@ def get_equivalent_q_points_by_symmetry(q_point, structure):
         if (q_point_test >= 0).all():
                 tot_points.append(q_point_test)
 
-#    print tot_points
-#    print(np.vstack({tuple(row) for row in tot_points}))
-
     return np.vstack({tuple(row) for row in tot_points})
 
 

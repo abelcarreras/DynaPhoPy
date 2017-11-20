@@ -227,11 +227,12 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
 ######## OPTION 8 :  TRAJECTORY DISTRIBUTION
         if x == ord('8'):
+            curses.endwin()
             direction = np.array([float(Fraction(s)) for s in
                                  get_param(screen, "Insert the vector that defines direction in which the "
                                                    "distribution will be calculated (values separated by comma)").split(',')])
-            curses.endwin()
             calculation.plot_trajectory_distribution(direction)
+            curses.endwin()
 
 ######## OPTION 9 :  PREFERENCES
         if x == ord('9'):

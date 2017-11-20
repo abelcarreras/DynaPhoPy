@@ -1,0 +1,40 @@
+units           metal
+
+boundary        p p p
+
+box tilt large
+
+atom_style      atomic
+
+lattice custom    1.0     &
+        a1      3.1900000572     0.000000000     0.0000000000       &
+        a2     -1.5950000280     2.762621076     0.0000000000       &
+        a3      0.0000000000     0.000000000     5.1890001297       &
+        basis   0.66666669         0.33333334         0.000000000   &
+        basis   0.33333331         0.66666663         0.500000000   &
+        basis   0.66666669         0.33333334         0.375000000   &
+        basis   0.33333331         0.66666663         0.875000000
+
+region box1 prism 0 0.6666666  0 1 0 1 -0.33333333  0 0 units lattice
+
+create_box 2 box1
+
+create_atoms 1 box basis 1 1 &
+                   basis 2 1 &
+                   basis 3 2 &
+                   basis 4 2
+
+mass 1  69.7230
+mass 2  14.0067
+
+pair_style      tersoff
+pair_coeff      * * GaN.tersoff  Ga N
+
+variable        t equal 300
+neighbor        0.3 bin
+
+velocity        all create $t 3627941 dist gaussian mom yes
+velocity          all scale $t
+
+fix             int all nvt temp $t $t 0.5  #between 0.2-2.0
+
