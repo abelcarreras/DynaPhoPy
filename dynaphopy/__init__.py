@@ -481,6 +481,7 @@ class Quasiparticle:
         plt.xlabel('Frequency [THz]')
         plt.ylabel('Density of states')
         plt.legend()
+        plt.axhline(y=0, color='k', ls='dashed')
         plt.show()
 
     def check_commensurate(self, q_point, decimals=4):
@@ -788,6 +789,7 @@ class Quasiparticle:
         plt.plot(self.get_frequency_range(), self.get_power_spectrum_wave_vector(), 'r-')
         plt.xlabel('Frequency [THz]')
         plt.ylabel('eV * ps')
+        plt.axhline(y=0, color='k', ls='dashed')
         plt.show()
         total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
         print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
@@ -799,6 +801,7 @@ class Quasiparticle:
             plt.plot(self.get_frequency_range(), self.get_power_spectrum_phonon()[:, i])
             plt.xlabel('Frequency [THz]')
             plt.ylabel('eV * ps')
+            plt.axhline(y=0, color='k', ls='dashed')
 
         plt.show()
 
@@ -891,6 +894,7 @@ class Quasiparticle:
             plt.xlabel('Direction: ' + ' '.join(np.array(direction, dtype=str)) + ' [Angstrom]')
             plt.xlim([distance[0], distance[-1]])
             plt.ylim([0, None])
+            plt.axhline(y=0, color='k', ls='dashed')
             plt.legend()
         plt.show()
 
@@ -1178,6 +1182,7 @@ class Quasiparticle:
                                                                                         power_spectrum_properties)))
             if not self.parameters.silent:
                 plt.plot(frequency_range, power_spectrum_dos, 'r-', label='Molecular dynamics')
+                plt.axhline(y=0, color='k', ls='dashed')
 
         else:
             print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
