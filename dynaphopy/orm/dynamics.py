@@ -36,10 +36,6 @@ class Dynamics:
             if trajectory is not None:
                 self._trajectory = trajectory
 
-            #Check order of atoms
-            #if trajectory is not None and structure.get_number_of_dimensions() == 3:
-            #    self._trajectory = check_trajectory_structure(trajectory, structure)
-
         else:
             print('Warning: Initialization without structure')
             self._structure = None
