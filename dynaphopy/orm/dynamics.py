@@ -306,7 +306,7 @@ class Dynamics:
 
             if abs(sum(self._supercell_matrix - supercell_matrix_real)/np.linalg.norm(supercell_matrix_real)) > tolerance:
                 print(abs(sum(self._supercell_matrix - supercell_matrix_real) / np.linalg.norm(supercell_matrix_real)))
-                print('Warning! Defined unit cell and MD supercell do not fit!')
+                print('Warning! Defined unit cell and MD supercell do not match!')
                 print('Cell size relation is not integer: {0}'.format(supercell_matrix_real))
                 exit()
 

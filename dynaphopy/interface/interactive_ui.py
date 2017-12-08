@@ -142,19 +142,16 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             q_vector = np.array([float(Fraction(s)) for s in
                                  get_param(screen, "Insert reduced wave vector (values separated by comma)").split(',')])
             calculation.set_reduced_q_vector(q_vector)
-            curses.endwin()
 
 ######## OPTION 3 :  THERMAL PROPERTIES
         if x == ord('3'):
             curses.endwin()
             calculation.display_thermal_properties()
-            curses.endwin()
 
 ######## OPTION 4 :  BOLTZMANN DISTRIBUTION
         if x == ord('4'):
             curses.endwin()
             calculation.show_boltzmann_distribution()
-            curses.endwin()
 
 ######## OPTION 5 :  PLOTTING POWER SPECTRA
         if x == ord('5'):
@@ -232,7 +229,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                                  get_param(screen, "Insert the vector that defines direction in which the "
                                                    "distribution will be calculated (values separated by comma)").split(',')])
             calculation.plot_trajectory_distribution(direction)
-            curses.endwin()
 
 ######## OPTION 9 :  PREFERENCES
         if x == ord('9'):
@@ -372,7 +368,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     print(frequency_limits)
                     calculation.set_frequency_limits(frequency_limits)
                     curses.endwin()
-
 
     curses.endwin()
 
