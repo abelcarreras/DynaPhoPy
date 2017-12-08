@@ -245,14 +245,19 @@ class Quasiparticle:
         plot_title = 'Renormalized phonon dispersion relations'
         for i, path in enumerate(bands_full_data):
 
-            plt.plot(path['q_path_distances'], np.array(list(path['renormalized_frequencies'].values())).T, color='r', label='Renormalized')
+            plt.plot(path['q_path_distances'], np.array(list(path['renormalized_frequencies'].values())).T, color='r',
+                     label='Renormalized')
 
             if plot_harmonic:
-                plt.plot(path['q_path_distances'], np.array(list(path['harmonic_frequencies'].values())).T, color='b', label='Harmonic')
+                plt.plot(path['q_path_distances'], np.array(list(path['harmonic_frequencies'].values())).T, color='b',
+                         label='Harmonic')
 
             if plot_linewidths:
-                for freq, linewidth in zip(list(path['renormalized_frequencies'].values()), list(path['linewidth'].values())):
-                    plt.fill_between(path['q_path_distances'], freq+np.array(linewidth)/2, freq-np.array(linewidth)/2, color='r', alpha=0.2, interpolate=True, linewidth=0)
+                for freq, linewidth in zip(list(path['renormalized_frequencies'].values()),
+                                           list(path['linewidth'].values())):
+                    plt.fill_between(path['q_path_distances'], freq + np.array(linewidth) / 2,
+                                     freq - np.array(linewidth) / 2, color='r', alpha=0.2, interpolate=True,
+                                     linewidth=0)
                     plot_title = 'Renormalized phonon dispersion relations and linewidths'
 
         # plt.axes().get_xaxis().set_visible(False)
@@ -272,7 +277,7 @@ class Quasiparticle:
 
             labels = [[bands_full_data[i]['labels']['inf'],
                        bands_full_data[i]['labels']['sup']]
-                       for i in range(len(bands_full_data))]
+                      for i in range(len(bands_full_data))]
 
             labels_e = []
             x_labels = []
@@ -333,7 +338,7 @@ class Quasiparticle:
             plt.xlim([0, self._bands[1][-1][-1]])
             plt.axhline(y=0, color='k', ls='dashed')
             handles, labels = plt.gca().get_legend_handles_labels()
-            #plt.legend([handles[i] for i in range(number_of_branches)],
+            # plt.legend([handles[i] for i in range(number_of_branches)],
             #           ['branch {}'.format(i) for i in range(number_of_branches)])
 
             if 'labels' in bands_full_data[0]:
@@ -341,7 +346,7 @@ class Quasiparticle:
 
                 labels = [[bands_full_data[i]['labels']['inf'],
                            bands_full_data[i]['labels']['sup']]
-                           for i in range(len(bands_full_data))]
+                          for i in range(len(bands_full_data))]
 
                 labels_e = []
                 x_labels = []
@@ -384,7 +389,6 @@ class Quasiparticle:
         linewidths = data['linewidths']
         fc_supercell = data['fc_supercell']
 
-
         sup_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies + linewidths / 2,
                                                                  eigenvectors,
                                                                  self.dynamic.structure,
@@ -397,7 +401,6 @@ class Quasiparticle:
                                                                  fc_supercell,
                                                                  symmetrize=self.parameters.symmetrize)
 
-
         if with_linewidths:
             renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                 band_ranges,
@@ -409,8 +412,6 @@ class Quasiparticle:
                                                                                 force_constants=inf_lim,
                                                                                 NAC=self.parameters.use_NAC)
 
-
-
         bands_full_data = []
         for i, q_path in enumerate(self._bands[1]):
 
@@ -421,17 +422,16 @@ class Quasiparticle:
                     'renormalized_frequencies': {'branch_{}'.format(key): value.tolist() for (key, value) in
                                                  enumerate(self._renormalized_bands[2][i].T)},
                     'frequency_shifts': {'branch_{}'.format(key): value.tolist() for (key, value) in
-                                                 enumerate(self._renormalized_bands[2][i].T - self._bands[2][i].T)},
+                                         enumerate(self._renormalized_bands[2][i].T - self._bands[2][i].T)},
                     }
-
 
             if with_linewidths:
                 band.update({'linewidth_minus': {'branch_{}'.format(key): value.tolist() for (key, value) in
                                                  enumerate(renormalized_bands_i[2][i].T)},
                              'linewidth_plus': {'branch_{}'.format(key): value.tolist() for (key, value) in
-                                                 enumerate(renormalized_bands_s[2][i].T)},
+                                                enumerate(renormalized_bands_s[2][i].T)},
                              'linewidth': {'branch_{}'.format(key): value.tolist() for (key, value) in
-                                                 enumerate(renormalized_bands_s[2][i].T - renormalized_bands_i[2][i].T)}}
+                                           enumerate(renormalized_bands_s[2][i].T - renormalized_bands_i[2][i].T)}}
                             )
 
             if 'labels' in bands:
@@ -473,7 +473,7 @@ class Quasiparticle:
             phonopy_dos_r = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                              mesh=self.parameters.mesh_phonopy,
                                                              force_constants=force_constants,
-                                                              projected_on_atom=self.parameters.project_on_atom)
+                                                             projected_on_atom=self.parameters.project_on_atom)
 
             plt.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized')
 
@@ -602,9 +602,10 @@ class Quasiparticle:
                 #                print(q_points_equivalent)
                 for q_point in q_points_equivalent:
                     self.set_reduced_q_vector(q_point)
-                    power_spectrum_phonon.append((power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
-                                                        self.dynamic,
-                                                        self.parameters))
+                    power_spectrum_phonon.append(
+                        (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
+                                                                                               self.dynamic,
+                                                                                               self.parameters))
 
                 self.set_reduced_q_vector(initial_reduced_q_point)
                 self._power_spectrum_phonon = np.average(power_spectrum_phonon, axis=0)
@@ -687,16 +688,16 @@ class Quasiparticle:
                 for i in range(velocity_mass_average.shape[1]):
                     for j in range(velocity_mass_average.shape[2]):
                         self._power_spectrum_direct += \
-                        (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
+                            (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
                                 velocity_mass_average[:, i, j][None].T,
                                 self.dynamic,
                                 self.parameters)
 
             else:
                 self._power_spectrum_direct = (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
-                        velocity_mass_average.swapaxes(1, 2).reshape(-1, size),
-                        self.dynamic,
-                        self.parameters)
+                    velocity_mass_average.swapaxes(1, 2).reshape(-1, size),
+                    self.dynamic,
+                    self.parameters)
 
             self._power_spectrum_direct = np.sum(self._power_spectrum_direct, axis=1)
         return self._power_spectrum_direct
@@ -709,15 +710,15 @@ class Quasiparticle:
             velocity_mass_average = self.dynamic.get_velocity_mass_average()
 
             self._power_spectrum_partials = (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
-                        velocity_mass_average[:, :, 0],
-                        self.dynamic,
-                        self.parameters)
+                velocity_mass_average[:, :, 0],
+                self.dynamic,
+                self.parameters)
 
             for i in [1, 2]:
                 self._power_spectrum_partials += (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](
-                        velocity_mass_average[:, :, i],
-                        self.dynamic,
-                        self.parameters)
+                    velocity_mass_average[:, :, i],
+                    self.dynamic,
+                    self.parameters)
 
         if save_to_file is not None:
             np.savetxt(save_to_file, np.hstack([self.get_frequency_range()[None].T, self._power_spectrum_partials]))
@@ -782,7 +783,7 @@ class Quasiparticle:
         plt.show()
 
         total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range())
-        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
+        print("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
         plt.suptitle('Projection onto wave vector')
@@ -792,7 +793,7 @@ class Quasiparticle:
         plt.axhline(y=0, color='k', ls='dashed')
         plt.show()
         total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
-        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
+        print("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_phonon(self):
         for i in range(self.get_power_spectrum_phonon().shape[1]):
@@ -858,7 +859,6 @@ class Quasiparticle:
 
         distributions, distance = self.get_atomic_displacements(direction)
 
-
         plt.figure()
         for atom in range(distributions.shape[0]):
 
@@ -888,7 +888,7 @@ class Quasiparticle:
                          label=fitting_function.curve_name,
                          linewidth=3, color='g')
             except:
-                print ('Gaussian fitting failed')
+                print('Gaussian fitting failed')
 
             plt.bar(center, distributions[atom], align='center', width=width)
             plt.xlabel('Direction: ' + ' '.join(np.array(direction, dtype=str)) + ' [Angstrom]')
@@ -904,14 +904,14 @@ class Quasiparticle:
                                     self.get_power_spectrum_full()[None].T,
                                     file_name)
         total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range())
-        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
+        print("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_wave_vector(self, file_name):
         reading.write_curve_to_file(self.get_frequency_range(),
                                     self.get_power_spectrum_wave_vector()[None].T,
                                     file_name)
         total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
-        print ("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
+        print("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def write_power_spectrum_phonon(self, file_name):
         reading.write_curve_to_file(self.get_frequency_range(),
@@ -975,8 +975,8 @@ class Quasiparticle:
                                                                mesh=self.parameters.mesh_phonopy)
 
                 self.set_frequency_limits([0, np.max(phonopy_dos[0][-1]) * 1.2])
-                print ('set frequency range: {} - {}'.format(self.get_frequency_range()[0],
-                                                             self.get_frequency_range()[-1]))
+                print('set frequency range: {} - {}'.format(self.get_frequency_range()[0],
+                                                            self.get_frequency_range()[-1]))
 
             # Decide the size of the supercell to use to calculate the renormalized force constants
             if self._parameters.use_MD_cell_commensurate:
@@ -997,7 +997,7 @@ class Quasiparticle:
 
             for i, reduced_q_vector in enumerate(com_points):
 
-                print ("\nQ-point: {0} / {1}      {2}".format(i + 1, len(com_points), reduced_q_vector))
+                print("\nQ-point: {0} / {1}      {2}".format(i + 1, len(com_points), reduced_q_vector))
 
                 self.set_reduced_q_vector(reduced_q_vector)
                 eigenvectors.append(self.get_eigenvectors())
@@ -1046,9 +1046,9 @@ class Quasiparticle:
 
             # To be deprecated
             if self.parameters.save_renormalized_frequencies:
-                print ("This option will be deprecated in the future. Please use save quasiparticle data option")
+                print("This option will be deprecated in the future. Please use save quasiparticle data option")
                 np.savetxt('renormalized_frequencies', renormalized_frequencies)
-            #            np.savetxt('test_line', linewidths)
+            # np.savetxt('test_line', linewidths)
 
             self._commensurate_points_data = {'frequencies': renormalized_frequencies,
                                               'eigenvectors': eigenvectors,
@@ -1069,11 +1069,11 @@ class Quasiparticle:
 
         if self._renormalized_force_constants is None:
             self._renormalized_force_constants = pho_interface.get_renormalized_force_constants(
-                                                        renormalized_frequencies,
-                                                        eigenvectors,
-                                                        self.dynamic.structure,
-                                                        fc_supercell,
-                                                        symmetrize=self.parameters.symmetrize)
+                renormalized_frequencies,
+                eigenvectors,
+                self.dynamic.structure,
+                fc_supercell,
+                symmetrize=self.parameters.symmetrize)
 
         return self._renormalized_force_constants
 
@@ -1112,8 +1112,10 @@ class Quasiparticle:
                                                              freq_max=self.get_frequency_range()[-1],
                                                              projected_on_atom=self.parameters.project_on_atom)
 
-            free_energy += thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
-            total_energy += thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
+            free_energy += thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1],
+                                                              phonopy_dos[1])
+            total_energy += thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1],
+                                                               phonopy_dos[1])
 
             # correction = thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1], phonopy_dos[1])
             # print('Free energy/total energy correction: {0:12.4f} KJ/mol'.format(correction))
@@ -1142,7 +1144,7 @@ class Quasiparticle:
             print('Free energy (not corrected):   {0:.4f}       {3:.4f}     KJ/mol\n'
                   'Entropy:                       {1:.4f}       {4:.4f}     J/K/mol\n'
                   'Cv:                            {2:.4f}       {5:.4f}     J/K/mol\n'.format(
-                   *(harmonic_properties + renormalized_properties)))
+                *(harmonic_properties + renormalized_properties)))
 
         harmonic_properties = self.get_thermal_properties()
         renormalized_properties = self.get_thermal_properties(force_constants=self.get_renormalized_force_constants())
@@ -1154,8 +1156,8 @@ class Quasiparticle:
             power_spectrum_dos = thm.get_dos(temperature, frequency_range, self.get_power_spectrum_full(),
                                              normalization)
             integration = integrate.simps(power_spectrum_dos, x=frequency_range) / (
-            self.dynamic.structure.get_number_of_atoms() *
-            self.dynamic.structure.get_number_of_dimensions())
+                self.dynamic.structure.get_number_of_atoms() *
+                self.dynamic.structure.get_number_of_dimensions())
 
             if normalize_dos:
                 power_spectrum_dos /= integration
@@ -1193,7 +1195,7 @@ class Quasiparticle:
                   'Cv           (J/K/mol): {2:12.4f}  {7:12.4f}\n'
                   'Total energy  (KJ/mol): {3:12.4f}  {8:12.4f}\n'
                   'Integration:            {4:12.4f}  {9:12.4f}\n'.format(
-                   *(harmonic_properties + renormalized_properties)))
+                *(harmonic_properties + renormalized_properties)))
 
         if not self.parameters.silent:
             self.plot_dos_phonopy(force_constants=self.get_renormalized_force_constants())
@@ -1210,7 +1212,8 @@ class Quasiparticle:
 
         average_positions = self.dynamic.get_mean_displacement_matrix(use_average_positions=True)
         if print_on_screen:
-            print('Anisotropic displacement parameters ({0}) [relative to average atomic positions]'.format(coordinate_type))
+            print('Anisotropic displacement parameters ({0}) [relative to average atomic positions]'.format(
+                coordinate_type))
             print('          U11          U22          U33          U23          U13          U12')
 
         anisotropic_displacements = []
@@ -1232,20 +1235,21 @@ class Quasiparticle:
             if print_on_screen:
                 for equivalent in range(atom_equivalent[i]):
                     print(
-                    '{0:3} {1:12.8f} {2:12.8f} {3:12.8f} {4:12.8f} {5:12.8f} {6:12.8f}'.format(atomic_types_unique[i],
-                                                                                               u[coordinate_type][0, 0],
-                                                                                               u[coordinate_type][1, 1],
-                                                                                               u[coordinate_type][2, 2],
-                                                                                               u[coordinate_type][1, 2],
-                                                                                               u[coordinate_type][0, 2],
-                                                                                               u[coordinate_type][0, 1]))
+                        '{0:3} {1:12.8f} {2:12.8f} {3:12.8f} {4:12.8f} {5:12.8f} {6:12.8f}'.format(
+                            atomic_types_unique[i],
+                            u[coordinate_type][0, 0],
+                            u[coordinate_type][1, 1],
+                            u[coordinate_type][2, 2],
+                            u[coordinate_type][1, 2],
+                            u[coordinate_type][0, 2],
+                            u[coordinate_type][0, 1]))
 
             anisotropic_displacements.append(u[coordinate_type])
 
         return anisotropic_displacements
 
     def get_average_atomic_positions(self, to_unit_cell=True):
-        print ('Average atomic positions')
+        print('Average atomic positions')
 
         supercell = None
         if not to_unit_cell:
@@ -1255,12 +1259,12 @@ class Quasiparticle:
         elements = self.dynamic.structure.get_atomic_elements(supercell=supercell)
 
         for i, coordinate in enumerate(positions_average):
-            print ('{0:2} '.format(elements[i]) + '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*coordinate.real))
+            print('{0:2} '.format(elements[i]) + '{0:15.8f} {1:15.8f} {2:15.8f}'.format(*coordinate.real))
 
     # QHA methods
     def set_qha_force_constants(self, fc_qha_file):
         self._force_constants_qha = pho_interface.get_force_constants_from_file(fc_qha_file,
-                                                                          fc_supercell=self.dynamic.structure.get_supercell_phonon())
+                                                                                fc_supercell=self.dynamic.structure.get_supercell_phonon())
 
     def get_qha_shift(self, reduced_q_vector):
         if self._force_constants_qha is not None:
@@ -1282,5 +1286,3 @@ def _vector_in_list(vector_test_list, vector_full_list):
             if (vector_full == vector_test).all():
                 return i
     return 0
-
-
