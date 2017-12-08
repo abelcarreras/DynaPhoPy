@@ -109,8 +109,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 x2 = screen.getch()
 
+                curses.endwin()
+
                 if x2 == ord('1'):
-                    curses.endwin()
                     freq = calculation.get_frequencies()
                     sleep(1)
                     screen = curses.initscr()
@@ -121,20 +122,15 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     screen.addstr(3, 4, "-----------------")
 
                     list_on_screen(screen, freq, 5, 4)
-
                     screen.getch()
 
                 if x2 == ord('2'):
-                    curses.endwin()
-                    #calculation.get_eigenvectors()
                     calculation.plot_eigenvectors()
 
                 if x2 == ord('3'):
-                    curses.endwin()
                     calculation.plot_phonon_dispersion_bands()
 
                 if x2 == ord('4'):
-                    curses.endwin()
                     calculation.plot_dos_phonopy()
 
 ######## OPTION 2 :  DEFINE WAVE VECTOR
@@ -170,17 +166,15 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.refresh()
 
                 x2 = screen.getch()
+                curses.endwin()
 
                 if x2 == ord('1'):
-                    curses.endwin()
                     calculation.plot_power_spectrum_full()
 
                 if x2 == ord('2'):
-                    curses.endwin()
                     calculation.plot_power_spectrum_wave_vector()
 
                 if x2 == ord('3'):
-                    curses.endwin()
                     calculation.plot_power_spectrum_phonon()
 
 ######## OPTION 6 :  Renormalized phonon dispersion
@@ -200,27 +194,24 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 x2 = screen.getch()
 
+                curses.endwin()
+
                 if x2 == ord('1'):
-                    curses.endwin()
                     calculation.plot_renormalized_phonon_dispersion_bands()
 
                 if x2 == ord('2'):
-                    curses.endwin()
                     calculation.plot_renormalized_phonon_dispersion_bands(plot_linewidths=True,
                                                                           plot_harmonic=False)
 
                 if x2 == ord('3'):
-                    curses.endwin()
                     calculation.plot_linewidths_and_shifts_bands()
 
-            curses.endwin()
 
 ######## OPTION 7 :  PEAK ANALYSIS
         if x == ord('7'):
             curses.endwin()
             calculation.phonon_individual_analysis()
             screen.getch()
-            curses.endwin()
 
 ######## OPTION 8 :  TRAJECTORY DISTRIBUTION
         if x == ord('8'):
