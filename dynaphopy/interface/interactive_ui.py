@@ -229,8 +229,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                                  get_param(screen, "Insert the vector that defines direction in which the "
                                                    "distribution will be calculated (values separated by comma)").split(',')])
             calculation.plot_trajectory_distribution(direction)
+            curses.endwin()
 
-######## OPTION 9 :  PREFERENCES
+        ######## OPTION 9 :  PREFERENCES
         if x == ord('9'):
 
             x2 = 0
