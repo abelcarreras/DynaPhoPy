@@ -96,7 +96,6 @@ def plot_renormalized_phonon_bands(structure, renormalized_force_constants):
                                                                       force_constants=renormalized_force_constants,
                                                                       NAC=False)
 
-
     for i,freq in enumerate(renormalized_bands[1]):
         plt.plot(bands[1][i],bands[2][i],color ='b', label='Harmonic (0K)')
         plt.plot(renormalized_bands[1][i],renormalized_bands[2][i],color ='r', label='Renormalized')
@@ -112,7 +111,6 @@ def plot_renormalized_phonon_bands(structure, renormalized_force_constants):
     plt.show()
 
 
-
 # Get data from input file & process parameters
 input_parameters = reading.read_parameters_from_input_file(args.input_file[0])
 
@@ -123,7 +121,7 @@ else:
 
 structure.get_data_from_dict(input_parameters)
 
-#if args.dim is not None:
+# if args.dim is not None:
 #    structure.set_supercell_phonon_renormalized(np.diag(np.array(args.dim, dtype=int)))
 
 # Process options
