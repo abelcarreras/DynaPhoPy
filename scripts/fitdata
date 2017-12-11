@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import argparse
 
 
-#Arguments definition
+# Arguments definition
 parser = argparse.ArgumentParser(description='fitdata')
 parser.add_argument('file', metavar='file', type=str,
                    help='file containing power spectra information')
@@ -34,7 +34,7 @@ parser.add_argument('--fitting_function', type=int, default=0, metavar='N',
 args = parser.parse_args()
 
 
-#LOWESS method definition
+# LOESS method definition
 def loess(x, y, f=2./3.):
 
     n = len(x)
@@ -84,7 +84,7 @@ for phonon in degeneracy:
 
 
 
-#Smoothing using LOESS method
+# Smoothing using LOESS method
 if args.smooth:
 
     y_smooth = []
@@ -92,7 +92,7 @@ if args.smooth:
 
         y2 = loess(test_frequencies_range, datum, f=args.f)
 
-        if not(args.silent):
+        if not args.silent:
             plt.figure(i+1)
             plt.title('Band '+str(i+1))
             plt.suptitle('Smoothing LOESS')
@@ -103,16 +103,16 @@ if args.smooth:
 
         y_smooth.append(y2)
 
-    if not(args.silent):
+    if not args.silent:
         plt.show()
 
-    data=np.array(y_smooth).T
+    data = np.array(y_smooth).T
 else:
-    data=np.array(data).T
+    data = np.array(data).T
 
-#Analysis using Dynaphopy functions
+# Analysis using Dynaphopy functions
 fitting.phonon_fitting_analysis(data, test_frequencies_range,
-                                show_plots=not(args.silent),
+                                show_plots=not args.silent,
                                 fitting_function_type=args.fitting_function,
                                 use_degeneracy=None)
 
