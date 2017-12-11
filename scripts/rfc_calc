@@ -7,6 +7,7 @@ import argparse
 import dynaphopy.interface.phonopy_link as pho_interface
 import dynaphopy.interface.iofile as reading
 
+
 parser = argparse.ArgumentParser(description='rfc_calc options')
 parser.add_argument('input_file', metavar='data_file', type=str, nargs=1,
                     help='input file containing structure related data')
