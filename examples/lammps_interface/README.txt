@@ -18,14 +18,15 @@ fc_lammps.py input_dynaphopy in.lammps -o FORCE_CONSTANTS_LAMMPS
 3. Run dynaphopy using  "--run_lammps" with arguments. These arguments
 are: [lammps input script, MD simulation total time [ps], time step [ps], and
 stabilization time [ps]. Also you may want to define "--dim" to set the size of
-the supercell used in the simulation (by default the unitcell is used). Ex:
+the supercell respect to the unit cell used in the molecular dynamics (MD)
+simulation (by default the unitcell is used). Ex:
 
 dynaphopy input_dynaphopy --run_lammps in.lammps 50 0.001 5  --dim 6 6 6 -i
 
-Note: This mode allows to calculate anharmonic properties of LAMMPS MD without
-writing data on files. Due to this the full MD will be calculated every time
+Note: The LAMMPS interface allows to perform dynamphopy calculations using LAMMPS MD without
+writing data on files. Note that the full MD will be calculated every time
 dynaphopy is executed. Use option flags (or interactive mode) to calculate several
-properties in one run. The trajectory can also stored in the disk using in hdf5 format
-for later analysis using "--save_data".
+properties in one run. Alternatively, the trajectory can be stored in the disk in hdf5 format
+for later analysis using "--save_data" option.
 
 
