@@ -15,11 +15,15 @@ def generate_lammps_trajectory(structure,
                                silent=False,
                                supercell=(1, 1, 1),
                                memmap=False,
-                               velocity_only=False):
+                               velocity_only=False,
+                               lammps_log=True,
+                               sampling_interval=1):
 
-    sampling=1
+    cmdargs_lammps = ['-echo','none', '-screen', 'none']
+    if not lammps_log:
+        cmdargs_lammps += ['-log', 'none']
 
-    lmp = lammps(cmdargs=['-echo','none', '-log', 'none', '-screen', 'none'])
+    lmp = lammps(cmdargs=cmdargs_lammps)
 
     # test out various library functions after running in.demo
 
@@ -67,13 +71,13 @@ def generate_lammps_trajectory(structure,
     if not silent:
         _progress_bar(0, 'lammps')
 
-    n_loops = int(total_time/time_step/sampling)
+    n_loops = int(total_time / time_step / sampling_interval)
     for i in range(n_loops):
 
         if not silent:
-            _progress_bar(float((i+1) * time_step * sampling) / total_time, 'lammps', )
+            _progress_bar(float((i+1) * time_step * sampling_interval) / total_time, 'lammps', )
 
-        lmp.command('run {}'.format(sampling))
+        lmp.command('run {}'.format(sampling_interval))
 
         xc = lmp.gather_atoms("x", 1, 3)
         vc = lmp.gather_atoms("v", 1, 3)
@@ -93,7 +97,7 @@ def generate_lammps_trajectory(structure,
 
     lmp.close()
 
-    time = np.array([i * time_step * sampling for i in range(n_loops)], dtype=float)
+    time = np.array([i * time_step * sampling_interval for i in range(n_loops)], dtype=float)
 
     return dyn.Dynamics(structure=structure,
                         trajectory=positions,
