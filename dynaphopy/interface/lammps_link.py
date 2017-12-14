@@ -19,7 +19,7 @@ def generate_lammps_trajectory(structure,
 
     sampling=1
 
-    lmp = lammps(cmdargs=['-echo','none', '-log', 'none', '-screen', 'none'])
+    lmp = lammps(cmdargs=['-echo','none', '-log', 'none', '-screen', 'none', '-pk', 'omp','2', '-sf', 'omp'])
 
     # test out various library functions after running in.demo
 
@@ -56,8 +56,9 @@ def generate_lammps_trajectory(structure,
     velocity = []
     energy = []
 
+    na = lmp.get_natoms()
     xc = lmp.gather_atoms("x", 1, 3)
-    reference = np.array(xc).reshape((-1, 3))
+    reference = np.array([xc[i] for i in range(na*3)]).reshape((na,3))
     template = get_correct_arrangement(reference, structure)
     indexing = np.argsort(template)
 
@@ -77,11 +78,11 @@ def generate_lammps_trajectory(structure,
         xc = lmp.gather_atoms("x", 1, 3)
         vc = lmp.gather_atoms("v", 1, 3)
 
-        energy.append(lmp.gather_atoms("pe",1,1))
-        velocity.append(np.array(vc).reshape((-1,3))[indexing, :])
+        energy.append(lmp.gather_atoms("pe", 1, 1)[0])
+        velocity.append(np.array([vc[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :])
 
         if not velocity_only:
-            positions.append(np.array(xc).reshape((-1,3))[indexing, :])
+            positions.append(np.array([xc[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :])
 
     positions = np.array(positions, dtype=complex)
     velocity = np.array(velocity, dtype=complex)
@@ -101,6 +102,7 @@ def generate_lammps_trajectory(structure,
                         time=time,
                         supercell=simulation_cell,
                         memmap=memmap)
+
 
 if __name__ == '__main__':
 

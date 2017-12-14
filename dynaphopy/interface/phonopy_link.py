@@ -91,12 +91,6 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
     # Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
 
-    if NAC:
-        print("Phonopy warning: Using Non Analytical Corrections")
-        primitive = phonon.get_primitive()
-        nac_params = parse_BORN(primitive, is_symmetry=True)
-        phonon.set_nac_params(nac_params=nac_params)
-
     if setup_forces:
         if structure.get_force_constants() is not None:
             phonon.set_force_constants(structure.get_force_constants().get_array())
@@ -108,6 +102,12 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
         else:
             print('No force sets/constants available!')
             exit()
+
+    if NAC:
+        print("Phonopy warning: Using Non Analytical Corrections")
+        primitive = phonon.get_primitive()
+        nac_params = parse_BORN(primitive, is_symmetry=True)
+        phonon.set_nac_params(nac_params=nac_params)
 
     return phonon
 

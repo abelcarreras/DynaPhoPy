@@ -109,8 +109,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 x2 = screen.getch()
 
+                curses.endwin()
+
                 if x2 == ord('1'):
-                    curses.endwin()
                     freq = calculation.get_frequencies()
                     sleep(1)
                     screen = curses.initscr()
@@ -121,20 +122,15 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     screen.addstr(3, 4, "-----------------")
 
                     list_on_screen(screen, freq, 5, 4)
-
                     screen.getch()
 
                 if x2 == ord('2'):
-                    curses.endwin()
-                    #calculation.get_eigenvectors()
                     calculation.plot_eigenvectors()
 
                 if x2 == ord('3'):
-                    curses.endwin()
                     calculation.plot_phonon_dispersion_bands()
 
                 if x2 == ord('4'):
-                    curses.endwin()
                     calculation.plot_dos_phonopy()
 
 ######## OPTION 2 :  DEFINE WAVE VECTOR
@@ -142,19 +138,16 @@ def interactive_interface(calculation, trajectory, args, structure_file):
             q_vector = np.array([float(Fraction(s)) for s in
                                  get_param(screen, "Insert reduced wave vector (values separated by comma)").split(',')])
             calculation.set_reduced_q_vector(q_vector)
-            curses.endwin()
 
 ######## OPTION 3 :  THERMAL PROPERTIES
         if x == ord('3'):
             curses.endwin()
             calculation.display_thermal_properties()
-            curses.endwin()
 
 ######## OPTION 4 :  BOLTZMANN DISTRIBUTION
         if x == ord('4'):
             curses.endwin()
             calculation.show_boltzmann_distribution()
-            curses.endwin()
 
 ######## OPTION 5 :  PLOTTING POWER SPECTRA
         if x == ord('5'):
@@ -173,17 +166,15 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.refresh()
 
                 x2 = screen.getch()
+                curses.endwin()
 
                 if x2 == ord('1'):
-                    curses.endwin()
                     calculation.plot_power_spectrum_full()
 
                 if x2 == ord('2'):
-                    curses.endwin()
                     calculation.plot_power_spectrum_wave_vector()
 
                 if x2 == ord('3'):
-                    curses.endwin()
                     calculation.plot_power_spectrum_phonon()
 
 ######## OPTION 6 :  Renormalized phonon dispersion
@@ -203,38 +194,34 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 x2 = screen.getch()
 
+                curses.endwin()
+
                 if x2 == ord('1'):
-                    curses.endwin()
                     calculation.plot_renormalized_phonon_dispersion_bands()
 
                 if x2 == ord('2'):
-                    curses.endwin()
                     calculation.plot_renormalized_phonon_dispersion_bands(plot_linewidths=True,
                                                                           plot_harmonic=False)
 
                 if x2 == ord('3'):
-                    curses.endwin()
                     calculation.plot_linewidths_and_shifts_bands()
 
-            curses.endwin()
 
 ######## OPTION 7 :  PEAK ANALYSIS
         if x == ord('7'):
             curses.endwin()
             calculation.phonon_individual_analysis()
             screen.getch()
-            curses.endwin()
 
 ######## OPTION 8 :  TRAJECTORY DISTRIBUTION
         if x == ord('8'):
-            curses.endwin()
             direction = np.array([float(Fraction(s)) for s in
-                                 get_param(screen, "Insert the vector that defines direction in which the "
-                                                   "distribution will be calculated (values separated by comma)").split(',')])
-            calculation.plot_trajectory_distribution(direction)
+                                 get_param(screen, "Introduce the vector that defines direction in real space (x,y,z) "
+                                                   "in which the distribution will be calculated (values separated by comma)").split(',')])
             curses.endwin()
+            calculation.plot_trajectory_distribution(direction)
 
-######## OPTION 9 :  PREFERENCES
+        ######## OPTION 9 :  PREFERENCES
         if x == ord('9'):
 
             x2 = 0
@@ -372,7 +359,6 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                     print(frequency_limits)
                     calculation.set_frequency_limits(frequency_limits)
                     curses.endwin()
-
 
     curses.endwin()
 
