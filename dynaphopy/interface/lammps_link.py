@@ -14,10 +14,10 @@ def generate_lammps_trajectory(structure,
                                relaxation_time=0,
                                silent=False,
                                supercell=(1, 1, 1),
-                               memmap=False,
+                               memmap=False,  # not fully implemented yet!
                                velocity_only=False,
                                lammps_log=True,
-                               sampling_interval=1):
+                               sampling_interval=1):  # in timesteps
 
     cmdargs_lammps = ['-echo','none', '-screen', 'none']
     if not lammps_log:
