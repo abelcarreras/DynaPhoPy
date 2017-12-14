@@ -25,22 +25,17 @@ def generate_lammps_trajectory(structure,
 
     lmp = lammps(cmdargs=cmdargs_lammps)
 
-    # test out various library functions after running in.demo
-
     lmp.file(input_file)
     lmp.command('timestep {}'.format(time_step))
     lmp.command('replicate {} {} {}'.format(*supercell))
     lmp.command('run 0')
 
-    #natoms = lmp.extract_global("natoms",0)
-    #mass = lmp.extract_atom("mass",2)
-
-    #print("Natoms, mass, x[0][0] coord =", natoms, mass[1], x[0][0])
-    #print ('thermo', lmp.get_thermo('1'))
-    temp = lmp.extract_compute("thermo_temp",0,0)
-
-    #print("Temperature from compute =",temp)
-
+    # natoms = lmp.extract_global("natoms",0)
+    # mass = lmp.extract_atom("mass",2)
+    # temp = lmp.extract_compute("thermo_temp",0,0)
+    # print("Temperature from compute =",temp)
+    # print("Natoms, mass, x[0][0] coord =", natoms, mass[1], x[0][0])
+    # print ('thermo', lmp.get_thermo('1'))
 
     xlo =lmp.extract_global("boxxlo", 1)
     xhi =lmp.extract_global("boxxhi", 1)
