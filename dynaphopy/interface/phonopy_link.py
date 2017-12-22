@@ -203,7 +203,8 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
     return free_energy, entropy, cv
 
 
-def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None, NAC=False, band_resolution=30):
+def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None,
+                                   NAC=False, band_resolution=30, band_connection=False):
 
     if force_constants is not None:
         # print('Getting renormalized phonon dispersion relations')
@@ -221,7 +222,7 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None
         for i in range(band_resolution+1):
             band.append(np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i)
         bands.append(band)
-    phonon.set_band_structure(bands, is_band_connection=False)
+    phonon.set_band_structure(bands, is_band_connection=band_connection, is_eigenvectors=True)
 
     return phonon.get_band_structure()
 
