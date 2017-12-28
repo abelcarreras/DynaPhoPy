@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import dynaphopy.projection as projection
-import dynaphopy.orm.parameters as parameters
+import dynaphopy.parameters as parameters
 import dynaphopy.interface.phonopy_link as pho_interface
 import dynaphopy.interface.iofile as reading
 import dynaphopy.analysis.energy as energy
@@ -335,7 +335,7 @@ class Quasiparticle:
         plt.suptitle('Frequency shifts')
 
         plt.figure(3)
-        plt.suptitle('Renormalized phonon dispersion realtions')
+        plt.suptitle('Renormalized phonon dispersion relations')
 
 
         for ifig in [0, 1, 2, 3]:

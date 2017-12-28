@@ -2,8 +2,8 @@ import mmap
 import os
 import numpy as np
 
-import dynaphopy.orm.dynamics as dyn
-import dynaphopy.orm.atoms as atomtest
+import dynaphopy.dynamics as dyn
+import dynaphopy.atoms as atomtest
 from dynaphopy.interface import phonopy_link as pho_interface
 
 
