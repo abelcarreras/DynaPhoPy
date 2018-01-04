@@ -371,7 +371,7 @@ class Quasiparticle:
 
         plt.show()
 
-    def get_renormalized_phonon_dispersion_bands(self, with_linewidths=False, interconnect_bands=False):
+    def get_renormalized_phonon_dispersion_bands(self, with_linewidths=False, interconnect_bands=True):
 
         def reconnect_bands(bands):
             order = range(bands[2][0].shape[1])
@@ -425,9 +425,9 @@ class Quasiparticle:
                                                                        NAC=self.parameters.use_NAC,
                                                                        band_connection=True)
 
-        reconnect_frequencies(_bands)
         if interconnect_bands:
-            reconnect_bands(_bands)
+            reconnect_frequencies(_bands)
+            #reconnect_bands(_bands)
 
         _renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                     band_ranges,
