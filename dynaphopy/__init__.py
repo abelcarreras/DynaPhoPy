@@ -339,15 +339,12 @@ class Quasiparticle:
 
         for ifig in [0, 1, 2, 3]:
             plt.figure(ifig)
-            # plt.axes().get_xaxis().set_visible(False)
+
             plt.axes().get_xaxis().set_ticks([])
             plt.ylabel('Frequency [THz]')
             plt.xlabel('Wave vector')
             plt.xlim([0, bands_full_data[-1]['q_path_distances'][-1]])
             plt.axhline(y=0, color='k', ls='dashed')
-            handles, labels = plt.gca().get_legend_handles_labels()
-            # plt.legend([handles[i] for i in range(number_of_branches)],
-            #           ['branch {}'.format(i) for i in range(number_of_branches)])
 
             if 'labels' in bands_full_data[0]:
                 plt.rcParams.update({'mathtext.default': 'regular'})
