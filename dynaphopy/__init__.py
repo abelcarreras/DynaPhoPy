@@ -265,7 +265,7 @@ class Quasiparticle:
         plt.axes().get_xaxis().set_ticks([])
         plt.ylabel('Frequency [THz]')
         plt.xlabel('Wave vector')
-        plt.xlim([0, self._bands[1][-1][-1]])
+        plt.xlim([0, bands_full_data[-1]['q_path_distances'][-1]])
         plt.axhline(y=0, color='k', ls='dashed')
 
         if plot_harmonic:
@@ -281,15 +281,15 @@ class Quasiparticle:
 
             labels_e = []
             x_labels = []
-            for i, freq in enumerate(self._bands[1]):
+            for i, freq in enumerate(bands_full_data):
                 if labels[i][0] == labels[i - 1][1]:
                     labels_e.append('$' + labels[i][0].replace('GAMMA', '\Gamma') + '$')
                 else:
                     labels_e.append(
                         '$' + labels[i - 1][1].replace('GAMMA', '\Gamma') + '/' + labels[i][0].replace('GAMMA',
                                                                                                        '\Gamma') + '$')
-                x_labels.append(self._bands[1][i][0])
-            x_labels.append(self._bands[1][-1][-1])
+                x_labels.append(bands_full_data[i]['q_path_distances'][0])
+            x_labels.append(bands_full_data[-1]['q_path_distances'][-1])
             labels_e.append('$' + labels[-1][1].replace('GAMMA', '\Gamma') + '$')
             labels_e[0] = '$' + labels[0][0].replace('GAMMA', '\Gamma') + '$'
 
@@ -337,14 +337,13 @@ class Quasiparticle:
         plt.figure(3)
         plt.suptitle('Renormalized phonon dispersion relations')
 
-
         for ifig in [0, 1, 2, 3]:
             plt.figure(ifig)
             # plt.axes().get_xaxis().set_visible(False)
             plt.axes().get_xaxis().set_ticks([])
             plt.ylabel('Frequency [THz]')
             plt.xlabel('Wave vector')
-            plt.xlim([0, self._bands[1][-1][-1]])
+            plt.xlim([0, bands_full_data[-1]['q_path_distances'][-1]])
             plt.axhline(y=0, color='k', ls='dashed')
             handles, labels = plt.gca().get_legend_handles_labels()
             # plt.legend([handles[i] for i in range(number_of_branches)],
@@ -359,15 +358,15 @@ class Quasiparticle:
 
                 labels_e = []
                 x_labels = []
-                for i, freq in enumerate(self._bands[1]):
+                for i, freq in enumerate(bands_full_data):
                     if labels[i][0] == labels[i - 1][1]:
                         labels_e.append('$' + labels[i][0].replace('GAMMA', '\Gamma') + '$')
                     else:
                         labels_e.append(
                             '$' + labels[i - 1][1].replace('GAMMA', '\Gamma') + '/' + labels[i][0].replace('GAMMA',
                                                                                                            '\Gamma') + '$')
-                    x_labels.append(self._bands[1][i][0])
-                x_labels.append(self._bands[1][-1][-1])
+                    x_labels.append(bands_full_data[i]['q_path_distances'][0])
+                x_labels.append(bands_full_data[-1]['q_path_distances'][-1])
                 labels_e.append('$' + labels[-1][1].replace('GAMMA', '\Gamma') + '$')
                 labels_e[0] = '$' + labels[0][0].replace('GAMMA', '\Gamma') + '$'
 
@@ -375,106 +374,70 @@ class Quasiparticle:
 
         plt.show()
 
-    def get_renormalized_phonon_dispersion_bands(self, with_linewidths=False):
+    def get_renormalized_phonon_dispersion_bands(self, with_linewidths=False, interconnect_bands=False):
 
-        def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order):
-            metric = np.abs(np.dot(prev_eigvecs.conjugate().T, eigvecs))
-            connection_order = np.argmax(metric, axis=1,)
-            band_order = [connection_order[x] for x in prev_band_order]
+        def reconnect_bands(bands):
+            order = range(bands[2][0].shape[1])
+            print(order)
+            for i, ev_bands in enumerate(bands[3]):
+                if i > 0:
+                    ref = bands[3][i-1][-1]
+                    metric = np.abs(np.dot(ref.conjugate().T, ev_bands[0]))
+                    order = np.argmax(metric, axis=1)
+                    bands[2][i] = bands[2][i].T[order].T
+                    bands[3][i] = bands[3][i].T[order].T
 
-            return band_order
+        def reconnect_frequencies(bands):
+            order = range(bands[2][0].shape[1])
+            for i, f_bands in enumerate(bands[2]):
+                if i > 0:
+                    order = []
+                    ref = np.array(bands[2][i-1][-1]).copy()
+                    for j, test_val in enumerate(f_bands[0]):
+                        ov = np.argmin(np.abs(ref - test_val))
+                        order.append(ov)
+                        ref[ov] = 1000
 
-            connection_order = []
-            for overlaps in metric:
-                maxval = 0
-                for i in reversed(range(len(metric))):
-                    val = overlaps[i]
-                    if i in connection_order:
-                        continue
-                    if val > maxval:
-                        maxval = val
-                        maxindex = i
-                connection_order.append(maxindex)
+                    # print(order)
+                    bands[2][i] = bands[2][i].T[order].T
+                    bands[3][i] = bands[3][i].T[order].T
 
-            band_order = [connection_order[x] for x in prev_band_order]
-
-            return band_order
-
-        def get_order(bands):
-
-            eigvecs_total = []
-            frequencies_total = []
-
-            restart = True
-            #for band, freq in zip(bands[3], bands[2]):
-            for j, band in enumerate(bands[3]):
-
-                freq = bands[2][j]
-                eigvecs_path = []
-                frequencies_path = []
-
-                for i, eigvecs in enumerate(np.array(band)):
-
-                    if restart:
-                        band_order = range(len(eigvecs))
-                        restart = False
-                    else:
-                        band_order = estimate_band_connection(prev_eigvecs,
-                                                              eigvecs,
-                                                              band_order)
-
-                    prev_eigvecs = np.array(eigvecs)
-                    frequencies_path = freq[i][[band_order]]
-
-
-                    eigvecs_path.append(eigvecs.T[[band_order]].T)
-
-                eigvecs_total.append(eigvecs_path)
-                frequencies_total.append(frequencies_path)
-
-            return eigvecs_total, frequencies_total
-
-        def eigenvector_order(eigenvects_ref, eigenvects):
-
-            metric = np.abs(np.dot(eigenvects_ref.conjugate().T, eigenvects))
+        def eigenvector_order(ev_bands, ev_renormalized):
+            metric = np.zeros_like(np.abs(np.dot(ev_bands[0].conjugate().T, ev_renormalized[0])))
+            for ev_ref, ev in zip(ev_bands, ev_renormalized):
+                metric += np.abs(np.dot(ev_ref.conjugate().T, ev))
             order = np.argmax(metric, axis=1,)
             return order
 
-        def set_order(bands, eigvects_ref):
-            restart = True
-            for j, eigenvector_path in enumerate(bands[3]):
-                freq = bands[2][j]
-                e_ref = eigvects_ref[j]
-                for i, eigvecs in enumerate(np.array(eigenvector_path)):
-                    print(e_ref[i].shape, eigvecs.shape)
+        def set_order(bands, renormalized_bands):
+            order_list = []
+            for ev_bands, ev_renormalized in zip(bands[3], renormalized_bands[3]):
+                order = eigenvector_order(ev_bands, ev_renormalized)
+                order_list.append(order)
 
-                    band_order = eigenvector_order(e_ref[i], eigvecs)
-
-                    freq[i] = freq[i][[band_order]]
-
-            return
+            freq = np.array(renormalized_bands[2]).copy()
+            for i, o in enumerate(order_list):
+                renormalized_bands[2][i] = freq[i].T[o].T
 
         renormalized_force_constants = self.get_renormalized_force_constants()
         bands = self.get_band_ranges_and_labels()
         band_ranges = bands['ranges']
 
-        if self._bands is None:
-            self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+        _bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                        band_ranges,
                                                                        NAC=self.parameters.use_NAC,
-                                                                       band_connection=False)
+                                                                       band_connection=True)
 
-        #set_order(self._bands, order)
+        reconnect_frequencies(_bands)
+        if interconnect_bands:
+            reconnect_bands(_bands)
 
-
-        if self._renormalized_bands is None:
-            self._renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
+        _renormalized_bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                     band_ranges,
                                                                                     force_constants=renormalized_force_constants,
                                                                                     NAC=self.parameters.use_NAC,
-                                                                                    band_connection=False)
-
-        eigvecs_total, frequencies_total = get_order(self._bands)
+                                                                                    band_connection=True)
+        set_order(_bands, _renormalized_bands)
 
         data = self.get_commensurate_points_data()
         renormalized_frequencies = data['frequencies']
@@ -486,7 +449,7 @@ class Quasiparticle:
                                                                  eigenvectors,
                                                                  self.dynamic.structure,
                                                                  fc_supercell,
-                                                                 symmetrize=self.parameters.symmetrize)
+                                                                 symmetrize=self.parameters.symmetrize,)
 
         inf_lim = pho_interface.get_renormalized_force_constants(renormalized_frequencies - linewidths / 2,
                                                                  eigenvectors,
@@ -494,33 +457,40 @@ class Quasiparticle:
                                                                  fc_supercell,
                                                                  symmetrize=self.parameters.symmetrize)
 
+
+
         if with_linewidths:
             renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                 band_ranges,
                                                                                 force_constants=sup_lim,
-                                                                                NAC=self.parameters.use_NAC)
+                                                                                NAC=self.parameters.use_NAC,
+                                                                                band_connection=True)
 
             renormalized_bands_i = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                 band_ranges,
                                                                                 force_constants=inf_lim,
-                                                                                NAC=self.parameters.use_NAC)
+                                                                                NAC=self.parameters.use_NAC,
+                                                                                band_connection=True)
 
-        #set_order(self._bands, order)
-        # eigvecs_ref = get_order(self._bands)
+            set_order(_bands, renormalized_bands_s)
+            set_order(_bands, renormalized_bands_i)
+
+        #set_order(_bands, order)
+        # eigvecs_ref = get_order(_bands)
         #set_order(self._renormalized_bands, eigvecs_ref)
 
 
         bands_full_data = []
-        for i, q_path in enumerate(self._bands[1]):
+        for i, q_path in enumerate(_bands[1]):
 
             band = {'q_path_distances': q_path.tolist(),
                     'q_bounds': {'inf': list(band_ranges[i][0]), 'sup': list(band_ranges[i][1])},
                     'harmonic_frequencies': {'branch_{}'.format(key): value.tolist() for (key, value) in
-                                             enumerate(self._bands[2][i].T)},
+                                             enumerate(_bands[2][i].T)},
                     'renormalized_frequencies': {'branch_{}'.format(key): value.tolist() for (key, value) in
-                                                 enumerate(self._renormalized_bands[2][i].T)},
+                                                 enumerate(_renormalized_bands[2][i].T)},
                     'frequency_shifts': {'branch_{}'.format(key): value.tolist() for (key, value) in
-                                         enumerate(self._renormalized_bands[2][i].T - self._bands[2][i].T)},
+                                         enumerate(_renormalized_bands[2][i].T - _bands[2][i].T)},
                     }
 
             if with_linewidths:
