@@ -1,6 +1,6 @@
 #!/usr/bin/env python -i
 
-import dynaphopy.orm.dynamics as dyn
+import dynaphopy.dynamics as dyn
 import numpy as np
 from dynaphopy.power_spectrum import _progress_bar
 from lammps import lammps
