@@ -299,7 +299,9 @@ class Quasiparticle:
 
     def plot_linewidths_and_shifts_bands(self):
 
-        bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True)
+        bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True,
+                                                                        band_connection=True,
+                                                                        interconnect_bands=True)
         number_of_branches = len(bands_full_data[0]['linewidth'])
         # print('number_of branches', number_of_branches)
 
@@ -371,11 +373,13 @@ class Quasiparticle:
 
         plt.show()
 
-    def get_renormalized_phonon_dispersion_bands(self, with_linewidths=False, interconnect_bands=False):
+    def get_renormalized_phonon_dispersion_bands(self,
+                                                 with_linewidths=False,
+                                                 interconnect_bands=False,
+                                                 band_connection=False):
 
         def reconnect_eigenvectors(bands):
             order = range(bands[2][0].shape[1])
-            print(order)
             for i, ev_bands in enumerate(bands[3]):
                 if i > 0:
                     ref = bands[3][i-1][-1]
@@ -423,7 +427,7 @@ class Quasiparticle:
         _bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                               band_ranges,
                                                               NAC=self.parameters.use_NAC,
-                                                              band_connection=True,
+                                                              band_connection=band_connection,
                                                               band_resolution=self.parameters.band_resolution)
 
         if interconnect_bands:
@@ -434,9 +438,10 @@ class Quasiparticle:
                                                                            band_ranges,
                                                                            force_constants=renormalized_force_constants,
                                                                            NAC=self.parameters.use_NAC,
-                                                                           band_connection=True,
+                                                                           band_connection=band_connection,
                                                                            band_resolution=self.parameters.band_resolution)
-        set_order(_bands, _renormalized_bands)
+        if band_connection:
+            set_order(_bands, _renormalized_bands)
 
         data = self.get_commensurate_points_data()
         renormalized_frequencies = data['frequencies']
@@ -463,23 +468,19 @@ class Quasiparticle:
                                                                                 band_ranges,
                                                                                 force_constants=sup_lim,
                                                                                 NAC=self.parameters.use_NAC,
-                                                                                band_connection=True,
+                                                                                band_connection=band_connection,
                                                                                 band_resolution=self.parameters.band_resolution)
 
             renormalized_bands_i = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                 band_ranges,
                                                                                 force_constants=inf_lim,
                                                                                 NAC=self.parameters.use_NAC,
-                                                                                band_connection=True,
+                                                                                band_connection=band_connection,
                                                                                 band_resolution=self.parameters.band_resolution)
 
-            set_order(_bands, renormalized_bands_s)
-            set_order(_bands, renormalized_bands_i)
-
-        #set_order(_bands, order)
-        # eigvecs_ref = get_order(_bands)
-        #set_order(self._renormalized_bands, eigvecs_ref)
-
+            if band_connection:
+                set_order(_bands, renormalized_bands_s)
+                set_order(_bands, renormalized_bands_i)
 
         bands_full_data = []
         for i, q_path in enumerate(_bands[1]):
@@ -512,7 +513,7 @@ class Quasiparticle:
         return bands_full_data
 
     def write_renormalized_phonon_dispersion_bands(self, filename='bands_data.yaml'):
-        bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True)
+        bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True, band_connection=True)
         reading.save_bands_data_to_file(bands_full_data, filename)
 
     def print_phonon_dispersion_bands(self):

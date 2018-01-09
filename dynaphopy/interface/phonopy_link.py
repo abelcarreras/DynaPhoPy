@@ -208,7 +208,7 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None
 
     if force_constants is not None:
         # print('Getting renormalized phonon dispersion relations')
-        phonon = get_phonon(structure, NAC=False, setup_forces=False,
+        phonon = get_phonon(structure, NAC=NAC, setup_forces=False,
                             custom_supercell=force_constants.get_supercell())
 
         phonon.set_force_constants(force_constants.get_array())
