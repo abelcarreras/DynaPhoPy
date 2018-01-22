@@ -62,6 +62,7 @@ def generate_lammps_trajectory(structure,
     template = get_correct_arrangement(reference, structure)
     indexing = np.argsort(template)
 
+    lmp.command('variable energy equal pe'.format(int(relaxation_time/time_step)))
     lmp.command('run {}'.format(int(relaxation_time/time_step)))
 
     if not silent:
@@ -69,7 +70,6 @@ def generate_lammps_trajectory(structure,
 
     n_loops = int(total_time / time_step / sampling_interval)
     for i in range(n_loops):
-
         if not silent:
             _progress_bar(float((i+1) * time_step * sampling_interval) / total_time, 'lammps', )
 
@@ -77,6 +77,7 @@ def generate_lammps_trajectory(structure,
 
         xc = lmp.gather_atoms("x", 1, 3)
         vc = lmp.gather_atoms("v", 1, 3)
+        energy.append(lmp.extract_variable('energy', 'all', 0))
 
         velocity.append(np.array([vc[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :])
 
@@ -85,6 +86,7 @@ def generate_lammps_trajectory(structure,
 
     positions = np.array(positions, dtype=complex)
     velocity = np.array(velocity, dtype=complex)
+    energy = np.array(energy)
 
     if velocity_only:
         positions = None
@@ -97,6 +99,7 @@ def generate_lammps_trajectory(structure,
                         trajectory=positions,
                         velocity=velocity,
                         time=time,
+                        energy=energy,
                         supercell=simulation_cell,
                         memmap=memmap)
 
