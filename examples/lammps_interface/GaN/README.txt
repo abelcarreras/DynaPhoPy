@@ -21,7 +21,7 @@ stabilization time [ps]. Also you may want to define "--dim" to set the size of
 the supercell respect to the unit cell used in the molecular dynamics (MD)
 simulation (by default the unitcell is used). Ex:
 
-dynaphopy input_dynaphopy --run_lammps in.lammps 50 0.001 5  --dim 6 6 6 -i
+dynaphopy input_dynaphopy --run_lammps in.lammps 50 0.001 20  --dim 6 6 6 -i
 
 Note: The LAMMPS interface allows to perform dynamphopy calculations using LAMMPS MD without
 writing data on files. Note that the full MD will be calculated every time
@@ -29,4 +29,5 @@ dynaphopy is executed. Use option flags (or interactive mode) to calculate sever
 properties in one run. Alternatively, the trajectory can be stored in the disk in hdf5 format
 for later analysis using "--save_data" option.
 
-
+Note: The Tersoff potential file included in this example (SiCGe.tersoff) is part of LAMMPS package.
+This file is included here only for convenience.
