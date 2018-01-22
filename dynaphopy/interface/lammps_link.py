@@ -27,6 +27,7 @@ def generate_lammps_trajectory(structure,
 
     lmp.file(input_file)
     lmp.command('timestep {}'.format(time_step))
+
     lmp.command('replicate {} {} {}'.format(*supercell))
     lmp.command('run 0')
 
@@ -77,7 +78,6 @@ def generate_lammps_trajectory(structure,
         xc = lmp.gather_atoms("x", 1, 3)
         vc = lmp.gather_atoms("v", 1, 3)
 
-        energy.append(lmp.gather_atoms("pe", 1, 1)[0])
         velocity.append(np.array([vc[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :])
 
         if not velocity_only:
@@ -85,7 +85,6 @@ def generate_lammps_trajectory(structure,
 
     positions = np.array(positions, dtype=complex)
     velocity = np.array(velocity, dtype=complex)
-    energy = np.array(energy)
 
     if velocity_only:
         positions = None
@@ -97,7 +96,6 @@ def generate_lammps_trajectory(structure,
     return dyn.Dynamics(structure=structure,
                         trajectory=positions,
                         velocity=velocity,
-                        energy=energy,
                         time=time,
                         supercell=simulation_cell,
                         memmap=memmap)
