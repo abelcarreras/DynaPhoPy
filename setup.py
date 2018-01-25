@@ -14,7 +14,7 @@ include_dirs_numpy = [numpy.get_include()]
 
 def check_compiler():
     import subprocess
-    output = subprocess.Popen(['gcc'], stderr=subprocess.PIPE).communicate()[1]
+    output = subprocess.Popen(['gcc'], stderr=subprocess.PIPE).communicate()[1].decode('UTF-8')
     if 'clang' in output:
         return 'clang'
     if 'gcc' in output:
