@@ -535,7 +535,8 @@ class Quasiparticle:
 
         phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                        mesh=self.parameters.mesh_phonopy,
-                                                       projected_on_atom=self.parameters.project_on_atom)
+                                                       projected_on_atom=self.parameters.project_on_atom,
+                                                       NAC=self.parameters.use_NAC)
 
         plt.plot(phonopy_dos[0], phonopy_dos[1], 'b-', label='Harmonic')
 
@@ -543,7 +544,8 @@ class Quasiparticle:
             phonopy_dos_r = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                              mesh=self.parameters.mesh_phonopy,
                                                              force_constants=force_constants,
-                                                             projected_on_atom=self.parameters.project_on_atom)
+                                                             projected_on_atom=self.parameters.project_on_atom,
+                                                             NAC=self.parameters.use_NAC)
 
             plt.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized')
 
@@ -827,7 +829,8 @@ class Quasiparticle:
                                                            mesh=self.parameters.mesh_phonopy,
                                                            freq_min=self.get_frequency_range()[0],
                                                            freq_max=self.get_frequency_range()[-1],
-                                                           projected_on_atom=self.parameters.project_on_atom)
+                                                           projected_on_atom=self.parameters.project_on_atom,
+                                                           NAC=self.parameters.use_NAC)
 
             ax2.plot(phonopy_dos[0], phonopy_dos[1], 'b-', label='DoS (Lattice dynamics)')
             ax2.set_ylabel('Density of states')
@@ -838,7 +841,8 @@ class Quasiparticle:
                                                              freq_min=self.get_frequency_range()[0],
                                                              freq_max=self.get_frequency_range()[-1],
                                                              force_constants=self._renormalized_force_constants,
-                                                             projected_on_atom=self.parameters.project_on_atom)
+                                                             projected_on_atom=self.parameters.project_on_atom,
+                                                             NAC=self.parameters.use_NAC)
 
             ax2.plot(phonopy_dos_r[0], phonopy_dos_r[1], 'g-', label='Renormalized DoS')
 
@@ -1164,7 +1168,8 @@ class Quasiparticle:
                                                        freq_min=0.01,
                                                        freq_max=self.get_frequency_range()[-1],
                                                        force_constants=force_constants,
-                                                       projected_on_atom=self.parameters.project_on_atom)
+                                                       projected_on_atom=self.parameters.project_on_atom,
+                                                       NAC=self.parameters.use_NAC)
 
         free_energy = thm.get_free_energy(temperature, phonopy_dos[0], phonopy_dos[1])
         entropy = thm.get_entropy(temperature, phonopy_dos[0], phonopy_dos[1])
@@ -1180,7 +1185,8 @@ class Quasiparticle:
                                                              mesh=self.parameters.mesh_phonopy,
                                                              freq_min=0.01,
                                                              freq_max=self.get_frequency_range()[-1],
-                                                             projected_on_atom=self.parameters.project_on_atom)
+                                                             projected_on_atom=self.parameters.project_on_atom,
+                                                             NAC=self.parameters.use_NAC)
 
             free_energy += thm.get_free_energy_correction_dos(temperature, phonopy_dos_h[0], phonopy_dos_h[1],
                                                               phonopy_dos[1])
@@ -1201,12 +1207,14 @@ class Quasiparticle:
         if print_phonopy:
             harmonic_properties = pho_interface.obtain_phonopy_thermal_properties(self.dynamic.structure,
                                                                                   temperature,
-                                                                                  mesh=self.parameters.mesh_phonopy)
+                                                                                  mesh=self.parameters.mesh_phonopy,
+                                                                                  NAC=self.parameters.use_NAC)
 
             renormalized_properties = pho_interface.obtain_phonopy_thermal_properties(self.dynamic.structure,
                                                                                       temperature,
                                                                                       mesh=self.parameters.mesh_phonopy,
-                                                                                      force_constants=self.get_renormalized_force_constants())
+                                                                                      force_constants=self.get_renormalized_force_constants(),
+                                                                                      NAC=self.parameters.use_NAC)
 
             print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy (Reference)]\n'
                   '----------------------------------------------'.format(temperature))

@@ -145,16 +145,18 @@ def obtain_eigenvectors_and_frequencies(structure, q_vector, NAC=False, test_ort
     return arranged_ev, frequencies
 
 
-def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_min=None, freq_max=None, projected_on_atom=-1):
+def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_min=None, freq_max=None, projected_on_atom=-1, NAC=False):
 
     if force_constants is None:
         phonon = get_phonon(structure,
                             setup_forces=True,
-                            custom_supercell=None)
+                            custom_supercell=None,
+                            NAC=NAC)
     else:
         phonon = get_phonon(structure,
                             setup_forces=False,
-                            custom_supercell=force_constants.get_supercell())
+                            custom_supercell=force_constants.get_supercell(),
+                            NAC=NAC)
         phonon.set_force_constants(force_constants.get_array())
 
     if projected_on_atom < 0:
@@ -178,16 +180,18 @@ def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_
     return total_dos
 
 
-def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40), force_constants=None):
+def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40), force_constants=None, NAC=False):
 
     if force_constants is None:
         phonon = get_phonon(structure,
                             setup_forces=True,
-                            custom_supercell=None)
+                            custom_supercell=None,
+                            NAC=NAC)
     else:
         phonon = get_phonon(structure,
                             setup_forces=False,
-                            custom_supercell=force_constants.get_supercell())
+                            custom_supercell=force_constants.get_supercell(),
+                            NAC=NAC)
         phonon.set_force_constants(force_constants.get_array())
 
     phonon.set_mesh(mesh)
