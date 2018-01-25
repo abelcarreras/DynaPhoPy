@@ -145,7 +145,8 @@ def obtain_eigenvectors_and_frequencies(structure, q_vector, NAC=False, test_ort
     return arranged_ev, frequencies
 
 
-def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_min=None, freq_max=None, projected_on_atom=-1, NAC=False):
+def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None,
+                       freq_min=None, freq_max=None, projected_on_atom=-1, NAC=False):
 
     if force_constants is None:
         phonon = get_phonon(structure,
