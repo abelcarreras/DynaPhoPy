@@ -70,8 +70,7 @@ Files and directories included in DynaPhoPy distribution
 ~~~
   README             this file 
   LICENSE            the MIT license 
-  setup.py           installation script (serial)
-  setup_openmp.py    installation script (parallel)
+  setup.py           installation script
   requirements.txt   list of required packages
 
   /dynaphopy          main code in python
