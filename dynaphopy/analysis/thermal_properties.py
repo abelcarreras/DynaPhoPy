@@ -56,8 +56,8 @@ def get_free_energy_correction_shift(temperature, frequency, dos, shift):
     def n(temp, freq):
         return pow(np.exp(freq*h_bar/(k_b*temp))-1, -1)
 
-    free_energy_c = np.nan_to_num([ dos[i] * -h_bar/2 *shift*(n(temperature, freq) + 1 / 2.)
-                                      for i, freq in enumerate(frequency)])
+    free_energy_c = np.nan_to_num([dos[i] * -h_bar/2 *shift*(n(temperature, freq) + 1 / 2.)
+                                   for i, freq in enumerate(frequency)])
 
     free_energy_c = integrate.simps(free_energy_c, frequency) * N_a / 1000 # KJ/K/mol
     return free_energy_c
