@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 import numpy as np
-import matplotlib.pyplot as plt
 from phonopy import PhonopyQHA
 import argparse
 import dynaphopy.interface.iofile as reading
 import yaml
-from dynaphopy.interface.phonopy_link import get_force_sets_from_file, get_force_constants_from_file
+from dynaphopy.interface.phonopy_link import get_force_constants_from_file
 
 
 parser = argparse.ArgumentParser(description='qha_quasiparticles options')
@@ -22,8 +21,11 @@ parser.add_argument('-ct_data', metavar='data_files', type=str, nargs='*', requi
 parser.add_argument('-temperatures', metavar='temperatures', type=float, nargs='*', required=True,
                     help='list of temperatures')
 
-parser.add_argument('-ref_vol', metavar='temperatures', type=float, default=None,
-                    help='temperature at the volumes')
+parser.add_argument('--ref_temperature', metavar='temperature', type=float, default=None,
+                    help='Temperature at volume expansion')
+
+parser.add_argument('--order', metavar='order', type=int, default=2,
+                    help='fitting polynomial order for frequency shifts')
 
 parser.add_argument('-ev', metavar='data', type=str, required=True,
                     help='Energy volume file')
@@ -31,37 +33,9 @@ parser.add_argument('-ev', metavar='data', type=str, required=True,
 args = parser.parse_args()
 
 
-# Get data from input file & process parameters
-input_parameters = reading.read_parameters_from_input_file(args.input_file)
-
-if 'structure_file_name_outcar' in input_parameters:
-    structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name_outcar'])
-else:
-    structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
-
-structure.get_data_from_dict(input_parameters)
-
-if 'supercell_phonon' in input_parameters:
-    supercell_phonon = input_parameters['supercell_phonon']
-else:
-    supercell_phonon = np.identity(3)
-
-structure.set_force_constants(get_force_constants_from_file(file_name=input_parameters['force_constants_file_name'],
-                                                            fc_supercell=supercell_phonon))
-
-if '_mesh_phonopy' in input_parameters:
-    mesh = input_parameters['_mesh_phonopy']
-else:
-    mesh =[20, 20, 20]
-
-ev_data = np.loadtxt(args.ev)
-volumes = ev_data[:, 0]
-electronic_energies = ev_data[:, 1]
-
-# Start main class
-
 class ForceConstantsFitting():
-    def __init__(self, structure, files_volume, files_temperature, temperatures, mesh=(20, 20, 20)):
+    def __init__(self, structure, files_volume, files_temperature, temperatures,
+                 mesh=(40, 40, 40), ref_index=0, fitting_order=2):
 
         self.structure = structure
         self.files_volume = files_volume
@@ -74,13 +48,14 @@ class ForceConstantsFitting():
 
         self._eigenvectors = None
         self._mesh = mesh
+        self.ref_index = ref_index
+        self.fitting_order = fitting_order
 
     def get_temperature_range(self, step=10):
-        return np.arange(300, 1700, step)
-
+        return np.arange(self._temperatures[0], self._temperatures[-1], step)
 
     def get_ref_data(self):
-        with open(args.cv_data[0], 'r') as stream:
+        with open(args.cv_data[self.ref_index], 'r') as stream:
             ref_data = yaml.load(stream)
         return ref_data
 
@@ -92,7 +67,6 @@ class ForceConstantsFitting():
             shift_matrix = []
             list_t = self._temperatures
             for i, t in enumerate(list_t):
-                print i, t
                 with open(self.files_temperature[i], 'r') as stream:
                     data = yaml.load(stream)
 
@@ -120,7 +94,7 @@ class ForceConstantsFitting():
 
         return interpolated_shifts
 
-    def get_fitted_shifts_temperature(self, temperature, deg=2):
+    def get_fitted_shifts_temperature(self, temperature):
 
         shift_matrix = self.get_shift_matrix()
 
@@ -129,7 +103,7 @@ class ForceConstantsFitting():
             for i, row in enumerate(shift_matrix):
                 p2 = []
                 for j, r in enumerate(row):
-                    p2.append(np.polyfit(self._temperatures, r, deg))
+                    p2.append(np.polyfit(self._temperatures, r, self.fitting_order))
                 p.append(p2)
 
             self._shift_temperature = p
@@ -145,11 +119,10 @@ class ForceConstantsFitting():
 
         return interpolated_shifts
 
-    def plot_shifts(self, qpoint=0):
+    def plot_shifts_vs_temperature(self, qpoint=0):
         import matplotlib.pyplot as plt
 
         shift_matrix = self.get_shift_matrix()
-        print shift_matrix.shape
 
         chk_list = np.arange(self._temperatures[0], self._temperatures[-1], 10)
         chk_shift_matrix = np.array([self.get_fitted_shifts_temperature(t) for t in chk_list]).T
@@ -207,6 +180,7 @@ class ForceConstantsFitting():
         free_energy_list = []
         entropy_list = []
         cv_list = []
+        print ('temperature   free energy(KJ/K/mol)  entropy(KJ/K/mol)   cv (J/K/mol)')
         for t in self.get_temperature_range():
             fc = self.get_total_force_constants(temperature=t, volume_index=volume_index)
 
@@ -214,7 +188,7 @@ class ForceConstantsFitting():
                                                                          temperature=t,
                                                                          mesh=self._mesh,
                                                                          force_constants=fc)
-            print ('t: {} , {} {} {}'.format(t, free_energy, entropy, cv))
+            print ('  {:.1f}        {:14.8f}        {:14.8f}    {:14.8f}'.format(t, free_energy, entropy, cv))
             free_energy_list.append(free_energy)
             entropy_list.append(entropy)
             cv_list.append(cv)
@@ -240,25 +214,58 @@ class ForceConstantsFitting():
         plt.legend()
         plt.show()
 
+
+input_parameters = reading.read_parameters_from_input_file(args.input_file)
+
+if 'structure_file_name_outcar' in input_parameters:
+    structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name_outcar'])
+else:
+    structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
+
+structure.get_data_from_dict(input_parameters)
+
+if 'supercell_phonon' in input_parameters:
+    supercell_phonon = input_parameters['supercell_phonon']
+else:
+    supercell_phonon = np.identity(3)
+
+structure.set_force_constants(get_force_constants_from_file(file_name=input_parameters['force_constants_file_name'],
+                                                            fc_supercell=supercell_phonon))
+
+if '_mesh_phonopy' in input_parameters:
+    mesh = input_parameters['_mesh_phonopy']
+else:
+    mesh = [20, 20, 20]
+    print ('mesh set to: {}'.format(mesh))
+
+if args.ref_temperature is None:
+    ref_index = 0
+else:
+    try:
+        ref_index = args.temperatures.index(args.ref_temperature)
+    except ValueError:
+        print ('reference temperature does not exist')
+        exit()
+
 fc_fit = ForceConstantsFitting(structure,
                                files_temperature=args.ct_data,
                                files_volume=args.cv_data,
                                temperatures=args.temperatures,
-                               mesh=mesh)
-
-fc_fit.plot_shifts(qpoint=1)
-fc_fit.plot_density_of_states()
-#print fc_fit.get_eigenvectors()
-fc_fit.plot_thermal_properties(volume_index=3)
-
+                               mesh=mesh,
+                               ref_index=ref_index,
+                               fitting_order=args.order)
 
 temperatures = fc_fit.get_temperature_range()
+
+ev_data = np.loadtxt(args.ev)
+volumes = ev_data[:, 0]
+energy = ev_data[:, 1]
 
 free_energy = []
 entropy = []
 cv = []
-
 for i in range(len(volumes)):
+    print ('Volume: {} Ang.      Energy(U): {} eV'.format(volumes[i], energy[i]))
     tp_data = fc_fit.get_thermal_properties(volume_index=i)
     free_energy.append(tp_data[0])
     entropy.append(tp_data[1])
@@ -270,8 +277,8 @@ cv = np.array(cv).T
 
 
 phonopy_qha = PhonopyQHA(np.array(volumes),
-                         np.array(electronic_energies),
-                         eos="vinet",
+                         np.array(energy),
+                         eos="vinet",  # options: 'vinet', 'murnaghan' or 'birch_murnaghan'
                          temperatures=np.array(temperatures),
                          free_energy=np.array(free_energy),
                          cv=np.array(cv),
@@ -280,19 +287,14 @@ phonopy_qha = PhonopyQHA(np.array(volumes),
                          verbose=False)
 
 phonopy_qha.plot_qha().show()
-phonopy_qha.plot_bulk_modulus().show()
-phonopy_qha.plot_gibbs_temperature().show()
-phonopy_qha.plot_heat_capacity_P_numerical().show()
-phonopy_qha.plot_helmholtz_volume().show()
 
-# Get data
-qha_temperatures = phonopy_qha._qha._temperatures[:phonopy_qha._qha._max_t_index]
-helmholtz_volume = phonopy_qha.get_helmholtz_volume()
-thermal_expansion = phonopy_qha.get_thermal_expansion()
-volume_temperature = phonopy_qha.get_volume_temperature()
-heat_capacity_P_numerical = phonopy_qha.get_heat_capacity_P_numerical()
-volume_expansion = phonopy_qha.get_volume_expansion()
-gibbs_temperature = phonopy_qha.get_gibbs_temperature()
-
+phonopy_qha.write_bulk_modulus_temperature()
+phonopy_qha.write_gibbs_temperature()
+phonopy_qha.write_heat_capacity_P_numerical()
+phonopy_qha.write_gruneisen_temperature()
+phonopy_qha.write_thermal_expansion()
+phonopy_qha.write_helmholtz_volume()
+phonopy_qha.write_volume_expansion()
+phonopy_qha.write_volume_temperature()
 
 
