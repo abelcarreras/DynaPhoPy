@@ -186,12 +186,9 @@ class Quasiparticle:
     def get_band_ranges_and_labels(self):
         # return self.parameters.band_ranges
         if self.parameters.band_ranges is None:
-            return self.dynamic.structure.get_path_using_seek_path()
+            self.parameters.band_ranges =  self.dynamic.structure.get_path_using_seek_path()
 
-        if isinstance(self.parameters.band_ranges, dict):
-            return self.parameters.band_ranges
-        else:
-            return {'ranges': self.parameters.band_ranges}
+        return self.parameters.band_ranges
 
     def plot_phonon_dispersion_bands(self):
         bands = self.get_band_ranges_and_labels()

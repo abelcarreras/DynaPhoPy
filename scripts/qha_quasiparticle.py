@@ -40,8 +40,18 @@ parser.add_argument('--pressure', metavar='p', type=float, required=False, defau
 args = parser.parse_args()
 
 class ForceConstantsFitting():
-    def __init__(self, structure, files_volume, files_temperature, temperatures=None, volumes=None,
-                 mesh=(40, 40, 40), ref_index=0, fitting_order=2, tmin=None, tmax=None):
+    def __init__(self,
+                 structure,
+                 files_volume,
+                 files_temperature,
+                 temperatures=None,
+                 volumes=None,
+                 mesh=(40, 40, 40),
+                 ref_temperature=None,
+                 fitting_order=2,
+                 tmin=None,
+                 tmax=None,
+                 use_NAC=False):
 
         self.structure = structure
         self.files_volume = files_volume
@@ -49,7 +59,7 @@ class ForceConstantsFitting():
         self.supercell = structure.get_supercell_phonon()
 
         self._mesh = mesh
-        self.ref_index = ref_index
+        self.ref_temperature = ref_temperature
         self.fitting_order = fitting_order
 
         self._temperatures = temperatures
@@ -65,6 +75,7 @@ class ForceConstantsFitting():
         self._shift_matrix_volume = None
 
         self._eigenvectors = None
+        self._nac = use_NAC # Use_Nac requires a BORN named file (phonopy style) in the work directory
 
     # Properties
     @property
@@ -88,15 +99,11 @@ class ForceConstantsFitting():
             self._tmax = self.temperatures[-1]
         return np.arange(self._tmin, self._tmax, step)
 
-    def get_reference_temperature_data(self):
-        with open(args.ct_data[self.ref_index], 'r') as stream:
-            ref_data = yaml.load(stream)
-        return ref_data
 
     def get_shift_matrix_temperature(self):
 
         if self._shift_matrix_temperature is None:
-            h_frequencies, ev = self.get_eigenvectors()
+            h_frequencies, ev = self.get_harmonic_frequencies_and_eigenvectors()
 
             shift_matrix = []
             list_t = self.temperatures
@@ -117,7 +124,9 @@ class ForceConstantsFitting():
     def get_shift_matrix_volume(self):
 
         if self._shift_matrix_volume is None:
-            ref_data = self.get_reference_temperature_data()
+            #ref_data = self.get_reference_temperature_data()
+            h_frequencies, ev = self.get_harmonic_frequencies_and_eigenvectors()
+            ref_frequencies = self.get_fitted_shifts_temperature(temperature=self.ref_temperature) + h_frequencies
 
             shift_matrix = []
             list_v = self.volumes
@@ -126,13 +135,11 @@ class ForceConstantsFitting():
                     data = yaml.load(stream)
 
                 renormalized_frequencies = []
-                reference_frequencies = []
 
-                for qpoint, ref_qpoint in zip(data, ref_data):
+                for qpoint in data:
                     renormalized_frequencies.append(qpoint['frequencies'])
-                    reference_frequencies.append(ref_qpoint['frequencies'])
 
-                shift_matrix.append(np.array(renormalized_frequencies) - np.array(reference_frequencies))
+                shift_matrix.append(np.array(renormalized_frequencies) - ref_frequencies)
 
             self._shift_matrix_volume = np.array(shift_matrix).swapaxes(0, 2)
 
@@ -201,7 +208,7 @@ class ForceConstantsFitting():
 
         return interpolated_shifts
 
-    def get_eigenvectors(self):
+    def get_harmonic_frequencies_and_eigenvectors(self):
         from dynaphopy.interface.phonopy_link import obtain_eigenvectors_and_frequencies
 
         if self._eigenvectors is None:
@@ -229,7 +236,7 @@ class ForceConstantsFitting():
         return data
 
     def _get_renormalized_force_constants(self, renormalized_frequencies):
-        h_frequencies, eigenvectors = self.get_eigenvectors()
+        h_frequencies, eigenvectors = self.get_harmonic_frequencies_and_eigenvectors()
         from dynaphopy.interface.phonopy_link import get_renormalized_force_constants
         fc = get_renormalized_force_constants(renormalized_frequencies,
                                               eigenvectors, self.structure,
@@ -237,33 +244,43 @@ class ForceConstantsFitting():
                                               symmetrize=False)
         return fc
 
-    def get_total_force_constants(self, temperature=300, volume=None):
+    def get_total_shifts(self, volume, temperature):
         if volume is None:
             volume = self.volumes[0]
 
         # temperature_shifts = self.get_interpolated_shifts_temperature(temperature)
         temperature_shifts = self.get_fitted_shifts_temperature(temperature)
         volume_shifts = self.get_fitted_shifts_volume(volume)
-        h_frequencies, ev = self.get_eigenvectors()
 
-        total_frequency = h_frequencies + volume_shifts + temperature_shifts
+        return temperature_shifts + volume_shifts
+
+    def get_total_force_constants(self, temperature=300, volume=None):
+
+        total_shifts = self.get_total_shifts(volume, temperature)
+        h_frequencies, ev = self.get_harmonic_frequencies_and_eigenvectors()
+
+        total_frequency = h_frequencies + total_shifts
 
         return self._get_renormalized_force_constants(total_frequency)
 
-    def get_thermal_properties(self, volume_index=0):
+    def get_thermal_properties(self, volume=None):
         from dynaphopy.interface.phonopy_link import obtain_phonopy_thermal_properties
+
+        if volume is None:
+            volume = self.volumes[0]
+            print ('use volume: {}'.format(volume))
 
         free_energy_list = []
         entropy_list = []
         cv_list = []
         print ('temperature   free energy(KJ/K/mol)  entropy(KJ/K/mol)   cv (J/K/mol)')
         for t in self.get_temperature_range():
-            fc = self.get_total_force_constants(temperature=t, volume=self.volumes[volume_index])
+            fc = self.get_total_force_constants(temperature=t, volume=volume)
 
             free_energy, entropy, cv = obtain_phonopy_thermal_properties(self.structure,
                                                                          temperature=t,
                                                                          mesh=self._mesh,
-                                                                         force_constants=fc)
+                                                                         force_constants=fc, NAC=self._nac)
             print ('  {:.1f}        {:14.8f}        {:14.8f}    {:14.8f}'.format(t, free_energy, entropy, cv))
             free_energy_list.append(free_energy)
             entropy_list.append(entropy)
@@ -281,7 +298,7 @@ class ForceConstantsFitting():
 
     def plot_thermal_properties(self, volume_index=0):
         import matplotlib.pyplot as plt
-        free_energy, entropy, cv = fc_fit.get_thermal_properties(volume_index=volume_index)
+        free_energy, entropy, cv = fc_fit.get_thermal_properties(volume=self.volumes[volume_index])
         temperature = self.get_temperature_range()
         plt.plot(temperature, free_energy, label='free energy')
         plt.plot(temperature, entropy, label='entropy')
@@ -290,15 +307,17 @@ class ForceConstantsFitting():
         plt.legend()
         plt.show()
 
-    def qpoint_to_index(self, qpoint):
-        qindex = None
-        for i, qp in enumerate(self.get_data_temperature(0)):
-            if np.allclose(qp['reduced_wave_vector'], qpoint):
-                qindex = i
-                break
-        return qindex
+    def qpoint_to_index(self, qpoint, silent=False):
 
-    def plot_fitted_shifts_temperature(self, qpoint=(0, 0, 0)):
+        for qindex, qp in enumerate(self.get_data_temperature(0)):
+            if np.allclose(qp['reduced_wave_vector'], qpoint):
+                return qindex
+        if not silent:
+            print ('{} is not a commensurate point'.format(qpoint))
+            exit()
+        return None
+
+    def plot_fitted_shifts_temperature(self, qpoint=(0, 0, 0), branch=None):
         import matplotlib.pyplot as plt
 
         qindex = self.qpoint_to_index(qpoint)
@@ -309,15 +328,19 @@ class ForceConstantsFitting():
         chk_shift_matrix = np.array([self.get_fitted_shifts_temperature(t) for t in chk_list]).T
         # chk_shift_matrix = np.array([self.get_interpolated_shifts_temperature(t) for t in chk_list]).T
 
-        plt.title('Frequency shift at wave vector={} (relative to {} K)'.format(qpoint,
-                                                                                 self.temperatures[self.ref_index]))
+        plt.suptitle('Frequency shift at wave vector={} (relative to {} K)'.format(qpoint, self.ref_temperature))
         plt.xlabel('Temperature [K]')
         plt.ylabel('Frequency shift [THz]')
-        plt.plot(chk_list, chk_shift_matrix[:, qindex].T, '-')
-        plt.plot(self.temperatures, shift_matrix[:, qindex].T, 'o')
+        if branch is None:
+            plt.plot(chk_list, chk_shift_matrix[:, qindex].T, '-')
+            plt.plot(self.temperatures, shift_matrix[:, qindex].T, 'o')
+        else:
+            plt.title('Branch {}'.format(branch))
+            plt.plot(chk_list, chk_shift_matrix[branch, qindex].T, '-')
+            plt.plot(self.temperatures, shift_matrix[branch, qindex].T, 'o')
         plt.show()
 
-    def plot_fitted_shifts_volumes(self, qpoint=(0, 0, 0)):
+    def plot_fitted_shifts_volumes(self, qpoint=(0, 0, 0), branch=None):
         import matplotlib.pyplot as plt
 
         qindex = self.qpoint_to_index(qpoint)
@@ -328,12 +351,19 @@ class ForceConstantsFitting():
         chk_shift_matrix = np.array([self.get_fitted_shifts_volume(v) for v in chk_list]).T
         # chk_shift_matrix = np.array([self.get_interpolated_shifts_temperature(t) for t in chk_list]).T
 
-        plt.title('Frequencies at wave vector={} (relative to {} K)'.format(qpoint,
-                                                                                self.temperatures[self.ref_index]))
+
+
+        plt.suptitle('Shifts at wave vector={} (relative to {} K)'.format(qpoint, self.ref_temperature))
         plt.xlabel('Volumes [K]')
         plt.ylabel('Frequency [THz]')
-        plt.plot(chk_list, chk_shift_matrix[:, qindex].T, '-')
-        plt.plot(self.volumes, shift_matrix[:, qindex].T, 'o')
+        if branch is None:
+            plt.plot(chk_list, chk_shift_matrix[:, qindex].T, '-')
+            plt.plot(self.volumes, shift_matrix[:, qindex].T, 'o')
+        else:
+            plt.title('Branch {}'.format(branch))
+
+            plt.plot(chk_list, chk_shift_matrix[branch, qindex].T, '-')
+            plt.plot(self.volumes, shift_matrix[branch, qindex].T, 'o')
         plt.show()
 
     def plot_linewidth_volume(self, qpoint=(0, 0, 0)):
@@ -349,7 +379,7 @@ class ForceConstantsFitting():
             plt.title('Linewidths at wave vector={}'.format(qpoint))
             plt.xlabel('Volume [Angs.^3]')
             plt.ylabel('Linewidth [THz]')
-            plt.plot(self.volumes, linewidth)
+            plt.plot(self.volumes, linewidth, linestyle='--', marker='o')
             plt.show()
         else:
             print ('qpoint not found!')
@@ -368,7 +398,7 @@ class ForceConstantsFitting():
             plt.title('Linewidths at wave vector={}'.format(qpoint))
             plt.xlabel('Temperature [K]')
             plt.ylabel('Linewidth [THz]')
-            plt.plot(self.temperatures, linewidth)
+            plt.plot(self.temperatures, linewidth, linestyle='--', marker='o')
             plt.show()
         else:
             print ('qpoint not found!')
@@ -413,103 +443,313 @@ class ForceConstantsFitting():
             print ('qpoint not found!')
             return None
 
+    def get_band_structure(self, temperature, volume, band_ranges=None):
+        from dynaphopy.interface.phonopy_link import obtain_phonon_dispersion_bands
+        if band_ranges is None:
+            band_ranges = self.structure.get_path_using_seek_path()['ranges']
+
+        fc = self.get_total_force_constants(temperature=temperature, volume=volume)
+        return obtain_phonon_dispersion_bands(self.structure, bands_ranges=band_ranges,
+                                              force_constants=fc, NAC=self._nac,
+                                              band_resolution=30, band_connection=False)
+
+    def get_dos(self, temperature, volume):
+        from dynaphopy.interface.phonopy_link import obtain_phonopy_dos
+        fc = self.get_total_force_constants(temperature=temperature, volume=volume)
+        return obtain_phonopy_dos(self.structure, mesh=self._mesh, force_constants=fc, NAC=self._nac)
+
+    def plot_dos(self, temperature, volume):
+        import matplotlib.pyplot as plt
+        dos = self.get_dos(temperature, volume)
+        plt.plot(dos[0], dos[1])
+        plt.show()
 
 
+class QuasiparticlesQHA():
+    def __init__(self, args, load_data=False):
 
-input_parameters = reading.read_parameters_from_input_file(args.input_file)
+        input_parameters = reading.read_parameters_from_input_file(args.input_file)
 
-if 'structure_file_name_outcar' in input_parameters:
-    structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name_outcar'])
-else:
-    structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
+        if 'structure_file_name_outcar' in input_parameters:
+            structure = reading.read_from_file_structure_outcar(input_parameters['structure_file_name_outcar'])
+        else:
+            structure = reading.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
 
-structure.get_data_from_dict(input_parameters)
+        structure.get_data_from_dict(input_parameters)
 
-if 'supercell_phonon' in input_parameters:
-    supercell_phonon = input_parameters['supercell_phonon']
-else:
-    supercell_phonon = np.identity(3)
+        if 'supercell_phonon' in input_parameters:
+            supercell_phonon = input_parameters['supercell_phonon']
+        else:
+            supercell_phonon = np.identity(3)
 
-structure.set_force_constants(get_force_constants_from_file(file_name=input_parameters['force_constants_file_name'],
-                                                            fc_supercell=supercell_phonon))
+        structure.set_force_constants(get_force_constants_from_file(file_name=input_parameters['force_constants_file_name'],
+                                                                    fc_supercell=supercell_phonon))
 
-if '_mesh_phonopy' in input_parameters:
-    mesh = input_parameters['_mesh_phonopy']
-else:
-    mesh = [20, 20, 20]
-    print ('mesh set to: {}'.format(mesh))
+        if '_mesh_phonopy' in input_parameters:
+            mesh = input_parameters['_mesh_phonopy']
+        else:
+            mesh = [20, 20, 20]
+            print ('mesh set to: {}'.format(mesh))
 
-if args.ref_temperature is None:
-    ref_index = 0
-else:
-    try:
-        ref_index = args.temperatures.index(args.ref_temperature)
-    except ValueError:
-        print ('reference temperature does not exist')
-        exit()
+        if 'bands' in input_parameters is None:
+            self._bands =  structure.get_path_using_seek_path()
+        else:
+            self._bands = input_parameters['_band_ranges']
 
-volumes, energy = read_v_e(args.ev, factor=1.0, volume_factor=1.0, pressure=args.pressure)
+        volumes, energies = read_v_e(args.ev, factor=1.0, volume_factor=1.0, pressure=args.pressure)
 
-fc_fit = ForceConstantsFitting(structure,
-                               files_temperature=args.ct_data,
-                               files_volume=args.cv_data,
-                               temperatures=args.temperatures,
-                               volumes=volumes,
-                               mesh=mesh,
-                               ref_index=ref_index,
-                               fitting_order=args.order,
-                               tmin=270)
+        self._fc_fit = ForceConstantsFitting(structure,
+                                       files_temperature=args.ct_data,
+                                       files_volume=args.cv_data,
+                                       temperatures=args.temperatures,
+                                       volumes=volumes,
+                                       mesh=mesh,
+                                       ref_temperature=args.ref_temperature,
+                                       fitting_order=args.order,
+                                       tmin=200,
+                                       use_NAC=True)
 
-fc_fit.plot_fitted_shifts_volumes(qpoint=[0.5, 0.5, 0.5])
-fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5])
+        if not load_data:
+            temperatures = self._fc_fit.get_temperature_range()
 
-fc_fit.plot_shift_temperature(qpoint=[0.5, 0.5, 0.5])
-fc_fit.plot_shift_volume(qpoint=[0.5, 0.5, 0.5])
+            free_energy = []
+            entropy = []
+            cv = []
+            for v, e in zip(volumes, energies):
+                print ('Volume: {} Ang.      Energy(U): {} eV'.format(v, e))
+                tp_data = self._fc_fit.get_thermal_properties(volume=v)
+                free_energy.append(tp_data[0])
+                entropy.append(tp_data[1])
+                cv.append(tp_data[2])
 
-fc_fit.plot_linewidth_temperature(qpoint=[0.5, 0.5, 0.5])
-fc_fit.plot_linewidth_volume(qpoint=[0.5, 0.5, 0.5])
+            free_energy = np.array(free_energy).T
+            entropy = np.array(entropy).T
+            cv = np.array(cv).T
 
-
-temperatures = fc_fit.get_temperature_range()
-
-free_energy = []
-entropy = []
-cv = []
-for i in range(len(volumes)):
-    print ('Volume: {} Ang.      Energy(U): {} eV'.format(volumes[i], energy[i]))
-    tp_data = fc_fit.get_thermal_properties(volume_index=i)
-    free_energy.append(tp_data[0])
-    entropy.append(tp_data[1])
-    cv.append(tp_data[2])
-
-free_energy = np.array(free_energy).T
-entropy = np.array(entropy).T
-cv = np.array(cv).T
+            np.save('free_energy.npy', free_energy)
+            np.save('temperatures.npy', temperatures)
+            np.save('cv.npy', cv)
+            np.save('entropy.npy', entropy)
+        else:
+            free_energy = np.load('free_energy.npy')
+            temperatures = np.load('temperatures.npy')
+            cv = np.load('cv.npy')
+            entropy = np.load('entropy.npy')
 
 
-phonopy_qha = PhonopyQHA(np.array(volumes),
-                         np.array(energy),
-                         eos="vinet",  # options: 'vinet', 'murnaghan' or 'birch_murnaghan'
-                         temperatures=np.array(temperatures),
-                         free_energy=np.array(free_energy),
-                         cv=np.array(cv),
-                         entropy=np.array(entropy),
-                         t_max=fc_fit.get_temperature_range()[-1],
-                         verbose=False)
+        phonopy_qha = PhonopyQHA(volumes,
+                                 energies,
+                                 eos="vinet",  # options: 'vinet', 'murnaghan' or 'birch_murnaghan'
+                                 temperatures=temperatures,
+                                 free_energy=free_energy,
+                                 cv=cv,
+                                 entropy=entropy,
+                                 t_max=self.fc_fit.get_temperature_range()[-1],
+                                 verbose=False)
 
-phonopy_qha.plot_qha().show()
+        self.phonopy_qha = phonopy_qha
 
-phonopy_qha.write_bulk_modulus_temperature()
-phonopy_qha.write_gibbs_temperature()
-phonopy_qha.write_heat_capacity_P_numerical()
-phonopy_qha.write_gruneisen_temperature()
-phonopy_qha.write_thermal_expansion()
-phonopy_qha.write_helmholtz_volume()
-phonopy_qha.write_volume_expansion()
-phonopy_qha.write_volume_temperature()
+        phonopy_qha.plot_qha().show()
+        phonopy_qha.write_bulk_modulus_temperature()
+        phonopy_qha.write_gibbs_temperature()
+        phonopy_qha.write_heat_capacity_P_numerical()
+        phonopy_qha.write_gruneisen_temperature()
+        phonopy_qha.write_thermal_expansion()
+        phonopy_qha.write_helmholtz_volume()
+        phonopy_qha.write_volume_expansion()
+        phonopy_qha.write_volume_temperature()
 
-# get FC at constant pressure
-volumes = phonopy_qha.get_volume_temperature()
-for t, v in zip(temperatures, volumes):
-    fc = fc_fit.get_total_force_constants(temperature=t, volume=v)
-    write_FORCE_CONSTANTS(fc.get_array(), filename='FC_{}'.format(t))
+    # Dessigned for test only
+    def volume_shift(self, volume_range=np.arange(-2.0, 2.0, 0.1)):
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(1, 1)
+
+        volumes = self.phonopy_qha._qha._volumes
+        energies = self.phonopy_qha._qha._electronic_energies
+
+        free_energy = np.load('free_energy.npy')
+        temperatures = np.load('temperatures.npy')
+        cv = np.load('cv.npy')
+        entropy = np.load('entropy.npy')
+
+        for i in volume_range:
+            volumesi = np.array(volumes) + i
+            print volumesi
+
+            phonopy_qha = PhonopyQHA(volumesi,
+                                     energies,
+                                     eos="vinet",  # options: 'vinet', 'murnaghan' or 'birch_murnaghan'
+                                     temperatures=temperatures,
+                                     free_energy=free_energy,
+                                     cv=cv,
+                                     entropy=entropy,
+                                     t_max=self.fc_fit.get_temperature_range()[-1],
+                                     verbose=False)
+
+            cp = phonopy_qha.get_heat_capacity_P_numerical()
+            import matplotlib.pyplot as plt
+            import matplotlib.colors as colors
+
+            cNorm = colors.Normalize(vmin=volume_range[0], vmax=volume_range[-1])
+            scalarMap = plt.cm.ScalarMappable(norm=cNorm, cmap=plt.cm.get_cmap('plasma'))
+            ax.plot(phonopy_qha._qha._temperatures[:-3], cp, label='{}'.format(i), color=scalarMap.to_rgba(i))
+
+        import matplotlib as mpl
+
+        ax2 = fig.add_axes([0.93, 0.1, 0.02, 0.8])
+
+        mpl.colorbar.ColorbarBase(ax2, cmap=plt.cm.get_cmap('plasma'), norm=cNorm,
+                                  spacing='proportional', ticks=volume_range,
+                                  boundaries=None, format='%1i')
+        plt.show()
+
+    def plot_dos(self):
+
+        import matplotlib.pyplot as plt
+        import matplotlib.colors as colors
+        import matplotlib.colorbar as colorbar
+
+        volumes = self.phonopy_qha.get_volume_temperature()
+        temperatures = self.fc_fit.get_temperature_range()
+
+        fig, ax = plt.subplots(1,1)
+        for t, v in zip(temperatures[::40], volumes[::20]):
+            print ('temperature: {} K'.format(t))
+            dos = self.fc_fit.get_dos(t, v)
+            cNorm = colors.Normalize(vmin=temperatures[0], vmax=temperatures[-1])
+            scalarMap = plt.cm.ScalarMappable(norm=cNorm, cmap=plt.cm.get_cmap('plasma'))
+            ax.plot(dos[0], dos[1], color=scalarMap.to_rgba(t))
+
+        plt.suptitle('Phonon density of states')
+        plt.xlabel('Frequency [THz]')
+
+        ax2 = fig.add_axes([0.93, 0.1, 0.02, 0.8])
+        colorbar.ColorbarBase(ax2, cmap=plt.cm.get_cmap('plasma'), norm=cNorm,
+                              spacing='proportional', ticks=temperatures[::40],
+                              boundaries=None, format='%1i')
+
+        plt.show()
+
+    def plot_band_structure(self):
+
+        import matplotlib.pyplot as plt
+        import matplotlib.colors as colors
+        import matplotlib.colorbar as colorbar
+
+        temperatures = self.fc_fit.get_temperature_range()
+
+        def replace_list(text_string):
+            substitutions = {'GAMMA': u'$\Gamma$',
+                             }
+
+            for item in substitutions.iteritems():
+                text_string = text_string.replace(item[0], item[1])
+            return text_string
+
+
+        volumes = self.phonopy_qha.get_volume_temperature()
+
+        fig, ax = plt.subplots(1,1)
+        for t, v in zip(temperatures[::20], volumes[::20]):
+            print ('temperature: {} K'.format(t))
+
+            cNorm = colors.Normalize(vmin=temperatures[0], vmax=temperatures[-1])
+            scalarMap = plt.cm.ScalarMappable(norm=cNorm, cmap=plt.cm.get_cmap('plasma'))
+            band_data = self.fc_fit.get_band_structure(t, v, band_ranges=self._bands['ranges'])
+
+            for i, freq in enumerate(band_data[1]):
+                ax.plot(band_data[1][i], band_data[2][i], color=scalarMap.to_rgba(t))
+
+                # plt.axes().get_xaxis().set_visible(False)
+
+
+        #plt.axes().get_xaxis().set_ticks([])
+        plt.ylabel('Frequency [THz]')
+        plt.xlabel('Wave vector')
+
+        plt.xlim([0, band_data[1][-1][-1]])
+        plt.axhline(y=0, color='k', ls='dashed')
+        plt.suptitle('Phonon dispersion')
+
+        if 'labels' in self._bands:
+            plt.rcParams.update({'mathtext.default': 'regular'})
+            labels = self._bands['labels']
+
+            labels_e = []
+            x_labels = []
+            for i in range(len(band_data[1])):
+                if labels[i][0] == labels[i - 1][1]:
+                    labels_e.append(replace_list(labels[i][0]))
+                else:
+                    labels_e.append(
+                        replace_list(labels[i - 1][1]) + '/' + replace_list(labels[i][0]))
+                x_labels.append(band_data[1][i][0])
+            x_labels.append(band_data[1][-1][-1])
+            labels_e.append(replace_list(labels[-1][1]))
+            labels_e[0] = replace_list(labels[0][0])
+            plt.xticks(x_labels, labels_e, rotation='horizontal')
+
+        ax2 = fig.add_axes([0.93, 0.1, 0.02, 0.8])
+        colorbar.ColorbarBase(ax2, cmap=plt.cm.get_cmap('plasma'), norm=cNorm,
+                              spacing='proportional', ticks=temperatures[::20],
+                              boundaries=None, format='%1i')
+
+        exp_data = np.loadtxt('FC/exp_bands')
+        ax.plot(exp_data[:, 0], exp_data[:, 1], 'o', color='r')
+        plt.show()
+
+    def get_FC_constant_pressure(self):
+        # get FC at constant pressure
+        temperatures = self.fc_fit.get_temperature_range()
+
+        volumes = self.phonopy_qha.get_volume_temperature()
+        for t, v in zip(temperatures[::20], volumes[::20]):
+            fc = self.fc_fit.get_total_force_constants(temperature=t, volume=v)
+            write_FORCE_CONSTANTS(fc.get_array(), filename='FC_{}'.format(t))
+
+    def get_total_shift_constant_pressure(self, qpoint=(0, 0, 0), branch=None):
+
+        import matplotlib.pyplot as plt
+
+        qindex = self.fc_fit.qpoint_to_index(qpoint)
+
+
+        chk_list = np.arange(self.fc_fit.temperatures[0], self.fc_fit.temperatures[-1], 10)
+        chk_shift_matrix = np.array([self.fc_fit.get_fitted_shifts_temperature(t) for t in chk_list]).T
+        # chk_shift_matrix = np.array([self.get_interpolated_shifts_temperature(t) for t in chk_list]).T
+
+        plt.suptitle('Frequency shift at wave vector={} (relative to {} K)'.format(qpoint, self.ref_temperature))
+        plt.xlabel('Temperature [K]')
+        plt.ylabel('Frequency shift [THz]')
+        if branch is None:
+            plt.plot(chk_list, chk_shift_matrix[:, qindex].T, '-')
+        else:
+            plt.title('Branch {}'.format(branch))
+            plt.plot(chk_list, chk_shift_matrix[branch, qindex].T, '-')
+        plt.show()
+
+    @property
+    def fc_fit(self):
+        return self._fc_fit
+
+
+qp = QuasiparticlesQHA(args, load_data=True)
+
+#qp.volume_shift()
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0])
+
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=0)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=1)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=2)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=3)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=4)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5])
+qp.fc_fit.plot_fitted_shifts_volumes(qpoint=[0.5, 0.5, 0.5])
+
+qp.fc_fit.plot_linewidth_temperature(qpoint=[0.5, 0.5, 0.5])
+qp.fc_fit.plot_linewidth_volume(qpoint=[0.5, 0.5, 0.5])
+
+qp.plot_band_structure()
+qp.plot_dos()
+
+qp.fc_fit.plot_linewidth_volume([0, 0, 0])

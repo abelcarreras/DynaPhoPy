@@ -608,7 +608,7 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
                 input_parameters.update({'_band_ranges': {'ranges': bands,
                                                           'labels': labels}})
             else:
-                input_parameters.update({'_band_ranges': bands})
+                input_parameters.update({'_band_ranges': {'ranges':bands}})
 
 
         if "MESH PHONOPY" in line:
