@@ -166,8 +166,7 @@ class Quasiparticle:
             print("Getting frequencies & eigenvectors from Phonopy")
             self._eigenvectors, self._frequencies = (
                 pho_interface.obtain_eigenvectors_and_frequencies(self.dynamic.structure,
-                                                                  self.parameters.reduced_q_vector,
-                                                                  NAC=self.parameters.use_NAC))
+                                                                  self.parameters.reduced_q_vector))
         return self._eigenvectors
 
     def get_frequencies(self):
@@ -175,8 +174,7 @@ class Quasiparticle:
             print("Getting frequencies & eigenvectors from Phonopy")
             self._eigenvectors, self._frequencies = (
                 pho_interface.obtain_eigenvectors_and_frequencies(self.dynamic.structure,
-                                                                  self.parameters.reduced_q_vector,
-                                                                  NAC=self.parameters.use_NAC))
+                                                                  self.parameters.reduced_q_vector))
         return self._frequencies
 
     def set_band_ranges(self, band_ranges):

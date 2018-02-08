@@ -112,9 +112,9 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
     return phonon
 
 
-def obtain_eigenvectors_and_frequencies(structure, q_vector, NAC=False, test_orthonormal=False, print_data=True):
+def obtain_eigenvectors_and_frequencies(structure, q_vector, test_orthonormal=False, print_data=True):
 
-    phonon = get_phonon(structure, NAC=NAC)
+    phonon = get_phonon(structure)
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
     if False:

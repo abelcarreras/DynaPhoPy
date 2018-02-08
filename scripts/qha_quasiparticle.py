@@ -298,7 +298,7 @@ class ForceConstantsFitting():
 
     def plot_thermal_properties(self, volume_index=0):
         import matplotlib.pyplot as plt
-        free_energy, entropy, cv = fc_fit.get_thermal_properties(volume=self.volumes[volume_index])
+        free_energy, entropy, cv = self.get_thermal_properties(volume=self.volumes[volume_index])
         temperature = self.get_temperature_range()
         plt.plot(temperature, free_energy, label='free energy')
         plt.plot(temperature, entropy, label='entropy')
@@ -698,34 +698,48 @@ class QuasiparticlesQHA():
         ax.plot(exp_data[:, 0], exp_data[:, 1], 'o', color='r')
         plt.show()
 
+    def get_qha_temperatures(self):
+        max_t_index = self.phonopy_qha._qha._get_max_t_index(self.phonopy_qha._qha._temperatures)
+        temperatures = self.phonopy_qha._qha._temperatures[:max_t_index]
+
+        return temperatures
+
     def get_FC_constant_pressure(self):
         # get FC at constant pressure
-        temperatures = self.fc_fit.get_temperature_range()
-
+        temperatures = self.get_qha_temperatures()
         volumes = self.phonopy_qha.get_volume_temperature()
+
         for t, v in zip(temperatures[::20], volumes[::20]):
             fc = self.fc_fit.get_total_force_constants(temperature=t, volume=v)
             write_FORCE_CONSTANTS(fc.get_array(), filename='FC_{}'.format(t))
 
-    def get_total_shift_constant_pressure(self, qpoint=(0, 0, 0), branch=None):
+    def plot_total_shift_constant_pressure(self, qpoint=(0, 0, 0), branch=None, absolute=False):
 
         import matplotlib.pyplot as plt
 
         qindex = self.fc_fit.qpoint_to_index(qpoint)
 
+        volumes = self.phonopy_qha.get_volume_temperature()
+        temperatures = self.get_qha_temperatures()
+        h_frequencies, ev = self.fc_fit.get_harmonic_frequencies_and_eigenvectors()
 
-        chk_list = np.arange(self.fc_fit.temperatures[0], self.fc_fit.temperatures[-1], 10)
-        chk_shift_matrix = np.array([self.fc_fit.get_fitted_shifts_temperature(t) for t in chk_list]).T
-        # chk_shift_matrix = np.array([self.get_interpolated_shifts_temperature(t) for t in chk_list]).T
+        chk_shift_matrix = []
+        for v, t in zip(volumes, temperatures):
+            total_shifts = self.fc_fit.get_total_shifts(volume=v, temperature=t)
+            if absolute:
+                total_shifts += np.array(h_frequencies)
 
-        plt.suptitle('Frequency shift at wave vector={} (relative to {} K)'.format(qpoint, self.ref_temperature))
+            chk_shift_matrix.append(total_shifts)
+        chk_shift_matrix = np.array(chk_shift_matrix).T
+
+        plt.suptitle('Total frequency shift at wave vector={} (relative to {} K)'.format(qpoint, self.fc_fit.ref_temperature))
         plt.xlabel('Temperature [K]')
         plt.ylabel('Frequency shift [THz]')
         if branch is None:
-            plt.plot(chk_list, chk_shift_matrix[:, qindex].T, '-')
+            plt.plot(temperatures, chk_shift_matrix[:, qindex].T, '-')
         else:
             plt.title('Branch {}'.format(branch))
-            plt.plot(chk_list, chk_shift_matrix[branch, qindex].T, '-')
+            plt.plot(temperatures, chk_shift_matrix[branch, qindex].T, '-')
         plt.show()
 
     @property
@@ -736,13 +750,19 @@ class QuasiparticlesQHA():
 qp = QuasiparticlesQHA(args, load_data=True)
 
 #qp.volume_shift()
+#qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=4)
+#qp.fc_fit.plot_fitted_shifts_volumes(qpoint=[0.0, 0.0, 0.0], branch=4)
+
+qp.plot_total_shift_constant_pressure(qpoint=[0.0, 0.0, 0.0], branch=4, absolute=True)
+qp.plot_total_shift_constant_pressure(qpoint=[0.0, 0.0, 0.0], absolute=True)
+
 qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0])
 
-qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=0)
-qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=1)
-qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=2)
-qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=3)
-qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=4)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5], branch=0)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5], branch=1)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5], branch=2)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5], branch=3)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5], branch=4)
 qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5])
 qp.fc_fit.plot_fitted_shifts_volumes(qpoint=[0.5, 0.5, 0.5])
 
