@@ -104,7 +104,7 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
             exit()
 
     if NAC:
-        print("Phonopy warning: Using Non Analytical Corrections")
+        print("Warning: Using Non Analytical Corrections")
         primitive = phonon.get_primitive()
         nac_params = parse_BORN(primitive, is_symmetry=True)
         phonon.set_nac_params(nac_params=nac_params)

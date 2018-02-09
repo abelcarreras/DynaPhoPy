@@ -145,16 +145,12 @@ class ForceConstantsFitting():
 
         return self._shift_matrix_volume
 
-
-
     def get_interpolated_shifts_temperature(self, temperature, kind='quadratic'):
         from scipy.interpolate import interp1d
 
         shift_matrix = self.get_shift_matrix_temperature()
-        if self._shift_temperature is None:
-            self._shift_temperature = interp1d(self.temperatures, shift_matrix, kind=kind)
-
-        interpolated_shifts = self._shift_temperature(temperature).T
+        shift_temperature = interp1d(self.temperatures, shift_matrix, kind=kind)
+        interpolated_shifts = shift_temperature(temperature).T
 
         return interpolated_shifts
 
@@ -180,6 +176,16 @@ class ForceConstantsFitting():
             interpolated_shifts.append(row)
 
         interpolated_shifts = np.array(interpolated_shifts).T
+
+        return interpolated_shifts
+
+    def get_interpolated_shifts_volume(self, volume, kind='quadratic'):
+        from scipy.interpolate import interp1d
+
+        shift_matrix = self.get_shift_matrix_volume()
+        shift_volume = interp1d(self.volumes, shift_matrix, kind=kind)
+
+        interpolated_shifts = shift_volume(volume).T
 
         return interpolated_shifts
 
@@ -244,13 +250,20 @@ class ForceConstantsFitting():
                                               symmetrize=False)
         return fc
 
-    def get_total_shifts(self, volume, temperature):
+    def get_total_shifts(self, volume, temperature, interpolate_temperature=False, interpolate_volume=False):
         if volume is None:
             volume = self.volumes[0]
 
-        # temperature_shifts = self.get_interpolated_shifts_temperature(temperature)
-        temperature_shifts = self.get_fitted_shifts_temperature(temperature)
-        volume_shifts = self.get_fitted_shifts_volume(volume)
+        if interpolate_temperature:
+            temperature_shifts = self.get_interpolated_shifts_temperature(temperature)
+        else:
+            temperature_shifts = self.get_fitted_shifts_temperature(temperature)
+
+        if interpolate_volume:
+            volume_shifts = self.get_fitted_shifts_volume(volume)
+        else:
+            volume_shifts = self.get_interpolated_shifts_volume(volume)
+
 
         return temperature_shifts + volume_shifts
 
@@ -317,7 +330,7 @@ class ForceConstantsFitting():
             exit()
         return None
 
-    def plot_fitted_shifts_temperature(self, qpoint=(0, 0, 0), branch=None):
+    def plot_fitted_shifts_temperature(self, qpoint=(0, 0, 0), branch=None, interpolated=False):
         import matplotlib.pyplot as plt
 
         qindex = self.qpoint_to_index(qpoint)
@@ -325,10 +338,13 @@ class ForceConstantsFitting():
         shift_matrix = self.get_shift_matrix_temperature()
 
         chk_list = np.arange(self.temperatures[0], self.temperatures[-1], 10)
-        chk_shift_matrix = np.array([self.get_fitted_shifts_temperature(t) for t in chk_list]).T
-        # chk_shift_matrix = np.array([self.get_interpolated_shifts_temperature(t) for t in chk_list]).T
 
-        plt.suptitle('Frequency shift at wave vector={} (relative to {} K)'.format(qpoint, self.ref_temperature))
+        if interpolated:
+            chk_shift_matrix = np.array([self.get_interpolated_shifts_temperature(t) for t in chk_list]).T
+        else:
+            chk_shift_matrix = np.array([self.get_fitted_shifts_temperature(t) for t in chk_list]).T
+
+        plt.suptitle('Frequency shift at wave vector={} (relative to harmonic)'.format(qpoint))
         plt.xlabel('Temperature [K]')
         plt.ylabel('Frequency shift [THz]')
         if branch is None:
@@ -340,7 +356,7 @@ class ForceConstantsFitting():
             plt.plot(self.temperatures, shift_matrix[branch, qindex].T, 'o')
         plt.show()
 
-    def plot_fitted_shifts_volumes(self, qpoint=(0, 0, 0), branch=None):
+    def plot_fitted_shifts_volumes(self, qpoint=(0, 0, 0), branch=None, interpolate=False):
         import matplotlib.pyplot as plt
 
         qindex = self.qpoint_to_index(qpoint)
@@ -348,13 +364,14 @@ class ForceConstantsFitting():
         shift_matrix = self.get_shift_matrix_volume()
 
         chk_list = np.arange(self.volumes[0], self.volumes[-1], 0.1)
-        chk_shift_matrix = np.array([self.get_fitted_shifts_volume(v) for v in chk_list]).T
-        # chk_shift_matrix = np.array([self.get_interpolated_shifts_temperature(t) for t in chk_list]).T
 
-
+        if interpolate:
+            chk_shift_matrix = np.array([self.get_interpolated_shifts_volume(v) for v in chk_list]).T
+        else:
+            chk_shift_matrix = np.array([self.get_fitted_shifts_volume(v) for v in chk_list]).T
 
         plt.suptitle('Shifts at wave vector={} (relative to {} K)'.format(qpoint, self.ref_temperature))
-        plt.xlabel('Volumes [K]')
+        plt.xlabel('Volumes [Ang.^3]')
         plt.ylabel('Frequency [THz]')
         if branch is None:
             plt.plot(chk_list, chk_shift_matrix[:, qindex].T, '-')
@@ -405,43 +422,58 @@ class ForceConstantsFitting():
             return None
 
 
-    def plot_shift_volume(self, qpoint=(0, 0, 0)):
+    def plot_shift_volume(self, qpoint=(0, 0, 0), branch=None):
         import matplotlib.pyplot as plt
 
         qindex = self.qpoint_to_index(qpoint)
-        if qindex is not None:
-            linewidth = []
-            for v in range(len(self.volumes)):
-                data = self.get_data_volume(v)
-                linewidth.append(data[qindex]['frequency_shifts'])
 
-            plt.title('Frequency shift at wave vector={} (relative to harmonic)'.format(qpoint))
-            plt.xlabel('Volume [Angs.^3]')
-            plt.ylabel('Frequency shift [THz]')
-            plt.plot(self.volumes, linewidth)
-            plt.show()
+        shift = []
+        for v in range(len(self.volumes)):
+            data = self.get_data_volume(v)
+            shift.append(data[qindex]['frequency_shifts'])
+
+        plt.suptitle('Frequency shift at wave vector={} (relative to {} K)'.format(qpoint, self.ref_temperature))
+        plt.xlabel('Volume [Angs.^3]')
+        plt.ylabel('Frequency shift [THz]')
+
+        if branch is None:
+            plt.plot(self.volumes, shift)
         else:
-            print ('qpoint not found!')
-            return None
+            plt.title('Branch {}'.format(branch))
+            plt.plot(self.volumes, np.array(shift).T[branch].T)
+        plt.show()
 
-    def plot_shift_temperature(self, qpoint=(0, 0, 0)):
+    def get_shift_temperature(self, qpoint=(0, 0, 0)):
+
+        qindex = self.qpoint_to_index(qpoint)
+
+        shift = []
+        for t in range(len(self.temperatures)):
+            data = self.get_data_temperature(t)
+            shift.append(data[qindex]['frequency_shifts'])
+
+        return np.array(shift).T
+
+    def plot_shift_temperature(self, qpoint=(0, 0, 0), branch=None):
         import matplotlib.pyplot as plt
 
         qindex = self.qpoint_to_index(qpoint)
-        if qindex is not None:
-            linewidth = []
-            for t in range(len(self.temperatures)):
-                data = self.get_data_temperature(t)
-                linewidth.append(data[qindex]['frequency_shifts'])
 
-            plt.title('Frequency shift at wave vector={} (relative to harmonic)'.format(qpoint))
-            plt.xlabel('Temperature [K]')
-            plt.ylabel('Frequency shift [THz]')
-            plt.plot(self.temperatures, linewidth)
-            plt.show()
+        shift = []
+        for t in range(len(self.temperatures)):
+            data = self.get_data_temperature(t)
+            shift.append(data[qindex]['frequency_shifts'])
+
+        plt.suptitle('Frequency shift at wave vector={} (relative to harmonic)'.format(qpoint))
+        plt.xlabel('Temperature [K]')
+        plt.ylabel('Frequency shift [THz]')
+
+        if branch is None:
+            plt.plot(self.temperatures, shift)
         else:
-            print ('qpoint not found!')
-            return None
+            plt.title('Branch {}'.format(branch))
+            plt.plot(self.temperatures, np.array(shift).T[branch].T)
+        plt.show()
 
     def get_band_structure(self, temperature, volume, band_ranges=None):
         from dynaphopy.interface.phonopy_link import obtain_phonon_dispersion_bands
@@ -466,7 +498,7 @@ class ForceConstantsFitting():
 
 
 class QuasiparticlesQHA():
-    def __init__(self, args, load_data=False):
+    def __init__(self, args, load_data=False, verbose=False, tmin=None):
 
         input_parameters = reading.read_parameters_from_input_file(args.input_file)
 
@@ -506,7 +538,7 @@ class QuasiparticlesQHA():
                                        mesh=mesh,
                                        ref_temperature=args.ref_temperature,
                                        fitting_order=args.order,
-                                       tmin=200,
+                                       tmin=tmin,
                                        use_NAC=True)
 
         if not load_data:
@@ -547,7 +579,8 @@ class QuasiparticlesQHA():
                                  t_max=self.fc_fit.get_temperature_range()[-1],
                                  verbose=False)
 
-        self.phonopy_qha = phonopy_qha
+        if verbose:
+            self.phonopy_qha = phonopy_qha
 
         phonopy_qha.plot_qha().show()
         phonopy_qha.write_bulk_modulus_temperature()
@@ -603,7 +636,7 @@ class QuasiparticlesQHA():
                                   boundaries=None, format='%1i')
         plt.show()
 
-    def plot_dos(self):
+    def plot_dos_gradient(self):
 
         import matplotlib.pyplot as plt
         import matplotlib.colors as colors
@@ -630,13 +663,11 @@ class QuasiparticlesQHA():
 
         plt.show()
 
-    def plot_band_structure(self):
+    def plot_band_structure_gradient(self, tmin=300, tmax=1600, tstep=100):
 
         import matplotlib.pyplot as plt
         import matplotlib.colors as colors
         import matplotlib.colorbar as colorbar
-
-        temperatures = self.fc_fit.get_temperature_range()
 
         def replace_list(text_string):
             substitutions = {'GAMMA': u'$\Gamma$',
@@ -648,12 +679,12 @@ class QuasiparticlesQHA():
 
 
         volumes = self.phonopy_qha.get_volume_temperature()
+        cNorm = colors.Normalize(vmin=tmin, vmax=tmax)
 
         fig, ax = plt.subplots(1,1)
-        for t, v in zip(temperatures[::20], volumes[::20]):
+        for t in np.arange(tmin, tmax, tstep):
             print ('temperature: {} K'.format(t))
-
-            cNorm = colors.Normalize(vmin=temperatures[0], vmax=temperatures[-1])
+            v = self.get_volume_at_temperature(t)
             scalarMap = plt.cm.ScalarMappable(norm=cNorm, cmap=plt.cm.get_cmap('plasma'))
             band_data = self.fc_fit.get_band_structure(t, v, band_ranges=self._bands['ranges'])
 
@@ -691,12 +722,68 @@ class QuasiparticlesQHA():
 
         ax2 = fig.add_axes([0.93, 0.1, 0.02, 0.8])
         colorbar.ColorbarBase(ax2, cmap=plt.cm.get_cmap('plasma'), norm=cNorm,
-                              spacing='proportional', ticks=temperatures[::20],
+                              spacing='proportional', ticks=np.arange(tmin, tmax, tstep),
                               boundaries=None, format='%1i')
 
-        exp_data = np.loadtxt('FC/exp_bands')
-        ax.plot(exp_data[:, 0], exp_data[:, 1], 'o', color='r')
         plt.show()
+
+    def get_volume_at_temperature(self, temperature):
+
+        temperatures = self.get_qha_temperatures()
+        volumes = self.phonopy_qha.get_volume_temperature()
+        volume = np.interp(temperature, temperatures, volumes)
+
+        return volume
+
+    def plot_band_structure_constant_pressure(self, temperature=300, external_data=None):
+
+        import matplotlib.pyplot as plt
+
+        def replace_list(text_string):
+            substitutions = {'GAMMA': u'$\Gamma$',
+                             }
+
+            for item in substitutions.iteritems():
+                text_string = text_string.replace(item[0], item[1])
+            return text_string
+
+        volume = self.get_volume_at_temperature(temperature)
+        fig, ax = plt.subplots(1,1)
+        band_data = self.fc_fit.get_band_structure(temperature, volume, band_ranges=self._bands['ranges'])
+
+        for i, freq in enumerate(band_data[1]):
+            ax.plot(band_data[1][i], band_data[2][i], color='r')
+
+        #plt.axes().get_xaxis().set_ticks([])
+        plt.ylabel('Frequency [THz]')
+        plt.xlabel('Wave vector')
+
+        plt.xlim([0, band_data[1][-1][-1]])
+        plt.axhline(y=0, color='k', ls='dashed')
+        plt.suptitle('Phonon dispersion')
+
+        if 'labels' in self._bands:
+            plt.rcParams.update({'mathtext.default': 'regular'})
+            labels = self._bands['labels']
+
+            labels_e = []
+            x_labels = []
+            for i in range(len(band_data[1])):
+                if labels[i][0] == labels[i - 1][1]:
+                    labels_e.append(replace_list(labels[i][0]))
+                else:
+                    labels_e.append(
+                        replace_list(labels[i - 1][1]) + '/' + replace_list(labels[i][0]))
+                x_labels.append(band_data[1][i][0])
+            x_labels.append(band_data[1][-1][-1])
+            labels_e.append(replace_list(labels[-1][1]))
+            labels_e[0] = replace_list(labels[0][0])
+            plt.xticks(x_labels, labels_e, rotation='horizontal')
+
+        ax.plot(external_data[:, 0], external_data[:, 1], 'o', color='b')
+        plt.show()
+
+
 
     def get_qha_temperatures(self):
         max_t_index = self.phonopy_qha._qha._get_max_t_index(self.phonopy_qha._qha._temperatures)
@@ -713,9 +800,7 @@ class QuasiparticlesQHA():
             fc = self.fc_fit.get_total_force_constants(temperature=t, volume=v)
             write_FORCE_CONSTANTS(fc.get_array(), filename='FC_{}'.format(t))
 
-    def plot_total_shift_constant_pressure(self, qpoint=(0, 0, 0), branch=None, absolute=False):
-
-        import matplotlib.pyplot as plt
+    def get_total_shift_constant_pressure(self, qpoint=(0, 0, 0)):
 
         qindex = self.fc_fit.qpoint_to_index(qpoint)
 
@@ -726,20 +811,27 @@ class QuasiparticlesQHA():
         chk_shift_matrix = []
         for v, t in zip(volumes, temperatures):
             total_shifts = self.fc_fit.get_total_shifts(volume=v, temperature=t)
-            if absolute:
-                total_shifts += np.array(h_frequencies)
 
             chk_shift_matrix.append(total_shifts)
         chk_shift_matrix = np.array(chk_shift_matrix).T
+
+        return chk_shift_matrix[:, qindex]
+
+    def plot_total_shift_constant_pressure(self, qpoint=(0, 0, 0), branch=None):
+
+        import matplotlib.pyplot as plt
+
+        temperatures = self.get_qha_temperatures()
+        chk_shift_matrix = self.get_total_shift_constant_pressure(qpoint=qpoint)
 
         plt.suptitle('Total frequency shift at wave vector={} (relative to {} K)'.format(qpoint, self.fc_fit.ref_temperature))
         plt.xlabel('Temperature [K]')
         plt.ylabel('Frequency shift [THz]')
         if branch is None:
-            plt.plot(temperatures, chk_shift_matrix[:, qindex].T, '-')
+            plt.plot(temperatures, chk_shift_matrix.T, '-')
         else:
             plt.title('Branch {}'.format(branch))
-            plt.plot(temperatures, chk_shift_matrix[branch, qindex].T, '-')
+            plt.plot(temperatures, chk_shift_matrix[branch].T, '-')
         plt.show()
 
     @property
@@ -747,16 +839,35 @@ class QuasiparticlesQHA():
         return self._fc_fit
 
 
-qp = QuasiparticlesQHA(args, load_data=True)
+qp = QuasiparticlesQHA(args, load_data=False, verbose=True, tmin=200)
 
-#qp.volume_shift()
-#qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0], branch=4)
-#qp.fc_fit.plot_fitted_shifts_volumes(qpoint=[0.0, 0.0, 0.0], branch=4)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5])
+qp.fc_fit.plot_fitted_shifts_volumes(qpoint=[0.5, 0.5, 0.5])
 
-qp.plot_total_shift_constant_pressure(qpoint=[0.0, 0.0, 0.0], branch=4, absolute=True)
-qp.plot_total_shift_constant_pressure(qpoint=[0.0, 0.0, 0.0], absolute=True)
+
+experiment_data = np.loadtxt('FC/exp_bands')
+qp.plot_band_structure_constant_pressure(external_data=experiment_data)
+#qp.plot_band_structure_gradient()
+
+qp.fc_fit.plot_shift_volume(qpoint=[0.5, 0.5, 0.5], branch=0)
+qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5], branch=0)
+
+qp.plot_total_shift_constant_pressure(qpoint=[0.5, 0.5, 0.5], branch=0)
+qp.plot_total_shift_constant_pressure(qpoint=[0.5, 0.5, 0.5], branch=2)
+
+np.savetxt('shift_r', qp.get_total_shift_constant_pressure(qpoint=[0.5, 0.5, 0.5]).T)
+np.savetxt('tshift_r', qp.fc_fit.get_shift_temperature(qpoint=[0.5, 0.5, 0.5]).T)
+print qp.fc_fit.temperatures
+
+print qp.get_qha_temperatures()
+exit()
+
+
+qp.plot_total_shift_constant_pressure(qpoint=[0.0, 0.0, 0.0], branch=4)
+qp.plot_total_shift_constant_pressure(qpoint=[0.0, 0.0, 0.0])
 
 qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.0, 0.0, 0.0])
+
 
 qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5], branch=0)
 qp.fc_fit.plot_fitted_shifts_temperature(qpoint=[0.5, 0.5, 0.5], branch=1)
@@ -769,7 +880,6 @@ qp.fc_fit.plot_fitted_shifts_volumes(qpoint=[0.5, 0.5, 0.5])
 qp.fc_fit.plot_linewidth_temperature(qpoint=[0.5, 0.5, 0.5])
 qp.fc_fit.plot_linewidth_volume(qpoint=[0.5, 0.5, 0.5])
 
-qp.plot_band_structure()
-qp.plot_dos()
+qp.plot_dos_gradient()
 
 qp.fc_fit.plot_linewidth_volume([0, 0, 0])
