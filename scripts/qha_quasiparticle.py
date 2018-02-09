@@ -520,7 +520,7 @@ class QuasiparticlesQHA():
         if '_mesh_phonopy' in input_parameters:
             mesh = input_parameters['_mesh_phonopy']
         else:
-            mesh = [20, 20, 20]
+            mesh = [20, 20, 20] # Default
             print ('mesh set to: {}'.format(mesh))
 
         if 'bands' in input_parameters is None:
@@ -568,8 +568,7 @@ class QuasiparticlesQHA():
             cv = np.load('cv.npy')
             entropy = np.load('entropy.npy')
 
-
-        phonopy_qha = PhonopyQHA(volumes,
+        self.phonopy_qha = PhonopyQHA(volumes,
                                  energies,
                                  eos="vinet",  # options: 'vinet', 'murnaghan' or 'birch_murnaghan'
                                  temperatures=temperatures,
@@ -579,20 +578,20 @@ class QuasiparticlesQHA():
                                  t_max=self.fc_fit.get_temperature_range()[-1],
                                  verbose=False)
 
+        # Write data files to disk
+        self.phonopy_qha.write_bulk_modulus_temperature()
+        self.phonopy_qha.write_gibbs_temperature()
+        self.phonopy_qha.write_heat_capacity_P_numerical()
+        self.phonopy_qha.write_gruneisen_temperature()
+        self.phonopy_qha.write_thermal_expansion()
+        self.phonopy_qha.write_helmholtz_volume()
+        self.phonopy_qha.write_volume_expansion()
+        self.phonopy_qha.write_volume_temperature()
+
         if verbose:
-            self.phonopy_qha = phonopy_qha
+            self.phonopy_qha.plot_qha().show()
 
-        phonopy_qha.plot_qha().show()
-        phonopy_qha.write_bulk_modulus_temperature()
-        phonopy_qha.write_gibbs_temperature()
-        phonopy_qha.write_heat_capacity_P_numerical()
-        phonopy_qha.write_gruneisen_temperature()
-        phonopy_qha.write_thermal_expansion()
-        phonopy_qha.write_helmholtz_volume()
-        phonopy_qha.write_volume_expansion()
-        phonopy_qha.write_volume_temperature()
-
-    # Dessigned for test only
+    # Designed for test only
     def volume_shift(self, volume_range=np.arange(-2.0, 2.0, 0.1)):
         import matplotlib.pyplot as plt
         fig, ax = plt.subplots(1, 1)
@@ -783,8 +782,6 @@ class QuasiparticlesQHA():
         ax.plot(external_data[:, 0], external_data[:, 1], 'o', color='b')
         plt.show()
 
-
-
     def get_qha_temperatures(self):
         max_t_index = self.phonopy_qha._qha._get_max_t_index(self.phonopy_qha._qha._temperatures)
         temperatures = self.phonopy_qha._qha._temperatures[:max_t_index]
@@ -792,7 +789,6 @@ class QuasiparticlesQHA():
         return temperatures
 
     def get_FC_constant_pressure(self):
-        # get FC at constant pressure
         temperatures = self.get_qha_temperatures()
         volumes = self.phonopy_qha.get_volume_temperature()
 
@@ -838,6 +834,8 @@ class QuasiparticlesQHA():
     def fc_fit(self):
         return self._fc_fit
 
+
+# FROM HERE DIRTY DEVELOPMENT
 
 qp = QuasiparticlesQHA(args, load_data=False, verbose=True, tmin=200)
 
