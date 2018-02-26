@@ -1,6 +1,8 @@
 __version__ = '1.15.4'
 
 import numpy as np
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 import dynaphopy.projection as projection
