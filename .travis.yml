@@ -24,6 +24,7 @@ install:
 script:
     - cd unittest
     - coverage run --source=../dynaphopy -m unittest discover . "*_test.py"
+    - cd ..
 
 after_success:
     - coveralls
