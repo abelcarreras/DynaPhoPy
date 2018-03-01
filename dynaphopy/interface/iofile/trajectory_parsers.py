@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import mmap
-import dynaphopy.orm.dynamics as dyn
+import dynaphopy.dynamics as dyn
 import warnings
 
 

@@ -40,6 +40,7 @@ class Parameters:
                  # Phonon dispersion diagram
                  use_NAC=False,
                  band_ranges=None,
+                 band_resolution=100,
                  number_of_bins_histogram=30,
 
                  # Force constants
@@ -76,6 +77,7 @@ class Parameters:
         self._use_NAC = use_NAC
         self._band_ranges = band_ranges
         self._number_of_bins_histogram = number_of_bins_histogram
+        self._band_resolution = band_resolution
 
         self._symmetrize = symmetrize
         self._use_symmetry = use_symmetry
@@ -191,6 +193,14 @@ class Parameters:
     @number_of_bins_histogram.setter
     def number_of_bins_histogram(self, number_of_bins_histogram):
         self._number_of_bins_histogram = number_of_bins_histogram
+
+    @property
+    def band_resolution(self):
+        return self._band_resolution
+
+    @band_resolution.setter
+    def band_resolution(self, band_resolution):
+        self._band_resolution = band_resolution
 
     @property
     def modes_vectors_scale(self):

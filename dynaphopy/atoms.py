@@ -337,7 +337,7 @@ class Structure:
     
                     if np.all(np.equal(np.mod(q_point_unit_cell, 1), 0)):
                         commensurate_points.append(q_point)
-                        
+
         return commensurate_points
 
     def get_path_using_seek_path(self):

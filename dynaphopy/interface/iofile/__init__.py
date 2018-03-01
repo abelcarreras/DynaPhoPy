@@ -2,8 +2,8 @@ import mmap
 import os
 import numpy as np
 
-import dynaphopy.orm.dynamics as dyn
-import dynaphopy.orm.atoms as atomtest
+import dynaphopy.dynamics as dyn
+import dynaphopy.atoms as atomtest
 from dynaphopy.interface import phonopy_link as pho_interface
 
 
@@ -561,16 +561,16 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
             continue
 
         if "STRUCTURE FILE OUTCAR" in line:
-            input_parameters.update({'structure_file_name_outcar': input_file[i+1].replace('\n','')})
+            input_parameters.update({'structure_file_name_outcar': input_file[i+1].replace('\n','').strip()})
 
         if "STRUCTURE FILE POSCAR" in line:
-            input_parameters.update({'structure_file_name_poscar': input_file[i+1].replace('\n','')})
+            input_parameters.update({'structure_file_name_poscar': input_file[i+1].replace('\n','').strip()})
 
         if "FORCE SETS" in line:
-            input_parameters.update({'force_sets_file_name': input_file[i+1].replace('\n','')})
+            input_parameters.update({'force_sets_file_name': input_file[i+1].replace('\n','').strip()})
 
         if "FORCE CONSTANTS" in line:
-            input_parameters.update({'force_constants_file_name': input_file[i+1].replace('\n','')})
+            input_parameters.update({'force_constants_file_name': input_file[i+1].replace('\n','').strip()})
             # print('Warning!: FORCE CONSTANTS label in input has changed. Please use FORCE SETS instead')
             # exit()
 
@@ -608,7 +608,7 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
                 input_parameters.update({'_band_ranges': {'ranges': bands,
                                                           'labels': labels}})
             else:
-                input_parameters.update({'_band_ranges': bands})
+                input_parameters.update({'_band_ranges': {'ranges':bands}})
 
 
         if "MESH PHONOPY" in line:

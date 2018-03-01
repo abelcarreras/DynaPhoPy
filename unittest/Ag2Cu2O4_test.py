@@ -5,7 +5,7 @@ import numpy as np
 import dynaphopy
 import dynaphopy.interface.iofile as io
 from dynaphopy.interface.phonopy_link import get_force_sets_from_file
-from dynaphopy.orm.atoms import Structure
+from dynaphopy.atoms import Structure
 
 
 class TestDynaphopy(unittest.TestCase):

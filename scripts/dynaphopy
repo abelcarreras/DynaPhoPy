@@ -134,6 +134,9 @@ group.add_argument('--generate_trajectory', metavar='F', type=float, default=Non
                     help='generate a test harmonic trajectory using force constants [total time (ps), '
                          'time step (ps), amplitude (Kelvin)]')
 
+group.add_argument('--run_lammps', metavar='F', type=str, default=None, nargs=4,
+                    help='Run lammps input file [input_file  total_time time_step relaxation_time]')
+
 group.add_argument('-c_poscar', metavar='file', type=str, default=None, nargs=1,
                     help='generate supercell in VASP POSCAR file format')
 
@@ -165,6 +168,9 @@ parser.add_argument('--project_on_atom', metavar='atom_index', type=int, default
 
 parser.add_argument('--save_power_spectrum_partials', metavar='filename', type=str, default=None,
                     help='store the full power spectrum separated by atom contributions')
+
+parser.add_argument('--nac', action='store_true',
+                    help='use non-analytical term corrections (BORN file should exist) ')
 
 
 args = parser.parse_args()
@@ -250,6 +256,16 @@ if args.generate_trajectory:
                                                   silent=args.silent,
                                                   memmap=args.memmap)
 
+if args.run_lammps:
+    from dynaphopy.interface.lammps_link import generate_lammps_trajectory
+    trajectory = generate_lammps_trajectory(structure, args.run_lammps[0],
+                                            total_time=float(args.run_lammps[1]),
+                                            time_step=float(args.run_lammps[2]),
+                                            relaxation_time=float(args.run_lammps[3]),
+                                            silent=args.silent,
+                                            supercell=args.dim,
+                                            memmap=args.memmap,
+                                            velocity_only=args.velocity_only)
 
 if isinstance(trajectory, list) or isinstance(trajectory, tuple):
     print('Loading projected velocity only (limited features only)')
@@ -268,6 +284,7 @@ calculation.parameters.silent = args.silent
 calculation.parameters.degenerate = args.fcsymm
 calculation.parameters.use_MD_cell_commensurate = args.MD_commensurate
 calculation.parameters.save_renormalized_frequencies = args.save_renormalized_frequencies
+calculation.parameters.use_NAC = args.nac
 
 calculation.select_fitting_function(args.fitting_function)
 calculation.set_temperature(args.temperature)

@@ -34,3 +34,6 @@ Note: This example also includes an alternative LAMMPS input that tells LAMMPS t
 atomic velocities instead of the positions (in.md_vel). Reading the velocities can save RAM 
 memory in dynaphopy calculation and may increase the accuracy of the calculation. This option is
 preferable when working with long MD simulation.
+
+Note: Tersoff potentials files included in these examples are part of LAMMPS package.
+These files are included here just for convenience.

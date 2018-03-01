@@ -12,6 +12,15 @@ import numpy
 include_dirs_numpy = [numpy.get_include()]
 
 
+def check_compiler():
+    import subprocess
+    output = subprocess.Popen(['gcc'], stderr=subprocess.PIPE).communicate()[1]
+    if b'clang' in output:
+        return 'clang'
+    if b'gcc' in output:
+        return 'gcc'
+
+
 def get_version_number():
     for l in open('dynaphopy/__init__.py', 'r').readlines():
         if not(l.find('__version__')):
@@ -19,15 +28,30 @@ def get_version_number():
             return __version__
 
 
-correlation = Extension('dynaphopy.power_spectrum.correlation',
-                        extra_compile_args=['-std=c99'],
-                        include_dirs=include_dirs_numpy,
-                        sources=['c/correlation.c'])
+if check_compiler() == 'clang':
+    correlation = Extension('dynaphopy.power_spectrum.correlation',
+                            extra_compile_args=['-std=c99'],
+                            include_dirs=include_dirs_numpy,
+                            sources=['c/correlation.c'])
 
-mem = Extension('dynaphopy.power_spectrum.mem',
-                extra_compile_args=['-std=c99'],
-                include_dirs=include_dirs_numpy,
-                sources=['c/mem.c'])
+    mem = Extension('dynaphopy.power_spectrum.mem',
+                    extra_compile_args=['-std=c99'],
+                    include_dirs=include_dirs_numpy,
+                    sources=['c/mem.c'])
+
+else:
+    print ('openmp is used')
+    correlation = Extension('dynaphopy.power_spectrum.correlation',
+                            extra_compile_args=['-std=c99', '-fopenmp'],
+                            extra_link_args=['-lgomp'],
+                            include_dirs=include_dirs_numpy,
+                            sources=['c/correlation.c'])
+
+    mem = Extension('dynaphopy.power_spectrum.mem',
+                    extra_compile_args=['-std=c99', '-fopenmp'],
+                    extra_link_args=['-lgomp'],
+                    include_dirs=include_dirs_numpy,
+                    sources=['c/mem.c'])
 
 displacements = Extension('dynaphopy.displacements',
                           extra_compile_args=['-std=c99'],
@@ -41,7 +65,6 @@ setup(name='dynaphopy',
       url='https://github.com/abelcarreras/DynaPhoPy',
       author_email='abelcarreras83@gmail.com',
       packages=['dynaphopy',
-                'dynaphopy.orm',
                 'dynaphopy.power_spectrum',
                 'dynaphopy.analysis',
                 'dynaphopy.analysis.fitting',

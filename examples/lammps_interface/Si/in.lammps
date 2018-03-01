@@ -1,0 +1,24 @@
+# NaCl test problem for embedded atom method (EIM) potential
+
+units		metal
+
+boundary	p p p
+
+box tilt large
+
+atom_style      atomic
+
+read_data       data_unitcell.si
+
+pair_style      tersoff
+pair_coeff      * * SiCGe.tersoff  Si(C)
+
+variable        t equal 900
+
+neighbor	    0.3 bin
+
+velocity        all create $t 3627941 dist gaussian mom yes
+velocity        all scale $t
+
+fix             int all nvt temp $t $t 0.5
+

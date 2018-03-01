@@ -91,12 +91,6 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
     # Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
 
-    if NAC:
-        print("Phonopy warning: Using Non Analytical Corrections")
-        primitive = phonon.get_primitive()
-        nac_params = parse_BORN(primitive, is_symmetry=True)
-        phonon.set_nac_params(nac_params=nac_params)
-
     if setup_forces:
         if structure.get_force_constants() is not None:
             phonon.set_force_constants(structure.get_force_constants().get_array())
@@ -109,12 +103,18 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
             print('No force sets/constants available!')
             exit()
 
+    if NAC:
+        print("Warning: Using Non Analytical Corrections")
+        primitive = phonon.get_primitive()
+        nac_params = parse_BORN(primitive, is_symmetry=True)
+        phonon.set_nac_params(nac_params=nac_params)
+
     return phonon
 
 
-def obtain_eigenvectors_and_frequencies(structure, q_vector, NAC=False, test_orthonormal=False, print_data=True):
+def obtain_eigenvectors_and_frequencies(structure, q_vector, test_orthonormal=False, print_data=True):
 
-    phonon = get_phonon(structure, NAC=NAC)
+    phonon = get_phonon(structure)
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
     if False:
@@ -145,16 +145,19 @@ def obtain_eigenvectors_and_frequencies(structure, q_vector, NAC=False, test_ort
     return arranged_ev, frequencies
 
 
-def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_min=None, freq_max=None, projected_on_atom=-1):
+def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None,
+                       freq_min=None, freq_max=None, projected_on_atom=-1, NAC=False):
 
     if force_constants is None:
         phonon = get_phonon(structure,
                             setup_forces=True,
-                            custom_supercell=None)
+                            custom_supercell=None,
+                            NAC=NAC)
     else:
         phonon = get_phonon(structure,
                             setup_forces=False,
-                            custom_supercell=force_constants.get_supercell())
+                            custom_supercell=force_constants.get_supercell(),
+                            NAC=NAC)
         phonon.set_force_constants(force_constants.get_array())
 
     if projected_on_atom < 0:
@@ -178,16 +181,18 @@ def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None, freq_
     return total_dos
 
 
-def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40), force_constants=None):
+def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40), force_constants=None, NAC=False):
 
     if force_constants is None:
         phonon = get_phonon(structure,
                             setup_forces=True,
-                            custom_supercell=None)
+                            custom_supercell=None,
+                            NAC=NAC)
     else:
         phonon = get_phonon(structure,
                             setup_forces=False,
-                            custom_supercell=force_constants.get_supercell())
+                            custom_supercell=force_constants.get_supercell(),
+                            NAC=NAC)
         phonon.set_force_constants(force_constants.get_array())
 
     phonon.set_mesh(mesh)
@@ -203,16 +208,17 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
     return free_energy, entropy, cv
 
 
-def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None, NAC=False, band_resolution=30):
+def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None,
+                                   NAC=False, band_resolution=30, band_connection=False):
 
     if force_constants is not None:
-#        print('Getting renormalized phonon dispersion relations')
-        phonon = get_phonon(structure, NAC=False, setup_forces=False,
+        # print('Getting renormalized phonon dispersion relations')
+        phonon = get_phonon(structure, NAC=NAC, setup_forces=False,
                             custom_supercell=force_constants.get_supercell())
 
         phonon.set_force_constants(force_constants.get_array())
     else:
- #       print('Getting phonon dispersion relations')
+        # print('Getting phonon dispersion relations')
         phonon = get_phonon(structure, NAC=NAC)
 
     bands =[]
@@ -221,7 +227,7 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None
         for i in range(band_resolution+1):
             band.append(np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i)
         bands.append(band)
-    phonon.set_band_structure(bands, is_band_connection=False)
+    phonon.set_band_structure(bands, is_band_connection=band_connection, is_eigenvectors=True)
 
     return phonon.get_band_structure()
 
@@ -256,9 +262,6 @@ def get_equivalent_q_points_by_symmetry(q_point, structure):
         if (q_point_test >= 0).all():
                 tot_points.append(q_point_test)
 
-#    print tot_points
-#    print(np.vstack({tuple(row) for row in tot_points}))
-
     return np.vstack({tuple(row) for row in tot_points})
 
 
@@ -273,6 +276,7 @@ def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, str
 
     size = structure.get_number_of_dimensions() * structure.get_number_of_primitive_atoms()
     eigenvectors = np.array([eigenvector.reshape(size, size, order='C').T for eigenvector in eigenvectors ])
+    renormalized_frequencies = np.array(renormalized_frequencies)
 
     dynmat2fc.set_dynamical_matrices(renormalized_frequencies / VaspToTHz, eigenvectors)
     dynmat2fc.run()

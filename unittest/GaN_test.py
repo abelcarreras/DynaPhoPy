@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import numpy as np
 import os
 import dynaphopy.interface.iofile as io
@@ -54,11 +53,10 @@ class TestDynaphopy(unittest.TestCase):
                                                   self.structure,
                                                   read_trajectory=False,
                                                   initial_cut=1000,
-                                                  final_cut=3000,
+                                                  final_cut=4000,
                                                   memmap=False)
         self.calculation = dynaphopy.Quasiparticle(trajectory)
-
-        self.calculation.select_power_spectra_algorithm(1)
+        self.calculation.select_power_spectra_algorithm(2)
         harmonic = np.array(self.calculation.get_thermal_properties())
         anharmonic = np.array(self.calculation.get_thermal_properties(
             force_constants=self.calculation.get_renormalized_force_constants()))
@@ -67,7 +65,7 @@ class TestDynaphopy(unittest.TestCase):
         print(anharmonic)
         maximum = np.max((harmonic-anharmonic)**2/harmonic)
         print('maximum: {}'.format(maximum))
-        self.assertLess(maximum, 0.025)
+        self.assertLess(maximum, 0.1)
 
     def test_force_constants_self_consistency(self):
         trajectory = io.initialize_from_hdf5_file('test_gan.h5',

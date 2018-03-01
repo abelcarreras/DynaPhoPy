@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import numpy as np
 import dynaphopy.interface.iofile as io
 from dynaphopy.interface.phonopy_link import get_force_constants_from_file
