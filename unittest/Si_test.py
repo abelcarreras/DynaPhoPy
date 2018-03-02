@@ -17,7 +17,7 @@ class TestDynaphopy(unittest.TestCase):
                                         [0.5, 0.0, 0.5],
                                         [0.5, 0.5, 0.0]])
 
-        structure.set_force_constants(get_force_constants_from_file(file_name='Si_data/FORCE_CONSTANTS_RED',
+        structure.set_force_constants(get_force_constants_from_file(file_name='Si_data/FORCE_CONSTANTS',
                                                                     fc_supercell=[[2, 0, 0],
                                                                                   [0, 2, 0],
                                                                                   [0, 0, 2]]))
