@@ -1,11 +1,11 @@
 try:
     from setuptools import setup, Extension
     use_setuptools = True
-    print("setuptools is used.")
+    print('setuptools is used')
 except ImportError:
     from distutils.core import setup, Extension
     use_setuptools = False
-    print("distutils is used.")
+    print('distutils is used')
 
 import numpy
 
