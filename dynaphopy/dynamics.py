@@ -97,7 +97,10 @@ class Dynamics:
         if self._memmap:
             filename = self._relative_trajectory.filename
             self._relative_trajectory = None
-            os.remove(filename)
+            try:
+                os.remove(filename)
+            except:
+                pass
         else:
             self._relative_trajectory = None
 
