@@ -27,7 +27,7 @@ script:
 
 after_success:
     - coveralls
-    - cd ~/
+    - cd ..
 
 deploy:
     # pypi
