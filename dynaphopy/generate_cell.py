@@ -82,7 +82,10 @@ def generate_LAMMPS_structure(structure, supercell=(1, 1, 1), by_element=True):
     xhi = xhi + max(0,0, xy, xz, xy+xz)
     yhi = yhi + max(0,0, yz)
 
-    lammps_data_file += '\n{0:20.10f} {1:20.10f} xlo xhi\n'.format(0, xhi-xy)
+    if xy > 0:
+        xhi -= xy
+
+    lammps_data_file += '\n{0:20.10f} {1:20.10f} xlo xhi\n'.format(0, xhi)
     lammps_data_file += '{0:20.10f} {1:20.10f} ylo yhi\n'.format(0, yhi)
     lammps_data_file += '{0:20.10f} {1:20.10f} zlo zhi\n'.format(0, zhi)
     lammps_data_file += '{0:20.10f} {1:20.10f} {2:20.10f} xy xz yz\n\n'.format(xy, xz, yz)
