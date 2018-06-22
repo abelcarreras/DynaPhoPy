@@ -70,6 +70,24 @@ def generate_LAMMPS_structure(structure, supercell=(1, 1, 1), by_element=True):
     lammps_data_file += '{0} atoms\n\n'.format(number_of_atoms)
     lammps_data_file += '{0} atom types\n\n'.format(len(atom_index_unique))
 
+    cell = structure.get_cell(supercell=supercell)
+
+    # generate lammps oriented lattice vectors
+    ax = np.linalg.norm(cell[0])
+    bx = np.dot(cell[1], cell[0]/np.linalg.norm(cell[0]))
+    by = np.linalg.norm(np.cross(cell[0]/np.linalg.norm(cell[0]), cell[1]))
+    cx = np.dot(cell[2], cell[0]/np.linalg.norm(cell[0]))
+    cy = (np.dot(cell[1], cell[2])- bx*cx)/by
+    cz = np.sqrt(np.dot(cell[2],cell[2])-pow(cx,2)-pow(cy,2))
+
+    # get rotation matrix (poscar->lammps) from lattice vectors matrix
+    lammps_cell = np.array([[ax, bx, cx],[0, by, cy],[0,0,cz]])
+    trans_cell = np.dot(np.linalg.inv(cell), lammps_cell.T)
+
+    # rotate positions to lammps orientation
+    positions = np.dot(positions, trans_cell)
+
+    # build lammps lattice vectors
     a, b, c, alpha, beta, gamma = structure.get_cell_parameters(supercell=supercell)
 
     xhi = a
@@ -84,7 +102,12 @@ def generate_LAMMPS_structure(structure, supercell=(1, 1, 1), by_element=True):
 
     if xy > 0:
         xhi -= xy
+    if xz > 0:
+        xhi -= xz
+    if yz > 0:
+        yhi -= yz
 
+    # write lammpstrj file
     lammps_data_file += '\n{0:20.10f} {1:20.10f} xlo xhi\n'.format(0, xhi)
     lammps_data_file += '{0:20.10f} {1:20.10f} ylo yhi\n'.format(0, yhi)
     lammps_data_file += '{0:20.10f} {1:20.10f} zlo zhi\n'.format(0, zhi)
