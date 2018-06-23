@@ -21,6 +21,8 @@ def generate_lammps_trajectory(structure,
                                thermostat_mass=0.5,
                                sampling_interval=1):  # in timesteps
 
+    structure.set_supercell_matrix(np.diag(supercell))
+
     cmdargs_lammps = ['-echo','none', '-screen', 'none']
     if not lammps_log:
         cmdargs_lammps += ['-log', 'none']
@@ -115,6 +117,7 @@ def generate_lammps_trajectory(structure,
     lmp.close()
 
     time = np.array([i * time_step * sampling_interval for i in range(n_loops)], dtype=float)
+
 
     return dyn.Dynamics(structure=structure,
                         trajectory=positions,

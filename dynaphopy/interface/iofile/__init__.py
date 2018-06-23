@@ -51,7 +51,8 @@ def get_correct_arrangement(reference, structure):
 
     number_of_cell_atoms = structure.get_number_of_atoms()
     number_of_supercell_atoms = len(scaled_coordinates)
-    supercell_dim = np.array([int(round(2*a+1)) for a in np.average(scaled_coordinates, axis=0)])-1
+    # supercell_dim = np.array([int(round(2*a+1)) for a in np.average(scaled_coordinates, axis=0)])-1
+    supercell_dim = np.diag(structure.get_supercell_matrix())
     # print 'atom', number_of_cell_atoms, number_of_supercell_atoms
     unit_cell_scaled_coordinates = scaled_coordinates - np.array(scaled_coordinates, dtype=int)
 
