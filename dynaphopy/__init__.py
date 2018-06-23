@@ -163,7 +163,7 @@ class Quasiparticle:
     # Phonopy harmonic calculation related methods
     def get_eigenvectors(self):
         if self._eigenvectors is None:
-            print("Getting frequencies & eigenvectors from Phonopy")
+            # print("Getting frequencies & eigenvectors from Phonopy")
             self._eigenvectors, self._frequencies = (
                 pho_interface.obtain_eigenvectors_and_frequencies(self.dynamic.structure,
                                                                   self.parameters.reduced_q_vector))
@@ -171,7 +171,7 @@ class Quasiparticle:
 
     def get_frequencies(self):
         if self._frequencies is None:
-            print("Getting frequencies & eigenvectors from Phonopy")
+            # print("Getting frequencies & eigenvectors from Phonopy")
             self._eigenvectors, self._frequencies = (
                 pho_interface.obtain_eigenvectors_and_frequencies(self.dynamic.structure,
                                                                   self.parameters.reduced_q_vector))

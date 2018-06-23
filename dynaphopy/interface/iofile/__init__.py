@@ -122,7 +122,8 @@ def get_correct_arrangement(reference, structure):
     if len(np.unique(template)) < len(template):
         print ('template failed, auto-order will not be applied')
         print ('unique: {} / {}'.format(len(np.unique(template)), len(template)))
-        return None
+        return range(len(template))
+#        return None
 
     return template
 
@@ -329,7 +330,7 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
         atomic_types = [item for sublist in atomic_types for item in sublist]
        # atomic_types = np.array(atomic_types).flatten().tolist()
 
-    return atomtest.Structure(cell= direct_cell,  # cell_matrix, lattice vectors in rows
+    return atomtest.Structure(cell=direct_cell,  # cell_matrix, lattice vectors in rows
                               scaled_positions=scaled_positions,
                               positions=positions,
                               atomic_elements=atomic_types,
