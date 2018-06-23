@@ -130,7 +130,7 @@ def get_correct_arrangement(reference, structure):
 
 def dynaphopy_order(i, size):
     x = np.mod(i, size[0])
-    y = np.mod(i, size[0]*size[1])/size[1]
+    y = np.mod(i, size[0]*size[1])/size[0]
     z = np.mod(i, size[0]*size[1]*size[2])/(size[1]*size[0])
     k = i/(size[1]*size[0]*size[2])
 
