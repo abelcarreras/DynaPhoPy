@@ -51,7 +51,7 @@ def get_correct_arrangement(reference, structure):
 
     number_of_cell_atoms = structure.get_number_of_atoms()
     number_of_supercell_atoms = len(scaled_coordinates)
-    supercell_dim = np.array([int(round(2*a+1)) for a in np.average(scaled_coordinates, axis=0)])-1
+    supercell_dim = np.array([int(round(2*a+1.5)) for a in np.average(scaled_coordinates, axis=0)])-1
     # print 'atom', number_of_cell_atoms, number_of_supercell_atoms
     unit_cell_scaled_coordinates = scaled_coordinates - np.array(scaled_coordinates, dtype=int)
 
@@ -122,14 +122,15 @@ def get_correct_arrangement(reference, structure):
     if len(np.unique(template)) < len(template):
         print ('template failed, auto-order will not be applied')
         print ('unique: {} / {}'.format(len(np.unique(template)), len(template)))
-        return None
+        return range(len(template))
+#        return None
 
     return template
 
 
 def dynaphopy_order(i, size):
     x = np.mod(i, size[0])
-    y = np.mod(i, size[0]*size[1])/size[1]
+    y = np.mod(i, size[0]*size[1])/size[0]
     z = np.mod(i, size[0]*size[1]*size[2])/(size[1]*size[0])
     k = i/(size[1]*size[0]*size[2])
 
@@ -329,7 +330,7 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
         atomic_types = [item for sublist in atomic_types for item in sublist]
        # atomic_types = np.array(atomic_types).flatten().tolist()
 
-    return atomtest.Structure(cell= direct_cell,  # cell_matrix, lattice vectors in rows
+    return atomtest.Structure(cell=direct_cell,  # cell_matrix, lattice vectors in rows
                               scaled_positions=scaled_positions,
                               positions=positions,
                               atomic_elements=atomic_types,

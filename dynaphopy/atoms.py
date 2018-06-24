@@ -128,7 +128,7 @@ class Structure:
                 self._primitive_matrix = np.identity(self.get_number_of_dimensions())
             else:
                 self._primitive_matrix = np.dot(np.linalg.inv(self.get_cell()), self._primitive_cell)
-        return  self._primitive_matrix
+        return self._primitive_matrix
 
     # Positions related methods
     def set_positions(self, cart_positions):

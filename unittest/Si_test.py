@@ -10,6 +10,9 @@ from dynaphopy.interface.phonopy_link import get_force_constants_from_file
 class TestDynaphopy(unittest.TestCase):
 
     def setUp(self):
+        import phonopy
+        print ('Using phonopy {}'.format(phonopy.__version__))
+
         # structure = io.read_from_file_structure_poscar('Si_data/POSCAR')
         structure = io.read_from_file_structure_outcar('Si_data/OUTCAR')
 

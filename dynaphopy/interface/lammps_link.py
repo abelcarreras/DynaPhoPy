@@ -17,6 +17,8 @@ def generate_lammps_trajectory(structure,
                                memmap=False,  # not fully implemented yet!
                                velocity_only=False,
                                lammps_log=True,
+                               temperature=None,
+                               thermostat_mass=0.5,
                                sampling_interval=1):  # in timesteps
 
     cmdargs_lammps = ['-echo','none', '-screen', 'none']
@@ -29,6 +31,25 @@ def generate_lammps_trajectory(structure,
     lmp.command('timestep {}'.format(time_step))
 
     lmp.command('replicate {} {} {}'.format(*supercell))
+
+    # Force reset temperature (overwrites lammps script)
+    # This forces NVT simulation
+    if temperature is not None:
+        print ('Temperature reset to {} (NVT)'.format(temperature))
+        lmp.command('fix             int all nvt temp {0} {0} {1}'.format(temperature,
+                                                                          thermostat_mass))
+    # Check if correct number of atoms
+    if lmp.extract_global("natoms",0) < 2:
+        print ('Number of atoms in MD should be higher than 1!')
+        exit()
+
+    # Check if initial velocities all zero
+    if not np.array(lmp.gather_atoms("v", 1, 3)).any():
+        print('Set lammps initial velocities')
+        t = temperature if temperature is not None else 100
+        lmp.command('velocity        all create {} 3627941 dist gaussian mom yes'.format(t))
+        lmp.command('velocity        all scale {}'.format(t))
+
     lmp.command('run 0')
 
     # natoms = lmp.extract_global("natoms",0)
@@ -94,6 +115,7 @@ def generate_lammps_trajectory(structure,
     lmp.close()
 
     time = np.array([i * time_step * sampling_interval for i in range(n_loops)], dtype=float)
+
 
     return dyn.Dynamics(structure=structure,
                         trajectory=positions,

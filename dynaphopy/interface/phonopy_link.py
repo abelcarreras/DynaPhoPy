@@ -96,7 +96,7 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
             phonon.set_force_constants(structure.get_force_constants().get_array())
         elif structure.get_force_sets() is not None:
             phonon.set_displacement_dataset(structure.get_force_sets().get_dict())
-            phonon.produce_force_constants(computation_algorithm="svd")
+            phonon.produce_force_constants()
             structure.set_force_constants(ForceConstants(phonon.get_force_constants(),
                                                          supercell=structure.get_force_sets().get_supercell()))
         else:
