@@ -197,7 +197,7 @@ different smoothing parameters to obtain the best results.
 <p> In high symmetry points in the reciprocal space (wave vector), it may happen that two or more phonon are degenerated. In that case the projection into this wave vector and, consecutively, the power spectra should present the same properties (Width and position). In order to
 increase the fitting precision these equivalent spectra can be conbined into one reducing the random error. This can be done using <strong>-bi</strong> flag. Following this flag it is nedeed to introduce a string containing the number of the spectra to be combined (equivalent spectra) separated by spaces and the non equivalent spectra separated by comma like in the following example:
 </p>
-<pre><code>$ fitdata -bi "1 2, 3 4 5"
+<pre><code>$ fitdata -bi "1 2, 3 4 5" file
 </code></pre>
 
 <p> in this example, the script will fit two phonon power spectra. The first one using the avarage of the spectra 1 and 2. The second one
