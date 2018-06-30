@@ -32,7 +32,7 @@ static PyMethodDef extension_funcs[] = {
 static struct PyModuleDef moduledef = {
   PyModuleDef_HEAD_INIT,
   "correlation",
-  "This is a module",
+  "power spectrum direct method module ",
   -1,
   extension_funcs,
   NULL,

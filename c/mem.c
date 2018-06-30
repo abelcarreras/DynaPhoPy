@@ -30,7 +30,7 @@ static PyMethodDef extension_funcs[] = {
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef moduledef = {
   PyModuleDef_HEAD_INIT,
-  "displacements",
+  "mem",
   "Maximum entropy method module",
   -1,
   extension_funcs,
