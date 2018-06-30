@@ -45,7 +45,7 @@ static struct PyModuleDef moduledef = {
 static PyObject *
 moduleinit(void)
 {
-    PyObject *m;
+  PyObject *m;
 
 #if PY_MAJOR_VERSION >= 3
     m = PyModule_Create(&moduledef);
@@ -200,7 +200,7 @@ static double  GetCoefficients(double  *Data, int NumberOfData, int NumberOfCoef
             Denominator += pow(wk1[j],2) + pow(wk2[j], 2);
         }
 
-        if (abs(Denominator) < 1.0e-6) return 0.0;
+        if (fabs(Denominator) < 1.0e-6) return 0.0;
 
         Coefficients[k] = 2.0 * Numerator / Denominator;
 
