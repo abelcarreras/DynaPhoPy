@@ -17,13 +17,13 @@ class TestDynaphopy(unittest.TestCase):
         self.structure = io.read_from_file_structure_outcar('Si_data/OUTCAR')
 
         self.structure.set_primitive_matrix([[0.0, 0.5, 0.5],
-                                        [0.5, 0.0, 0.5],
-                                        [0.5, 0.5, 0.0]])
+                                             [0.5, 0.0, 0.5],
+                                             [0.5, 0.5, 0.0]])
 
         self.structure.set_force_constants(get_force_constants_from_file(file_name='Si_data/FORCE_CONSTANTS',
-                                                                    fc_supercell=[[2, 0, 0],
-                                                                                  [0, 2, 0],
-                                                                                  [0, 0, 2]]))
+                                                                         fc_supercell=[[2, 0, 0],
+                                                                                       [0, 2, 0],
+                                                                                       [0, 0, 2]]))
 
     def test_force_constants_self_consistency(self):
         trajectory = io.generate_test_trajectory(self.structure, supercell=[2, 2, 2], total_time=10, silent=False)
@@ -32,7 +32,7 @@ class TestDynaphopy(unittest.TestCase):
         renormalized_force_constants = calculation.get_renormalized_force_constants().get_array()
         harmonic_force_constants = calculation.dynamic.structure.get_force_constants().get_array()
 
-        self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
+        self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-1), True)
 
     def test_q_points_data(self):
 
