@@ -28,11 +28,11 @@ class TestDynaphopy(unittest.TestCase):
     def test_force_constants_self_consistency(self):
         trajectory = io.generate_test_trajectory(self.structure, supercell=[2, 2, 2], total_time=10, silent=False)
         calculation = dynaphopy.Quasiparticle(trajectory)
-        calculation.select_power_spectra_algorithm(1)
+        calculation.select_power_spectra_algorithm(2)
         renormalized_force_constants = calculation.get_renormalized_force_constants().get_array()
         harmonic_force_constants = calculation.dynamic.structure.get_force_constants().get_array()
 
-        self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-1), True)
+        self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
 
     def test_q_points_data(self):
 
