@@ -9,7 +9,7 @@ from molecular dynamics (MD) using the normal-mode-decomposition technique.
 These properties include the phonon frequency shifts and linewidths, 
 as well as the renormalized force constanst and thermal properties 
 by using quasiparticle theory. This code includes interfaces for MD 
-outputs from VASP and LAMMPS .PHONOPY code is used to obtain harmonic
+outputs from VASP and LAMMPS. PHONOPY code is used to obtain harmonic
 phonon modes.
 
 Installation instructions
