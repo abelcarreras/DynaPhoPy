@@ -15,29 +15,29 @@ branches:
     - python_3_development
 
 install:
-    - sudo apt-get install libhdf5-serial-dev
-    - pip install coverage
-    - pip install python-coveralls
-    - pip install -r requirements.txt
-    - pip install -e .
+  - sudo apt-get install libhdf5-serial-dev
+  - pip install coverage
+  - pip install python-coveralls
+  - pip install -r requirements.txt
+  - pip install -e .
 
 script:
-    - cd unittest
-    - coverage run --source=../dynaphopy -m unittest discover . "*_test.py"
+  - cd unittest
+  - coverage run --source=../dynaphopy -m unittest discover . "*_test.py"
 
 after_success:
-    - coveralls
-    - cd ..
+  - coveralls
+  - cd ..
 
 deploy:
-    # pypi
-    - provider: pypi
-      distributions: sdist
-      user: abelcarreras83
-      password:
-         secure: "hnYr4Xxh+WSH/Tiuylrq7l5N1IQ2BPilw7kzwYuO0wPk06PeVLy0ql1PbpoUCBaNuHQLmewe26OnyyxaYApUA4nVtrva7mfk7O66RA1tgXGgDxCTQ95sU4zbvepA14tB5y5PD0akcc+H51CQLW1g1kSepN5IuxbtX7vSEdhweyolTqR3fsHEbNRl4/1hTtW18OyXqJMmV3wMLYFRt0nFrc/BePbnnamfJ9Uyp1OQ4WkZur0MQIcXTPuSnW5C2eM52iWsQrjmFe9GXgJ2nN6Dbv7NzaVx7bT2NZQvSWoJEaAAT/WAvc5b4MzZtMhDGNRm6TQwdslA3o+MhSH4/3yrzunwv5YmBCeBEb+BCkI/St4flQD0rc7d49l9+zpbxA65VzdyuVTCxU8TUtr0F8UggfS7lvQNGW/wCRFHRT7ztOhVix5iboRUS8M3l0ZMfK+857bH/IcfuTJ/G6TD+FY1nWvaBJwo43Sv2plBcwT79mnJOyWxifSOQFNPk+ZIK1smkvUFrJQqDeDkCBlwTNoMfujo65XvNJR31eOdLAgk0LUgJtxoMJIiUSZRg4RF8oG4gC/+xMJQdRiQ2pcrrxtCGNbIh2tGOglp9dOAow6zG2SDA3drtt2DOEu7Xb1yLW1vcHfOOw5tlMAq7BUk2ZOZ9mlsFXEu7jvHYX7dsygt+UY="
-      skip_existing: true
-      on:
-          branch: master
- #         branch: development
-          tags: False
+  # pypi
+  - provider: pypi
+    distributions: sdist
+    user: abelcarreras83
+    password:
+       secure: "Q5AioRbIJz4DAnoYyxdIred0tQ4G5xOLdM6RAv1UnCdknzxPh1ukJVnFDU+AypFt5cB3lrYoPTDp4VOOuh12lbS4kXEsWwTB/7oOmUG0QwuWyWoNI4/lD1gXxdptxC7ND/P9pUzBQ1FT41/GXWYzSGhg8PGT22Uz2xrNFymIpu3/qj8H4cymTb1jJxBrVsft0OXuRWRERRB69ZPUjXM/a8HGr/mvhfayiEXZ8c1TVcUtYgVPKLqIUeMfAnQLZxblwp1xqepRihJMLAlkiM58Olj/Yt0KIJOIY0IkaBHES8SBQoRIuBfCuJrCE9JeG23yKwzvxowtnXjeQUDUnitqqWI2wiJ88CIZFbBayHN9SNqeM8lOjEUN9TeUmXODf6Txj6wW1JhfDLYSri0pvnGQ3AROq9khUPUOv/aY9e64mfxvHPgR3Hx80OYLZgIstbwRSWYgEp9E15F5YkB72qD8Iz+eEBquBvYaGLfVpiwXtlxVxo9AzUBFlBxuj+DLI4dQRepXabuu21iSlL0rowlOUUM2EG5eby3aSxpKXHRu76n/sTFr5TsYgswMmPq0TfYAW/LgkyZGYia2hy+PufmjFENlCF1YyDe2yGPqwlhnDE/0gLziHfiq6IvcsAdGMX0jNjSGANR1fDV+syB2aDDNTUhSJJoCxLBdQBoi2M75W/g="
+    skip_existing: true
+    on:
+        branch: master
+#         branch: development
+        tags: False
