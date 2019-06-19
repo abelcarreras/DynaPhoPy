@@ -51,8 +51,8 @@ def get_correct_arrangement(reference, structure):
 
     number_of_cell_atoms = structure.get_number_of_atoms()
     number_of_supercell_atoms = len(scaled_coordinates)
-    supercell_dim = np.array([int(round(2*a+1.5)) for a in np.average(scaled_coordinates, axis=0)])-1
-    # print 'atom', number_of_cell_atoms, number_of_supercell_atoms
+    supercell_dim = np.array(np.round(np.max(scaled_coordinates, axis=0)), dtype=int)
+
     unit_cell_scaled_coordinates = scaled_coordinates - np.array(scaled_coordinates, dtype=int)
 
     atom_unit_cell_index = []
@@ -130,9 +130,9 @@ def get_correct_arrangement(reference, structure):
 
 def dynaphopy_order(i, size):
     x = np.mod(i, size[0])
-    y = np.mod(i, size[0]*size[1])/size[0]
-    z = np.mod(i, size[0]*size[1]*size[2])/(size[1]*size[0])
-    k = i/(size[1]*size[0]*size[2])
+    y = np.mod(i, size[0]*size[1])//size[0]
+    z = np.mod(i, size[0]*size[1]*size[2])//(size[1]*size[0])
+    k = i//(size[1]*size[0]*size[2])
 
     return np.array([x, y, z, k])
 
