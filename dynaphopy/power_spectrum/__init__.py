@@ -90,8 +90,8 @@ def get_mem_power_spectra(vq, trajectory, parameters):
     if not parameters.silent:
         _progress_bar(0, 'M. Entropy')
     for i in range(vq.shape[1]):
-        psd_vector.append(mem.mem(test_frequency_range,
-                                  vq[:, i],
+        psd_vector.append(mem.mem(np.ascontiguousarray(test_frequency_range),
+                                  np.ascontiguousarray(vq[:, i]),
                                   trajectory.get_time_step_average(),
                                   coefficients=parameters.number_of_coefficients_mem))
 
@@ -120,8 +120,8 @@ def mem_coefficient_scan_analysis(vq, trajectory, parameters):
             _progress_bar(0, 'ME Coeff.')
         for number_of_coefficients in parameters.mem_scan_range:
 
-            power_spectrum = mem.mem(test_frequency_range,
-                                     vq[:, i],
+            power_spectrum = mem.mem(np.ascontiguousarray(test_frequency_range),
+                                     np.ascontiguousarray(vq[:, i]),
                                      trajectory.get_time_step_average(),
                                      coefficients=number_of_coefficients)
 

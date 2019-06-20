@@ -1,4 +1,4 @@
-__version__ = '1.16.4'
+__version__ = '1.16.5'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -456,8 +456,6 @@ class Quasiparticle:
                                                                  fc_supercell,
                                                                  symmetrize=self.parameters.symmetrize)
 
-
-
         if with_linewidths:
             renormalized_bands_s = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
                                                                                 band_ranges,
@@ -848,7 +846,7 @@ class Quasiparticle:
 
         handles = handles1 + handles2
         plt.legend(handles, ['Power spectrum (MD)', 'DoS (Harmonic)', 'DoS (Renormalized)'])
-        #        plt.legend()
+        # plt.legend()
         plt.show()
 
         total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range())
@@ -1030,7 +1028,6 @@ class Quasiparticle:
     def set_temperature(self, temperature):
         self._temperature = temperature
 
-    # Other
     def get_algorithm_list(self):
         return power_spectrum_functions.values()
 

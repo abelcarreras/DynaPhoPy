@@ -13,7 +13,6 @@
 #undef I
 
 static double EvaluateCorrelation (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod);
-static double EvaluateCorrelation2 (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod);
 static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywords);
 
 
@@ -32,7 +31,7 @@ static PyMethodDef extension_funcs[] = {
 static struct PyModuleDef moduledef = {
   PyModuleDef_HEAD_INIT,
   "correlation",
-  "This is a module",
+  "power spectrum direct method module ",
   -1,
   extension_funcs,
   NULL,
@@ -52,7 +51,7 @@ moduleinit(void)
     m = PyModule_Create(&moduledef);
 #else
     m = Py_InitModule3("correlation",
-        extension_funcs, "This is a module");
+        extension_funcs, "power spectrum direct method module");
 #endif
 
   return m;
@@ -148,8 +147,9 @@ double EvaluateCorrelation (double Frequency, double _Complex Velocity[], int Nu
     return  creal(Correl) * TimeStep/(NumberOfData/Increment);
 }
 
+/*
 // Original (simple)
-double EvaluateCorrelation2 (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod) {
+double EvaluateCorrelation (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod) {
 
     double _Complex Correl;
     double _Complex Integral = 0;
@@ -178,4 +178,4 @@ double EvaluateCorrelation2 (double AngularFrequency, double _Complex Velocity[]
 
     return  creal(Integral)* TimeStep * Increment;
 }
-
+*/

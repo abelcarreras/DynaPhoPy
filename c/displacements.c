@@ -34,7 +34,7 @@ static PyMethodDef extension_funcs[] = {
 static struct PyModuleDef moduledef = {
   PyModuleDef_HEAD_INIT,
   "displacements",
-  "This is a module",
+  "atomic displacements module",
   -1,
   extension_funcs,
   NULL,

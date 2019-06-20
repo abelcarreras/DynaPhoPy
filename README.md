@@ -6,10 +6,10 @@ DynaPhoPy
 =========
 Software to calculate crystal microscopic anharmonic properties
 from molecular dynamics (MD) using the normal-mode-decomposition technique.
-These properties include the phonon frequency shifts and linewidths, 
-as well as the renormalized force constanst and thermal properties 
-by using quasiparticle theory. This code includes interfaces for MD 
-outputs from VASP and LAMMPS .PHONOPY code is used to obtain harmonic
+These properties include the phonon frequency shifts and linewidths,
+as well as the renormalized force constanst and thermal properties
+by using quasiparticle theory. This code includes interfaces for MD
+outputs from VASP and LAMMPS. PHONOPY code is used to obtain harmonic
 phonon modes.
 
 Installation instructions
@@ -25,7 +25,7 @@ Installation instructions
   - (optional) pyFFTW (http://www.fftw.org/)
   - (optional) cuda_functions (https://github.com/abelcarreras/cuda_functions)
 
-2. Download the source code from GitHub (https://github.com/abelcarreras/DynaPhoPy/) 
+2. Download the source code from GitHub (https://github.com/abelcarreras/DynaPhoPy/)
    and place it in the installation directory
 
 3. Install requirements manually or using pip:

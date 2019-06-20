@@ -51,8 +51,8 @@ def get_correct_arrangement(reference, structure):
 
     number_of_cell_atoms = structure.get_number_of_atoms()
     number_of_supercell_atoms = len(scaled_coordinates)
-    supercell_dim = np.array([int(round(2*a+1.5)) for a in np.average(scaled_coordinates, axis=0)])-1
-    # print 'atom', number_of_cell_atoms, number_of_supercell_atoms
+    supercell_dim = np.array(np.round(np.max(scaled_coordinates, axis=0)), dtype=int)
+
     unit_cell_scaled_coordinates = scaled_coordinates - np.array(scaled_coordinates, dtype=int)
 
     atom_unit_cell_index = []
@@ -89,7 +89,7 @@ def get_correct_arrangement(reference, structure):
     lp_coordinates = []
     for i, coordinate in enumerate(scaled_coordinates):
         lattice_points_coordinates = coordinate - structure.get_scaled_positions()[atom_unit_cell_index[i]]
-        #print 'c', i, coordinate, coordinate2
+        # print 'c', i, coordinate, coordinate2
 
         for k in range(3):
             if lattice_points_coordinates[k] > supercell_dim[k] - 0.5:
@@ -123,16 +123,15 @@ def get_correct_arrangement(reference, structure):
         print ('template failed, auto-order will not be applied')
         print ('unique: {} / {}'.format(len(np.unique(template)), len(template)))
         return range(len(template))
-#        return None
 
     return template
 
 
 def dynaphopy_order(i, size):
     x = np.mod(i, size[0])
-    y = np.mod(i, size[0]*size[1])/size[0]
-    z = np.mod(i, size[0]*size[1]*size[2])/(size[1]*size[0])
-    k = i/(size[1]*size[0]*size[2])
+    y = np.mod(i, size[0]*size[1])//size[0]
+    z = np.mod(i, size[0]*size[1]*size[2])//(size[1]*size[0])
+    k = i//(size[1]*size[0]*size[2])
 
     return np.array([x, y, z, k])
 
@@ -181,12 +180,12 @@ def read_from_file_structure_outcar(file_name):
         file_map = mmap.mmap(f.fileno(), 0)
 
 
-        #Setting number of dimensions
+        # Setting number of dimensions
         number_of_dimensions = 3
 
-        #trash reading for guessing primitive cell (Not stable)
+        # trash reading for guessing primitive cell (Not stable)
         if False:
-           #Reading primitive cell (not sure about this, by default disabled)
+            # Reading primitive cell (not sure about this, by default disabled)
             position_number = file_map.find(b'PRICEL')
             file_map.seek(position_number)
             position_number = file_map.find(b'A1')
@@ -201,20 +200,17 @@ def read_from_file_structure_outcar(file_name):
                                           .split()[3:number_of_dimensions+3])
             primitive_cell = np.array(primitive_cell,dtype="double")
 
-
-        #Reading number of atoms
+        # Reading number of atoms
         position_number = file_map.find(b'NIONS =')
         file_map.seek(position_number+7)
         number_of_atoms = int(file_map.readline())
 
-
-        #Reading atoms per type
+        # Reading atoms per type
         position_number = file_map.find(b'ions per type')
         file_map.seek(position_number+15)
         atoms_per_type = np.array(file_map.readline().split(),dtype=int)
 
-
-        #Reading atoms  mass
+        # Reading atoms  mass
         position_number = file_map.find(b'POMASS =')
         atomic_mass_per_type = []
         for i in range(atoms_per_type.shape[0]):
@@ -225,8 +221,7 @@ def read_from_file_structure_outcar(file_name):
                            for j in range(atoms_per_type.shape[0])],[])
         atomic_mass = np.array(atomic_mass,dtype='double')
 
-
-        #Reading cell
+        # Reading cell
         position_number = file_map.find(b'direct lattice vectors')
         file_map.seek(position_number)
         file_map.readline()
@@ -243,7 +238,6 @@ def read_from_file_structure_outcar(file_name):
             reciprocal_cell.append(file_map.readline().split()[number_of_dimensions:number_of_dimensions*2])
         reciprocal_cell = np.array(reciprocal_cell,dtype='double')
 
-
         # Reading positions fractional cartesian
         position_number=file_map.find(b'position of ions in fractional coordinates')
         file_map.seek(position_number)
@@ -254,8 +248,7 @@ def read_from_file_structure_outcar(file_name):
             positions_fractional.append(file_map.readline().split()[0:number_of_dimensions])
         positions_fractional = np.array(positions_fractional,dtype='double')
 
-
-        #Reading positions cartesian
+        # Reading positions cartesian
         position_number=file_map.find(b'position of ions in cartesian coordinates')
         file_map.seek(position_number)
         file_map.readline()
@@ -264,7 +257,6 @@ def read_from_file_structure_outcar(file_name):
         for i in range (number_of_atoms):
             positions.append(file_map.readline().split()[0:3])
         positions = np.array(positions,dtype='double')
-
 
     file_map.close()
 
@@ -275,12 +267,12 @@ def read_from_file_structure_outcar(file_name):
 
 
 def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
-    #Check file exists
+    # Check file exists
     if not os.path.isfile(file_name):
         print('Structure file does not exist!')
         exit()
 
-    #Read from VASP POSCAR file
+    # Read from VASP POSCAR file
     print("Reading VASP POSCAR structure")
     poscar_file = open(file_name, 'r')
     data_lines = poscar_file.read().split('\n')
@@ -309,10 +301,9 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
         for i,j in enumerate(data_lines[5].split()):
             atomic_types.append([j]*number_of_types[i])
         atomic_types = [item for sublist in atomic_types for item in sublist]
-#        atomic_types = np.array(atomic_types).flatten().tolist()
+        # atomic_types = np.array(atomic_types).flatten().tolist()
 
-
-    #Old style POSCAR format
+    # Old style POSCAR format
     except ValueError:
         print ("Reading old style POSCAR")
         number_of_types = np.array(data_lines[5].split(), dtype=int)
@@ -328,7 +319,7 @@ def read_from_file_structure_poscar(file_name, number_of_dimensions=3):
         for i,j in enumerate(data_lines[0].split()):
             atomic_types.append([j]*number_of_types[i])
         atomic_types = [item for sublist in atomic_types for item in sublist]
-       # atomic_types = np.array(atomic_types).flatten().tolist()
+        # atomic_types = np.array(atomic_types).flatten().tolist()
 
     return atomtest.Structure(cell=direct_cell,  # cell_matrix, lattice vectors in rows
                               scaled_positions=scaled_positions,
@@ -357,13 +348,11 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
     print('Generating ideal harmonic data for testing')
     kb_boltzmann = 0.831446 # u * A^2 / ( ps^2 * K )
 
-
     number_of_unit_cells_phonopy = np.prod(np.diag(structure.get_supercell_phonon()))
     number_of_unit_cells = np.prod(supercell)
-#    atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
+    # atoms_relation = float(number_of_unit_cells)/ number_of_unit_cells_phonopy
 
-
-    #Recover dump trajectory from file (test only)
+    # Recover dump trajectory from file (test only)
     import pickle
     if False:
 
@@ -384,7 +373,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
 
     atom_type = structure.get_atom_type_index(supercell=supercell)
 
-    #Generate additional wave vectors sample
+    # Generate additional wave vectors sample
 #    structure.set_supercell_phonon_renormalized(np.diag(supercell))
 
     q_vector_list = pho_interface.get_commensurate_points(structure, np.diag(supercell))
@@ -394,7 +383,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
 
     atoms_relation = float(len(q_vector_list)*number_of_primitive_atoms)/number_of_atoms
 
-    #Generate frequencies and eigenvectors for the testing wave vector samples
+    # Generate frequencies and eigenvectors for the testing wave vector samples
     print('Wave vectors included in test (commensurate points)')
     eigenvectors_r = []
     frequencies_r = []
@@ -405,11 +394,11 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
         frequencies_r.append(frequencies)
     number_of_frequencies = len(frequencies_r[0])
 
-    #Generating trajectory
+    # Generating trajectory
     if not silent:
         _progress_bar(0, 'generating')
 
-    #Generating trajectory
+    # Generating trajectory
     trajectory = []
     for time in np.arange(total_time, step=time_step):
         coordinates = np.array(positions[:, :], dtype=complex)
@@ -438,7 +427,7 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
                        kb_boltzmann * temperature
                        for i in range(trajectory.shape[0])], dtype=float)
 
-    #Save a trajectory object to file for later recovery (test only)
+    # Save a trajectory object to file for later recovery (test only)
     if False:
         dump_file = open("trajectory.save", "w")
         pickle.dump(dyn.Dynamics(structure=structure,
@@ -459,20 +448,20 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
                         supercell=np.dot(np.diagflat(supercell), structure.get_cell()),
                         memmap=memmap)
 
-#Testing function
+
+# Testing function
 def read_from_file_test():
 
     print('Reading structure from test file')
 
-    #Condicions del test
+    # Test conditions
     number_of_dimensions = 2
 
     f_coordinates = open('Data Files/test.out', 'r')
     f_velocity = open('Data Files/test2.out', 'r')
     f_trajectory = open('Data Files/test3.out', 'r')
 
-
-    #Coordinates reading
+    # Coordinates reading
     positions = []
     while True:
         row = f_coordinates.readline().split()
@@ -496,14 +485,14 @@ def read_from_file_test():
     print('number of total atoms in structure (super cell)')
     print(number_of_atoms)
 
-    #Velocity reading section
+    # Velocity reading section
     velocity = []
     while True:
         row = f_velocity.readline().replace('I','j').replace('*','').replace('^','E').split()
         if not row: break
         for i in range(len(row)): row[i] = complex('('+row[i]+')')
         velocity.append(row)
-  #  velocity = velocity[:4000][:]  #Limitate the number of points (just for testing)
+    # Velocity = velocity[:4000][:]  #Limitate the number of points (just for testing)
 
     time = np.array([velocity[i][0]  for i in range(len(velocity))]).real
     velocity = np.array([[[velocity[i][j*number_of_dimensions+k+1]
@@ -512,8 +501,7 @@ def read_from_file_test():
                          for i in range (len(velocity))])
     print('Velocity reading complete')
 
-
-    #Trajectory reading
+    # Trajectory reading
     trajectory = []
     while True:
         row = f_trajectory.readline().replace('I','j').replace('*','').replace('^','E').split()
@@ -533,6 +521,7 @@ def read_from_file_test():
                         time=time,
                         structure=structure)
 
+
 def write_curve_to_file(frequency_range, curve_matrix, file_name):
     output_file = open(file_name, 'w')
 
@@ -550,8 +539,7 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
 
     input_parameters = {'structure_file_name_poscar': 'POSCAR'}
 
-
-    #Check file exists
+    # Check file exists
     if not os.path.isfile(file_name):
         print (file_name + ' file does not exist')
         exit()
@@ -611,11 +599,11 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
             else:
                 input_parameters.update({'_band_ranges': {'ranges':bands}})
 
-
         if "MESH PHONOPY" in line:
             input_parameters.update({'_mesh_phonopy': np.array(input_file[i+1].replace('\n','').split(),dtype=int)})
 
     return input_parameters
+
 
 def write_xsf_file(file_name,structure):
 
@@ -644,8 +632,8 @@ def write_xsf_file(file_name,structure):
                 break
     xsf_file.close()
 
-# Save & load HDF5 data file
 
+# Save & load HDF5 data file
 def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, vc=None, reduced_q_vector=None):
     import h5py
 
@@ -667,7 +655,7 @@ def save_data_hdf5(file_name, time, super_cell, trajectory=None, velocity=None, 
     hdf5_file.create_dataset('time', data=time)
     hdf5_file.create_dataset('super_cell', data=super_cell)
 
- #   print("saved", velocity.shape[0], "steps")
+    # print("saved", velocity.shape[0], "steps")
     hdf5_file.close()
 
 
@@ -681,7 +669,7 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
     vc = None
     reduced_q_vector = None
 
-    #Check file exists
+    # Check file exists
     if not os.path.isfile(file_name):
         print(file_name + ' file does not exist!')
         exit()
@@ -716,7 +704,6 @@ def initialize_from_hdf5_file(file_name, structure, read_trajectory=True, initia
     supercell = hdf5_file['super_cell'][:]
     hdf5_file.close()
 
-
     if vc is None:
         return dyn.Dynamics(structure=structure,
                             trajectory=trajectory,
@@ -747,7 +734,7 @@ def save_quasiparticle_data_to_file(quasiparticle_data, filename):
         q_point_dict.update({'frequencies': quasiparticle_data['frequencies'][i].tolist()})
         q_point_dict.update({'linewidths': quasiparticle_data['linewidths'][i].tolist()})
         q_point_dict.update({'frequency_shifts': quasiparticle_data['frequency_shifts'][i].tolist()})
-        #output_dict.update({'q_point_{}'.format(i): q_point_dict})
+        # output_dict.update({'q_point_{}'.format(i): q_point_dict})
         output_dict.append(q_point_dict)
 
     with open(filename, 'w') as outfile:
