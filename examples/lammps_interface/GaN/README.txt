@@ -10,10 +10,8 @@
 1. Prepare LAMMPS input script. This script contains the atoms positions and
 definition of the crystal unit cell (the same defined in the POSCAR file)
 
-2. Calculate the harmonic force constants. For this purpose you can use fc_lammps.py
-script in scripts folder. Ex:
-
-fc_lammps.py input_dynaphopy in.lammps -o FORCE_CONSTANTS_LAMMPS
+2. Calculate the harmonic force constants. For this purpose you can use phonoLAMMPS
+(https://github.com/abelcarreras/phonolammps).
 
 3. Run dynaphopy using  "--run_lammps" with arguments. These arguments
 are: [lammps input script, MD simulation total time [ps], time step [ps], and

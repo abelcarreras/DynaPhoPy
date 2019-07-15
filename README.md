@@ -36,11 +36,10 @@ Installation instructions
    ```
    python setup.py install --user
    ```
-* NEW! Now you can use pip to install/update dynaphopy module
+*  You can use pip to install/update dynaphopy module
    ```
    pip install dynaphopy --user
    ```
-* NEW! Added compatibility with python 3.4
 
 Executing this software
 ---------------------------------------------------------

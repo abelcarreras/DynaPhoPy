@@ -11,10 +11,8 @@
 file (data_unitcell.si). The unit cell defined in this file should be the same
 as the ones defined in the POSCAR_unitcell file.
 
-2. Calculate the harmonic force constants. For this purpose you can use fc_lammps.py
-script in scripts folder. Ex:
-
-fc_lammps.py input_dynaphopy in.lammps -o FORCE_CONSTANTS_LAMMPS
+2. Calculate the harmonic force constants. For this purpose you can use phonoLAMMPS
+(https://github.com/abelcarreras/phonolammps).
 
 3. Run dynaphopy using  "--run_lammps" with arguments. These arguments
 are: [lammps input script, MD simulation total time [ps], time step [ps], and
