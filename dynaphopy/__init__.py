@@ -1,4 +1,4 @@
-__version__ = '1.16.5'
+__version__ = '1.16.6'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -368,6 +368,18 @@ class Quasiparticle:
 
         plt.show()
 
+    def plot_frequencies_vs_linewidths(self):
+
+        qpoints, multiplicity, frequencies, linewidths = self.get_mesh_frequencies_and_linewidths()
+
+        plt.ylabel('Linewidth [THz]')
+        plt.xlabel('Frequency [THz]')
+
+        plt.axhline(y=0, color='k', ls='dashed')
+        plt.title('Frequency vs linewidths (from mesh: {})'.format(self.parameters.mesh_phonopy))
+        plt.scatter(np.array(frequencies).flatten(), np.array(linewidths).flatten(), s=multiplicity)
+        plt.show()
+
     def get_renormalized_phonon_dispersion_bands(self,
                                                  with_linewidths=False,
                                                  interconnect_bands=False,
@@ -504,6 +516,39 @@ class Quasiparticle:
             bands_full_data.append(band)
 
         return bands_full_data
+
+    def get_mesh_frequencies_and_linewidths(self):
+
+        data = self.get_commensurate_points_data()
+
+        renormalized_frequencies = data['frequencies']
+        eigenvectors = data['eigenvectors']
+        linewidths = data['linewidths']
+        fc_supercell = data['fc_supercell']
+
+        linewidths_fc = pho_interface.get_renormalized_force_constants(linewidths,
+                                                                   eigenvectors,
+                                                                   self.dynamic.structure,
+                                                                   fc_supercell,
+                                                                   symmetrize=self.parameters.symmetrize)
+
+        _, _, linewidths_mesh = pho_interface.obtain_phonopy_mesh_from_force_constants(self.dynamic.structure,
+                                                                                       force_constants=linewidths_fc,
+                                                                                       mesh=self.parameters.mesh_phonopy,
+                                                                                       NAC=None)
+
+        frequencies_fc = pho_interface.get_renormalized_force_constants(renormalized_frequencies,
+                                                                        eigenvectors,
+                                                                        self.dynamic.structure,
+                                                                        fc_supercell,
+                                                                        symmetrize=self.parameters.symmetrize)
+
+        qpoints, multiplicity, frequencies_mesh = pho_interface.obtain_phonopy_mesh_from_force_constants(self.dynamic.structure,
+                                                                                        force_constants=frequencies_fc,
+                                                                                        mesh=self.parameters.mesh_phonopy,
+                                                                                        NAC=None)
+
+        return qpoints, multiplicity, frequencies_mesh, linewidths_mesh
 
     def write_renormalized_phonon_dispersion_bands(self, filename='bands_data.yaml'):
         bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True, band_connection=True)
@@ -1150,6 +1195,10 @@ class Quasiparticle:
     def write_quasiparticles_data(self, filename="quasiparticles_data.yaml"):
         quasiparticle_data = self.get_commensurate_points_data()
         reading.save_quasiparticle_data_to_file(quasiparticle_data, filename)
+
+    def write_mesh_data(self, file_name='mesh_data.yaml'):
+        mesh_data = self.get_mesh_frequencies_and_linewidths()
+        reading.save_mesh_data_to_yaml_file(mesh_data, file_name)
 
     def get_thermal_properties(self, force_constants=None):
 
