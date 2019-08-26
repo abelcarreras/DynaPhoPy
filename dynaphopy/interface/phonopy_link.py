@@ -208,6 +208,21 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
     return free_energy, entropy, cv
 
 
+def obtain_phonopy_mesh_from_force_constants(structure, force_constants, mesh=(40, 40, 40), NAC=False):
+
+    phonon = get_phonon(structure,
+                        setup_forces=False,
+                        custom_supercell=force_constants.get_supercell(),
+                        NAC=NAC)
+    phonon.set_force_constants(force_constants.get_array())
+
+    phonon.set_mesh(mesh)
+
+    points, multiplicity, frequencies = phonon.get_mesh()[:3]
+
+    return points, multiplicity, frequencies
+
+
 def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None,
                                    NAC=False, band_resolution=30, band_connection=False):
 

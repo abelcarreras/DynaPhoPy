@@ -741,6 +741,32 @@ def save_quasiparticle_data_to_file(quasiparticle_data, filename):
         yaml.dump(output_dict, outfile, default_flow_style=False)
 
 
+def save_mesh_data_to_yaml_file(mesh_data, filename):
+
+    import yaml
+
+    def float_representer(dumper, value):
+        text = '{0:.8f}'.format(value)
+        return dumper.represent_scalar(u'tag:yaml.org,2002:float', text)
+
+    yaml.add_representer(float, float_representer)
+
+    qpoints, multiplicity, frequencies, linewidths = mesh_data
+
+    output_dict = []
+    for i, qp in enumerate(qpoints):
+        mesh_dict = {}
+        mesh_dict['reduced_wave_vector'] = qp.tolist()
+        mesh_dict['frequencies'] = frequencies[i].tolist()
+        mesh_dict['linewidths'] = linewidths[i].tolist()
+        mesh_dict['multiplicity'] = int(multiplicity[i])
+
+        output_dict.append(mesh_dict)
+
+    with open(filename, 'w') as outfile:
+        yaml.dump(output_dict, outfile, default_flow_style=False)
+
+
 def save_bands_data_to_file(bands_data, filename):
     import yaml
 

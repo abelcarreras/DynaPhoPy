@@ -189,7 +189,8 @@ def interactive_interface(calculation, trajectory, args, structure_file):
                 screen.addstr(4, 4, "1 - Harmonic and renormalized phonon dispersion relations")
                 screen.addstr(5, 4, "2 - Renormalized phonon dispersions and linewidths (fat bands)")
                 screen.addstr(6, 4, "3 - Frequency shifts and linewidths (separated)")
-                screen.addstr(8, 4, "0 - Return")
+                screen.addstr(7, 4, "4 - Frequency vs linewidth (interpolated mesh)")
+                screen.addstr(9, 4, "0 - Return")
                 screen.refresh()
 
                 x2 = screen.getch()
@@ -205,6 +206,9 @@ def interactive_interface(calculation, trajectory, args, structure_file):
 
                 if x2 == ord('3'):
                     calculation.plot_linewidths_and_shifts_bands()
+
+                if x2 == ord('4'):
+                    calculation.plot_frequencies_vs_linewidths()
 
 
 ######## OPTION 7 :  PEAK ANALYSIS

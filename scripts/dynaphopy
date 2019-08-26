@@ -90,7 +90,10 @@ parser.add_argument('--thm_full', action='store_true',
                     help='print thermal properties from power spectrum')
 
 parser.add_argument('-sdata', '--save_quasiparticle_data', action='store_true',
-                    help='save quasiparticle data in a YAML formatted file')
+                    help='save quasiparticle data into a YAML formatted file')
+
+parser.add_argument('-smesh', '--save_mesh_data', action='store_true',
+                    help='save mesh data into a YAML formatted file')
 
 
 # Extra options
@@ -357,6 +360,10 @@ if args.save_atomic_displacements:
 
 if args.save_quasiparticle_data:
     calculation.write_quasiparticles_data()
+
+if args.save_mesh_data:
+    calculation.write_mesh_data()
+
 
 if args.coefficient_scan_analysis:
     calculation.phonon_width_scan_analysis()
