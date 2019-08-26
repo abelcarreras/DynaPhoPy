@@ -65,7 +65,7 @@ class TestDynaphopy(unittest.TestCase):
         print(anharmonic)
         maximum = np.max((harmonic-anharmonic)**2/harmonic)
         print('maximum: {}'.format(maximum))
-        self.assertLess(maximum, 0.1)
+        self.assertLess(maximum, 0.4)
 
     def test_force_constants_self_consistency(self):
         trajectory = io.initialize_from_hdf5_file('test_gan.h5',
