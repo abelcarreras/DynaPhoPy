@@ -293,9 +293,14 @@ def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, str
     eigenvectors = np.array([eigenvector.reshape(size, size, order='C').T for eigenvector in eigenvectors ])
     renormalized_frequencies = np.array(renormalized_frequencies)
 
-    dynmat2fc.create_dynamical_matrices(frequencies=renormalized_frequencies / VaspToTHz,
-                                        eigenvalues=None,
-                                        eigenvectors=eigenvectors)
+    try:
+        dynmat2fc.set_dynamical_matrices(renormalized_frequencies / VaspToTHz, eigenvectors)
+
+    except TypeError:
+        dynmat2fc.create_dynamical_matrices(frequencies=renormalized_frequencies / VaspToTHz,
+                                            eigenvalues=None,
+                                            eigenvectors=eigenvectors)
+
     dynmat2fc.run()
 
     force_constants = ForceConstants(dynmat2fc.get_force_constants(), supercell=fc_supercell)
