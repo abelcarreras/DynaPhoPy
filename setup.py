@@ -75,6 +75,6 @@ setup(name='dynaphopy',
                'scripts/fitdata',
                'scripts/qha_extract',
                'scripts/rfc_calc'],
-      requires=['phonopy', 'numpy', 'scipy', 'matplotlib'],
+      install_requires=['phonopy', 'numpy', 'scipy', 'matplotlib'],
       license='MIT License',
       ext_modules=[correlation, mem, displacements])
