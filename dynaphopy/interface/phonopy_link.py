@@ -1,10 +1,15 @@
 import numpy as np
 from phonopy.api_phonopy import Phonopy
-from phonopy.structure.atoms import Atoms as PhonopyAtoms
 from phonopy.file_IO import parse_BORN, parse_FORCE_SETS, write_FORCE_CONSTANTS, parse_FORCE_CONSTANTS
 from phonopy.harmonic.dynmat_to_fc import DynmatToForceConstants
 from phonopy.harmonic.force_constants import set_tensor_symmetry_PJ
 from phonopy.units import VaspToTHz
+
+# support old phonopy versions
+try:
+    from phonopy.structure.atoms import PhonopyAtoms
+except ImportError:
+    from phonopy.structure.atoms import Atoms as PhonopyAtoms
 
 
 class ForceConstants:

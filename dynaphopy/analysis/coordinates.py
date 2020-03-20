@@ -38,7 +38,7 @@ def relativize_trajectory(dynamic, memmap=False):
     trajectory = dynamic.trajectory
 
     if memmap:
-        normalized_trajectory = np.memmap('/home/abel/r_trajectory.map', dtype='complex', mode='w+', shape=trajectory.shape)
+        normalized_trajectory = np.memmap('r_trajectory.map', dtype='complex', mode='w+', shape=trajectory.shape)
     else:
         normalized_trajectory = dynamic.trajectory.copy()
 

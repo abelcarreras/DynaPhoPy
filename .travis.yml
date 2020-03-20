@@ -5,7 +5,7 @@ os:
 
 python:
   - "2.7"
-  - "3.4"
+  - "3.5"
 
 branches:
   only:
@@ -17,7 +17,7 @@ branches:
 install:
   - sudo apt-get install libhdf5-serial-dev
   - pip install coverage
-  - pip install python-coveralls
+  - pip install coveralls
   - pip install -r requirements.txt
   - pip install -e .
 

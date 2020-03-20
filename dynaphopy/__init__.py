@@ -1,4 +1,4 @@
-__version__ = '1.16.7'
+__version__ = '1.16.8'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -184,7 +184,7 @@ class Quasiparticle:
     def get_band_ranges_and_labels(self):
         # return self.parameters.band_ranges
         if self.parameters.band_ranges is None:
-            self.parameters.band_ranges =  self.dynamic.structure.get_path_using_seek_path()
+            self.parameters.band_ranges = self.dynamic.structure.get_path_using_seek_path()
 
         return self.parameters.band_ranges
 

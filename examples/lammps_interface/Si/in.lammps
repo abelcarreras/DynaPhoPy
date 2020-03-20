@@ -21,4 +21,3 @@ velocity        all create $t 3627941 dist gaussian mom yes
 velocity        all scale $t
 
 fix             int all nvt temp $t $t 0.5
-
