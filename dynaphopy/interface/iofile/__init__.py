@@ -144,7 +144,7 @@ def get_trajectory_parser(file_name, bytes_to_check=1000000):
                         'lammps_dump': {'function': tp.read_lammps_trajectory,
                                         'keywords': ['ITEM: TIMESTEP', 'ITEM: NUMBER OF ATOMS', 'ITEM: BOX BOUNDS']},
                         'vasp_xdatcar': {'function': tp.read_VASP_XDATCAR,
-                                         'keywords': ['Direct configuration', 'Direct configuration', 'Direct configuration']}}
+                                         'keywords': ['Direct configuration', 'Direct configuration', '=']}}
 
     # Check file exists
     if not os.path.isfile(file_name):
