@@ -606,7 +606,7 @@ class QuasiparticlesQHA():
 
         for i in volume_range:
             volumesi = np.array(volumes) + i
-            print volumesi
+            print(volumesi)
 
             phonopy_qha = PhonopyQHA(volumesi,
                                      energies,
@@ -855,9 +855,9 @@ qp.plot_total_shift_constant_pressure(qpoint=[0.5, 0.5, 0.5], branch=2)
 
 np.savetxt('shift_r', qp.get_total_shift_constant_pressure(qpoint=[0.5, 0.5, 0.5]).T)
 np.savetxt('tshift_r', qp.fc_fit.get_shift_temperature(qpoint=[0.5, 0.5, 0.5]).T)
-print qp.fc_fit.temperatures
+print(qp.fc_fit.temperatures)
 
-print qp.get_qha_temperatures()
+print(qp.get_qha_temperatures())
 exit()
 
 

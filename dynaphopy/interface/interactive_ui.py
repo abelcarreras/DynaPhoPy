@@ -28,10 +28,10 @@ def get_param(screen, prompt_string):
     screen.clear()
     screen.border(0)
 
-    for i,line in enumerate(prompt_string.splitlines()):
+    for i, line in enumerate(prompt_string.splitlines()):
         screen.addstr(2+i, 2, line)
     screen.refresh()
-    input_data = screen.getstr(10, 10, 60)
+    input_data = screen.getstr(10, 10, 60).decode()
 
     return input_data
 

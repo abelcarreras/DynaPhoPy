@@ -122,10 +122,6 @@ def obtain_eigenvectors_and_frequencies(structure, q_vector, test_orthonormal=Fa
     phonon = get_phonon(structure)
     frequencies, eigenvectors = phonon.get_frequencies_with_eigenvectors(q_vector)
 
-    if False:
-        print('Eigenvectors')
-        print(eigenvectors)
-
     # Making sure eigenvectors are orthonormal (can be omitted)
     if test_orthonormal:
         eigenvectors = eigenvectors_normalization(eigenvectors)
@@ -166,20 +162,22 @@ def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None,
         phonon.set_force_constants(force_constants.get_array())
 
     if projected_on_atom < 0:
-        phonon.set_mesh(mesh)
-        phonon.set_total_DOS(freq_min=freq_min, freq_max=freq_max, tetrahedron_method=True)
-        total_dos = np.array(phonon.get_total_DOS())
+        phonon.run_mesh(mesh)
+        phonon.run_total_dos(freq_min=freq_min, freq_max=freq_max, use_tetrahedron_method=True)
+        total_dos = np.array([phonon.get_total_dos_dict()['frequency_points'],
+                              phonon.get_total_dos_dict()['total_dos']])
 
     else:
-        phonon.set_mesh(mesh, is_eigenvectors=True, is_mesh_symmetry=False)
-        phonon.set_partial_DOS(freq_min=freq_min, freq_max=freq_max)
+        phonon.run_mesh(mesh, with_eigenvectors=True, is_mesh_symmetry=False)
+        phonon.run_projected_dos(freq_min=freq_min, freq_max=freq_max)
 
-        if projected_on_atom >= len(phonon.get_partial_DOS()[1]):
+        if projected_on_atom >= len(phonon.get_projected_dos_dict()['projected_dos']):
             print('No atom type {0}'.format(projected_on_atom))
             exit()
 
-        total_dos = np.array([phonon.get_partial_DOS()[0], phonon.get_partial_DOS()[1][projected_on_atom]])
-
+        # total_dos = np.array([phonon.get_partial_DOS()[0], phonon.get_partial_DOS()[1][projected_on_atom]])
+        total_dos = np.array([phonon.get_projected_dos_dict()['frequency_points'],
+                              phonon.get_projected_dos_dict()['projected_dos'][projected_on_atom]])
 
     #Normalize to unit cell
     total_dos[1, :] *= float(structure.get_number_of_atoms())/structure.get_number_of_primitive_atoms()
@@ -200,9 +198,13 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
                             NAC=NAC)
         phonon.set_force_constants(force_constants.get_array())
 
-    phonon.set_mesh(mesh)
-    phonon.set_thermal_properties(t_step=1, t_min=temperature, t_max=temperature)
-    t, free_energy, entropy, cv = np.array(phonon.get_thermal_properties()).T[0]
+    phonon.run_mesh(mesh)
+    phonon.run_thermal_properties(t_step=1, t_min=temperature, t_max=temperature)
+    # t, free_energy, entropy, cv = np.array(phonon.get_thermal_properties()).T[0]
+    thermal_dict = phonon.get_thermal_properties_dict()
+    free_energy = thermal_dict['free_energy']
+    entropy = thermal_dict['entropy']
+    cv = thermal_dict['heat_capacity']
 
     # Normalize to unit cell
     unit_cell_relation = float(structure.get_number_of_atoms())/structure.get_number_of_primitive_atoms()
@@ -221,11 +223,10 @@ def obtain_phonopy_mesh_from_force_constants(structure, force_constants, mesh=(4
                         NAC=NAC)
     phonon.set_force_constants(force_constants.get_array())
 
-    phonon.set_mesh(mesh)
+    phonon.run_mesh(mesh)
+    mesh_dict = phonon.get_mesh_dict()
 
-    points, multiplicity, frequencies = phonon.get_mesh()[:3]
-
-    return points, multiplicity, frequencies
+    return mesh_dict['qpoints'], mesh_dict['weights'], mesh_dict['frequencies']
 
 
 def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None,
@@ -247,9 +248,14 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None
         for i in range(band_resolution+1):
             band.append(np.array(q_start) + (np.array(q_end) - np.array(q_start)) / band_resolution * i)
         bands.append(band)
-    phonon.set_band_structure(bands, is_band_connection=band_connection, is_eigenvectors=True)
+    phonon.run_band_structure(bands, is_band_connection=band_connection, with_eigenvectors=True)
 
-    return phonon.get_band_structure()
+    bands_dict = phonon.get_band_structure_dict()
+
+    return (bands_dict['qpoints'],
+            bands_dict['distances'],
+            bands_dict['frequencies'],
+            bands_dict['eigenvectors'])
 
 
 def get_commensurate_points(structure, fc_supercell):

@@ -31,6 +31,7 @@ class TestDynaphopy(unittest.TestCase):
         calculation.select_power_spectra_algorithm(2)
         renormalized_force_constants = calculation.get_renormalized_force_constants().get_array()
         harmonic_force_constants = calculation.dynamic.structure.get_force_constants().get_array()
+        calculation.get_thermal_properties()
 
         self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
 
