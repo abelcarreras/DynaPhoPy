@@ -23,7 +23,8 @@ install:
 
 script:
   - cd unittest
-  - coverage run --source=../dynaphopy -m unittest discover . "*_test.py"
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; python --source=../dynaphopy -m unittest discover; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; coverage run --source=../dynaphopy -m unittest discover . "*_test.py" ; fi
 
 after_success:
   - coveralls
