@@ -262,6 +262,18 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 gamma = np.arccos(xy/b)
 
                 # End testing cell
+
+                # rotate lammps supercell to match unitcell orientation
+                def unit_matrix(matrix):
+                    return np.array([np.array(row)/np.linalg.norm(row) for row in matrix])
+
+                unit_structure = unit_matrix(structure.get_cell())
+                unit_supercell_lammps = unit_matrix(supercell)
+
+                transformation_mat = np.dot(np.linalg.inv(unit_structure), unit_supercell_lammps).T
+
+                supercell = np.dot(supercell, transformation_mat)
+
                 if memmap:
                     if end_cut:
                         data = np.memmap(temp_directory+'trajectory.{0}'.format(os.getpid()), dtype='complex', mode='w+', shape=(end_cut - initial_cut+1, number_of_atoms, number_of_dimensions))
@@ -290,6 +302,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
                 read_coordinates = read_coordinates[indexing, :]
 
             try:
+                read_coordinates = np.dot(read_coordinates, transformation_mat)
                 if memmap:
                     data[counter-initial_cut, :, :] = read_coordinates #in angstroms
                 else:
