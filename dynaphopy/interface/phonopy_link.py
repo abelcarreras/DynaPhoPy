@@ -288,7 +288,7 @@ def get_equivalent_q_points_by_symmetry(q_point, structure):
         if (q_point_test >= 0).all():
                 tot_points.append(q_point_test)
 
-    return np.vstack({tuple(row) for row in tot_points})
+    return np.vstack([tuple(row) for row in tot_points])
 
 
 def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, structure, fc_supercell, symmetrize=False):
@@ -308,8 +308,9 @@ def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, str
         dynmat2fc.set_dynamical_matrices(renormalized_frequencies / VaspToTHz, eigenvectors)
 
     except TypeError:
-        dynmat2fc.create_dynamical_matrices(frequencies=renormalized_frequencies / VaspToTHz,
-                                            eigenvalues=None,
+        frequencies_thz = renormalized_frequencies / VaspToTHz
+        eigenvalues = frequencies_thz ** 2 * np.sign(frequencies_thz)
+        dynmat2fc.create_dynamical_matrices(eigenvalues=eigenvalues,
                                             eigenvectors=eigenvectors)
 
     dynmat2fc.run()
