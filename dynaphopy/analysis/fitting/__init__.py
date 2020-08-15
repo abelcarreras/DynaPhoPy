@@ -173,7 +173,10 @@ def phonon_fitting_analysis(original, ps_frequencies,
             plt.axvline(x=position, color='k', ls='dashed')
             plt.ylim(bottom=0)
             plt.xlim([ps_frequencies[0], ps_frequencies[-1]])
-            plt.fill_between([position-width/2, position+width/2],0,plt.gca().get_ylim()[1],color='red', alpha='0.2')
+            try:
+                plt.fill_between([position-width/2, position+width/2], plt.gca().get_ylim()[1], color='red', alpha='0.2')
+            except TypeError:
+                pass
             plt.legend()
 
     if show_plots:
