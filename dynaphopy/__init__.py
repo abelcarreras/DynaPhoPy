@@ -1046,7 +1046,7 @@ class Quasiparticle:
             distribution, bins = np.histogram(projections[atom],
                                               bins=number_of_bins,
                                               range=(min_val, max_val),
-                                              denisty=True)
+                                              density=True)
 
             distributions.append(distribution)
 
