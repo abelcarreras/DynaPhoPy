@@ -1,4 +1,4 @@
-__version__ = '1.17.2'
+__version__ = '1.17.3'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -1046,7 +1046,7 @@ class Quasiparticle:
             distribution, bins = np.histogram(projections[atom],
                                               bins=number_of_bins,
                                               range=(min_val, max_val),
-                                              normed=True)
+                                              denisty=True)
 
             distributions.append(distribution)
 

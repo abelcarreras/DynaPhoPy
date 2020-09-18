@@ -37,7 +37,7 @@ def boltzmann_distribution(trajectory, parameters):
                 fontsize=15)
 
         fig.suptitle('Velocity distribution')
-        ax.hist(velocity, bins=parameters.number_of_bins_histogram, normed=True)
+        ax.hist(velocity, bins=parameters.number_of_bins_histogram, density=True)
 
         plt.show()
 
