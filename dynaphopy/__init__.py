@@ -1292,7 +1292,7 @@ class Quasiparticle:
 
             power_spectrum_properties = [free_energy, entropy, c_v, total_energy, integration]
             print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
-                  '----------------------------------------------').format(temperature)
+                  '----------------------------------------------'.format(temperature))
             print('                             Harmonic   Quasiparticle   Power spectrum\n')
             print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}  {10:12.4f}\n'
                   'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}  {11:12.4f}\n'
