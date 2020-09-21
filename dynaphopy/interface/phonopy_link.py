@@ -4,6 +4,7 @@ from phonopy.file_IO import parse_BORN, parse_FORCE_SETS, write_FORCE_CONSTANTS,
 from phonopy.harmonic.dynmat_to_fc import DynmatToForceConstants
 from phonopy.harmonic.force_constants import set_tensor_symmetry_PJ
 from phonopy.units import VaspToTHz
+from phonopy.structure.symmetry import Symmetry
 
 # support old phonopy versions
 try:
@@ -78,7 +79,7 @@ def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
     write_FORCE_CONSTANTS(force_constants.get_array(), filename=filename)
 
 
-def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
+def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None, symprec=1e-5):
 
     if custom_supercell is None:
         super_cell_phonon = structure.get_supercell_phonon()
@@ -92,7 +93,7 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None):
 
     phonon = Phonopy(bulk, super_cell_phonon,
                      primitive_matrix=structure.get_primitive_matrix(),
-                     symprec=1e-5)
+                     symprec=symprec)
 
     # Non Analytical Corrections (NAC) from Phonopy [Frequencies only, eigenvectors no affected by this option]
 
@@ -271,24 +272,24 @@ def get_commensurate_points(structure, fc_supercell):
     return com_points
 
 
-def get_equivalent_q_points_by_symmetry(q_point, structure):
+def get_equivalent_q_points_by_symmetry(q_point, structure, symprec=1e-5):
 
-    from phonopy.structure.symmetry import Symmetry
     bulk = PhonopyAtoms(symbols=structure.get_atomic_elements(),
                         scaled_positions=structure.get_scaled_positions(),
                         cell=structure.get_cell())
 
-    tot_points = []
-    for operation_matrix in Symmetry(bulk).get_reciprocal_operations():
+    tot_points = [list(q_point)]
+    for operation_matrix in Symmetry(bulk, symprec=symprec).get_reciprocal_operations():
         operation_matrix_q = np.dot(np.linalg.inv(structure.get_primitive_matrix()), operation_matrix.T)
         operation_matrix_q = np.dot(operation_matrix_q, structure.get_primitive_matrix())
 
         q_point_test = np.dot(q_point, operation_matrix_q)
 
         if (q_point_test >= 0).all():
-                tot_points.append(q_point_test)
+                tot_points.append(list(q_point_test))
 
-    return np.vstack([tuple(row) for row in tot_points])
+    tot_points_unique = [list(x) for x in set(tuple(x) for x in tot_points)]
+    return tot_points_unique
 
 
 def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, structure, fc_supercell, symmetrize=False):
