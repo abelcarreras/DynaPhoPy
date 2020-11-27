@@ -1,4 +1,4 @@
-__version__ = '1.17.5'
+__version__ = '1.17.6'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -377,7 +377,8 @@ class Quasiparticle:
 
         plt.axhline(y=0, color='k', ls='dashed')
         plt.title('Frequency vs linewidths (from mesh: {})'.format(self.parameters.mesh_phonopy))
-        plt.scatter(np.array(frequencies).flatten(), np.array(linewidths).flatten(), s=multiplicity)
+        for f, l in zip(np.array(frequencies).T, np.array(linewidths).T):
+            plt.scatter(f, l)
         plt.show()
 
     def get_renormalized_phonon_dispersion_bands(self,

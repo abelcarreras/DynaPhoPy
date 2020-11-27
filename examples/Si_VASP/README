@@ -29,5 +29,3 @@ Result files:
  - renormalized_fc : Renormalized force constants in PHONOPY format.
  - quasiparticles_data.yaml : Phonon frequencies and linewidths at each commensurate q-point 
                               in yaml format
-
-

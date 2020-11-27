@@ -4,6 +4,7 @@ from matplotlib import lines
 from mpl_toolkits.mplot3d import proj3d
 import numpy as np
 
+
 class Arrow3D(FancyArrowPatch):
     def __init__(self, xs, ys, zs, *args, **kwargs):
         FancyArrowPatch.__init__(self, (0.0, 0.0), (0.0, 0.0), *args, **kwargs)
@@ -102,7 +103,7 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
         ax.set_zlabel('Z')
 
         plt.title('Phonon {0}'.format(i_phonon+1))
-        plt.axis('equal')
+        plt.axis('auto')
     plt.show()
 
     return
