@@ -98,7 +98,7 @@ def get_mem_power_spectra(vq, trajectory, parameters):
         if not parameters.silent:
             _progress_bar(float(i + 1) / vq.shape[1], 'M. Entropy')
 
-    psd_vector = np.array(psd_vector).T
+    psd_vector = np.nan_to_num(np.array(psd_vector).T)
 
     return psd_vector * unit_conversion
 
