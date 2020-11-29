@@ -100,7 +100,7 @@ Direct
 </code></pre>
 <p> EDIFF may have great influence in the exactitute of the results. Longer time step lenghts are recomended to increase the convergence of
 phonon linewidths but to long could compromise the reliability of the simulation. 
-<p>Once VASP <strong>OUTCAR</strong> and Phonopy <strong>FORCE_SETS</strong> are generated the only thing left needed to run DynaPhoPY is a DynaPhoPy input.
+<p>Once VASP <strong>XDATCAR</strong> and Phonopy <strong>FORCE_SETS</strong> are generated the only thing left needed to run DynaPhoPY is a DynaPhoPy input.
 </p>
 <pre><code>STRUCTURE FILE POSCAR
 /home/user/Si-phonopy/POSCAR_unitcell
@@ -138,7 +138,7 @@ BANDS
 <img src="images/wave_silicon_800.png" alt="Interactive" style="width:630px">
 
 <UL><p><LI>Save phonon mode projection power spectrum at <em>X</em> point (0.5 0 0.5) to spectrum.dat file using lasts 80000 times teps:</p></UL>
-<pre><code>$ dynaphopy input_file OUTCAR -n 80000 -sw spectrum.dat -q 0.5 0.0 0.5
+<pre><code>$ dynaphopy input_file XDATCAR -n 80000 -ts 0.0007 -sw spectrum.dat -q 0.5 0.0 0.5
 </code></pre>
 </p>
 <p>
@@ -154,7 +154,7 @@ BANDS
 
 
 <UL><p><LI>Peak analysis at <em>&Gamma;</em> point using MEM method (parallel) with 1000 coeficients:</p></UL>
-<pre><code>$ dynaphopy input_file OUTCAR -n 5000000 -pa -psm 4 -cf 1000
+<pre><code>$ dynaphopy input_file XDATCAR -n 5000000 -ts 0.0007 -pa -psm 4 -cf 1000
 </code></pre>
 <p></p>
 
@@ -325,7 +325,7 @@ the number specified in <strong>run command</strong>, it will also depend on the
 <strong>dump command</strong>. For further details refere to 
 <a href="http://lammps.sandia.gov/doc/dump.html">LAMMPS manual</a>.</em></p>
 <p>
-The use of LAMMPS trajectory file is equivalent to VASP output OUTCAR file. DynaPhoPy will automatically recognize 
+The use of LAMMPS trajectory file is equivalent to VASP output XDATCAR file. DynaPhoPy will automatically recognize 
 the file type. If needed, time step should be specified by flag <strong>-ts</strong>.
 
 <pre><code>$ dynaphopy input_file trajectory.lammpstrj -n 500000 -ts 0.001
