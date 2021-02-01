@@ -59,15 +59,21 @@ def generate_lammps_trajectory(structure,
     # print("Natoms, mass, x[0][0] coord =", natoms, mass[1], x[0][0])
     # print ('thermo', lmp.get_thermo('1'))
 
-    xlo =lmp.extract_global("boxxlo", 1)
-    xhi =lmp.extract_global("boxxhi", 1)
-    ylo =lmp.extract_global("boxylo", 1)
-    yhi =lmp.extract_global("boxyhi", 1)
-    zlo =lmp.extract_global("boxzlo", 1)
-    zhi =lmp.extract_global("boxzhi", 1)
-    xy =lmp.extract_global("xy", 1)
-    yz =lmp.extract_global("yz", 1)
-    xz =lmp.extract_global("xz", 1)
+    try:
+        xlo =lmp.extract_global("boxxlo", 1)
+        xhi =lmp.extract_global("boxxhi", 1)
+        ylo =lmp.extract_global("boxylo", 1)
+        yhi =lmp.extract_global("boxyhi", 1)
+        zlo =lmp.extract_global("boxzlo", 1)
+        zhi =lmp.extract_global("boxzhi", 1)
+        xy =lmp.extract_global("xy", 1)
+        yz =lmp.extract_global("yz", 1)
+        xz =lmp.extract_global("xz", 1)
+
+    except UnboundLocalError:
+        boxlo, boxhi, xy, yz, xz, periodicity, box_change = lmp.extract_box()
+        xlo, ylo, zlo = boxlo
+        xhi, yhi, zhi = boxhi
 
     simulation_cell = np.array([[xhi-xlo, xy,  xz],
                            [0,  yhi-ylo,  yz],
@@ -78,8 +84,15 @@ def generate_lammps_trajectory(structure,
     energy = []
 
     na = lmp.get_natoms()
-    xc = lmp.gather_atoms("x", 1, 3)
-    reference = np.array([xc[i] for i in range(na*3)]).reshape((na,3))
+    id = lmp.extract_atom("id", 0)
+    id = np.array([id[i] - 1 for i in range(na)], dtype=int)
+
+    xp = lmp.extract_atom("x", 3)
+    reference = np.array([[xp[i][0], xp[i][1], xp[i][2]] for i in range(na)], dtype=float)[id, :]
+
+    # xc = lmp.gather_atoms("x", 1, 3)
+    # reference = np.array([xc[i] for i in range(na*3)]).reshape((na,3))
+
     template = get_correct_arrangement(reference, structure)
     indexing = np.argsort(template)
 
@@ -96,14 +109,21 @@ def generate_lammps_trajectory(structure,
 
         lmp.command('run {}'.format(sampling_interval))
 
-        xc = lmp.gather_atoms("x", 1, 3)
-        vc = lmp.gather_atoms("v", 1, 3)
+        # xc = lmp.gather_atoms("x", 1, 3)
+        # vc = lmp.gather_atoms("v", 1, 3)
         energy.append(lmp.extract_variable('energy', 'all', 0))
 
-        velocity.append(np.array([vc[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :])
+        id = lmp.extract_atom("id", 0)
+        id = np.array([id[i] - 1 for i in range(na)], dtype=int)
+
+        vc = lmp.extract_atom("v", 3)
+        velocity.append(np.array([[vc[i][0], vc[i][1], vc[i][2]] for i in range(na)], dtype=float)[id, :][indexing, :])
+        # velocity.append(np.array([vc[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :])
 
         if not velocity_only:
-            positions.append(np.array([xc[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :])
+            xc = lmp.extract_atom("x", 3)
+            positions.append(np.array([[xc[i][0], xc[i][1], xc[i][2]] for i in range(na)], dtype=float)[id, :][indexing, :])
+            # positions.append(np.array([xc[i] for i in range(na * 3)]).reshape((na, 3))[indexing, :])
 
     positions = np.array(positions, dtype=complex)
     velocity = np.array(velocity, dtype=complex)
