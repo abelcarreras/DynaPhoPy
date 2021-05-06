@@ -544,7 +544,9 @@ def read_parameters_from_input_file(file_name, number_of_dimensions=3):
         print (file_name + ' file does not exist')
         exit()
 
-    input_file = open(file_name, "r").readlines()
+    with open(file_name, "r") as f:
+        input_file = f.readlines()
+
     for i, line in enumerate(input_file):
         if line[0] == '#':
             continue

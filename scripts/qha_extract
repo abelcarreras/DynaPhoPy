@@ -98,8 +98,7 @@ if args.p:
     phonopy_qha.plot_qha().show()
 
 volume_temperature = phonopy_qha.get_volume_temperature()
-qha_temperatures = phonopy_qha._qha._temperatures[:phonopy_qha._qha._max_t_index]
-
+qha_temperatures = phonopy_qha._qha._all_temperatures[:len(volume_temperature)]
 
 # Fit force constants as a function of the temperature
 fit_vt = interp1d(qha_temperatures, volume_temperature, kind='quadratic')
@@ -129,7 +128,12 @@ force_constants_mat = np.array(force_constants_mat).T
 f_temperature = interp1d(volumes, force_constants_mat, kind='quadratic')
 
 # Get force constants at the requested temperature
-target_fc = f_temperature(target_volume).T
+try:
+    target_fc = f_temperature(target_volume).T
+except ValueError:
+    print('Error interpolating minimum volume!\n'
+          'Make sure the free energy-volume curve has a minimum ')
+    exit()
 
 phonopy_link.write_FORCE_CONSTANTS(target_fc,filename=args.sfc)
 
