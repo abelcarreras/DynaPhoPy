@@ -408,8 +408,8 @@ def generate_test_trajectory(structure, supercell=(1, 1, 1),
 
                 if abs(frequencies_r[i_long][i_freq]) > minimum_frequency: # Prevent error due to small frequencies
                     amplitude = np.sqrt(number_of_dimensions * kb_boltzmann * temperature / number_of_primitive_cells * atoms_relation)/(frequencies_r[i_long][i_freq] * 2 * np.pi) # + random.uniform(-1,1)*0.05
-                    normal_mode = amplitude * np.exp(np.complex(0, -1) * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
-                    phase = np.exp(np.complex(0, 1) * np.dot(q_vector, positions.T) + phase_0)
+                    normal_mode = amplitude * np.exp(-1j * frequencies_r[i_long][i_freq] * 2.0 * np.pi * time)
+                    phase = np.exp(1j * np.dot(q_vector, positions.T) + phase_0)
 
                     coordinates += (1.0 / np.sqrt(masses)[None].T *
                                    eigenvectors_r[i_long][i_freq, atom_type] *
