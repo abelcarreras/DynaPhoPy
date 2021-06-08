@@ -1,6 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/dynaphopy.svg)](https://pypi.python.org/pypi/dynaphopy)
 [![Build Status](https://travis-ci.org/abelcarreras/DynaPhoPy.svg)](https://travis-ci.org/abelcarreras/DynaPhoPy)
 [![Coverage Status](https://coveralls.io/repos/github/abelcarreras/DynaPhoPy/badge.svg)](https://coveralls.io/github/abelcarreras/DynaPhoPy)
+[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cpc.2017.08.017-blue)](https://doi.org/10.1016/j.cpc.2017.08.017)
 
 DynaPhoPy
 =========
