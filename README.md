@@ -67,8 +67,8 @@ More information in the online manual at: http://abelcarreras.github.io/DynaPhoP
 
 Contact info
 ---------------------------------------------------------
-Abel Carreras
-<br>abelcarreras83@gmail.com
+Abel Carreras  
+abelcarreras83@gmail.com
 
-Donostia International Physics Center (DIPC)
-<br>Donostia-San Sebastian (Spain)
+Donostia International Physics Center (DIPC)  
+Donostia-San Sebastian (Spain)
