@@ -1,4 +1,4 @@
-__version__ = '1.17.8'
+__version__ = '1.17.9'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -179,7 +179,13 @@ class Quasiparticle:
 
     def set_band_ranges(self, band_ranges):
         self.bands_clear()
-        self.parameters.band_ranges = band_ranges
+        if isinstance(band_ranges, dict):
+            self.parameters.band_ranges = band_ranges
+        elif isinstance(band_ranges, list):
+            self.parameters.band_ranges = {'ranges': band_ranges}
+        else:
+            raise Exception('Incorrect band ranges format')
+
 
     def get_band_ranges_and_labels(self):
         # return self.parameters.band_ranges
@@ -189,9 +195,9 @@ class Quasiparticle:
         return self.parameters.band_ranges
 
     def plot_phonon_dispersion_bands(self):
-        bands = self.get_band_ranges_and_labels()
+        bands_and_labels = self.get_band_ranges_and_labels()
 
-        band_ranges = bands['ranges']
+        band_ranges = bands_and_labels['ranges']
 
         if self._bands is None:
             self._bands = pho_interface.obtain_phonon_dispersion_bands(self.dynamic.structure,
@@ -202,7 +208,7 @@ class Quasiparticle:
             plt.plot(self._bands[1][i], self._bands[2][i], color='r')
 
             # plt.axes().get_xaxis().set_visible(False)
-        plt.axes().get_xaxis().set_ticks([])
+        # plt.axes().get_xaxis().set_ticks([])
 
         plt.ylabel('Frequency [THz]')
         plt.xlabel('Wave vector')
@@ -210,24 +216,23 @@ class Quasiparticle:
         plt.axhline(y=0, color='k', ls='dashed')
         plt.suptitle('Phonon dispersion')
 
-        if 'labels' in bands:
+        if 'labels' in bands_and_labels:
             plt.rcParams.update({'mathtext.default': 'regular'})
 
-            labels = bands['labels']
+            labels = bands_and_labels['labels']
 
             labels_e = []
             x_labels = []
             for i, freq in enumerate(self._bands[1]):
                 if labels[i][0] == labels[i - 1][1]:
-                    labels_e.append('$' + labels[i][0].replace('GAMMA', '\Gamma') + '$')
+                    labels_e.append(replace_list(labels[i][0]))
                 else:
                     labels_e.append(
-                        '$' + labels[i - 1][1].replace('GAMMA', '\Gamma') + '/' + labels[i][0].replace('GAMMA',
-                                                                                                       '\Gamma') + '$')
+                        replace_list(labels[i - 1][1]) + '/' + replace_list(labels[i][0]))
                 x_labels.append(self._bands[1][i][0])
             x_labels.append(self._bands[1][-1][-1])
-            labels_e.append('$' + labels[-1][1].replace('GAMMA', '\Gamma') + '$')
-            labels_e[0] = '$' + labels[0][0].replace('GAMMA', '\Gamma') + '$'
+            labels_e.append(replace_list(labels[-1][1]))
+            labels_e[0] = replace_list(labels[0][0])
 
             plt.xticks(x_labels, labels_e, rotation='horizontal')
 
@@ -257,7 +262,7 @@ class Quasiparticle:
 
         # plt.axes().get_xaxis().set_visible(False)
         plt.suptitle(plot_title)
-        plt.axes().get_xaxis().set_ticks([])
+        # plt.axes().get_xaxis().set_ticks([])
         plt.ylabel('Frequency [THz]')
         plt.xlabel('Wave vector')
         plt.xlim([0, bands_full_data[-1]['q_path_distances'][-1]])
@@ -278,15 +283,14 @@ class Quasiparticle:
             x_labels = []
             for i, freq in enumerate(bands_full_data):
                 if labels[i][0] == labels[i - 1][1]:
-                    labels_e.append('$' + labels[i][0].replace('GAMMA', '\Gamma') + '$')
+                    labels_e.append(replace_list(labels[i][0]))
                 else:
                     labels_e.append(
-                        '$' + labels[i - 1][1].replace('GAMMA', '\Gamma') + '/' + labels[i][0].replace('GAMMA',
-                                                                                                       '\Gamma') + '$')
+                        replace_list(labels[i - 1][1]) + '/' + replace_list(labels[i][0]))
                 x_labels.append(bands_full_data[i]['q_path_distances'][0])
             x_labels.append(bands_full_data[-1]['q_path_distances'][-1])
-            labels_e.append('$' + labels[-1][1].replace('GAMMA', '\Gamma') + '$')
-            labels_e[0] = '$' + labels[0][0].replace('GAMMA', '\Gamma') + '$'
+            labels_e.append(replace_list(labels[-1][1]))
+            labels_e[0] = replace_list(labels[0][0])
 
             plt.xticks(x_labels, labels_e, rotation='horizontal')
 
@@ -297,6 +301,7 @@ class Quasiparticle:
         bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True,
                                                                         band_connection=True,
                                                                         interconnect_bands=True)
+
         number_of_branches = len(bands_full_data[0]['linewidth'])
         # print('number_of branches', number_of_branches)
 
@@ -337,7 +342,6 @@ class Quasiparticle:
         for ifig in [0, 1, 2, 3]:
             plt.figure(ifig)
 
-            plt.axes().get_xaxis().set_ticks([])
             plt.ylabel('Frequency [THz]')
             plt.xlabel('Wave vector')
             plt.xlim([0, bands_full_data[-1]['q_path_distances'][-1]])
@@ -354,16 +358,14 @@ class Quasiparticle:
                 x_labels = []
                 for i, freq in enumerate(bands_full_data):
                     if labels[i][0] == labels[i - 1][1]:
-                        labels_e.append('$' + labels[i][0].replace('GAMMA', '\Gamma') + '$')
+                        labels_e.append(replace_list(labels[i][0]))
                     else:
                         labels_e.append(
-                            '$' + labels[i - 1][1].replace('GAMMA', '\Gamma') + '/' + labels[i][0].replace('GAMMA',
-                                                                                                           '\Gamma') + '$')
+                        replace_list(labels[i - 1][1]) + '/' + replace_list(labels[i][0]))
                     x_labels.append(bands_full_data[i]['q_path_distances'][0])
                 x_labels.append(bands_full_data[-1]['q_path_distances'][-1])
-                labels_e.append('$' + labels[-1][1].replace('GAMMA', '\Gamma') + '$')
-                labels_e[0] = '$' + labels[0][0].replace('GAMMA', '\Gamma') + '$'
-
+                labels_e.append(replace_list(labels[-1][1]))
+                labels_e[0] = replace_list(labels[0][0])
                 plt.xticks(x_labels, labels_e, rotation='horizontal')
 
         plt.show()
@@ -1406,3 +1408,12 @@ def _vector_in_list(vector_test_list, vector_full_list):
             if (vector_full == vector_test).all():
                 return i
     return 0
+
+
+def replace_list(text_string):
+    substitutions = {'GAMMA': u'$\Gamma$',
+                     }
+
+    for item in substitutions.items():
+        text_string = text_string.replace(item[0], item[1])
+    return text_string
