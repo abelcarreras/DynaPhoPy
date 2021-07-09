@@ -1,8 +1,4 @@
 __version__ = '1.17.9'
-
-import numpy as np
-import matplotlib.pyplot as plt
-
 import dynaphopy.projection as projection
 import dynaphopy.parameters as parameters
 import dynaphopy.interface.phonopy_link as pho_interface
@@ -12,6 +8,9 @@ import dynaphopy.analysis.fitting as fitting
 import dynaphopy.analysis.modes as modes
 import dynaphopy.analysis.coordinates as trajdist
 import dynaphopy.analysis.thermal_properties as thm
+import numpy as np
+import matplotlib.pyplot as plt
+
 
 from dynaphopy.power_spectrum import power_spectrum_functions
 from scipy import integrate
