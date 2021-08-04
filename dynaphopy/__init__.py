@@ -268,8 +268,11 @@ class Quasiparticle:
         plt.axhline(y=0, color='k', ls='dashed')
 
         if plot_harmonic:
-            handles = plt.gca().get_legend_handles_labels()[0]
-            plt.legend([handles[-1], handles[0]], ['Harmonic', 'Renormalized'])
+            try:  # Handle issues with old versions of matplotlib
+                handles = plt.gca().get_legend_handles_labels()[0]
+                plt.legend([handles[-1], handles[0]], ['Harmonic', 'Renormalized'])
+            except IndexError:
+                pass
 
         if 'labels' in bands_full_data[0]:
             plt.rcParams.update({'mathtext.default': 'regular'})
