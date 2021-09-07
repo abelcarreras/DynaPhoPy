@@ -185,7 +185,6 @@ class Quasiparticle:
         else:
             raise Exception('Incorrect band ranges format')
 
-
     def get_band_ranges_and_labels(self):
         # return self.parameters.band_ranges
         if self.parameters.band_ranges is None:
@@ -672,13 +671,18 @@ class Quasiparticle:
         plt.legend()
         plt.show()
 
-    def save_vc(self, file_name, atom=0):
+    def save_vc(self, file_name, atom=1):
         print("Saving wave vector projection to file")
-        np.savetxt(file_name, self.get_vc()[:, atom, :].real)
+        if not 0 < atom <= self.get_vc().shape[1]:
+            raise Exception('Atom number {} does not exist in primitive cell'.format(atom))
+        # np.savetxt(file_name, self.get_vc()[:, atom, :].real)
+        np.savetxt(file_name, self.get_vc()[:, atom-1, :], fmt='%+.8e%+.8ej    '*3)
 
     def save_vq(self, file_name):
+        ndim = self.get_vq().shape[1]
         print("Saving phonon projection to file")
-        np.savetxt(file_name, self.get_vq().real)
+        # np.savetxt(file_name, self.get_vq())
+        np.savetxt(file_name, self.get_vq(), fmt='%+.8e%+.8ej    '*ndim)
 
     # Power spectra related methods
     def select_power_spectra_algorithm(self, algorithm):

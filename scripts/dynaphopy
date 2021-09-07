@@ -56,7 +56,7 @@ parser.add_argument('-sp', '--save_phonon_mode', metavar='file', type=str, nargs
 parser.add_argument('-sv', '--save_data', metavar='file', type=str, nargs=1, default=False,
                     help='save MD data into hdf5 file')
 
-parser.add_argument('-svc', '--save_vc', metavar='file', type=str, nargs=1, default=False,
+parser.add_argument('-svc', '--save_vc_hdf5', metavar='file', type=str, nargs=1, default=False,
                     help='save wave vector projected velocity into hdf5 file')
 
 parser.add_argument('-psm', '--power_spectrum_algorithm', metavar='N', type=int, nargs=1,
@@ -175,6 +175,11 @@ parser.add_argument('--save_power_spectrum_partials', metavar='filename', type=s
 parser.add_argument('--nac', action='store_true',
                     help='use non-analytical term corrections (BORN file should exist) ')
 
+parser.add_argument('--save_vq', metavar='file', type=str, nargs=1, default=False,
+                    help='save phonon mode projected velocity into file')
+
+parser.add_argument('--save_vc', metavar='file', type=str, nargs=2, default=False,
+                    help='save wave vector mode projected velocity into file')
 
 args = parser.parse_args()
 
@@ -316,8 +321,14 @@ if args.number_of_mem_coefficients:
     calculation.parameters.number_of_coefficients_mem = args.number_of_mem_coefficients[0]
 
 # Process save properties
+if args.save_vc_hdf5:
+    calculation.save_vc_hdf5(args.save_vc_hdf5[0])
+
+if args.save_vq:
+    calculation.save_vq(args.save_vq[0])
+
 if args.save_vc:
-    calculation.save_vc_hdf5(args.save_vc[0])
+    calculation.save_vc(args.save_vc[0], int(args.save_vc[1]))
 
 if args.save_data:
     calculation.save_velocity_hdf5(args.save_data[0], save_trajectory=not args.velocity_only)

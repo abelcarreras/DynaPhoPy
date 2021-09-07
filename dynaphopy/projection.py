@@ -28,7 +28,7 @@ def project_onto_wave_vector(trajectory, q_vector, project_on_atom=-1):
                 continue
 
         for k in range(number_of_dimensions):
-            velocity_projected[:, atom_type[i], k] += velocity[:,i,k]*np.exp(np.complex(0,-1)*np.dot(q_vector, coordinates[i,:]))
+            velocity_projected[:, atom_type[i], k] += velocity[:,i,k]*np.exp(-1j*np.dot(q_vector, coordinates[i,:]))
 
    #Normalize velocities (method 1)
   #  for i in range(velocity_projected.shape[1]):

@@ -75,7 +75,7 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
         # Atom positions
         for i, position in enumerate(positions):
             eigenvector_atom = np.array(eigenvectors[i_phonon, atom_type[i], :])
-            phase = np.complex(0, 1) * np.dot(position, q_vector)
+            phase = 1.j * np.dot(position, q_vector)
             vector = (eigenvector_atom / np.sqrt(masses[atom_type[i]]) * np.exp(phase) * vectors_scale).real
  #           vector = np.dot(vector, np.linalg.inv(structure.get_primitive_matrix().T))
             a = Arrow3D([position[0], position[0]+vector[0]], [position[1], position[1]+vector[1]],
@@ -92,12 +92,10 @@ def plot_phonon_modes(structure, eigenvectors, q_vector,
         else:
             atomic_types_unique = [elements[i] for i in atom_type_index_unique]
 
-
         legend_atoms =  [ lines.Line2D([0],[0], linestyle='none', c=color_atom[i], marker='o') for i, element in enumerate(atomic_types_unique)]
         ax.legend(legend_atoms, atomic_types_unique, numpoints = 1)
 
-
- #       ax.set_axis_off()
+        # ax.set_axis_off()
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
