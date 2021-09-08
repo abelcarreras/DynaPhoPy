@@ -26,6 +26,10 @@ class TestDynaphopy(unittest.TestCase):
 
     def test_force_constants_self_consistency(self):
         self.calculation.select_power_spectra_algorithm(2)
+        self.calculation.set_reduced_q_vector([0.5, 0.5, 0.5])
+
+        self.calculation.save_vc('vc_test.xyz')
+
         renormalized_force_constants = self.calculation.get_renormalized_force_constants().get_array()
         harmonic_force_constants = self.calculation.dynamic.structure.get_force_constants().get_array()
         self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
