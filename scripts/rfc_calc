@@ -56,7 +56,7 @@ def get_renormalized_constants(freq_filename, structure, symmetrize=False, degen
     renormalized_frequencies = []
     import yaml
     with open(freq_filename, 'r') as stream:
-        data_dict = yaml.load(stream)
+        data_dict = yaml.safe_load(stream)
         for wv in com_points:
             for q_point in data_dict.values():
                 # print q_point
