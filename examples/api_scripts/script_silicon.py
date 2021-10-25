@@ -11,7 +11,7 @@ from dynaphopy.interface.phonopy_link import get_force_sets_from_file, get_force
 ##################################  STRUCTURE FILES #######################################
 # 1. Set the directory in where the FORCE_SETS and structure POSCAR are placed
 
-directory ='/home/abel/VASP/Si/Si-FINAL3/PHONON/2x2x2/'
+directory ='/home/user/VASP/Si/2x2x2/'
 structure = io.read_from_file_structure_poscar(directory + 'POSCAR')
 
 
@@ -36,11 +36,11 @@ structure.set_force_set(get_force_sets_from_file(file_name=directory + 'FORCE_SE
 ############################### READING TRAJECTORY FILES #####################################
 # 4. Set the location of OUTCAR/LAMMPS file containing the Molecular Dynamics trajectory
 
-# trajectory = parsers.read_vasp_trajectory('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_600/No1/OUTCAR', structure, initial_cut=10000, end_cut=60000)
+# trajectory = parsers.read_vasp_trajectory('/home/user/VASP/Si/2x2x2//OUTCAR', structure, initial_cut=10000, end_cut=60000)
 # or
-trajectory = parsers.read_VASP_XDATCAR('/home/abel/VASP/Si/Si-FINAL3/Si_0.5_800/No1/XDATCAR', structure, initial_cut=10000, end_cut=40000, time_step=0.0005)
+trajectory = parsers.read_VASP_XDATCAR('/home/user/VASP/Si/2x2x2/XDATCAR', structure, initial_cut=10000, end_cut=40000, time_step=0.0005)
 # or
-#trajectory = parsers.read_lammps_trajectory('/home/abel/LAMMPS/Si/Si_400.lammpstrj', structure, initial_cut=10000, end_cut=12000, time_step=0.001)
+#trajectory = parsers.read_lammps_trajectory('/home/user/LAMMPS/Si/Si_400.lammpstrj', structure, initial_cut=10000, end_cut=12000, time_step=0.001)
 
 quasiparticle = dynaphopy.Quasiparticle(trajectory)
 
@@ -91,13 +91,13 @@ quasiparticle.plot_power_spectrum_wave_vector()
 quasiparticle.plot_power_spectrum_phonon()
 
 # 6e. Request save full power spectrum into file
-quasiparticle.write_power_spectrum_full('/home/abel/full_ps.out')
+quasiparticle.write_power_spectrum_full('/home/user/full_ps.out')
 
 # 6f. Request save wave-vector-projected power spectrum into file
-quasiparticle.write_power_spectrum_wave_vector('/home/abel/correlation_wave_vector.out')
+quasiparticle.write_power_spectrum_wave_vector('/home/user/correlation_wave_vector.out')
 
 # 6g. Request save phonon-mode-projected power spectra into file
-quasiparticle.write_power_spectrum_phonon('/home/abel/mem_phonon.out')
+quasiparticle.write_power_spectrum_phonon('/home/user/mem_phonon.out')
 
 # 6h. Request peak analysis
 quasiparticle.phonon_individual_analysis()

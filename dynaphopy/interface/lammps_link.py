@@ -1,5 +1,3 @@
-#!/usr/bin/env python -i
-
 import dynaphopy.dynamics as dyn
 import numpy as np
 from dynaphopy.power_spectrum import _progress_bar
@@ -69,6 +67,17 @@ def generate_lammps_trajectory(structure,
         xy =lmp.extract_global("xy")
         yz =lmp.extract_global("yz")
         xz =lmp.extract_global("xz")
+
+    except TypeError:
+        xlo =lmp.extract_global("boxxlo", 1)
+        xhi =lmp.extract_global("boxxhi", 1)
+        ylo =lmp.extract_global("boxylo", 1)
+        yhi =lmp.extract_global("boxyhi", 1)
+        zlo =lmp.extract_global("boxzlo", 1)
+        zhi =lmp.extract_global("boxzhi", 1)
+        xy =lmp.extract_global("xy", 1)
+        yz =lmp.extract_global("yz", 1)
+        xz =lmp.extract_global("xz", 1)
 
     except UnboundLocalError:
         boxlo, boxhi, xy, yz, xz, periodicity, box_change = lmp.extract_box()
