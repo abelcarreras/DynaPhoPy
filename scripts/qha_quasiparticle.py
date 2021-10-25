@@ -109,7 +109,7 @@ class ForceConstantsFitting():
             list_t = self.temperatures
             for i, t in enumerate(list_t):
                 with open(self.files_temperature[i], 'r') as stream:
-                    data = yaml.load(stream)
+                    data = yaml.safe_load(stream)
 
                 renormalized_frequencies = []
                 for j, qpoint in enumerate(data):
@@ -132,7 +132,7 @@ class ForceConstantsFitting():
             list_v = self.volumes
             for i, t in enumerate(list_v):
                 with open(self.files_volume[i], 'r') as stream:
-                    data = yaml.load(stream)
+                    data = yaml.safe_load(stream)
 
                 renormalized_frequencies = []
 
@@ -233,12 +233,12 @@ class ForceConstantsFitting():
 
     def get_data_temperature(self, index):
         with open(self.files_temperature[index], 'r') as stream:
-            data = yaml.load(stream)
+            data = yaml.safe_load(stream)
         return data
 
     def get_data_volume(self, index):
         with open(self.files_volume[index], 'r') as stream:
-            data = yaml.load(stream)
+            data = yaml.safe_load(stream)
         return data
 
     def _get_renormalized_force_constants(self, renormalized_frequencies):

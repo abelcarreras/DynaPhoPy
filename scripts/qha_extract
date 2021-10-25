@@ -63,7 +63,7 @@ for filename in tp_filenames:
     cv_i = []
 
     with open(filename, 'r') as stream:
-        thermal_properties = dict(yaml.load(stream))
+        thermal_properties = dict(yaml.safe_load(stream))
         for tp in thermal_properties['thermal_properties']:
             temperatures.append(tp['temperature'])
             entropy_i.append(tp['entropy'])

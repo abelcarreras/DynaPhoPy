@@ -118,10 +118,10 @@ class TestDynaphopy(unittest.TestCase):
         for file in files:
             print ('file: {}'.format(file))
             with open(file) as stream:
-                data = yaml.load(stream)
+                data = yaml.safe_load(stream)
 
             with open('GaN_data/' + file) as stream:
-                reference = yaml.load(stream)
+                reference = yaml.safe_load(stream)
 
             for dict_data, dict_reference in zip(data, reference):
                 assertDictAlmostEqual(dict_data, dict_reference, decimal=1)
