@@ -8,6 +8,7 @@ class Structure:
                  positions=None,
                  scaled_positions=None,
                  masses=None,
+                 charges=None,
                  cell=None,
                  force_sets=None,
                  force_constants=None,
@@ -40,6 +41,7 @@ class Structure:
         self._scaled_positions = scaled_positions
         self._positions = positions
         self._primitive_matrix = primitive_matrix
+        self._charges = charges  # Only for LAMMPS supercell generation
 
         self._primitive_cell = None
         self._supercell_matrix = None
@@ -60,7 +62,7 @@ class Structure:
 
         # Get atomic numbers and masses from available information
         if atomic_numbers is None and self._atomic_elements is not None:
-            self._atomic_numbers =  np.array([symbol_map[i] for i in self._atomic_elements])
+            self._atomic_numbers = np.array([symbol_map[i] for i in self._atomic_elements])
         else:
             self._atomic_numbers = np.array(atomic_numbers)
 
@@ -204,6 +206,19 @@ class Structure:
         for j in range(self.get_number_of_cell_atoms()):
             mass_supercell += [ self._masses[j] ] * np.prod(supercell)
         return mass_supercell
+
+    def get_charges(self, supercell=None):
+
+        if self._charges is None:
+            return None
+
+        if supercell is None:
+            supercell = self.get_number_of_dimensions() * [1]
+
+        charges_supercell = []
+        for j in range(self.get_number_of_cell_atoms()):
+            charges_supercell += [ self._charges[j] ] * np.prod(supercell)
+        return charges_supercell
 
     # Number of atoms and dimensions related methods
     def get_number_of_cell_atoms(self):

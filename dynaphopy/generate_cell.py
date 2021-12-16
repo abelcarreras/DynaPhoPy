@@ -62,6 +62,7 @@ def generate_LAMMPS_structure(structure, supercell=(1, 1, 1), by_element=True):
     atom_index_unique = np.unique(atom_index, return_index=True)[1]
 
     masses = structure.get_masses(supercell=supercell)
+    charges = structure.get_charges(supercell=supercell)
 
     positions = structure.get_positions(supercell=supercell)
     number_of_atoms = len(positions)
@@ -119,8 +120,14 @@ def generate_LAMMPS_structure(structure, supercell=(1, 1, 1), by_element=True):
         lammps_data_file += '{0} {1:20.10f} \n'.format(i+1, masses[index])
 
     lammps_data_file += '\nAtoms\n\n'
-    for i, row in enumerate(positions):
-        lammps_data_file += '{0} {1} {2:20.10f} {3:20.10f} {4:20.10f}\n'.format(i+1, atom_index[i]+1, row[0],row[1],row[2])
+
+    if charges is not None:
+        for i, row in enumerate(positions):
+            lammps_data_file += '{0} {1} {2} {3:20.10f} {4:20.10f} {5:20.10f}\n'.format(i + 1, atom_index[i] + 1,
+                                                                                        charges[i], row[0], row[1], row[2])
+    else:
+        for i, row in enumerate(positions):
+            lammps_data_file += '{0} {1} {2:20.10f} {3:20.10f} {4:20.10f}\n'.format(i+1, atom_index[i]+1, row[0],row[1],row[2])
 
     return lammps_data_file
 
