@@ -845,8 +845,9 @@ class Quasiparticle:
         return self._power_spectrum_partials
 
     def phonon_width_scan_analysis(self):
+        from dynaphopy.power_spectrum import mem_coefficient_scan_analysis
         print("Phonon coefficient scan analysis(Maximum entropy method/Symmetric Lorentzian fit only)")
-        power_spectrum.mem_coefficient_scan_analysis(self.get_vq(), self.dynamic, self.parameters)
+        mem_coefficient_scan_analysis(self.get_vq(), self.dynamic, self.parameters)
 
     def phonon_individual_analysis(self):
         print("Peak analysis analysis")

@@ -78,4 +78,6 @@ setup(name='dynaphopy',
                'scripts/rfc_calc'],
       install_requires=['phonopy', 'numpy', 'scipy', 'matplotlib'],
       license='MIT License',
+      long_description=open('README.md').read(),
+      long_description_content_type='text/markdown',
       ext_modules=[correlation, mem, displacements])
