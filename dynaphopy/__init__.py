@@ -1117,7 +1117,8 @@ class Quasiparticle:
 
             for i, reduced_q_vector in enumerate(com_points):
 
-                print("\nQ-point: {0} / {1}      {2}".format(i + 1, len(com_points), reduced_q_vector))
+                print("\nQ-point: {0} / {1} ".format(i + 1, len(com_points)) +
+                      "    [{:8.5f} {:8.5f} {:8.5f} ]".format(*reduced_q_vector))
 
                 self.set_reduced_q_vector(reduced_q_vector)
                 eigenvectors.append(self.get_eigenvectors())

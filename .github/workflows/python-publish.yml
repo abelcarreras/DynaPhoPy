@@ -1,0 +1,118 @@
+name: Test Build wheels and Deploy
+
+# Build on every branch push, tag push, and pull request change:
+on: [push, pull_request]
+# Alternatively, to publish when a (published) GitHub Release is created, use the following:
+# on:
+#   push:
+#   pull_request:
+#   release:
+#     types:
+#       - published
+
+jobs:
+
+  test_code:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ 3.7, 3.8, 3.9 ]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install flake8 pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Build c extensions
+        run: |
+          python setup.py build_ext --inplace
+          # python setup.py install
+      - name: Test with pytest
+        run: |
+          # pytest test
+          # cd unittest
+          pytest unittest
+
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: [ test_code ]
+    # if: github.ref == 'refs/heads/master'
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-2019, macos-10.15]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.4.0
+        env:
+          CIBW_BEFORE_BUILD: pip install numpy==1.19.5
+          CIBW_BUILD: cp36-* cp37-* cp38-*
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.4.0
+        env:
+          CIBW_BEFORE_BUILD: pip install numpy==1.21.6
+          CIBW_BUILD: cp39-* cp310-*
+          CIBW_ARCHS_MACOS: x86_64 universal2
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    needs: [ test_code ]
+    runs-on: ubuntu-latest
+    # if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python -m pip install numpy
+      - name: Build sdist
+        run: |
+          python setup.py sdist
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*.tar.gz
+
+  upload_pypi:
+      needs: [build_wheels, build_sdist, test_code]
+      runs-on: ubuntu-latest
+      if: github.ref == 'refs/heads/master'
+      # upload to PyPI on every tag starting with 'v'
+      # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+      # alternatively, to publish when a GitHub Release is created, use the following rule:
+      # if: github.event_name == 'release' && github.event.action == 'published'
+      steps:
+        - uses: actions/download-artifact@v2
+          with:
+            name: artifact
+            path: dist
+
+        - uses: pypa/gh-action-pypi-publish@v1.4.2
+          with:
+            user: __token__
+            password: ${{ secrets.PYPI_API_TOKEN }}
+            # repository_url: https://test.pypi.org/legacy/
+            skip_existing: true
