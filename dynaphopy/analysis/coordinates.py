@@ -23,9 +23,8 @@ def progress_bar(progress):
     sys.stdout.write(text)
     sys.stdout.flush()
 
-#print(disp.relative_trajectory(cell, traj ,pos))
 
-#Not used (only for test)
+# Not used (only for test)
 def relativize_trajectory(dynamic, memmap=False):
 
     cell = dynamic.get_supercell()
@@ -45,7 +44,7 @@ def relativize_trajectory(dynamic, memmap=False):
     # progress_bar(0)
 
     for i in range(number_of_atoms):
-        normalized_trajectory[:, i, :] = atomic_displacement(trajectory[:, i, :], position[i], cell)
+        normalized_trajectory[:, i, :] = atomic_displacements(trajectory[:, i, :], position[i], cell)
 
    # progress_bar(float(i+1)/number_of_atoms)
     return normalized_trajectory
