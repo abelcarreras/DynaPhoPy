@@ -11,6 +11,24 @@
 
 #undef I
 
+// Cross compatibility mingw - gcc
+#ifndef _Dcomplex
+    #define _Dcomplex double _Complex
+#endif
+
+#ifndef _Cbuild
+_Dcomplex _Cbuild(double real, double imag){
+    return real + imag* 1.j;
+}
+#endif
+
+#ifndef _Cmulcc
+_Dcomplex _Cmulcc(_Dcomplex num1, _Dcomplex num2){
+    return num1 * num2;
+}
+#endif
+
+
 static double FrequencyEvaluation(double Delta, double  Coefficients[], int m, double xms);
 static double GetCoefficients(double  *data, int n, int m, double  d[]);
 static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *keywords);
@@ -74,7 +92,9 @@ moduleinit(void)
 
 #endif
 
-
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 
 
@@ -99,7 +119,7 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
         return NULL;
     }
 
-    double _Complex  *Velocity = (double _Complex*)PyArray_DATA(velocity_array);
+    _Dcomplex  *Velocity = (_Dcomplex *)PyArray_DATA(velocity_array);
     double *Frequency    = (double*)PyArray_DATA(frequency_array);
     int    NumberOfData = (int)PyArray_DIM(velocity_array, 0);
     int     NumberOfFrequencies = (int)PyArray_DIM(frequency_array, 0);
@@ -114,8 +134,8 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     double *PowerSpectrum  = (double*)PyArray_DATA(PowerSpectrum_object);
 
     //Declare variables
-    double Coefficients_r[NumberOfCoefficients+1];
-    double Coefficients_i[NumberOfCoefficients+1];
+    double *Coefficients_r =malloc((NumberOfCoefficients+1)*sizeof(double));
+    double *Coefficients_i =malloc((NumberOfCoefficients+1)*sizeof(double));
 
 
     // Divide complex data to 2 double arrays
@@ -152,6 +172,8 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
 
     // Free memory
     free(Velocity_r);
+    free(Coefficients_r);
+    free(Coefficients_i);
 
     //Returning Python array
     return(PyArray_Return(PowerSpectrum_object));
@@ -160,13 +182,15 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
 // Evaluate MEM function
 static double FrequencyEvaluation(double Delta, double  Coefficients[], int NumberOfCoefficients, double MeanSquareDiscrepancy) {
 
-    double _Complex z = cexp(_Complex_I * Delta);
-    double _Complex sum = 1.0 + 0.0j;
+    _Dcomplex z = cexp(_Cbuild(Delta,1));
+    _Dcomplex sum = cexp(_Cbuild(1,0));
 
     for (int i=1; i <= NumberOfCoefficients; i++) {
-        sum -= Coefficients[i] * cpow(z, i);
+        //sum -= Coefficients[i] * cpow(z, i);
+        sum = _Cbuild(creal(sum) - Coefficients[i] * creal(cpow(z, _Cbuild(i,0))), cimag(sum) - cimag(cpow(z, _Cbuild(i,0))));
+
     }
-    return (double)creal(MeanSquareDiscrepancy/(sum*conj(sum)));
+    return MeanSquareDiscrepancy/creal(_Cmulcc(sum, conj(sum)));
 }
 
 // Get LP coefficients
@@ -176,9 +200,9 @@ static double  GetCoefficients(double  *Data, int NumberOfData, int NumberOfCoef
     double  p=0.0;
 
     double  MeanSquareDiscrepancy;
-    double  wk1 [NumberOfData];
-    double  wk2 [NumberOfData];
-    double  wkm [NumberOfCoefficients];
+    double  *wk1 = malloc(NumberOfData*sizeof(double));
+    double  *wk2 = malloc(NumberOfData*sizeof(double));
+    double  *wkm = malloc(NumberOfCoefficients*sizeof(double));
 
 
     for (j=1; j <= NumberOfData; j++) p += pow(Data[j], 2);
@@ -217,6 +241,10 @@ static double  GetCoefficients(double  *Data, int NumberOfData, int NumberOfCoef
             wk2[j]  = wk2[j+1] - wkm[k] * wk1[j+1];
         }
     }
+    // Free memory
+    free(wk1);
+    free(wk2);
+    free(wkm);
+
     return MeanSquareDiscrepancy;
 };
-

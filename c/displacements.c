@@ -6,13 +6,24 @@
 #include <numpy/arrayobject.h>
 
 
+// Cross compatibility mingw - gcc
+#ifndef _Dcomplex
+    #define _Dcomplex double _Complex
+#endif
+
+#ifndef _Cbuild
+_Dcomplex _Cbuild(double real, double imag){
+    return real + imag* 1.j;
+}
+#endif
+
 //  Functions declaration
 static double   **matrix_multiplication (double **a, double **b, int n, int l, int m);
 
 static int        TwotoOne              (int Row, int Column, int NumColumns);
 static double   **pymatrix_to_c_array_real   (PyArrayObject *array);
 
-static double _Complex  **pymatrix_to_c_array_complex   (PyArrayObject *array);
+static _Dcomplex  **pymatrix_to_c_array_complex   (PyArrayObject *array);
 
 static double   **matrix_inverse ( double ** a ,int n);
 static double     Determinant(double  **a,int n);
@@ -102,14 +113,14 @@ static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *k
 
 
 //  double _Complex *Cell           = (double _Complex*)PyArray_DATA(Cell_array);
-    double _Complex *Trajectory     = (double _Complex*)PyArray_DATA(Trajectory_array);
+    _Dcomplex *Trajectory     = (_Dcomplex*)PyArray_DATA(Trajectory_array);
     double *Positions               = (double*)PyArray_DATA(Positions_array);
 
     int NumberOfData       = (int)PyArray_DIM(Trajectory_array, 0);
     int NumberOfDimensions = (int)PyArray_DIM(Cell_array, 0);
 
 //  Create new Numpy array to store the result
-    double _Complex **Displacement;
+    _Dcomplex **Displacement;
     PyArrayObject *Displacement_object;
 
     npy_intp dims[]={NumberOfData, NumberOfDimensions};
@@ -148,7 +159,7 @@ static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *k
     for (int i = 0; i < NumberOfData; i++) {
 
         for (int k = 0; k < NumberOfDimensions; k++) {
-            Difference[k][0] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - Positions[k];
+            Difference[k][0] = creal(Trajectory[TwotoOne(i, k, NumberOfDimensions)]) - Positions[k];
         }
 
         double ** DifferenceMatrix = matrix_multiplication(Cell_i, Difference, NumberOfDimensions, NumberOfDimensions, 1);
@@ -160,7 +171,7 @@ static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *k
         double ** PeriodicDisplacement = matrix_multiplication(Cell_c, DifferenceMatrix, NumberOfDimensions, NumberOfDimensions, 1);
 
         for (int k = 0; k < NumberOfDimensions; k++) {
-            Displacement[i][k] = Trajectory[TwotoOne(i, k, NumberOfDimensions)] - PeriodicDisplacement[k][0] - Positions[k];
+            Displacement[i][k] = _Cbuild(creal(Trajectory[TwotoOne(i, k, NumberOfDimensions)]) - PeriodicDisplacement[k][0] - Positions[k],0);
 		}
 
         //Free memory
@@ -184,13 +195,13 @@ static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *k
 
 
 
-static double _Complex **pymatrix_to_c_array_complex(PyArrayObject *array)  {
+static _Dcomplex **pymatrix_to_c_array_complex(PyArrayObject *array)  {
 
-      int n=(*array).dimensions[0];
-      int m=(*array).dimensions[1];
-      double _Complex ** c = malloc(n*sizeof(double _Complex));
+      long n=(*array).dimensions[0];
+      long m=(*array).dimensions[1];
+      _Dcomplex ** c = malloc(n*sizeof(_Dcomplex));
 
-      double _Complex *a = (double _Complex *) (*array).data;  /* pointer to array data as double _Complex */
+      _Dcomplex *a = (_Dcomplex *) (*array).data;  /* pointer to array data as double _Complex */
       for ( int i=0; i<n; i++)  {
           c[i]=a+i*m;
       }
@@ -201,8 +212,8 @@ static double _Complex **pymatrix_to_c_array_complex(PyArrayObject *array)  {
 
 static double  **pymatrix_to_c_array_real(PyArrayObject *array)  {
 
-      int n=(*array).dimensions[0];
-      int m=(*array).dimensions[1];
+      long n=(*array).dimensions[0];
+      long m=(*array).dimensions[1];
       //PyObject *transpose_array = PyArray_Transpose(array, dims);
 
       double  ** c = malloc(n*sizeof(double));

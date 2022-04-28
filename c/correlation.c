@@ -12,7 +12,26 @@
 
 #undef I
 
-static double EvaluateCorrelation (double AngularFrequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod);
+// Cross compatibility mingw - gcc
+
+#ifndef _Dcomplex
+    #define _Dcomplex double _Complex
+#endif
+
+#ifndef _Cbuild
+_Dcomplex _Cbuild(double real, double imag){
+    return real + imag* 1.j;
+}
+#endif
+
+#ifndef _Cmulcc
+_Dcomplex _Cmulcc(_Dcomplex num1, _Dcomplex num2){
+    return num1 * num2;
+}
+#endif
+
+
+static double EvaluateCorrelation (double AngularFrequency, _Dcomplex * Velocity, int NumberOfData, double TimeStep, int Increment, int IntMethod);
 static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywords);
 
 
@@ -74,7 +93,9 @@ moduleinit(void)
 
 #endif
 
-
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 
 // Correlation method for constant time (TimeStep) step trajectories paralellized with OpenMP
@@ -100,7 +121,7 @@ static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywo
         return NULL;
     }
 
-    double _Complex  *Velocity = (double _Complex*)PyArray_DATA(velocity_array);
+    _Dcomplex  *Velocity = (_Dcomplex *)PyArray_DATA(velocity_array);
     double *Frequency    = (double*)PyArray_DATA(frequency_array);
     int     NumberOfData = (int)PyArray_DIM(velocity_array, 0);
     int     NumberOfFrequencies = (int)PyArray_DIM(frequency_array, 0);
@@ -128,18 +149,26 @@ static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywo
 }
 
 // Averaged
-double EvaluateCorrelation (double Frequency, double _Complex Velocity[], int NumberOfData, double TimeStep, int Increment, int IntMethod) {
-    double _Complex Correl = 0;
+double EvaluateCorrelation (double Frequency, _Dcomplex * Velocity, int NumberOfData, double TimeStep, int Increment, int IntMethod) {
+    _Dcomplex Correl = _Cbuild(0.0, 0.0);
+    _Dcomplex Correl_i, Correl_j;
     for (int i = 0; i < NumberOfData; i += Increment) {
         for (int j = 0; j < (NumberOfData-i-Increment); j++) {
-            Correl += conj(Velocity[j]) * Velocity[j+i] * cexp(_Complex_I*Frequency*(i*TimeStep));
+            Correl_i = _Cmulcc(_Cmulcc(conj(Velocity[j]), Velocity[j+i]), cexp(_Cbuild(Frequency*(i*TimeStep), 1)));
+            Correl = _Cbuild(creal(Correl) + creal(Correl_i), cimag(Correl) + cimag(Correl_i));
             switch (IntMethod) {
                 case 0: //	Trapezoid Integration
-                    Correl += (conj(Velocity[j]) * Velocity[j+i+Increment] * cexp(_Complex_I*Frequency * ((i+Increment)*TimeStep))
-                               +   conj(Velocity[j]) * Velocity[j+i]           * cexp(_Complex_I*Frequency * (i*TimeStep) ))/2.0 ;
+                    Correl_i = _Cmulcc(_Cmulcc(conj(Velocity[j]), Velocity[j+i+Increment]), cexp(_Cbuild(Frequency * ((i+Increment)*TimeStep), 1)));
+                    Correl_j = _Cmulcc(_Cmulcc(conj(Velocity[j]), Velocity[j+i]), cexp(_Cbuild(Frequency * (i+Increment), 1)));
+                    Correl = _Cbuild(creal(Correl) + creal(Correl_i) + creal(Correl_j), cimag(Correl) + cimag(Correl_i) + cimag(Correl_j));
+
+                    //Correl += (conj(Velocity[j]) * Velocity[j+i+Increment] * cexp(_Cbuild(Frequency * ((i+Increment)*TimeStep), 1))
+                    //           +   conj(Velocity[j]) * Velocity[j+i]           * cexp(_Complex_I*Frequency * (i*TimeStep) ))/2.0 ;
                     break;
                 case 1: //	Rectangular Integration
-                    Correl +=  conj(Velocity[j]) * Velocity[j+i]          * cexp(_Complex_I*Frequency * (i*TimeStep));
+                    Correl_i = _Cmulcc(_Cmulcc(conj(Velocity[j]), Velocity[j+i]), cexp(_Cbuild(Frequency*(i*TimeStep), 1)));
+                    Correl = _Cbuild(creal(Correl) + creal(Correl_i), cimag(Correl) + cimag(Correl_i));
+                    // Correl +=  conj(Velocity[j]) * Velocity[j+i] * cexp(_Complex_I*Frequency * (i*TimeStep));
                     break;
             }
         }
