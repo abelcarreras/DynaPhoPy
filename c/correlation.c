@@ -14,17 +14,14 @@
 
 // Cross compatibility mingw - gcc
 
-#ifndef _Dcomplex
-    #define _Dcomplex double _Complex
-#endif
+#if !defined(_WIN32)
 
-#ifndef _Cbuild
+#define _Dcomplex double _Complex
+
 _Dcomplex _Cbuild(double real, double imag){
     return real + imag* 1.j;
 }
-#endif
 
-#ifndef _Cmulcc
 _Dcomplex _Cmulcc(_Dcomplex num1, _Dcomplex num2){
     return num1 * num2;
 }

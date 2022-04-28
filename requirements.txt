@@ -22,6 +22,7 @@ scipy
 matplotlib
 seekpath
 PyYAML
+windows-curses; sys_platform == 'windows'
 
 ### These packages are optional (uncomment to install) ###
 

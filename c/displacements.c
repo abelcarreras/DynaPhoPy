@@ -7,11 +7,10 @@
 
 
 // Cross compatibility mingw - gcc
-#ifndef _Dcomplex
-    #define _Dcomplex double _Complex
-#endif
+#if !defined(_WIN32)
 
-#ifndef _Cbuild
+#define _Dcomplex double _Complex
+
 _Dcomplex _Cbuild(double real, double imag){
     return real + imag* 1.j;
 }

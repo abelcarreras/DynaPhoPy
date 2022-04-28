@@ -8,6 +8,7 @@ except ImportError:
     print('distutils is used')
 
 import numpy
+import sys
 
 include_dirs_numpy = [numpy.get_include()]
 
@@ -76,7 +77,7 @@ setup(name='dynaphopy',
                'scripts/fitdata',
                'scripts/qha_extract',
                'scripts/rfc_calc'],
-      install_requires=['phonopy', 'numpy', 'scipy', 'matplotlib'],
+      install_requires=['phonopy', 'numpy', 'scipy', 'matplotlib'] + ["windows-curses"] if "win" in sys.platform else [],
       license='MIT License',
       long_description=open('README.md').read(),
       long_description_content_type='text/markdown',
