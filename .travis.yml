@@ -29,15 +29,15 @@ after_success:
   - coveralls
   - cd ..
 
-deploy:
-  # pypi
-  - provider: pypi
-    distributions: sdist
-    user: abelcarreras83
-    password:
-       secure: "Q5AioRbIJz4DAnoYyxdIred0tQ4G5xOLdM6RAv1UnCdknzxPh1ukJVnFDU+AypFt5cB3lrYoPTDp4VOOuh12lbS4kXEsWwTB/7oOmUG0QwuWyWoNI4/lD1gXxdptxC7ND/P9pUzBQ1FT41/GXWYzSGhg8PGT22Uz2xrNFymIpu3/qj8H4cymTb1jJxBrVsft0OXuRWRERRB69ZPUjXM/a8HGr/mvhfayiEXZ8c1TVcUtYgVPKLqIUeMfAnQLZxblwp1xqepRihJMLAlkiM58Olj/Yt0KIJOIY0IkaBHES8SBQoRIuBfCuJrCE9JeG23yKwzvxowtnXjeQUDUnitqqWI2wiJ88CIZFbBayHN9SNqeM8lOjEUN9TeUmXODf6Txj6wW1JhfDLYSri0pvnGQ3AROq9khUPUOv/aY9e64mfxvHPgR3Hx80OYLZgIstbwRSWYgEp9E15F5YkB72qD8Iz+eEBquBvYaGLfVpiwXtlxVxo9AzUBFlBxuj+DLI4dQRepXabuu21iSlL0rowlOUUM2EG5eby3aSxpKXHRu76n/sTFr5TsYgswMmPq0TfYAW/LgkyZGYia2hy+PufmjFENlCF1YyDe2yGPqwlhnDE/0gLziHfiq6IvcsAdGMX0jNjSGANR1fDV+syB2aDDNTUhSJJoCxLBdQBoi2M75W/g="
-    skip_existing: true
-    on:
-        branch: master
+#deploy:
+#  # pypi
+#  - provider: pypi
+#    distributions: sdist
+#    user: abelcarreras83
+#    password:
+#       secure: "Q5AioRbIJz4DAnoYyxdIred0tQ4G5xOLdM6RAv1UnCdknzxPh1ukJVnFDU+AypFt5cB3lrYoPTDp4VOOuh12lbS4kXEsWwTB/7oOmUG0QwuWyWoNI4/lD1gXxdptxC7ND/P9pUzBQ1FT41/GXWYzSGhg8PGT22Uz2xrNFymIpu3/qj8H4cymTb1jJxBrVsft0OXuRWRERRB69ZPUjXM/a8HGr/mvhfayiEXZ8c1TVcUtYgVPKLqIUeMfAnQLZxblwp1xqepRihJMLAlkiM58Olj/Yt0KIJOIY0IkaBHES8SBQoRIuBfCuJrCE9JeG23yKwzvxowtnXjeQUDUnitqqWI2wiJ88CIZFbBayHN9SNqeM8lOjEUN9TeUmXODf6Txj6wW1JhfDLYSri0pvnGQ3AROq9khUPUOv/aY9e64mfxvHPgR3Hx80OYLZgIstbwRSWYgEp9E15F5YkB72qD8Iz+eEBquBvYaGLfVpiwXtlxVxo9AzUBFlBxuj+DLI4dQRepXabuu21iSlL0rowlOUUM2EG5eby3aSxpKXHRu76n/sTFr5TsYgswMmPq0TfYAW/LgkyZGYia2hy+PufmjFENlCF1YyDe2yGPqwlhnDE/0gLziHfiq6IvcsAdGMX0jNjSGANR1fDV+syB2aDDNTUhSJJoCxLBdQBoi2M75W/g="
+#    skip_existing: true
+#    on:
+#        branch: master
 #         branch: development
-        tags: False
+#        tags: False

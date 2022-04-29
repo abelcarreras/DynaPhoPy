@@ -26,20 +26,19 @@ Installation instructions
   - (optional) pyFFTW (http://www.fftw.org/)
   - (optional) cuda_functions (https://github.com/abelcarreras/cuda_functions)
 
-2. Download the source code from GitHub (https://github.com/abelcarreras/DynaPhoPy/)
-   and place it in the installation directory
+2a. Install from pypi repository
+   ```
+   pip install dynaphopy --user
+   ```
 
-3. Install requirements manually or using pip:
+2b. Install from source (requires c compiler)
+   - Install requirements from requirements.txt:
    ```
    pip install -r requirements.txt --user
    ```
-4. Run setup.py to install dynaphopy
+   - Run setup.py to install dynaphopy
    ```
    python setup.py install --user
-   ```
-*  You can use pip to install/update dynaphopy module
-   ```
-   pip install dynaphopy --user
    ```
 
 Executing this software
