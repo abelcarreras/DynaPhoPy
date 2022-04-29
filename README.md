@@ -13,6 +13,9 @@ by using quasiparticle theory. This code includes interfaces for MD
 outputs from VASP and LAMMPS. PHONOPY code is used to obtain harmonic
 phonon modes.
 
+Online manual: http://abelcarreras.github.io/DynaPhoPy/
+
+
 Installation instructions
 ---------------------------------------------------------
 
