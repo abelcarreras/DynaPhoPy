@@ -86,6 +86,12 @@ class Quasiparticle:
         return self._parameters
 
     def set_NAC(self, NAC):
+        """
+        Turns on or off Non-Analitic corrections
+
+        :param NAC: True or False
+        :return: None
+        """
         self._bands = None
         self.parameters.use_NAC = NAC
 
