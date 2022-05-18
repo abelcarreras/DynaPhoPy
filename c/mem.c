@@ -179,13 +179,14 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
 // Evaluate MEM function
 static double FrequencyEvaluation(double Delta, double  Coefficients[], int NumberOfCoefficients, double MeanSquareDiscrepancy) {
 
-    _Dcomplex z = cexp(_Cbuild(Delta,1));
-    _Dcomplex sum = cexp(_Cbuild(1,0));
+    _Dcomplex z = cexp(_Cbuild(0, Delta));
+    _Dcomplex sum = _Cbuild(1, 0);
+    _Dcomplex prod = _Cbuild(0, 0);
 
     for (int i=1; i <= NumberOfCoefficients; i++) {
         //sum -= Coefficients[i] * cpow(z, i);
-        sum = _Cbuild(creal(sum) - Coefficients[i] * creal(cpow(z, _Cbuild(i,0))), cimag(sum) - cimag(cpow(z, _Cbuild(i,0))));
-
+        prod = _Cmulcc(_Cbuild(Coefficients[i],0), cpow(z, _Cbuild(i,0)));
+        sum = _Cbuild(creal(sum) - creal(prod), cimag(sum) - cimag(prod));
     }
     return MeanSquareDiscrepancy/creal(_Cmulcc(sum, conj(sum)));
 }
