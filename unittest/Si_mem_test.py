@@ -45,8 +45,8 @@ class TestDynaphopy(unittest.TestCase):
         calculation.write_quasiparticles_data(filename='quasiparticles_data_mem.yaml')
         calculation.write_renormalized_phonon_dispersion_bands(filename='bands_data_mem.yaml')
 
-        reference = np.loadtxt('Si_data/atomic_displacements.dat')
-        data = np.loadtxt('atomic_displacements.dat')
+        reference = np.loadtxt('Si_data/atomic_displacements_mem.dat')
+        data = np.loadtxt('atomic_displacements_mem.dat')
         test_range = np.arange(-5, 5, 0.1)
 
         for i in range(1, data.shape[1]):
@@ -78,6 +78,6 @@ if __name__ == '__main__':
 
     unittest.main()
 
-    os.remove('atomic_displacements.dat')
-    os.remove('quasiparticles_data.yaml')
-    os.remove('bands_data.yaml')
+    os.remove('atomic_displacements_mem.dat')
+    os.remove('quasiparticles_data_mem.yaml')
+    os.remove('bands_data_mem.yaml')
