@@ -35,7 +35,7 @@ class TestDynaphopy(unittest.TestCase):
 
         self.assertEqual(np.allclose(renormalized_force_constants, harmonic_force_constants, rtol=1, atol=1.e-2), True)
 
-    def test_q_points_data(self):
+    def _test_q_points_data(self):
 
         import yaml
         trajectory = io.generate_test_trajectory(self.structure, supercell=[2, 2, 2], total_time=5, silent=False)
