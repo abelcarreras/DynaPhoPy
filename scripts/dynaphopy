@@ -181,6 +181,9 @@ parser.add_argument('--save_vq', metavar='file', type=str, nargs=1, default=Fals
 parser.add_argument('--save_vc', metavar='file', type=str, nargs=2, default=False,
                     help='save wave vector mode projected velocity into file')
 
+parser.add_argument('--save_extra_properties', action='store_true',
+                    help='stores extra q-point properties when using -sdata (group velocity)')
+
 args = parser.parse_args()
 
 # Get data from input file & process parameters
@@ -370,7 +373,7 @@ if args.save_atomic_displacements:
                                            args.save_atomic_displacements[3])
 
 if args.save_quasiparticle_data:
-    calculation.write_quasiparticles_data()
+    calculation.write_quasiparticles_data(with_extra=args.save_extra_properties)
 
 if args.save_mesh_data:
     calculation.write_mesh_data()

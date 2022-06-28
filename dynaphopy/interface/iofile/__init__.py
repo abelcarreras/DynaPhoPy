@@ -179,7 +179,6 @@ def read_from_file_structure_outcar(file_name):
         # memory-map the file
         file_map = mmap.mmap(f.fileno(), 0)
 
-
         # Setting number of dimensions
         number_of_dimensions = 3
 
@@ -737,6 +736,12 @@ def save_quasiparticle_data_to_file(quasiparticle_data, filename):
         q_point_dict.update({'linewidths': quasiparticle_data['linewidths'][i].tolist()})
         q_point_dict.update({'frequency_shifts': quasiparticle_data['frequency_shifts'][i].tolist()})
         # output_dict.update({'q_point_{}'.format(i): q_point_dict})
+
+        if 'group_velocity' in quasiparticle_data:
+            q_point_dict.update({'group_velocity': [{'x': gv[0].tolist(),
+                                                     'y': gv[1].tolist(),
+                                                     'z': gv[2].tolist()} for gv in quasiparticle_data['group_velocity'][i]]})
+
         output_dict.append(q_point_dict)
 
     with open(filename, 'w') as outfile:

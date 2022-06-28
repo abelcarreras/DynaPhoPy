@@ -216,6 +216,23 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
     return free_energy, entropy, cv
 
 
+def obtain_phonopy_group_velocity(structure, q_point, force_constants=None, NAC=False):
+
+    if force_constants is None:
+        phonon = get_phonon(structure,
+                            setup_forces=True,
+                            custom_supercell=None,
+                            NAC=NAC)
+    else:
+        phonon = get_phonon(structure,
+                            setup_forces=False,
+                            custom_supercell=force_constants.get_supercell(),
+                            NAC=NAC)
+        phonon.set_force_constants(force_constants.get_array())
+
+    return phonon.get_group_velocity_at_q(q_point)
+
+
 def obtain_phonopy_mesh_from_force_constants(structure, force_constants, mesh=(40, 40, 40), NAC=False):
 
     phonon = get_phonon(structure,

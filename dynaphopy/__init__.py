@@ -1205,12 +1205,40 @@ class Quasiparticle:
 
         return self._renormalized_force_constants
 
+    def get_commensurate_points_properties(self):
+
+        #  Decide the size of the supercell to use to calculate the renormalized force constants
+        if self._parameters.use_MD_cell_commensurate:
+            fc_supercell = np.diag(self.dynamic.get_supercell_matrix())
+        else:
+            fc_supercell = self.dynamic.structure.get_supercell_phonon()
+
+        com_points = pho_interface.get_commensurate_points(self.dynamic.structure,
+                                                           fc_supercell)
+
+        group_velocity_list = []
+        q_points_list = []
+        for i, reduced_q_vector in enumerate(com_points):
+
+            gv = pho_interface.obtain_phonopy_group_velocity(self.dynamic.structure,
+                                                             reduced_q_vector,
+                                                             force_constants=self.get_renormalized_force_constants())
+
+            group_velocity_list.append(gv)
+            q_points_list.append(reduced_q_vector)
+
+        return {'group_velocity': group_velocity_list,
+                'q_points': q_points_list,
+                'fc_supercell': fc_supercell}
+
     def write_renormalized_constants(self, filename="FORCE_CONSTANTS"):
         force_constants = self.get_renormalized_force_constants()
         pho_interface.save_force_constants_to_file(force_constants, filename)
 
-    def write_quasiparticles_data(self, filename="quasiparticles_data.yaml"):
+    def write_quasiparticles_data(self, filename="quasiparticles_data.yaml", with_extra=False):
         quasiparticle_data = self.get_commensurate_points_data()
+        if with_extra:
+            quasiparticle_data.update(self.get_commensurate_points_properties())
         reading.save_quasiparticle_data_to_file(quasiparticle_data, filename)
 
     def write_mesh_data(self, file_name='mesh_data.yaml'):
