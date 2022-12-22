@@ -31,7 +31,7 @@ def read_vasp_trajectory(file_name, structure=None, time_step=None,
 
     # Starting reading
     print("Reading VASP trajectory")
-    print("This could take long, please wait..")
+    print("This may take long, please wait..")
 
     # Dimensionality of VASP calculation
     number_of_dimensions = 3
@@ -171,7 +171,7 @@ def read_lammps_trajectory(file_name, structure=None, time_step=None,
 
     # Starting reading
     print("Reading LAMMPS trajectory")
-    print("This could take long, please wait..")
+    print("This may take long, please wait..")
 
     # Dimension of LAMMP calculation
     if structure is None:
@@ -390,7 +390,7 @@ def read_VASP_XDATCAR(file_name, structure=None, time_step=None,
 
     #Starting reading
     print("Reading XDATCAR file")
-    print("This could take long, please wait..")
+    print("This may take long, please wait..")
 
     #Dimensionality of VASP calculation
     number_of_dimensions = 3
