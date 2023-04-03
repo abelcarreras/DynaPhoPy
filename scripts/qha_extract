@@ -97,25 +97,29 @@ phonopy_qha = PhonopyQHA(np.array(volumes),
 if args.p:
     phonopy_qha.plot_qha().show()
 
-volume_temperature = phonopy_qha.get_volume_temperature()
-qha_temperatures = phonopy_qha._qha._all_temperatures[:len(volume_temperature)]
+try:
+    volume_temperature = phonopy_qha.get_volume_temperature()
+except DeprecationWarning:
+    volume_temperature = phonopy_qha.volume_temperature
+
+qha_temperatures = temperatures[:len(volume_temperature)]
+
 
 # Fit force constants as a function of the temperature
 fit_vt = interp1d(qha_temperatures, volume_temperature, kind='quadratic')
 try:
     target_volume = fit_vt(target_temperature)
 except ValueError:
-    print('Error interpolating this temperature!\n'
+    raise Exception('Error interpolating this temperature!\n'
           'Make sure the requested temperature is within the range of thermal_properties.yaml files')
-    exit()
 
 input_parameters = iofile.read_parameters_from_input_file(args.input_file)
 
-if 'structure_file_name_outcar' in input_parameters:
-    structure = iofile.read_from_file_structure_outcar(input_parameters['structure_file_name_outcar'])
-else:
-    structure = iofile.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
-structure.get_data_from_dict(input_parameters)
+# if 'structure_file_name_outcar' in input_parameters:
+#     structure = iofile.read_from_file_structure_outcar(input_parameters['structure_file_name_outcar'])
+# else:
+#     structure = iofile.read_from_file_structure_poscar(input_parameters['structure_file_name_poscar'])
+# structure.get_data_from_dict(input_parameters)
 
 fc_supercell = input_parameters['supercell_phonon']
 
@@ -131,9 +135,8 @@ f_temperature = interp1d(volumes, force_constants_mat, kind='quadratic')
 try:
     target_fc = f_temperature(target_volume).T
 except ValueError:
-    print('Error interpolating minimum volume!\n'
+    raise Exception('Error interpolating minimum volume!\n'
           'Make sure the free energy-volume curve has a minimum ')
-    exit()
 
 phonopy_link.write_FORCE_CONSTANTS(target_fc,filename=args.sfc)
 
