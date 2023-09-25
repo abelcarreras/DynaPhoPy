@@ -51,7 +51,11 @@ def eigenvectors_normalization(eigenvector):
 
 def get_force_sets_from_file(file_name='FORCE_SETS', fs_supercell=None):
     # Just a wrapper to phonopy function
-    force_sets = ForceSets(parse_FORCE_SETS(filename=file_name))
+    force_sets_raw = parse_FORCE_SETS(filename=file_name)
+    if force_sets_raw is None:
+        raise Exception('Error reading FORCE_SETS file. Maybe you wanted to read FORCE_CONSTANTS?')
+
+    force_sets = ForceSets(force_sets_raw)
 
     if fs_supercell is not None:
         force_sets.set_supercell(fs_supercell)
@@ -64,7 +68,11 @@ def get_force_sets_from_file(file_name='FORCE_SETS', fs_supercell=None):
 
 def get_force_constants_from_file(file_name='FORCE_CONSTANTS', fc_supercell=None):
     # Just a wrapper to phonopy function
-    force_constants = ForceConstants(np.array(parse_FORCE_CONSTANTS(filename=file_name)))
+    force_constants_raw = parse_FORCE_CONSTANTS(filename=file_name)
+    if force_constants_raw is None:
+        raise Exception('Error reading FORCE_CONSTANTS file.')
+
+    force_constants = ForceConstants(np.array(force_constants_raw))
     if fc_supercell is not None:
         force_constants.set_supercell(fc_supercell)
     else:
