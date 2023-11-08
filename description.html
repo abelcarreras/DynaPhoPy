@@ -378,11 +378,19 @@ Using this new force constants it is possible to calculate all the properties av
     <p>
 <div id="Stquasiparticla data"></div> 
 <h3>Quasiparticle phonon data</h3>
-    <p> The quasiparticle phonon frequencies and linewidths obtained from <em>peak analysis</em> at all commensurate points can be stored in a yaml format file by using <strong>-sdata</strong> flag. This information is the same used to calculate the renormalized force constants. This option does not require any previous force constants calculation</p>
+    <p> The quasiparticle phonon frequencies and linewidths obtained from <em>peak analysis</em> at all commensurate points can be stored in a yaml format file by using <strong>-sdata</strong> flag. This information is the same used to calculate the renormalized force constants. This option does not require any previous force constants calculation.</p>
 <p>
 <pre><code>$ dynaphopy input_file TRAJECTORY -sdata</code></pre>
 <p>
     The date will be stored in a file named <strong>quasiparticle_data.yaml</strong>. This information i</p>
+
+<div id="Non-analytic corrections"></div> 
+<h3>Non-analytic corrections</h3>
+    <p> Non-analytic corrections can be added via a <strong>BORN</strong> file (phonopy format) that is placed in the work directory with name: <strong>BORN</strong>. This option can be enabled in the interactive interface or using tag <strong>--nac</strong>.</p>
+<p>
+<pre><code>$ dynaphopy input_file TRAJECTORY --nac</code></pre>
+<p>
+    </p>
 
 <div id="thermal"></div> 
 <h3>Thermal properties</h3>
