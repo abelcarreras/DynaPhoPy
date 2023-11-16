@@ -1,12 +1,14 @@
 #
 #  This is an example of how to call dynaphopy from python API using
-#  python objects (trajectory is still read from file)
+#  python objects and obtaining the LAMMPS trajectory using python API
 #
-from dynaphopy import Quasiparticle, reading
+from dynaphopy import Quasiparticle
 from dynaphopy.atoms import Structure
 from phonopy.file_IO import parse_FORCE_CONSTANTS, write_FORCE_CONSTANTS
 from dynaphopy.interface.phonopy_link import ForceConstants
-import dynaphopy.interface.iofile.trajectory_parsers as parsers
+from dynaphopy.interface.lammps_link import generate_lammps_trajectory
+import matplotlib.pyplot as pl
+
 
 # reading force constants in phonopy format
 force_constants_phonopy = parse_FORCE_CONSTANTS(filename='FORCE_CONSTANTS')  # FORCE_CONSTANTS file in phonopy format
@@ -33,32 +35,38 @@ structure = Structure(scaled_positions=[[0.7500000000000000, 0.7500000000000000,
                                         [0.5, 0.5, 0.0]],
                       force_constants=force_constants)
 
+# generate trajectory using LAMMPS API
+trajectory = generate_lammps_trajectory(structure,
+                                        'in.lammps',
+                                        total_time=20,
+                                        time_step=0.001,
+                                        relaxation_time=1,
+                                        supercell=[2, 2, 2],
+                                        velocity_only=True,
+                                        temperature=100)
 
-# (optional) use this to set auto-order [if the order of atoms in supercell does not match dynaphopy's expected order]
-order_template = reading.check_atoms_order('XDATCAR', parsers.read_VASP_XDATCAR, structure)
-
-# get trajectory from XDATCAR
-trajectory = parsers.read_VASP_XDATCAR('XDATCAR',   # trajectory filename
-                                       structure,
-                                       initial_cut=10000,
-                                       end_cut=40000,
-                                       time_step=0.0005,
-                                       template=order_template  # (optional) use this to use auto-order
-                                       )
 # set main object
 quasiparticle = Quasiparticle(trajectory)
 
 # set parameters for calculation
 quasiparticle.select_power_spectra_algorithm(1)  # MEM
 quasiparticle.set_number_of_mem_coefficients(1000)  # Only is used if MEM is selected
-
-quasiparticle.set_reduced_q_vector([0.5, 0.0, 0.0])  # X Point
 quasiparticle.set_frequency_limits([0, 20])
 quasiparticle.set_spectra_resolution(0.05)
 
-# get the renormalized force constants
-renormalized_fc = quasiparticle.get_renormalized_force_constants()
+frequencies = quasiparticle.get_frequency_range()
 
-# store force constants in phonopy format
-renormalized_fc_phonopy = renormalized_fc.get_array()
-write_FORCE_CONSTANTS(renormalized_fc_phonopy, 'RENORMALIZED_FORCE_CONSTANTS')
+# compute q-point projected power spectrum at GAMMA
+quasiparticle.set_reduced_q_vector([0.0, 0.0, 0.0])  # G Point
+ps = quasiparticle.get_power_spectrum_wave_vector()
+pl.plot(frequencies, ps, label='Gamma')
+
+# compute q-point projected power spectrum at L
+quasiparticle.set_reduced_q_vector([0.5, 0.5, 0.5])  # L Point
+frequencies = quasiparticle.get_frequency_range()
+ps = quasiparticle.get_power_spectrum_wave_vector()
+pl.plot(frequencies, ps, label='L')
+
+# plot data
+pl.legend()
+pl.show()
