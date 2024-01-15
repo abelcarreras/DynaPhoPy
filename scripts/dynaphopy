@@ -89,6 +89,9 @@ parser.add_argument('-thm', action='store_true',
 parser.add_argument('--thm_full', action='store_true',
                     help='print thermal properties from power spectrum')
 
+parser.add_argument('--thm_reference', action='store_true',
+                    help='print reference thermal properties computed with phonopy ')
+
 parser.add_argument('-sdata', '--save_quasiparticle_data', action='store_true',
                     help='save quasiparticle data into a YAML formatted file')
 
@@ -389,11 +392,13 @@ if args.adp:
     calculation.get_anisotropic_displacement_parameters()
 
 if args.thm:
-    calculation.display_thermal_properties()
+    calculation.display_thermal_properties(normalize_dos=args.normalize_dos,
+                                           print_phonopy=args.thm_reference)
 
 if args.thm_full:
     calculation.display_thermal_properties(from_power_spectrum=True,
-                                           normalize_dos=args.normalize_dos)
+                                           normalize_dos=args.normalize_dos,
+                                           print_phonopy=args.thm_reference)
 
 
 # Temporal interface (name may change)

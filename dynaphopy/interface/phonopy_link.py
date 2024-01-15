@@ -211,9 +211,9 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
     phonon.run_thermal_properties(t_step=1, t_min=temperature, t_max=temperature)
     # t, free_energy, entropy, cv = np.array(phonon.get_thermal_properties()).T[0]
     thermal_dict = phonon.get_thermal_properties_dict()
-    free_energy = thermal_dict['free_energy']
-    entropy = thermal_dict['entropy']
-    cv = thermal_dict['heat_capacity']
+    free_energy = sum(thermal_dict['free_energy'])
+    entropy = sum(thermal_dict['entropy'])
+    cv = sum(thermal_dict['heat_capacity'])
 
     # Normalize to unit cell
     unit_cell_relation = float(structure.get_number_of_atoms())/structure.get_number_of_primitive_atoms()

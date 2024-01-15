@@ -1245,7 +1245,7 @@ class Quasiparticle:
         mesh_data = self.get_mesh_frequencies_and_linewidths()
         reading.save_mesh_data_to_yaml_file(mesh_data, file_name)
 
-    def get_thermal_properties(self, force_constants=None):
+    def get_thermal_properties(self, force_constants=None, normalize_dos=False):
 
         temperature = self.get_temperature()
 
@@ -1257,12 +1257,20 @@ class Quasiparticle:
                                                        projected_on_atom=self.parameters.project_on_atom,
                                                        NAC=self.parameters.use_NAC)
 
+        integration = integrate.simps(phonopy_dos[1], x=phonopy_dos[0]) / (
+                self.dynamic.structure.get_number_of_atoms() *
+                self.dynamic.structure.get_number_of_dimensions())
+
+        if normalize_dos:
+            phonopy_dos[1] /= integration
+            integration = 1.0
+            if self.parameters.project_on_atom > -1:
+                phonopy_dos[1] /= self.dynamic.structure.get_number_of_primitive_atoms()
+                integration /= self.dynamic.structure.get_number_of_primitive_atoms()
+
         free_energy = thm.get_free_energy(temperature, phonopy_dos[0], phonopy_dos[1])
         entropy = thm.get_entropy(temperature, phonopy_dos[0], phonopy_dos[1])
         c_v = thm.get_cv(temperature, phonopy_dos[0], phonopy_dos[1])
-        integration = integrate.simps(phonopy_dos[1], x=phonopy_dos[0]) / (
-            self.dynamic.structure.get_number_of_atoms() *
-            self.dynamic.structure.get_number_of_dimensions())
         total_energy = thm.get_total_energy(temperature, phonopy_dos[0], phonopy_dos[1])
 
         if force_constants is not None:
@@ -1304,14 +1312,15 @@ class Quasiparticle:
 
             print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy (Reference)]\n'
                   '----------------------------------------------'.format(temperature))
-            print('                               Harmonic    Quasiparticle\n')
-            print('Free energy (not corrected):   {0:.4f}       {3:.4f}     KJ/mol\n'
-                  'Entropy:                       {1:.4f}       {4:.4f}     J/K/mol\n'
-                  'Cv:                            {2:.4f}       {5:.4f}     J/K/mol\n'.format(
+            print('                                   Harmonic   Quasiparticle\n')
+            print('Free energy (not corrected):   {0:12.4f}  {3:12.4f}   KJ/mol\n'
+                  'Entropy:                       {1:12.4f}  {4:12.4f}   J/K/mol\n'
+                  'Cv:                            {2:12.4f}  {5:12.4f}   J/K/mol\n'.format(
                 *(harmonic_properties + renormalized_properties)))
 
-        harmonic_properties = self.get_thermal_properties()
-        renormalized_properties = self.get_thermal_properties(force_constants=self.get_renormalized_force_constants())
+        harmonic_properties = self.get_thermal_properties(normalize_dos=normalize_dos)
+        renormalized_properties = self.get_thermal_properties(force_constants=self.get_renormalized_force_constants(),
+                                                              normalize_dos=normalize_dos)
         frequency_range = self.get_frequency_range()
 
         if from_power_spectrum:
