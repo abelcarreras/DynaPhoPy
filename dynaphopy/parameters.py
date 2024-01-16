@@ -1,8 +1,17 @@
 import numpy as np
 
-# This class contains all the default parameters for DynaPhoPy
 
-class Parameters:
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+# This class contains all the default parameters for DynaPhoPy
+class Parameters(metaclass=Singleton):
 
     def __init__(self,
                  # General
@@ -46,6 +55,7 @@ class Parameters:
                  # Force constants
                  symmetrize=False,
                  use_symmetry=True,
+                 symmprec=1e-5,
 
                 # Renormalized frequencies
                  save_renormalized_frequencies=False,
@@ -81,6 +91,8 @@ class Parameters:
 
         self._symmetrize = symmetrize
         self._use_symmetry = use_symmetry
+        self._symprec = symmprec
+
         self._save_renormalized_frequencies = save_renormalized_frequencies
 
         self._modes_vectors_scale = modes_vectors_scale
@@ -233,6 +245,14 @@ class Parameters:
     @use_symmetry.setter
     def use_symmetry(self, use_symmetry):
         self._use_symmetry = use_symmetry
+
+    @property
+    def symprec(self):
+        return self._symprec
+
+    @symprec.setter
+    def symprec(self, use_symmetry):
+        self._symprec = use_symmetry
 
     @property
     def symmetrize(self):

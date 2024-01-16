@@ -121,6 +121,9 @@ parser.add_argument('--read_to', metavar='step', type=int, default=None,
 parser.add_argument('--fcsymm', action='store_true',
                     help='symmetrize force constants')
 
+parser.add_argument('--symprec', metavar='F', type=float, default=1e-5,
+                    help='set symmetry search tolerance for phonopy')
+
 parser.add_argument('--no_symmetry', action='store_true',
                     help='do not use crystal symmetry')
 
@@ -300,6 +303,7 @@ calculation.parameters.degenerate = args.fcsymm
 calculation.parameters.use_MD_cell_commensurate = args.MD_commensurate
 calculation.parameters.save_renormalized_frequencies = args.save_renormalized_frequencies
 calculation.parameters.use_NAC = args.nac
+calculation.parameters.symprec = args.symprec
 
 calculation.select_fitting_function(args.fitting_function)
 calculation.set_temperature(args.temperature)

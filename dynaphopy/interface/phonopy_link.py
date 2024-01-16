@@ -5,6 +5,7 @@ from phonopy.harmonic.dynmat_to_fc import DynmatToForceConstants
 from phonopy.harmonic.force_constants import set_tensor_symmetry_PJ
 from phonopy.units import VaspToTHz
 from phonopy.structure.symmetry import Symmetry
+from dynaphopy.parameters import Parameters
 
 # support old phonopy versions
 try:
@@ -87,7 +88,10 @@ def save_force_constants_to_file(force_constants, filename='FORCE_CONSTANTS'):
     write_FORCE_CONSTANTS(force_constants.get_array(), filename=filename)
 
 
-def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None, symprec=1e-5):
+def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None, symprec=None):
+
+    if symprec is None:
+        symprec = Parameters().symprec
 
     if custom_supercell is None:
         super_cell_phonon = structure.get_supercell_phonon()
@@ -297,7 +301,10 @@ def get_commensurate_points(structure, fc_supercell):
     return com_points
 
 
-def get_equivalent_q_points_by_symmetry(q_point, structure, symprec=1e-5):
+def get_equivalent_q_points_by_symmetry(q_point, structure, symprec=None):
+
+    if symprec is None:
+        symprec = Parameters().symprec
 
     bulk = PhonopyAtoms(symbols=structure.get_atomic_elements(),
                         scaled_positions=structure.get_scaled_positions(),
