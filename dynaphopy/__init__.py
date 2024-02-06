@@ -883,6 +883,7 @@ class Quasiparticle:
                                                            mesh=self.parameters.mesh_phonopy,
                                                            freq_min=self.get_frequency_range()[0],
                                                            freq_max=self.get_frequency_range()[-1],
+                                                           freq_pitch=self.parameters.spectrum_resolution,
                                                            projected_on_atom=self.parameters.project_on_atom,
                                                            NAC=self.parameters.use_NAC)
 
@@ -894,6 +895,7 @@ class Quasiparticle:
                                                              mesh=self.parameters.mesh_phonopy,
                                                              freq_min=self.get_frequency_range()[0],
                                                              freq_max=self.get_frequency_range()[-1],
+                                                             freq_pitch=self.parameters.spectrum_resolution,
                                                              force_constants=self._renormalized_force_constants,
                                                              projected_on_atom=self.parameters.project_on_atom,
                                                              NAC=self.parameters.use_NAC)
@@ -1253,6 +1255,7 @@ class Quasiparticle:
                                                        mesh=self.parameters.mesh_phonopy,
                                                        freq_min=0.01,
                                                        freq_max=self.get_frequency_range()[-1],
+                                                       freq_pitch=self.parameters.spectrum_resolution,
                                                        force_constants=force_constants,
                                                        projected_on_atom=self.parameters.project_on_atom,
                                                        NAC=self.parameters.use_NAC)
@@ -1279,6 +1282,7 @@ class Quasiparticle:
                                                              mesh=self.parameters.mesh_phonopy,
                                                              freq_min=0.01,
                                                              freq_max=self.get_frequency_range()[-1],
+                                                             freq_pitch=self.parameters.spectrum_resolution,
                                                              projected_on_atom=self.parameters.project_on_atom,
                                                              NAC=self.parameters.use_NAC)
 
@@ -1311,7 +1315,7 @@ class Quasiparticle:
                                                                                       NAC=self.parameters.use_NAC)
 
             print('\nThermal properties per unit cell ({0:.2f} K) [From phonopy (Reference)]\n'
-                  '----------------------------------------------'.format(temperature))
+                  '-----------------------------------------------------------------'.format(temperature))
             print('                                   Harmonic   Quasiparticle\n')
             print('Free energy (not corrected):   {0:12.4f}  {3:12.4f}   KJ/mol\n'
                   'Entropy:                       {1:12.4f}  {4:12.4f}   J/K/mol\n'
@@ -1322,6 +1326,7 @@ class Quasiparticle:
         renormalized_properties = self.get_thermal_properties(force_constants=self.get_renormalized_force_constants(),
                                                               normalize_dos=normalize_dos)
         frequency_range = self.get_frequency_range()
+        resolution = frequency_range[1] - frequency_range[0]
 
         if from_power_spectrum:
             normalization = np.prod(self.dynamic.get_supercell_matrix())
@@ -1345,8 +1350,8 @@ class Quasiparticle:
             total_energy = thm.get_total_energy(temperature, frequency_range, power_spectrum_dos)
 
             power_spectrum_properties = [free_energy, entropy, c_v, total_energy, integration]
-            print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
-                  '----------------------------------------------'.format(temperature))
+            print('\nThermal properties per unit cell ({0:.2f} K) [From DoS (resolution {1}) ]\n'
+                  '-----------------------------------------------------------------'.format(temperature, resolution))
             print('                             Harmonic   Quasiparticle   Power spectrum\n')
             print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}  {10:12.4f}\n'
                   'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}  {11:12.4f}\n'
@@ -1360,8 +1365,8 @@ class Quasiparticle:
                 plt.axhline(y=0, color='k', ls='dashed')
 
         else:
-            print('\nThermal properties per unit cell ({0:.2f} K) [From DoS]\n'
-                  '----------------------------------------------'.format(temperature))
+            print('\nThermal properties per unit cell ({0:.2f} K) [From DoS (resolution {1})]\n'
+                  '-----------------------------------------------------------------'.format(temperature, resolution))
             print('                            Harmonic    Quasiparticle\n')
             print('Free energy   (KJ/mol): {0:12.4f}  {5:12.4f}\n'
                   'Entropy      (J/K/mol): {1:12.4f}  {6:12.4f}\n'

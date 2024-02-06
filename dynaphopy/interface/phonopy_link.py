@@ -160,7 +160,7 @@ def obtain_eigenvectors_and_frequencies(structure, q_vector, test_orthonormal=Fa
 
 
 def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None,
-                       freq_min=None, freq_max=None, projected_on_atom=-1, NAC=False):
+                       freq_min=None, freq_max=None, freq_pitch=None, projected_on_atom=-1, NAC=False):
 
     if force_constants is None:
         phonon = get_phonon(structure,
@@ -176,7 +176,7 @@ def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None,
 
     if projected_on_atom < 0:
         phonon.run_mesh(mesh)
-        phonon.run_total_dos(freq_min=freq_min, freq_max=freq_max, use_tetrahedron_method=True)
+        phonon.run_total_dos(freq_min=freq_min, freq_max=freq_max, freq_pitch=freq_pitch, use_tetrahedron_method=True)
         total_dos = np.array([phonon.get_total_dos_dict()['frequency_points'],
                               phonon.get_total_dos_dict()['total_dos']])
 
