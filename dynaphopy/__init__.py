@@ -856,7 +856,7 @@ class Quasiparticle:
         mem_coefficient_scan_analysis(self.get_vq(), self.dynamic, self.parameters)
 
     def phonon_individual_analysis(self):
-        print("Peak analysis analysis")
+        print("Peak analysis")
 
         fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                         self.parameters.frequency_range,
