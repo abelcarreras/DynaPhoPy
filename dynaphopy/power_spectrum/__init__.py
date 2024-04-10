@@ -270,6 +270,70 @@ def get_fft_numpy_spectra(vq, trajectory, parameters):
     return psd_vector * unit_conversion
 
 #####################################
+#     FFT Numpy Cross Correlation   #
+#####################################
+
+def _numpy_power_cross(frequency_range, data_phonon1, data_phonon2, time_step):
+
+    # Here we use the data of first phonon (they are equal, no reason to repeat it)
+    pieces = _division_of_data(frequency_range[1] - frequency_range[0],
+                               data_phonon1.size,
+                               time_step)
+
+    ps = []
+    for i_p in pieces:
+
+        data_piece_1 = data_phonon1[i_p[0]:i_p[1]]
+        data_piece_2 = data_phonon2[i_p[0]:i_p[1]]
+
+        data_piece = np.correlate(data_piece_1, data_piece_2, mode='same') / data_piece_1.size
+        # data_piece_1 and data_piece_2 has the same size
+        ps.append(np.abs(np.fft.fft(data_piece))*time_step)
+
+    ps = np.average(ps,axis=0)
+
+    freqs = np.fft.fftfreq(data_piece.size, time_step)
+    idx = np.argsort(freqs)
+
+    return np.interp(frequency_range, freqs[idx], ps[idx])
+def get_fft_numpy_spectra_cross(vq, trajectory, parameters):
+    # vq must be restricted to the phonons we want to study
+    # Start the same way as with the spectra
+    test_frequency_range = np.array(parameters.frequency_range)
+
+    requested_resolution = test_frequency_range[1]-test_frequency_range[0]
+    maximum_resolution = 1./(trajectory.get_time_step_average()*(vq.shape[0]+parameters.zero_padding))
+    if requested_resolution < maximum_resolution:
+        print('Power spectrum resolution requested unavailable, using maximum: {0:9.6f} THz'.format(maximum_resolution))
+        print('If you need higher resolution increase the number of data')
+
+    # Here start to change things:
+    psd_vector = []
+    if not(parameters.silent):
+        _progress_bar(0, 'FFT')
+    for i in range(vq.shape[1]): # esto va sobre el número de modos de fonon
+        for j in range(vq.shape[1]): # otro loop sobre el otro modo de fonon
+
+            # Aqui lo que estas sumando es añadiendo cada uno de los PS de los modos de fonón al final de la lista.
+            # No están las frecuencias en este vector.
+            # Se puede hacer de la misma forma, pero hay que tener en cuenta que este vector tendría las cross correlation.
+
+            psd_vector.append(_numpy_power_cross(test_frequency_range, vq[:, i],
+                                           vq[:,j],
+                                           trajectory.get_time_step_average()),
+                              )
+
+            if not(parameters.silent):
+                _progress_bar(float(i + 1) / vq.shape[1], 'FFT')
+
+    psd_vector = np.array(psd_vector).T
+
+    return psd_vector * unit_conversion
+
+
+
+
+#####################################
 #         FFT method (FFTW)         #
 #####################################
 
@@ -369,6 +433,7 @@ power_spectrum_functions = {
     1: [get_mem_power_spectra, 'Maximum entropy method'],
     2: [get_fft_numpy_spectra, 'Fast Fourier transform (Numpy)'],
     3: [get_fft_fftw_power_spectra, 'Fast Fourier transform (FFTW)'],
-    4: [get_fft_cuda_power_spectra, 'Fast Fourier transform (CUDA)']
+    4: [get_fft_cuda_power_spectra, 'Fast Fourier transform (CUDA)'],
+    5: [get_fft_numpy_spectra_cross, 'Cross correlation - Fast Fourier transform (Numpy)']
 }
 

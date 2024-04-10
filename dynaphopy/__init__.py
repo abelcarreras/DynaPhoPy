@@ -39,6 +39,8 @@ class Quasiparticle:
         self._force_constants_qha = None
         self._parameters = parameters.Parameters()
         self.crop_trajectory(last_steps)
+        self._cross_list =[]
+        self._power_spectrum_cross = None
         #  print('Using {0} time steps for calculation'.format(len(self.dynamic.velocity)))
 
     # Crop trajectory
@@ -84,6 +86,13 @@ class Quasiparticle:
     @property
     def parameters(self):
         return self._parameters
+
+    def set_cross_list(self, cross_list):
+        self._cross_list = []
+        self._cross_list = cross_list
+
+    def get_cross_list(self):
+        return self._cross_list
 
     def set_NAC(self, NAC):
         """
@@ -742,6 +751,32 @@ class Quasiparticle:
 
         return self._power_spectrum_phonon
 
+    def get_power_spectrum_phonon_cross(self):
+        if self._power_spectrum_cross is None:
+            print("Calculating phonon projection power spectra")
+
+            if self.parameters.use_symmetry:
+                initial_reduced_q_point = self.get_reduced_q_vector()
+                power_spectrum_phonon = []
+                q_points_equivalent = pho_interface.get_equivalent_q_points_by_symmetry(self.get_reduced_q_vector(),
+                                                                                        self.dynamic.structure)
+                #                print(q_points_equivalent)
+                for q_point in q_points_equivalent:
+                    self.set_reduced_q_vector(q_point)
+                    power_spectrum_phonon.append(
+                        (power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq()[:,self._cross_list],
+                                                                                               self.dynamic,
+                                                                                               self.parameters))
+
+                self.set_reduced_q_vector(initial_reduced_q_point)
+                self._power_spectrum_phonon = np.average(power_spectrum_phonon, axis=0)
+            else:
+                self._power_spectrum_phonon = (
+                    power_spectrum_functions[self.parameters.power_spectra_algorithm])[0](self.get_vq(),
+                                                                                          self.dynamic,
+                                                                                          self.parameters)
+
+        return self._power_spectrum_phonon
     def get_power_spectrum_wave_vector(self):
 
         if self._power_spectrum_wave_vector is None:
@@ -856,10 +891,25 @@ class Quasiparticle:
         mem_coefficient_scan_analysis(self.get_vq(), self.dynamic, self.parameters)
 
     def phonon_individual_analysis(self):
-        print("Peak analysis analysis")
+        print("Peak analysis")
 
         fitting.phonon_fitting_analysis(self.get_power_spectrum_phonon(),
                                         self.parameters.frequency_range,
+                                        harmonic_frequencies=self.get_frequencies(),
+                                        thermal_expansion_shift=self.get_qha_shift(self.get_reduced_q_vector()),
+                                        show_plots=not self.parameters.silent,
+                                        fitting_function_type=self.parameters.fitting_function,
+                                        use_degeneracy=self.parameters.use_symmetry,
+                                        show_occupancy=self.parameters.project_on_atom < 0  # temporal interface
+                                        )
+        return
+
+    def phonon_individual_analysis_cross(self):
+        print("Peak analysis (Cross correlation)")
+
+        fitting.phonon_fitting_cross_analysis(self.get_power_spectrum_phonon_cross(),
+                                        self.parameters.frequency_range,
+                                        self._cross_list,
                                         harmonic_frequencies=self.get_frequencies(),
                                         thermal_expansion_shift=self.get_qha_shift(self.get_reduced_q_vector()),
                                         show_plots=not self.parameters.silent,
