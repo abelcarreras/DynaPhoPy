@@ -277,9 +277,9 @@ def phonon_fitting_cross_analysis(original, ps_frequencies, cross_list,
         print ('----------------------------------------------')
         print ('Width                      {0:15.6f} THz'.format(width))
         print ('Position                   {0:15.6f} THz'.format(position))
-        print ('Area (<K>)    ({0:.10s}) {1:15.6f} eV'.format(fitting_function.curve_name, area))  # Kinetic energy
-        print ('Area (<K>)    (Total)      {0:15.6f} eV'.format(total_integral))   # 1/2 Kinetic energy
-        print ('<|dQ/dt|^2>                {0:15.6f} eV'.format(dt_Q2_lor))        # Kinetic energy
+        print ('Area (<K>)    ({0:.10s}) {1:15.6e} eV'.format(fitting_function.curve_name, area))  # Kinetic energy
+        print ('Area (<K>)    (Total)      {0:15.6e} eV'.format(total_integral))   # 1/2 Kinetic energy
+        print ('<|dQ/dt|^2>                {0:15.6e} eV'.format(dt_Q2_lor))        # Kinetic energy
         # print '<|dQ/dt|^2> (tot):        ', dt_Q2_tot, 'eV'        # Kinetic energy
         # print '<|Q|^2> (lor):          ', Q2_lor, 'eV' #  potential energy
         # print '<|Q|^2> (tot):          ', Q2_tot, 'eV' #  potential energy
@@ -346,8 +346,12 @@ def phonon_fitting_cross_analysis(original, ps_frequencies, cross_list,
                 pass
             plt.legend()
 
+            plt.savefig('Cross{0}-{1}'.format(first_index + 1, second_index + 1))
+
     if show_plots:
         plt.show()
+
+
 
     normalization(dt_Q2_s)
 
