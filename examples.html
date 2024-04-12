@@ -100,16 +100,14 @@ Direct
 </code></pre>
 <p> EDIFF may have great influence in the exactitute of the results. Longer time step lenghts are recomended to increase the convergence of
 phonon linewidths but to long could compromise the reliability of the simulation. 
-<p>Once VASP <strong>XDATCAR</strong> and Phonopy <strong>FORCE_SETS</strong> are generated the only thing left needed to run DynaPhoPY is a DynaPhoPy input.
+<p>Once VASP <strong>XDATCAR</strong> and Phonopy <strong>FORCE_CONSTANTS</strong> are generated the only thing left needed to run DynaPhoPY is a DynaPhoPy input.
 </p>
-<br><em>Note: Alternativelly <strong>FORCE_CONSTANTS</strong> can be used instead of 
-<strong>FORCE_SETS</strong>. See examples in EXAMPLES folder.</em></p>
 
 <pre><code>STRUCTURE FILE POSCAR
 /home/user/Si-phonopy/POSCAR_unitcell
 
-FORCE SETS
-/home/user/Si-phonopy/FORCE_SETS
+FORCE CONSTANTS
+/home/user/Si-phonopy/FORCE_CONSTANTS
 
 PRIMITIVE MATRIX
 0.0 0.5 0.5
