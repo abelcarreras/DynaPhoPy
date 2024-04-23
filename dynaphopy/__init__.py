@@ -980,10 +980,6 @@ class Quasiparticle:
                                         )
         return
 
-    def plot_inverse_power_spectrum(self):
-        ps = self.get_power_spectrum_phonon()
-        correlation = numpy.fft.ifft(ps[:])
-
     def plot_power_spectrum_full(self):
 
         fig, ax1 = plt.subplots()
