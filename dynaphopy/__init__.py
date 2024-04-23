@@ -312,6 +312,67 @@ class Quasiparticle:
 
         plt.show()
 
+    def save_renormalized_phonon_dispersion_bands(self, ymax, plot_linewidths=False, plot_harmonic=True,):
+
+        bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=plot_linewidths)
+
+        plot_title = 'Renormalized phonon dispersion relations'
+        for i, path in enumerate(bands_full_data):
+
+            plt.plot(path['q_path_distances'], np.array(list(path['renormalized_frequencies'].values())).T, color='r',
+                     label='Renormalized')
+
+            if plot_harmonic:
+                plt.plot(path['q_path_distances'], np.array(list(path['harmonic_frequencies'].values())).T, color='b',
+                         label='Harmonic')
+
+            if plot_linewidths:
+                for freq, linewidth in zip(list(path['renormalized_frequencies'].values()),
+                                           list(path['linewidth'].values())):
+                    plt.fill_between(path['q_path_distances'], freq + np.array(linewidth) / 2,
+                                     freq - np.array(linewidth) / 2, color='r', alpha=0.2, interpolate=True,
+                                     linewidth=0)
+                    plot_title = 'Renormalized phonon dispersion relations and linewidths'
+
+        # plt.axes().get_xaxis().set_visible(False)
+        plt.suptitle(plot_title)
+        # plt.axes().get_xaxis().set_ticks([])
+        plt.ylabel('Frequency [THz]')
+        plt.xlabel('Wave vector')
+        plt.xlim([0, bands_full_data[-1]['q_path_distances'][-1]])
+        plt.ylim([0,ymax])
+        plt.axhline(y=0, color='k', ls='dashed')
+
+        if plot_harmonic:
+            try:  # Handle issues with old versions of matplotlib
+                handles = plt.gca().get_legend_handles_labels()[0]
+                plt.legend([handles[-1], handles[0]], ['Harmonic', 'Renormalized'])
+            except IndexError:
+                pass
+
+        if 'labels' in bands_full_data[0]:
+            plt.rcParams.update({'mathtext.default': 'regular'})
+
+            labels = [[bands_full_data[i]['labels']['inf'],
+                       bands_full_data[i]['labels']['sup']]
+                      for i in range(len(bands_full_data))]
+
+            labels_e = []
+            x_labels = []
+            for i, freq in enumerate(bands_full_data):
+                if labels[i][0] == labels[i - 1][1]:
+                    labels_e.append(replace_list(labels[i][0]))
+                else:
+                    labels_e.append(
+                        replace_list(labels[i - 1][1]) + '/' + replace_list(labels[i][0]))
+                x_labels.append(bands_full_data[i]['q_path_distances'][0])
+            x_labels.append(bands_full_data[-1]['q_path_distances'][-1])
+            labels_e.append(replace_list(labels[-1][1]))
+            labels_e[0] = replace_list(labels[0][0])
+
+            plt.xticks(x_labels, labels_e, rotation='horizontal')
+
+        plt.savefig('Bands.png')
     def plot_linewidths_and_shifts_bands(self):
 
         bands_full_data = self.get_renormalized_phonon_dispersion_bands(with_linewidths=True,
@@ -918,6 +979,10 @@ class Quasiparticle:
                                         show_occupancy=self.parameters.project_on_atom < 0  # temporal interface
                                         )
         return
+
+    def plot_inverse_power_spectrum(self):
+        ps = self.get_power_spectrum_phonon()
+        correlation = numpy.fft.ifft(ps[:])
 
     def plot_power_spectrum_full(self):
 
