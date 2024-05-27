@@ -273,6 +273,8 @@ def get_fft_numpy_spectra(vq, trajectory, parameters):
 #     FFT Numpy Cross Correlation   #
 #####################################
 
+## THIS LINE IS JUST A QUICK TEST
+
 def _numpy_power_cross(frequency_range, data_phonon1, data_phonon2, time_step):
 
     # Here we use the data of first phonon (they are equal, no reason to repeat it)
