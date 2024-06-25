@@ -910,7 +910,7 @@ class Quasiparticle:
         # plt.legend()
         plt.show()
 
-        total_integral = integrate.simps(self.get_power_spectrum_full(), x=self.get_frequency_range())
+        total_integral = integrate.simpson(self.get_power_spectrum_full(), x=self.get_frequency_range())
         print("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_wave_vector(self):
@@ -920,7 +920,7 @@ class Quasiparticle:
         plt.ylabel('eV * ps')
         plt.axhline(y=0, color='k', ls='dashed')
         plt.show()
-        total_integral = integrate.simps(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
+        total_integral = integrate.simpson(self.get_power_spectrum_wave_vector(), x=self.get_frequency_range())
         print("Total Area (Kinetic energy <K>): {0} eV".format(total_integral))
 
     def plot_power_spectrum_phonon(self):

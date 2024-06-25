@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.integrate import simps
+from scipy.integrate import simpson
 from dynaphopy.analysis.fitting import fitting_functions
 
 h_planck = 4.135667662e-3  # eV/ps
@@ -79,7 +79,7 @@ def phonon_fitting_analysis(original, ps_frequencies,
         maximum = fitting_parameters['maximum']
         error = fitting_parameters['global_error']
 
-        total_integral = simps(power_spectrum, x=ps_frequencies)
+        total_integral = simpson(power_spectrum, x=ps_frequencies)
 
         # Calculated properties
         dt_Q2_lor = 2 * area
