@@ -37,7 +37,7 @@ def get_total_energy(temperature, frequency, dos):
     total_energy = np.nan_to_num([dos[i] * h_bar * freq * (0.5 + n(temperature, freq))
                                  for i, freq in enumerate(frequency)])
 
-    total_energy = integrate.simps(total_energy, frequency) * N_a / 1000  # KJ/K/mol
+    total_energy = integrate.simpson(total_energy, frequency) * N_a / 1000  # KJ/K/mol
     return total_energy
 
 
@@ -47,7 +47,7 @@ def get_free_energy(temperature, frequency, dos):
                                  for i, freq in enumerate(frequency)])
 
     free_energy[0] = 0
-    free_energy = integrate.simps(free_energy, frequency) * N_a / 1000  # KJ/K/mol
+    free_energy = integrate.simpson(free_energy, frequency) * N_a / 1000  # KJ/K/mol
     return free_energy
 
 
