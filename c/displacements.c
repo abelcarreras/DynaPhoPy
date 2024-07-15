@@ -112,22 +112,21 @@ static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *k
 
 
 //  double _Complex *Cell           = (double _Complex*)PyArray_DATA(Cell_array);
-    _Dcomplex *Trajectory     = (_Dcomplex*)PyArray_DATA(Trajectory_array);
-    double *Positions               = (double*)PyArray_DATA(Positions_array);
+    _Dcomplex *Trajectory           = (_Dcomplex*)PyArray_DATA((PyArrayObject *)Trajectory_array);
+    double *Positions               = (double*)PyArray_DATA((PyArrayObject *)Positions_array);
 
-    int NumberOfData       = (int)PyArray_DIM(Trajectory_array, 0);
-    int NumberOfDimensions = (int)PyArray_DIM(Cell_array, 0);
+    npy_intp NumberOfData           = PyArray_DIM((PyArrayObject *)Trajectory_array, 0);
+    npy_intp NumberOfDimensions     = PyArray_DIM((PyArrayObject *)Cell_array, 0);
 
 //  Create new Numpy array to store the result
     _Dcomplex **Displacement;
     PyArrayObject *Displacement_object;
 
-    npy_intp dims[]={NumberOfData, NumberOfDimensions};
-    Displacement_object=(PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_CDOUBLE);
-    Displacement=pymatrix_to_c_array_complex( Displacement_object);
+    npy_intp dims[] = {NumberOfData, NumberOfDimensions};
+    Displacement_object = (PyArrayObject *)PyArray_SimpleNew(2, dims, NPY_CDOUBLE);
+    Displacement = pymatrix_to_c_array_complex(Displacement_object);
 
-
-//  Create a pointer array from cell matrix (to be improved)
+    //  Create a pointer array from cell matrix (to be improved)
     double  **Cell_c = pymatrix_to_c_array_real((PyArrayObject *) Cell_array);
 
 /*

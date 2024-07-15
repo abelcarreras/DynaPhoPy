@@ -116,15 +116,15 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
         return NULL;
     }
 
-    _Dcomplex  *Velocity = (_Dcomplex *)PyArray_DATA(velocity_array);
-    double *Frequency    = (double*)PyArray_DATA(frequency_array);
-    int    NumberOfData = (int)PyArray_DIM(velocity_array, 0);
-    int     NumberOfFrequencies = (int)PyArray_DIM(frequency_array, 0);
+    _Dcomplex   *Velocity               = (_Dcomplex *)PyArray_DATA((PyArrayObject *)velocity_array);
+    double      *Frequency              = (double*)PyArray_DATA((PyArrayObject *)frequency_array);
+    npy_intp     NumberOfData           = PyArray_DIM((PyArrayObject *)velocity_array, 0);
+    npy_intp     NumberOfFrequencies    = PyArray_DIM((PyArrayObject *)frequency_array, 0);
 
 
     //Create new numpy array for storing result
     PyArrayObject *PowerSpectrum_object;
-    npy_intp dims[]={NumberOfFrequencies};
+    npy_intp dims[] = {NumberOfFrequencies};
     PowerSpectrum_object = (PyArrayObject *) PyArray_SimpleNew(1,dims,NPY_DOUBLE);
 
 
