@@ -99,9 +99,9 @@ static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *k
     static char *kwlist[] = {"trajectory", "positions", "cell", NULL};
     if (!PyArg_ParseTupleAndKeywords(arg, keywords, "OOO", kwlist,  &Trajectory_obj, &Positions_obj, &Cell_obj))  return NULL;
 
-    PyObject *Trajectory_array = PyArray_FROM_OTF(Trajectory_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
-    PyObject *Positions_array = PyArray_FROM_OTF(Positions_obj, NPY_DOUBLE, NPY_IN_ARRAY);
-    PyObject *Cell_array = PyArray_FROM_OTF(Cell_obj, NPY_DOUBLE, NPY_IN_ARRAY);
+    PyObject *Trajectory_array = PyArray_FROM_OTF(Trajectory_obj, NPY_CDOUBLE, NPY_ARRAY_IN_ARRAY);
+    PyObject *Positions_array = PyArray_FROM_OTF(Positions_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+    PyObject *Cell_array = PyArray_FROM_OTF(Cell_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
 
     if (Cell_array == NULL || Trajectory_array == NULL) {
          Py_XDECREF(Cell_array);
@@ -195,11 +195,12 @@ static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *k
 
 static _Dcomplex **pymatrix_to_c_array_complex(PyArrayObject *array)  {
 
-      long n=(*array).dimensions[0];
-      long m=(*array).dimensions[1];
+      npy_intp n = PyArray_DIMS(array)[0];
+      npy_intp m = PyArray_DIMS(array)[1];
+
       _Dcomplex ** c = malloc(n*sizeof(_Dcomplex));
 
-      _Dcomplex *a = (_Dcomplex *) (*array).data;  /* pointer to array data as double _Complex */
+      _Dcomplex *a = (_Dcomplex *)PyArray_DATA(array);  /* pointer to array data as double _Complex */
       for ( int i=0; i<n; i++)  {
           c[i]=a+i*m;
       }
@@ -210,12 +211,12 @@ static _Dcomplex **pymatrix_to_c_array_complex(PyArrayObject *array)  {
 
 static double  **pymatrix_to_c_array_real(PyArrayObject *array)  {
 
-      long n=(*array).dimensions[0];
-      long m=(*array).dimensions[1];
+      npy_intp n = PyArray_DIMS(array)[0];
+      npy_intp m = PyArray_DIMS(array)[1];
       //PyObject *transpose_array = PyArray_Transpose(array, dims);
 
       double  ** c = malloc(n*sizeof(double));
-      double  *a = (double  *) (*array).data;
+      double *a = (double *)PyArray_DATA(array);
 
       for ( int i=0; i<n; i++)  {
           double  *b = malloc(m*sizeof(double));

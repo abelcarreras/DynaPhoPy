@@ -107,8 +107,8 @@ static PyObject* MaximumEntropyMethod (PyObject* self, PyObject *arg, PyObject *
     static char *kwlist[] = {"frequency", "velocity", "time_step", "coefficients", NULL};
     if (!PyArg_ParseTupleAndKeywords(arg, keywords, "OOd|i", kwlist, &frequency_obj, &velocity_obj, &TimeStep, &NumberOfCoefficients))  return NULL;
 
-    PyObject *velocity_array = PyArray_FROM_OTF(velocity_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
-    PyObject *frequency_array = PyArray_FROM_OTF(frequency_obj, NPY_DOUBLE, NPY_IN_ARRAY);
+    PyObject *velocity_array = PyArray_FROM_OTF(velocity_obj, NPY_CDOUBLE, NPY_ARRAY_IN_ARRAY);
+    PyObject *frequency_array = PyArray_FROM_OTF(frequency_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
 
     if (velocity_array == NULL || frequency_array == NULL ) {
         Py_XDECREF(velocity_array);
