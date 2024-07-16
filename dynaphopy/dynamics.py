@@ -108,7 +108,7 @@ class Dynamics:
 
     def get_number_of_atoms(self):
         if self._number_of_atoms is None:
-            self._number_of_atoms = self.structure.get_number_of_atoms()*np.product(self.get_supercell_matrix())
+            self._number_of_atoms = self.structure.get_number_of_atoms()*np.prod(self.get_supercell_matrix())
         return self._number_of_atoms
 
     def set_time(self, time):
