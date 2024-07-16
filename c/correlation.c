@@ -109,8 +109,8 @@ static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywo
     static char *kwlist[] = {"frequency", "velocity", "time_step", "step", "integration_method", NULL};
     if (!PyArg_ParseTupleAndKeywords(arg, keywords, "OOd|ii", kwlist, &frequency_obj, &velocity_obj, &TimeStep, &Increment, &IntMethod))  return NULL;
 
-    PyObject *velocity_array = PyArray_FROM_OTF(velocity_obj, NPY_CDOUBLE, NPY_IN_ARRAY);
-    PyObject *frequency_array = PyArray_FROM_OTF(frequency_obj, NPY_DOUBLE, NPY_IN_ARRAY);
+    PyObject *velocity_array = PyArray_FROM_OTF(velocity_obj, NPY_CDOUBLE, NPY_ARRAY_IN_ARRAY);
+    PyObject *frequency_array = PyArray_FROM_OTF(frequency_obj, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
 
     if (velocity_array == NULL || frequency_array == NULL ) {
         Py_XDECREF(velocity_array);
@@ -118,17 +118,16 @@ static PyObject* correlation_par (PyObject* self, PyObject *arg, PyObject *keywo
         return NULL;
     }
 
-    _Dcomplex  *Velocity = (_Dcomplex *)PyArray_DATA(velocity_array);
-    double *Frequency    = (double*)PyArray_DATA(frequency_array);
-    int     NumberOfData = (int)PyArray_DIM(velocity_array, 0);
-    int     NumberOfFrequencies = (int)PyArray_DIM(frequency_array, 0);
+    _Dcomplex   *Velocity           = (_Dcomplex *)PyArray_DATA((PyArrayObject *)velocity_array);
+    double      *Frequency          = (double*)PyArray_DATA((PyArrayObject *)frequency_array);
+    npy_intp    NumberOfData        = PyArray_DIM((PyArrayObject *)velocity_array, 0);
+    npy_intp    NumberOfFrequencies = PyArray_DIM((PyArrayObject *)frequency_array, 0);
 
-
-    //Create new numpy array for storing result
+    // Create new numpy array for storing result
     PyArrayObject *PowerSpectrum_object;
-    int dims[1]={NumberOfFrequencies};
-    PowerSpectrum_object = (PyArrayObject *) PyArray_FromDims(1,dims,NPY_DOUBLE);
-    double *PowerSpectrum  = (double*)PyArray_DATA(PowerSpectrum_object);
+    npy_intp dims[] = {NumberOfFrequencies};
+    PowerSpectrum_object = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+    double *PowerSpectrum = (double *)PyArray_DATA(PowerSpectrum_object);
 
     // Maximum Entropy Method Algorithm
     if (IntMethod < 0 || IntMethod > 1) {
