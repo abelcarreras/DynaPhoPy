@@ -195,8 +195,8 @@ static PyObject *atomic_displacements(PyObject *self, PyObject *arg, PyObject *k
 
 static _Dcomplex **pymatrix_to_c_array_complex(PyArrayObject *array)  {
 
-      npy_intp n = PyArray_DIMS(array)[0];
-      npy_intp m = PyArray_DIMS(array)[1];
+      npy_intp n = PyArray_DIM(array, 0);
+      npy_intp m = PyArray_DIM(array, 1);
 
       _Dcomplex ** c = malloc(n*sizeof(_Dcomplex));
 
@@ -211,8 +211,8 @@ static _Dcomplex **pymatrix_to_c_array_complex(PyArrayObject *array)  {
 
 static double  **pymatrix_to_c_array_real(PyArrayObject *array)  {
 
-      npy_intp n = PyArray_DIMS(array)[0];
-      npy_intp m = PyArray_DIMS(array)[1];
+      npy_intp n = PyArray_DIM(array, 0);
+      npy_intp m = PyArray_DIM(array, 1);
       //PyObject *transpose_array = PyArray_Transpose(array, dims);
 
       double  ** c = malloc(n*sizeof(double));
