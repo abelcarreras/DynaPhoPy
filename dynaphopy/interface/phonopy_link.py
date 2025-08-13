@@ -99,11 +99,11 @@ def get_phonon(structure, NAC=False, setup_forces=True, custom_supercell=None, s
 
     if setup_forces:
         if structure.get_force_constants() is not None:
-            phonon.set_force_constants(structure.get_force_constants().get_array())
+            phonon.force_constants = structure.get_force_constants().get_array()
         elif structure.get_force_sets() is not None:
             phonon.set_displacement_dataset(structure.get_force_sets().get_dict())
             phonon.produce_force_constants()
-            structure.set_force_constants(ForceConstants(phonon.get_force_constants(),
+            structure.set_force_constants(ForceConstants(phonon.force_constants,
                                                          supercell=structure.get_force_sets().get_supercell()))
         else:
             print('No force sets/constants available!')
@@ -160,7 +160,7 @@ def obtain_phonopy_dos(structure, mesh=(40, 40, 40), force_constants=None,
                             setup_forces=False,
                             custom_supercell=force_constants.get_supercell(),
                             NAC=NAC)
-        phonon.set_force_constants(force_constants.get_array())
+        phonon.force_constants = force_constants.get_array()
 
     if projected_on_atom < 0:
         phonon.run_mesh(mesh)
@@ -197,7 +197,7 @@ def obtain_phonopy_thermal_properties(structure, temperature, mesh=(40, 40, 40),
                             setup_forces=False,
                             custom_supercell=force_constants.get_supercell(),
                             NAC=NAC)
-        phonon.set_force_constants(force_constants.get_array())
+        phonon.force_constants = force_constants.get_array()
 
     phonon.run_mesh(mesh)
     phonon.run_thermal_properties(t_step=1, t_min=temperature, t_max=temperature)
@@ -228,7 +228,7 @@ def obtain_phonopy_group_velocity(structure, q_point, force_constants=None, NAC=
                             setup_forces=False,
                             custom_supercell=force_constants.get_supercell(),
                             NAC=NAC)
-        phonon.set_force_constants(force_constants.get_array())
+        phonon.force_constants = force_constants.get_array()
 
     return phonon.get_group_velocity_at_q(q_point)
 
@@ -239,7 +239,7 @@ def obtain_phonopy_mesh_from_force_constants(structure, force_constants, mesh=(4
                         setup_forces=False,
                         custom_supercell=force_constants.get_supercell(),
                         NAC=NAC)
-    phonon.set_force_constants(force_constants.get_array())
+    phonon.force_constants = force_constants.get_array()
 
     phonon.run_mesh(mesh)
     mesh_dict = phonon.get_mesh_dict()
@@ -255,7 +255,7 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None
         phonon = get_phonon(structure, NAC=NAC, setup_forces=False,
                             custom_supercell=force_constants.get_supercell())
 
-        phonon.set_force_constants(force_constants.get_array())
+        phonon.force_constants = force_constants.get_array()
     else:
         # print('Getting phonon dispersion relations')
         phonon = get_phonon(structure, NAC=NAC)
@@ -279,11 +279,7 @@ def obtain_phonon_dispersion_bands(structure, bands_ranges, force_constants=None
 def get_commensurate_points(structure, fc_supercell):
 
     phonon = get_phonon(structure, setup_forces=False, custom_supercell=fc_supercell)
-
-    primitive = phonon.get_primitive()
-    supercell = phonon.get_supercell()
-
-    dynmat2fc = DynmatToForceConstants(primitive, supercell)
+    dynmat2fc = DynmatToForceConstants(phonon.primitive, phonon.supercell)
     com_points = dynmat2fc.get_commensurate_points()
 
     return com_points
@@ -312,11 +308,7 @@ def get_equivalent_q_points_by_symmetry(q_point, structure, symprec=1e-5):
 def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, structure, fc_supercell, symmetrize=False):
 
     phonon = get_phonon(structure, setup_forces=False, custom_supercell=fc_supercell)
-
-    primitive = phonon.get_primitive()
-    supercell = phonon.get_supercell()
-
-    dynmat2fc = DynmatToForceConstants(primitive, supercell)
+    dynmat2fc = DynmatToForceConstants(phonon.primitive, phonon.supercell)
 
     size = structure.get_number_of_dimensions() * structure.get_number_of_primitive_atoms()
     eigenvectors = np.array([eigenvector.reshape(size, size, order='C').T for eigenvector in eigenvectors ])
