@@ -1257,7 +1257,7 @@ class Quasiparticle:
         phonopy_dos = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                        mesh=self.parameters.mesh_phonopy,
                                                        freq_min=0.01,
-                                                       freq_max=self.get_frequency_range()[-1],
+                                                       # freq_max=self.get_frequency_range()[-1],
                                                        freq_pitch=self.parameters.spectrum_resolution,
                                                        force_constants=force_constants,
                                                        projected_on_atom=self.parameters.project_on_atom,
@@ -1284,7 +1284,7 @@ class Quasiparticle:
             phonopy_dos_h = pho_interface.obtain_phonopy_dos(self.dynamic.structure,
                                                              mesh=self.parameters.mesh_phonopy,
                                                              freq_min=0.01,
-                                                             freq_max=self.get_frequency_range()[-1],
+                                                             # freq_max=self.get_frequency_range()[-1],
                                                              freq_pitch=self.parameters.spectrum_resolution,
                                                              projected_on_atom=self.parameters.project_on_atom,
                                                              NAC=self.parameters.use_NAC)
