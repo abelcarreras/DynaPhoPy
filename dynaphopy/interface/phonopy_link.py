@@ -335,7 +335,7 @@ def get_equivalent_q_points_by_symmetry(q_point, structure, symprec=None):
                         cell=structure.get_cell())
 
     tot_points = [list(q_point)]
-    for operation_matrix in Symmetry(bulk, symprec=symprec).get_reciprocal_operations():
+    for operation_matrix in Symmetry(bulk, symprec=symprec).reciprocal_operations:
         operation_matrix_q = np.dot(np.linalg.inv(structure.get_primitive_matrix()), operation_matrix.T)
         operation_matrix_q = np.dot(operation_matrix_q, structure.get_primitive_matrix())
 

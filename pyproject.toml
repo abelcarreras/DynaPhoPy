@@ -13,7 +13,7 @@ authors = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "phonopy>=2.0, <2.20",
+    "phonopy>=2.0",
     "numpy>=1.8.2",
     "scipy",
     "matplotlib",
