@@ -28,7 +28,8 @@ Homepage = "https://github.com/abelcarreras/DynaPhoPy"
 [project.optional-dependencies]
 hdf5 = ["h5py"]
 fftw = ["pyfftw"]
-cuda = ["cuda_functions"]
+# CUDA acceleration requires CUDA libraries and a nVidia CUDA compatible gpu card
+#cuda = ["cuda_functions"] # uv pip install cuda_functions
 all = ["h5py", "pyfftw"]
 
 [dependency-groups]
