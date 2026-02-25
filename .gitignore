@@ -1,0 +1,13 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+*.so
+
+# for tests
+unittest/*.dat
+unittest/*.yaml
+unittest/*.h5
