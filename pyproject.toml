@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=64", "numpy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dynaphopy"
+dynamic = ["version"]
+description = "dynaphopy module"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { text = "MIT License" }
+authors = [
+    { name = "Abel Carreras", email = "abelcarreras83@gmail.com" },
+]
+requires-python = ">=3.8"
+dependencies = [
+    "phonopy>=2.0, <2.20",
+    "numpy>=1.8.2",
+    "scipy",
+    "matplotlib",
+    "seekpath",
+    "PyYAML",
+    "windows-curses; sys_platform == 'win32' or sys_platform == 'cygwin'",
+]
+
+[project.urls]
+Homepage = "https://github.com/abelcarreras/DynaPhoPy"
+
+[project.optional-dependencies]
+hdf5 = ["h5py"]
+fftw = ["pyfftw"]
+cuda = ["cuda_functions"]
+all = ["h5py", "pyfftw"]
+
+[tool.uv.extra-build-dependencies]
+cuda-functions = ["numpy"]
+
+[dependency-groups]
+dev = ["flake8", "pytest"]
+
+[tool.setuptools.dynamic]
+version = { attr = "dynaphopy.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dynaphopy", "dynaphopy.*"]
