@@ -31,9 +31,6 @@ fftw = ["pyfftw"]
 cuda = ["cuda_functions"]
 all = ["h5py", "pyfftw"]
 
-[tool.uv.extra-build-dependencies]
-cuda-functions = ["numpy"]
-
 [dependency-groups]
 dev = ["flake8", "pytest"]
 
