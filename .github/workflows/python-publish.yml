@@ -40,7 +40,7 @@ jobs:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     needs: [ test_code ]
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test_wheels'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pr-branch'
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-2022, macos-13 ]
@@ -68,7 +68,7 @@ jobs:
     name: Build source distribution
     needs: [ test_code ]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test_wheels'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pr-branch'
     steps:
       - uses: actions/checkout@v4
       - name: Set up uv
