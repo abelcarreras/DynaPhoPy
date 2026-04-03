@@ -1,4 +1,4 @@
-__version__ = '1.18.0'
+__version__ = '1.19.0'
 import dynaphopy.projection as projection
 import dynaphopy.parameters as parameters
 import dynaphopy.interface.phonopy_link as pho_interface
