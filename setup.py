@@ -1,8 +1,7 @@
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 use_setuptools = True
-
 import numpy
-import sys
+
 
 include_dirs_numpy = [numpy.get_include()]
 
@@ -55,24 +54,16 @@ displacements = Extension('dynaphopy.displacements',
                           sources=['c/displacements.c'])
 
 setup(name='dynaphopy',
-      version=get_version_number(),
       description='dynaphopy module',
       author='Abel Carreras',
       url='https://github.com/abelcarreras/DynaPhoPy',
       author_email='abelcarreras83@gmail.com',
-      packages=['dynaphopy',
-                'dynaphopy.power_spectrum',
-                'dynaphopy.analysis',
-                'dynaphopy.analysis.fitting',
-                'dynaphopy.interface',
-                'dynaphopy.interface.iofile'],
+      packages=find_packages(where="."),
       scripts=['scripts/dynaphopy',
                'scripts/concath5',
                'scripts/fitdata',
                'scripts/qha_extract',
                'scripts/rfc_calc'],
-      install_requires=['phonopy', 'numpy', 'scipy', 'matplotlib'] + (["windows-curses"] if sys.platform in ["win32", "cygwin"] else []),
-      license='MIT License',
       long_description=open('README.md').read(),
       long_description_content_type='text/markdown',
       ext_modules=[correlation, mem, displacements])
