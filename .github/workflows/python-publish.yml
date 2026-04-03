@@ -43,7 +43,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pr-branch'
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-2022, macos-13 ]
+        os: [ ubuntu-latest, windows-2022, macos-14 ]
 
     steps:
       - uses: actions/checkout@v4
