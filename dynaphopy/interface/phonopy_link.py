@@ -3,7 +3,6 @@ from phonopy.api_phonopy import Phonopy
 from phonopy.file_IO import parse_BORN, parse_FORCE_SETS, write_FORCE_CONSTANTS, parse_FORCE_CONSTANTS
 from phonopy.harmonic.dynmat_to_fc import DynmatToForceConstants
 from phonopy.harmonic.force_constants import set_tensor_symmetry_PJ
-from phonopy.units import VaspToTHz
 from phonopy.structure.symmetry import Symmetry
 from dynaphopy.parameters import Parameters
 
@@ -13,6 +12,11 @@ try:
 except ImportError:
     from phonopy.structure.atoms import Atoms as PhonopyAtoms
 
+try:
+    from phonopy.units import VaspToTHza
+except ImportError:
+    from phonopy.physical_units import get_physical_units
+    VaspToTHz = get_physical_units().DefaultToTHz
 
 class PhonopyLegacy(Phonopy):
     """
@@ -33,6 +37,17 @@ class PhonopyLegacy(Phonopy):
 
     def set_nac_params(self, nac_params):
         self.nac_params = nac_params
+
+    def get_force_constants(self):
+        return self.force_constants
+
+class SymmetryLegacy(Symmetry):
+    def get_reciprocal_operations(self):
+        return self.reciprocal_operations
+
+class DynmatToForceConstantsLegacy(DynmatToForceConstants):
+    def get_commensurate_points(self):
+        return self.commensurate_points
 
     def get_force_constants(self):
         return self.force_constants
@@ -319,7 +334,7 @@ def get_commensurate_points(structure, fc_supercell):
     primitive = phonon.get_primitive()
     supercell = phonon.get_supercell()
 
-    dynmat2fc = DynmatToForceConstants(primitive, supercell)
+    dynmat2fc = DynmatToForceConstantsLegacy(primitive, supercell)
     com_points = dynmat2fc.get_commensurate_points()
 
     return com_points
@@ -355,7 +370,7 @@ def get_renormalized_force_constants(renormalized_frequencies, eigenvectors, str
     primitive = phonon.get_primitive()
     supercell = phonon.get_supercell()
 
-    dynmat2fc = DynmatToForceConstants(primitive, supercell)
+    dynmat2fc = DynmatToForceConstantsLegacy(primitive, supercell)
 
     size = structure.get_number_of_dimensions() * structure.get_number_of_primitive_atoms()
     eigenvectors = np.array([eigenvector.reshape(size, size, order='C').T for eigenvector in eigenvectors])
